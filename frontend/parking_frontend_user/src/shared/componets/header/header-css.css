@@ -1,0 +1,88 @@
+/* Smart Parking — header strip (refined cool grey + blue accent) */
+
+.dashboard-header {
+  --hdr-bg: linear-gradient(135deg, #eef1f6 0%, #e8ecf2 50%, #f0f3f8 100%);
+  --hdr-shadow: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  --hdr-label: #64748b;
+  --hdr-title: #0f172a;
+  --hdr-stat-label: #64748b;
+  --hdr-stat-value: #0f172a;
+  --hdr-accent: #2563eb;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+  padding: 1.75rem 2rem 1.75rem 2.25rem;
+  margin: 1.25rem 1.25rem 0 0;
+  background: var(--hdr-bg);
+  border-radius: 0 24px 24px 0;
+  box-shadow: var(--hdr-shadow);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: none;
+}
+
+.dashboard-header__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dashboard-header__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hdr-label);
+}
+
+.dashboard-header__title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--hdr-title);
+  line-height: 1.2;
+}
+
+.dashboard-header__stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 2rem 2.5rem;
+}
+
+.dashboard-header__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 5.5rem;
+}
+
+.dashboard-header__stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--hdr-stat-value);
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-header__stat-value--accent {
+  color: var(--hdr-accent);
+}
+
+.dashboard-header__stat-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--hdr-stat-label);
+  line-height: 1.35;
+}
+
+@media (max-width: 720px) {
+  .dashboard-header {
+    margin-right: 0.75rem;
+    padding: 1.25rem 1.25rem;
+    border-radius: 16px;
+    border-left: 1px solid rgba(148, 163, 184, 0.22);
+  }
+}

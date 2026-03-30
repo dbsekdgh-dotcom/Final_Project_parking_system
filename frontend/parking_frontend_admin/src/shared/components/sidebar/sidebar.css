@@ -1,0 +1,147 @@
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background-color: #000000;
+  color: #ffffff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar__logo {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sidebar__exit {
+  background: transparent;
+  border: none;
+  color: #a3a3a3;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sidebar__exit:hover {
+  color: #fff;
+  background: #2a2a2a;
+}
+
+.sidebar__user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 20px;
+  background: #141414;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.sidebar__user-name {
+  font-weight: 500;
+}
+
+.sidebar__nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar__item {
+  margin: 0;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #e5e5e5;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar__link:hover {
+  background: #1f1f1f;
+  color: #fff;
+}
+
+.sidebar__link--active {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.sidebar__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.sidebar__link-text {
+  flex: 1;
+}
+
+.sidebar__badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__bottom {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #262626;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

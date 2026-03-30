@@ -1,0 +1,182 @@
+/* Smart Parking — sidebar (cool grey palette) */
+
+.sidebar {
+  --sb-bg: #f4f6f9;
+  --sb-border: rgba(15, 23, 42, 0.06);
+  --sb-text: #1e293b;
+  --sb-text-soft: #64748b;
+  --sb-active: #e2e8f0;
+  --sb-hover: rgba(226, 232, 240, 0.65);
+  --sb-badge-bg: #334155;
+  --sb-badge-text: #f8fafc;
+
+  display: flex;
+  flex-direction: column;
+  width: min(280px, 26vw);
+  min-width: 240px;
+  min-height: 100vh;
+  background: var(--sb-bg);
+  border-right: 1px solid var(--sb-border);
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04);
+  padding: 1.5rem 1.25rem 1rem;
+  box-sizing: border-box;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sidebar__brand-icon {
+  flex-shrink: 0;
+  color: var(--sb-text);
+}
+
+.sidebar__brand-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sb-text);
+}
+
+.sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 0.75rem;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  margin-bottom: 1.25rem;
+}
+
+.sidebar__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #cbd5e1 0%, #94a3b8 100%);
+  flex-shrink: 0;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.sidebar__user-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar__user-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--sb-text);
+  line-height: 1.3;
+}
+
+.sidebar__user-meta {
+  font-size: 0.8rem;
+  color: var(--sb-text-soft);
+  margin-top: 0.15rem;
+}
+
+.sidebar__badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: var(--sb-badge-bg);
+  color: var(--sb-badge-text);
+  letter-spacing: 0.02em;
+}
+
+.sidebar__divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(148, 163, 184, 0.35) 15%,
+    rgba(148, 163, 184, 0.35) 85%,
+    transparent
+  );
+  margin-bottom: 0.75rem;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--sb-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar__link:hover {
+  background: var(--sb-hover);
+}
+
+.sidebar__link--active {
+  background: var(--sb-active);
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.sidebar__link-icon {
+  flex-shrink: 0;
+  color: var(--sb-text-soft);
+}
+
+.sidebar__link--active .sidebar__link-icon {
+  color: var(--sb-text);
+}
+
+.sidebar__link-chevron {
+  margin-left: auto;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar__link--active .sidebar__link-chevron {
+  opacity: 0.5;
+}
+
+.sidebar__footer {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.sidebar__logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sb-text-soft);
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar__logout:hover {
+  background: rgba(226, 232, 240, 0.6);
+  color: var(--sb-text);
+}
