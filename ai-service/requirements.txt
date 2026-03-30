@@ -1,0 +1,14 @@
+ pandas 
+ openai
+ python-dotenv
+ langchain 
+ langchain-openai
+ langchain_community
+ faiss-cpu
+ redis
+ uvicorn 
+ fastapi
+ python-multipart
+ langchain-chroma
+ chromadb
+ pytz
