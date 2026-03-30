@@ -1,20 +1,28 @@
 
 services:
-
   backend:
-    build: ./backend
+    build: ./backend/parking_backend
+    container_name: parking-backend
     ports:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      # 중요: 백엔드에서 AI 서버를 찾을 때 localhost가 아닌 서비스 이름 'ai'를 사용하도록 설정
+      - AI_SERVER_URL=http://ai:8000
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     depends_on:
       - ai
     restart: always
 
   ai:
     build: ./ai-service
+    container_name: parking-ai
     ports:
       - "8000:8000"
     env_file:
       - .env
+    # AI 서버 내에서도 RDS 정보를 써야 한다면 env_file이 이미 해결해줍니다.
     restart: always
