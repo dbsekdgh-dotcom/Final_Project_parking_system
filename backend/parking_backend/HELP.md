@@ -5,14 +5,15 @@
 For further reference, please consider the following sections:
 
 * [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/4.0.4/gradle-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/4.0.4/gradle-plugin/packaging-oci-image.html)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/4.0.4/reference/data/sql.html#data.sql.jpa-and-spring-data)
-* [Spring Boot DevTools](https://docs.spring.io/spring-boot/4.0.4/reference/using/devtools.html)
-* [Spring Security](https://docs.spring.io/spring-boot/4.0.4/reference/web/spring-security.html)
-* [Thymeleaf](https://docs.spring.io/spring-boot/4.0.4/reference/web/servlet.html#web.servlet.spring-mvc.template-engines)
-* [Validation](https://docs.spring.io/spring-boot/4.0.4/reference/io/validation.html)
-* [Spring Web](https://docs.spring.io/spring-boot/4.0.4/reference/web/servlet.html)
+* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/4.0.5/gradle-plugin)
+* [Create an OCI image](https://docs.spring.io/spring-boot/4.0.5/gradle-plugin/packaging-oci-image.html)
+* [Spring Data JPA](https://docs.spring.io/spring-boot/4.0.5/reference/data/sql.html#data.sql.jpa-and-spring-data)
+* [Spring Boot DevTools](https://docs.spring.io/spring-boot/4.0.5/reference/using/devtools.html)
+* [OAuth2 Client](https://docs.spring.io/spring-boot/4.0.5/reference/web/spring-security.html#web.security.oauth2.client)
+* [Spring Security](https://docs.spring.io/spring-boot/4.0.5/reference/web/spring-security.html)
+* [Thymeleaf](https://docs.spring.io/spring-boot/4.0.5/reference/web/servlet.html#web.servlet.spring-mvc.template-engines)
+* [Validation](https://docs.spring.io/spring-boot/4.0.5/reference/io/validation.html)
+* [Spring Web](https://docs.spring.io/spring-boot/4.0.5/reference/web/servlet.html)
 
 ### Guides
 
