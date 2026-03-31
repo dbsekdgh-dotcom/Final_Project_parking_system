@@ -2,6 +2,7 @@ import React from 'react'
 import Header from '../components/header/Header'
 import Sidebar from '../components/sidebar/Sidebar'
 import './Mainlayout.css'
+import { Outlet } from 'react-router-dom'
 
 const Mainlayout = () => {
   return (
@@ -9,7 +10,9 @@ const Mainlayout = () => {
           <Sidebar />
           <div className="layout__main">
             <Header />
-            <main className="layout__content" aria-label="콘텐츠 영역" />
+            <main className="layout__content" aria-label="콘텐츠 영역" >
+              <Outlet/>
+              </main>
           </div>
         </div>
   )
