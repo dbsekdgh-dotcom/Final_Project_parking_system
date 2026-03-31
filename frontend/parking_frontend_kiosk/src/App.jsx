@@ -7,11 +7,10 @@ function App() {
 
   return (
   <Routes >
-      <Route path="/" element={<Home />} />
-
+      <Route path="/" element={<Home />}>
       {/* 2. 각 버튼에 매칭되는 경로들 */}
-
-
+        <Route index element={<Home/>}/>
+      </Route>
   </Routes>
   );
 }
