@@ -1,0 +1,14 @@
+.key-container{
+    display: grid;
+    /* 1프레임(1fr)씩 3개의 열 */
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+    width: 350px;
+}
+
+.key-button {
+    padding: 20px;
+    font-size: 1.2rem;
+    background-color: black;
+    color: aliceblue;
+}
