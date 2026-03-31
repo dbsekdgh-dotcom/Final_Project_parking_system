@@ -1,4 +1,4 @@
-package com.example.demo.domain.kiosk.parking.exit.enums;
+package com.example.demo.domain.kiosk.parking.enums;
 
 public enum ParkingTypeSnapshot {
     RESIDENT("입주민"),

@@ -1,12 +1,11 @@
-package com.example.demo.domain.kiosk.parking.exit.entity;
+package com.example.demo.domain.kiosk.parking.entity;
 
-import com.example.demo.domain.kiosk.parking.exit.enums.ParkingStatus;
-import com.example.demo.domain.kiosk.parking.exit.enums.ParkingTypeSnapshot;
-import com.example.demo.domain.kiosk.parking.exit.enums.PaymentStatus;
+import com.example.demo.domain.kiosk.parking.enums.ParkingStatus;
+import com.example.demo.domain.kiosk.parking.enums.ParkingTypeSnapshot;
+import com.example.demo.domain.kiosk.parking.enums.PaymentStatus;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
