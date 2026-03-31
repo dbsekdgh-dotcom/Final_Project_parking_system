@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
-
+@app.get("/")
 def root():
     return {"message": "주차 관리 AI 서비스가 정상 작동 중입니다."}
 
