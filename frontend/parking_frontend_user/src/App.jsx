@@ -1,4 +1,4 @@
-import {  BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import MainLayout from './shared/layouts/MainLayout.jsx'
 import DashBoard from './features/dash/DashBoard.jsx'
 

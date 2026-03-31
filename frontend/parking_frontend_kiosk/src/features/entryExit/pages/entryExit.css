@@ -1,0 +1,135 @@
+.entry-exit-page {
+  padding: 28px 36px;
+  font-family: Arial, sans-serif;
+}
+
+.entry-exit-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.entry-exit-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.back-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.entry-exit-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 50px;
+}
+
+.plate-panel {
+  border: 2px solid #000;
+  width: 470px;
+  height: 500px;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.plate-panel-label {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 18px;
+}
+
+.plate-underline {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 36px;
+}
+
+.plate-slot {
+  width: 28px;
+  text-align: center;
+  border-bottom: 3px solid #000;
+  font-size: 18px;
+  line-height: 1.2;
+  min-height: 22px;
+}
+
+.upload-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 14px 22px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 18px;
+  user-select: none;
+}
+
+.upload-button input {
+  display: none;
+}
+
+.upload-preview {
+  width: 320px;
+  height: 240px;
+  border: 1px dashed #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-placeholder {
+  color: #666;
+  font-size: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.ocr-status {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #000;
+}
+
+.ocr-error {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #b00020;
+  text-align: center;
+}
+
+.action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 120px;
+}
+
+.action-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  width: 240px;
+  padding: 18px 0;
+  font-size: 20px;
+  cursor: pointer;
+}
+

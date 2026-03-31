@@ -1,9 +1,8 @@
 import React from 'react'
-import './home.css'
 import { useNavigate } from 'react-router-dom'
 import './home.css'
 const Home = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate()
 
   return (
     <div className='full-page-container'>
