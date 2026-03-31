@@ -1,62 +1,39 @@
-import json
 import os
-import re
+import requests
+import uuid
 import subprocess
 
-
 class OCRService:
-    def extract_license_plate(self, image_path: str) -> str:
-        image_dir = os.path.abspath(os.path.dirname(image_path))
-        image_name = os.path.basename(image_path)
+    def extract_license_plate_from_url(self, image_url: str):
 
-        # openalpr 컨테이너에서 JSON(-j)으로 결과를 뽑아내고 plate 값을 추출합니다.
-        command = [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{image_dir}:/data",
-            "openalpr/openalpr",
-            "openalpr",
-            "-c",
-            "kr",
-            "-j",
-            f"/data/{image_name}",
-        ]
+        temp_filename = f"temp_{uuid.uuid4()}.jpg"
+
+        temp_path = os.path.join(os.getcwd(), temp_filename)
 
         try:
-            proc = subprocess.run(command, capture_output=True, text=True, check=False)
-        except Exception as e:
-            return f"Error: {str(e)}"
+            response = requests.get(image_url)
 
-        stdout = proc.stdout or ""
-        stderr = proc.stderr or ""
+            if response.status_code != 200:
+                return "S3 이미지 다운로드 실패"
 
-        if proc.returncode != 0:
-            # 컨테이너 실행 문제(이미지 없음 등)일 수 있으므로 raw 로그를 뒤에 반환
-            return f"Error: OCR failed (exit={proc.returncode}): {stderr.strip() or stdout.strip()}"
+            with open(temp_path, "wb") as f:
+                f.write(response.content)
+            
+            image_dir = os.path.dirname(temp_path)
+            command = [
+                "docker", "run", "--rm",
+                "-v", f"{image_dir}:/data",
+                "openalpr/openalpr",
+                "-c", "kr",
+                f"/data/{temp_filename}"
+            ]
+            # 명령어 실행 후 터미널에 찍히는 글자(stdout)를 낚아챕니다.
+            result = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            return result.decode("utf-8") # 바이트 데이터를 사람이 읽는 글자로 변환
+            
 
-        # 기대 포맷: openalpr -j 출력(JSON)
-        try:
-            data = json.loads(stdout)
-        except Exception:
-            # JSON 파싱 실패 시 fallback: plate 문자열 추출
-            match = re.search(r"plate[^A-Za-z0-9]*[:=]\s*([A-Za-z0-9가-힣\-]+)", stdout, re.IGNORECASE)
-            return match.group(1).strip() if match else stdout.strip()
-
-        results = data.get("results") or []
-        if not results:
-            return ""
-
-        first = results[0] or {}
-        plate = (
-            first.get("plate")
-            or first.get("plate_number")
-            or first.get("plateNumber")
-            or first.get("license_plate")
-        )
-
-        return str(plate).strip() if plate else ""
-
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
 
 ocr_service = OCRService()
