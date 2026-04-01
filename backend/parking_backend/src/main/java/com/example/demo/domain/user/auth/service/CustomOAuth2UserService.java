@@ -4,9 +4,10 @@ import com.example.demo.domain.user.auth.dtos.response.OAuthAttributes;
 import com.example.demo.domain.user.auth.repository.SocialAccountRepository;
 import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import com.example.demo.domain.user.entity.SocialAccount;
-import com.example.demo.domain.user.entity.User;
+import com.example.demo.domain.shared.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -46,7 +47,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 
         return new DefaultOAuth2User(
-                Collections.emptyList(),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
@@ -58,7 +59,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .map(socialAccount -> socialAccount.getUser())
                 .orElseGet(()->{
                     User user = userAuthRepository.findByEmail(attributes.getEmail())
-                            .orElseGet(()-> userAuthRepository.save(attributes.toUserEntity()));
+                            .orElseGet(()->userAuthRepository.save(attributes.toUserEntity()));
                     SocialAccount newSocialConnection = SocialAccount.builder()
                             .user(user)
                             .provider(attributes.getProvider())

@@ -1,5 +1,6 @@
 package com.example.demo.domain.user.entity;
 
+import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.user.enums.Provider;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

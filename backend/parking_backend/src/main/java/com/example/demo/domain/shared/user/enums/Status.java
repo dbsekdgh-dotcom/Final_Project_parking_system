@@ -1,4 +1,4 @@
-package com.example.demo.domain.user.enums;
+package com.example.demo.domain.shared.user.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

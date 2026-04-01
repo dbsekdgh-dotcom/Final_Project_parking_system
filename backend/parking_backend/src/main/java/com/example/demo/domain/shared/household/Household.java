@@ -1,4 +1,4 @@
-package com.example.demo.domain.shared.household.entity;
+package com.example.demo.domain.shared.household;
 
 import com.example.demo.domain.shared.household.enums.IsActive; // 새로 만든 이넘 임포트
 import jakarta.persistence.*;

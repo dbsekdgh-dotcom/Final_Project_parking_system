@@ -1,8 +1,8 @@
 package com.example.demo.domain.user.auth.dtos.response;
 
-import com.example.demo.domain.user.entity.User;
+import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.user.enums.Provider;
-import com.example.demo.domain.user.enums.Status;
+import com.example.demo.domain.shared.user.enums.Status;
 import lombok.Builder;
 import lombok.Getter;
 
