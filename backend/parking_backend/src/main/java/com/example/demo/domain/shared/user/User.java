@@ -1,4 +1,4 @@
-package com.example.demo.domain.user.entity;
+package com.example.demo.domain.shared.user;
 
 import com.example.demo.domain.shared.household.entity.Household;
 import com.example.demo.domain.user.enums.Status; // 방금 만든 Status 이넘 임포트

@@ -1,8 +1,9 @@
-package com.example.demo.domain.shared.parkinglog.entity;
+package com.example.demo.domain.shared.parkinglog;
 
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
+import com.example.demo.domain.shared.vehicle.Vehicle;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import lombok.AllArgsConstructor;
@@ -15,14 +16,16 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "vehicle")
 @Table(name = "parking_log")
 public class ParkingLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long parkingLogId;
     @Comment(" DETECTED : 저장되어있는 차량ID")
-    private Long vehicleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicleID")
+    private Vehicle vehicle;
     @Comment(" ENTERED : 주차된 자리 ID")
     private Long parkingSpaceId;
     @Comment(" DETECTED : 인식된 차량번호")

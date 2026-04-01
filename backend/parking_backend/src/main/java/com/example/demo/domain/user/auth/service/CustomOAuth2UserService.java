@@ -4,7 +4,7 @@ import com.example.demo.domain.user.auth.dtos.response.OAuthAttributes;
 import com.example.demo.domain.user.auth.repository.SocialAccountRepository;
 import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import com.example.demo.domain.user.entity.SocialAccount;
-import com.example.demo.domain.user.entity.User;
+import com.example.demo.domain.shared.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
