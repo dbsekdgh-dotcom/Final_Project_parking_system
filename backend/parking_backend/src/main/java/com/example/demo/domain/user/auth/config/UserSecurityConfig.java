@@ -1,0 +1,51 @@
+package com.example.demo.domain.user.auth.config;
+
+
+import com.example.demo.domain.user.auth.filter.JWTCheckFilter;
+import com.example.demo.domain.user.auth.handler.OAuth2SuccessHandler;
+import com.example.demo.domain.user.auth.jwt.JWTUtil;
+import com.example.demo.domain.user.auth.service.CustomOAuth2UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+@Configuration
+@EnableMethodSecurity
+@RequiredArgsConstructor
+public class UserSecurityConfig {
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final CorsConfigurationSource corsConfigurationSource;
+    private final JWTUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception {
+        http.csrf(csrf->csrf.disable())
+                .cors(cors->cors.configurationSource(corsConfigurationSource))
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+
+                .authorizeHttpRequests(auth->auth
+                        .requestMatchers("/","/login/**","/oauth2/**","/oauth-redirect/**").permitAll()
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth->oauth
+                        .userInfoEndpoint(userInfo->userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                );
+
+        return http.build();
+
+
+    }
+}
