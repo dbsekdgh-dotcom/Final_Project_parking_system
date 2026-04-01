@@ -5,6 +5,10 @@ import subprocess
 
 
 class OCRService:
+    def is_valid_korean_plate(self, plate: str) -> bool:
+        pattern = r"^\d{2,3}[가-힣]\d{4}$"
+        return bool(re.match(pattern, plate))
+    
     def extract_license_plate(self, image_path: str) -> str:
         image_dir = os.path.abspath(os.path.dirname(image_path))
         image_name = os.path.basename(image_path)
@@ -49,14 +53,72 @@ class OCRService:
             return ""
 
         first = results[0] or {}
-        plate = (
-            first.get("plate")
-            or first.get("plate_number")
-            or first.get("plateNumber")
-            or first.get("license_plate")
-        )
+        candidates = first.get("candidates",[])
+        if candidates:
+            plate = self.select_best_candidate(candidates)
+        else :
+            plate = first.get("plate","")
+            plate = self.normalize_plate(plate)
+        
+        return plate
+    
+    def is_valid_korean_plate(self, plate: str) -> bool:
+        pattern = r"^\d{2,3}[가-힣]\d{4}$"
+        return bool(re.match(pattern, plate))
+    
+    def normalize_plate(self, plate: str) -> str:
+        if not plate:
+            return ""
 
-        return str(plate).strip() if plate else ""
+        # 1. 공백/특수문자 제거
+        plate = re.sub(r"[^0-9A-Za-z가-힣]", "", plate)
 
+        # 2. 길이 보정 (7~8자리만 허용)
+        if len(plate) < 7 or len(plate) > 8:
+            return plate
 
+        # 한글 자리 교정
+        kor_fix_map = {
+            "B": "러",
+            "H": "허",
+            "A": "가",
+            "O": "오",
+            "U": "우",
+            "8": "버",
+        }
+
+        # 한국 번호판: 숫자 + 한글 + 숫자 구조
+        # ex) 123러4567 → index 3 또는 2가 한글
+        idx = 3 if len(plate) == 8 else 2
+
+        ch = plate[idx]
+
+        if ch in kor_fix_map:
+            plate = plate[:idx] + kor_fix_map[ch] + plate[idx + 1:]
+
+        return plate
+
+    def select_best_candidate(self,candidates: list) -> str:
+        best_plate = ""
+        best_score = -1
+        
+        for c in candidates:
+            plate = c.get("plate","")
+            confidence = c.get("confidence",0)
+            
+            normalized = self.normalize_plate(plate)
+            
+            score = confidence
+            
+            if self.is_valid_korean_plate(normalized):
+                score += 30
+            if re.search(r"[가-힣]",normalized):
+                score += 10
+            if re.search(r"[A-Za-z]",normalized):
+                score -= 15
+            
+            if score> best_score:
+                best_score=score
+                best_plate=normalized
+            return best_plate
 ocr_service = OCRService()
