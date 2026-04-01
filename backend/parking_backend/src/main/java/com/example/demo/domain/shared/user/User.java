@@ -1,7 +1,7 @@
 package com.example.demo.domain.shared.user;
 
-import com.example.demo.domain.shared.household.entity.Household;
-import com.example.demo.domain.user.enums.Status; // 방금 만든 Status 이넘 임포트
+import com.example.demo.domain.shared.household.Household;
+import com.example.demo.domain.shared.user.enums.Status; // 방금 만든 Status 이넘 임포트
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
