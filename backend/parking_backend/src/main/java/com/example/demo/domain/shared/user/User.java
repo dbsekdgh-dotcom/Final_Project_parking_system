@@ -1,7 +1,6 @@
 package com.example.demo.domain.shared.user;
 
-import com.example.demo.domain.shared.household.Household;
-import com.example.demo.domain.shared.user.enums.Status; // 방금 만든 Status 이넘 임포트
+import com.example.demo.domain.user.enums.Status; // 방금 만든 Status 이넘 임포트
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -51,17 +50,17 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Builder
-    public User(Household household, String password, String email, String name,
-                LocalDate birth, String phone, Status status) {
-        this.household = household;
-        this.password = password;
-        this.email = email;
-        this.name = name;
-        this.birth = birth;
-        this.phone = phone;
-        this.status = (status != null) ? status : Status.ACTIVE;
-    }
+//    @Builder
+//    public User(Household household, String password, String email, String name,
+//                LocalDate birth, String phone, Status status) {
+//        this.household = household;
+//        this.password = password;
+//        this.email = email;
+//        this.name = name;
+//        this.birth = birth;
+//        this.phone = phone;
+//        this.status = (status != null) ? status : Status.ACTIVE;
+//    }
 
     public void updateUserInfo(String name, String phone) {
         this.name = name;
