@@ -1,4 +1,4 @@
-package com.example.demo.domain.kiosk.parking.enums;
+package com.example.demo.domain.shared.parkinglog.enums;
 
 public enum PaymentStatus {
     NONE("결제 불필요"),
