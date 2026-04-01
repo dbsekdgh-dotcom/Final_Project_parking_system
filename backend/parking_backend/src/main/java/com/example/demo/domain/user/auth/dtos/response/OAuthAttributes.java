@@ -12,24 +12,25 @@ import java.util.Map;
 @Getter
 public class OAuthAttributes {
     private Map<String, Object> attributes;
-    private String nameAttributeKey;
+    private String nameAttributeKey; // Spring Security용 키 이름 (예: "response", "id")
+    private String providerId;       // DB 저장용 실제 고유 번호 (예: "234567...")
     private String name;
     private String email;
     private String phone;
     private Provider provider;
 
     @Builder
-    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey,
+    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String providerId,
                            String name, String email, String phone, Provider provider) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
+        this.providerId = providerId;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.provider = provider;
     }
 
-    // [번역기] 서비스별(naver/kakao) 추출 메서드 호출
     public static OAuthAttributes extractOAuthAttributes(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
         if ("naver".equals(registrationId)) {
             return extractFromNaver(userNameAttributeName, attributes);
@@ -37,8 +38,9 @@ public class OAuthAttributes {
         return extractFromKakao(userNameAttributeName, attributes);
     }
 
-    // 네이버에서 데이터 뽑기 (전부 다 들어온다고 가정)
+    // 네이버 추출 로직 (수정 완료)
     private static OAuthAttributes extractFromNaver(String userNameAttributeName, Map<String, Object> attributes) {
+        // 실제 데이터는 'response'라는 맵 안에 들어있음
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
         return OAuthAttributes.builder()
@@ -46,12 +48,16 @@ public class OAuthAttributes {
                 .email((String) response.get("email"))
                 .phone((String) response.get("mobile"))
                 .provider(Provider.NAVER)
-                .attributes(response)
-                .nameAttributeKey((String) response.get(userNameAttributeName))
+                /** * [중요] .attributes(attributes) 전체를 넣어야 합니다.
+                 * Spring Security가 userNameAttributeName(response)을 이 맵에서 찾기 때문입니다.
+                 */
+                .attributes(attributes)
+                .nameAttributeKey(userNameAttributeName)
+                .providerId((String) response.get("id"))
                 .build();
     }
 
-    // 카카오에서 데이터 뽑기 (전부 다 들어온다고 가정)
+    // 카카오 추출 로직 (수정 완료)
     private static OAuthAttributes extractFromKakao(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
@@ -62,22 +68,17 @@ public class OAuthAttributes {
                 .phone((String) kakaoAccount.get("phone_number"))
                 .provider(Provider.KAKAO)
                 .attributes(attributes)
-                .nameAttributeKey(String.valueOf(attributes.get(userNameAttributeName)))
+                .nameAttributeKey(userNameAttributeName)
+                .providerId(String.valueOf(attributes.get("id")))
                 .build();
     }
 
-    /**
-     * [엔티티 변환] 소셜 데이터를 우리 User 엔티티 빌더에 그대로 넣습니다.
-     * birth 등 소셜에서 직접 안 주는 값만 일단 예시로 넣어두었습니다.
-     */
     public User toUserEntity() {
         return User.builder()
                 .name(this.name)
                 .email(this.email)
                 .phone(this.phone)
                 .status(Status.ACTIVE)
-                // birth는 소셜 표준 응답에 없으므로, 엔티티의 NOT NULL을 피하기 위해
-                // 일단 오늘 날짜나 특정 날짜로 빌더를 완성합니다.
                 .birth(LocalDate.now())
                 .build();
     }
