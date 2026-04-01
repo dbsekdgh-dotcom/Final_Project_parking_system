@@ -1,6 +1,5 @@
 package com.example.demo.domain.shared.user;
 
-import com.example.demo.domain.shared.household.entity.Household;
 import com.example.demo.domain.user.enums.Status; // 방금 만든 Status 이넘 임포트
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,7 +17,7 @@ public class User {
     @Column(name = "user_id")
     private Long userId; // PK: BIGINT
 
-    // [핵심] household_id를 객체로 참조합니다.
+//     [핵심] household_id를 객체로 참조합니다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "household_id") // DB의 FK 컬럼명과 매핑
     private Household household;
@@ -51,21 +50,21 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Builder
-    public User(Household household, String password, String email, String name,
-                LocalDate birth, String phone, Status status) {
-        this.household = household;
-        this.password = password;
-        this.email = email;
-        this.name = name;
-        this.birth = birth;
-        this.phone = phone;
-        this.status = (status != null) ? status : Status.ACTIVE;
-    }
-
-    public void updateUserInfo(String name, String phone) {
-        this.name = name;
-        this.phone = phone;
-        this.updatedAt = LocalDateTime.now();
-    }
+//    @Builder
+//    public User(Household household, String password, String email, String name,
+//                LocalDate birth, String phone, Status status) {
+//        this.household = household;
+//        this.password = password;
+//        this.email = email;
+//        this.name = name;
+//        this.birth = birth;
+//        this.phone = phone;
+//        this.status = (status != null) ? status : Status.ACTIVE;
+//    }
+//
+//    public void updateUserInfo(String name, String phone) {
+//        this.name = name;
+//        this.phone = phone;
+//        this.updatedAt = LocalDateTime.now();
+//    }
 }
