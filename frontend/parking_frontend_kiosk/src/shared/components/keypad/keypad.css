@@ -12,3 +12,7 @@
     background-color: black;
     color: aliceblue;
 }
+.key-button:active{
+    background-color: #464646;
+    transition: background-color 0.2s ease;
+}
