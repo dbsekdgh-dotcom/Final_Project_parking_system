@@ -1,0 +1,48 @@
+.page-subtitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #000;
+  text-align: left;
+}
+
+.info-card-container {
+  background-color: #ffffff;
+  border: 2px solid #000000; 
+  padding: 30px; 
+  width: 350px; 
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; 
+  margin-bottom: 30px;
+}
+
+/* 각 정보 그룹 (Label + Value) */
+.info-group {
+  display: flex;
+  flex-direction: column; 
+  text-align: left; 
+}
+
+/* 위쪽에 위치한 회색 라벨 */
+.info-label {
+  color: #888888; 
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 5px; 
+}
+
+/* 아래쪽에 위치한 검은색 값 */
+.info-value {
+  color: #000000; 
+  font-size: 1.4rem; 
+  font-weight: 700;
+}
+
+/* 주차 요금만 빨간색으로 강조 */
+.fee-text {
+  color: #e74c3c; 
+  font-size: 1.4rem; 
+  font-weight: 700;
+}
