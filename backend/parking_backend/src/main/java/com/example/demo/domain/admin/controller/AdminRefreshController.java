@@ -1,13 +1,12 @@
 package com.example.demo.domain.admin.controller;
 
+import com.example.demo.global.security.admin.AdminAuthDto;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -16,6 +15,18 @@ import java.util.Map;
 @Log4j2
 public class AdminRefreshController {
     private final AdminJWTUtil adminJWTUtil;
+
+    @GetMapping("/admin/test")
+    public Map<String,Object> test(@AuthenticationPrincipal AdminAuthDto adminAuthDto){
+        log.info("----------- [Admin Test API] 호출 성공 -----------");
+
+        //인증된 관리자의 정보를 응답으로 보냄
+        return Map.of(
+                "message","관리자 인증에 성공했습니다! 성벽을 통과하셨네요.",
+                "loginId",adminAuthDto.getUsername(),
+                "name", adminAuthDto.getName()
+        );
+    }
 
     @RequestMapping("/admin/refresh")
     public Map<String,Object> refresh(@RequestHeader("Authorization")String authHeader,

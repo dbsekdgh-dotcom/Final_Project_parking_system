@@ -22,7 +22,20 @@ import java.util.Map;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AdminJWTUtil adminJWTUtil;
 
-    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException{
+        String path = request.getRequestURI();
+        log.info("----------- [Admin JWT Filter] Checking path: "+path+" -----------");
+
+        //로그인과 리프레시 경로는 이 필터를 타지 않고 바로 컨트롤러로 보냄.
+        if(path.startsWith("/admin/login") || path.startsWith("/admin/refresh")){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                  FilterChain filterChain) throws ServletException, IOException{
         //1. 헤더에서 Authorization값을 가져옴
         String headerAuth=request.getHeader("Authorization");
