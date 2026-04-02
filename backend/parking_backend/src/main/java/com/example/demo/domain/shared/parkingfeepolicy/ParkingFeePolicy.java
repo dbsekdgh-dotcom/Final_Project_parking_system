@@ -24,7 +24,7 @@ public class ParkingFeePolicy {
     @Column(name = "parking_fee_policy_id")
     private Long id;
 
-    @Column(name = "admin_id", nullable = false)
+
     @Comment("등록한 관리자 ID")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id")
