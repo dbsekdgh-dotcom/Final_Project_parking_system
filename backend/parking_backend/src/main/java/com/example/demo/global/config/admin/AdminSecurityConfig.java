@@ -42,7 +42,13 @@ public class AdminSecurityConfig {
         log.info("----------- [Admin Security Configuration Loading] -----------");
 
         //1. 세션 및 csrf 비활성화
-        http.sessionManagement(sessionConfig ->{
+        http
+
+
+                .securityMatcher("/admin/**")   //윤진추가
+
+
+                . sessionManagement(sessionConfig ->{
             sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS); //세션 생성하지 않기
         });
         http.csrf(csrf->csrf.disable());
