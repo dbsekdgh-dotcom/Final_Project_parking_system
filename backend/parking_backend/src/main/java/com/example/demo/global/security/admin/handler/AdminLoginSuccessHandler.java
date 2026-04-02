@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -44,12 +45,24 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
         });
         //3. 토큰 생성 (분단위 설정)
         Map<String,Object> claims = adminAuthDto.getClaims();
-        String accessToken=adminJWTUtil.generateToken(claims,5); //30분
+        String accessToken=adminJWTUtil.generateToken(claims,30); //30분
         String refreshToken=adminJWTUtil.generateToken(claims,60*24); //24시간
+        // Refresh Token을 위한 HttpOnly 쿠키 생성
+        // jakarta.servlet.http.Cookie 대신 Spring의 ResponseCookie를 쓰면 설정이 더 편합니다.
+        String cookieString = org.springframework.http.ResponseCookie.from("refreshToken",refreshToken)
+                .httpOnly(true) // JS 접근 차단(XSS방어)
+                .secure(false) // 로컬 테스트(http) 중이면 false, 배포시 true
+                .path("/") // 모든 경로에서 사용가능
+                .maxAge(24 * 60 * 60) // 쿠키 수명(24시간)
+                .sameSite("Lax") // CSRF 방어
+                .build()
+                .toString();
+        // 응답 헤더에 쿠키 추가
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieString);
+
         //4. responseDto에 담기
         AdminLoginResponse loginResponse = AdminLoginResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .loginId(adminAuthDto.getUsername()) //loginId
                 .adminName((String)claims.get("name"))
                 .build();
@@ -58,7 +71,6 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
         PrintWriter pw = response.getWriter();
         //DTO 객체를 JSON 문자열로 변환
         String jsonStr=gson.toJson(loginResponse);
-
         pw.println(jsonStr);
         pw.close();
     }

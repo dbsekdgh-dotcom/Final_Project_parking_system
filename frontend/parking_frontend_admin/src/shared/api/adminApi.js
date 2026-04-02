@@ -6,6 +6,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const adminApi = axios.create({
     baseURL: `${BASE_URL}/admin`, // 백엔드 관리자 공통 경로
     timeout: 10000, // 10초
+    withCredentials: true,
 });
 
 //2. Request Intercepter: 모든 요청에 전에 실행(통행증 부착)
@@ -32,28 +33,25 @@ adminApi.interceptors.response.use(
             console.log("Access Token 만료 감지, 재발급 시도 중..");
 
             try{
-                const oldAccessToken = localStorage.getItem('accessToken');
-                const refreshToken = localStorage.getItem('refreshToken');
-
                 // 백엔드의  /admin/refresh 호출 (재발급 API)
                 // 주의: 인스턴스(adminApi)가 아닌 생 axios를 써야 재귀 호출을 피함.
                 const res = await axios.post(`${BASE_URL}/admin/refresh`, null, {
-                    params: {refreshToken},
-                    headers: {Authorization: `Bearer ${oldAccessToken}`}
+                    withCredentials: true,
+                    headers: {Authorization: `Bearer ${localStorage.getItem('accessToken')}`}
                 });
 
-                //새 토큰들 저장
-                const {accessToken, refreshToken: newRefreshToken} = res.data;
+                //새 토큰 저장
+                const {accessToken} = res.data;
                 localStorage.setItem('accessToken',accessToken);
-                localStorage.setItem('refreshToken',newRefreshToken || refreshToken);
 
                 //원래 요청에 새 토큰 갈아 끼우고 다시 쏘기
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 return axios(originalRequest);
             }catch(refreshError){
+                console.log("Refresh Token 만료 또는 재발급 실패")
                 //리프레시 토큰까지 죽었다면 강제 로그아웃
                 localStorage.clear();
-                window.location.href = '/login'
+                window.location.href = '/admin'
                 return Promise.reject(refreshError);
             }
         }

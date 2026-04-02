@@ -15,9 +15,7 @@ const LoginForm = () => {
             console.log("로그인 응답 데이터: ",data);
 
             localStorage.setItem('accessToken',data.accessToken);
-            localStorage.setItem('refreshToken',data.refreshToken);
             localStorage.setItem('adminName',data.adminName);
-
             navigate('/admin/dashboard');
         } catch (error){
             alert('로그인에 실패했습니다. 아이디 또는 비밀번호를 확인해주세요.');

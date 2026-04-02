@@ -3,11 +3,17 @@ package com.example.demo.domain.admin.controller;
 import com.example.demo.global.security.admin.AdminAuthDto;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @RestController
@@ -17,51 +23,58 @@ import java.util.Map;
 public class AdminAuthController {
     private final AdminJWTUtil adminJWTUtil;
 
-//    @GetMapping("/admin/test")
-//    public Map<String,Object> test(@AuthenticationPrincipal AdminAuthDto adminAuthDto){
-//        log.info("----------- [Admin Test API] 호출 성공 -----------");
-//
-//        //인증된 관리자의 정보를 응답으로 보냄
-//        return Map.of(
-//                "message","관리자 인증에 성공했습니다! 성벽을 통과하셨네요.",
-//                "loginId",adminAuthDto.getUsername(),
-//                "name", adminAuthDto.getName()
-//        );
-//    }
-
     @PostMapping("/refresh")
-    public Map<String,Object> refresh(@RequestHeader("Authorization")String authHeader,
-                                      @RequestParam("refreshToken")String refreshToken){
+    public Map<String,Object> refresh(@RequestHeader(value = HttpHeaders.AUTHORIZATION,required = false)String authHeader,
+                                      HttpServletRequest request,
+                                      HttpServletResponse response){
         log.info("----------- [Admin Token Refresh] 시작 -----------");
 
-        //1. 기본 검증(토큰이 비어있는지 등)
+        // 쿠키에서 refreshToken 추출
+        String refreshToken = null;
+        if(request.getCookies() != null){
+            refreshToken = Arrays.stream(request.getCookies())
+                    .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // 기본 검증(토큰이 비어있는지 등)
         if (refreshToken==null)throw new RuntimeException("NULL_REFRESH");
         if (authHeader==null || authHeader.length() < 7)throw new RuntimeException("INVALID_HEADER");
 
         String accessToken = authHeader.substring(7);
 
-        //2. Access 토큰이 아직 살아있다면 그대로 반환
+        // Access 토큰이 아직 살아있다면 그대로 반환
         if(!isExpired(accessToken)){
-            log.info("Access토큰이 아직 유효함. 기존 토큰 반환.");
-            return Map.of("accessToken",accessToken,"refreshToken",refreshToken);
+            log.info("Access토큰이 아직 유효함. 기존 토큰 유지.");
+            return Map.of("accessToken",accessToken);
         }
-        //3. Access토큰이 만료되었다면 Refresh토큰 검증
+        // Access토큰이 만료되었다면 Refresh토큰 검증
         Claims claims = adminJWTUtil.validateToken(refreshToken);
-        //4. 새로운 Access토큰 발급(5분)
+        // 새로운 Access토큰 발급(30분)
         String newAccessToken = adminJWTUtil.generateToken(Map.of(
                 "loginId",claims.get("loginId"),
                 "name",claims.get("name"),
                 "role","ROLE_ADMIN"
-        ),5);
-        //5. Refresh토큰도 만료 임박(1시간 미만)했다면 같이 갱신
-        String newRefreshToken = refreshToken;
+        ),30);
+        // Refresh토큰도 만료 임박(1시간 미만)했다면 쿠키 갱신
         if(checkTime((Long) claims.get("exp"))){
-            newRefreshToken = adminJWTUtil.generateToken(Map.of(
+            log.info("Refresh 토큰 만료 임박. 새 쿠키 발급 중...");
+            String newRefreshToken = adminJWTUtil.generateToken(Map.of(
                     "loginId",claims.get("loginId"),
                     "name",claims.get("name")
             ), 60 * 24); // 24시간으로 갱신
+            ResponseCookie newCookie = ResponseCookie.from("refreshToken",newRefreshToken)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(24*60*60)
+                    .sameSite("Lax")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, newCookie.toString());
         }
-        return Map.of("accessToken",newAccessToken,"refreshToken",newRefreshToken);
+        return Map.of("accessToken",newAccessToken);
     }
 
     private boolean isExpired(String token){
