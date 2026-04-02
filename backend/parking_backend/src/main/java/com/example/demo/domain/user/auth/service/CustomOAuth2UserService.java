@@ -63,7 +63,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     SocialAccount newSocialConnection = SocialAccount.builder()
                             .user(user)
                             .provider(attributes.getProvider())
-                            .providerId(attributes.getProviderId()) // NameAttributeKey 대신 ProviderId 사용!
+                            .providerId(attributes.getNameAttributeKey())
                             .build();
                     socialAccountRepository.save(newSocialConnection);
                     return user;
