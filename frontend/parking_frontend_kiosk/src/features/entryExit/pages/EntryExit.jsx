@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./entryExit.css";
 
-const OCR_ENDPOINT = "http://localhost:8000/api/v1/entry/plate-ocr";
-const SLOT_COUNT = 7;
+const OCR_ENDPOINT = "http://localhost:8000/api/v1/parking/entryexit/";
+const SLOT_COUNT = 8;
 
 export default function EntryExit() {
   const navigate = useNavigate();
@@ -49,9 +49,12 @@ export default function EntryExit() {
       }
 
       const data = await res.json();
-
+      console.log("백엔드 응답 확인:", data);
       const next =
-        data?.plateNumber ?? data?.plate ?? data?.result ?? data?.licensePlate ?? "";
+      data?.plate_number ??
+        data?.plateNumber ??
+         data?.plate ??
+           "";
 
       if (typeof next !== "string" || next.trim().length === 0) {
         setOcrError("번호 인식 결과를 가져오지 못했습니다.");

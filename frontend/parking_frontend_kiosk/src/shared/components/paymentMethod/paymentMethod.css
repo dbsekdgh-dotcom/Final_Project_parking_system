@@ -1,0 +1,70 @@
+.payment-method-container {
+  background-color: #ffffff;
+  border: 2px solid #000000; 
+  padding: 30px; 
+  width: 350px; 
+  min-height: 400px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 70px;
+}
+
+.payment-box{
+    border: 2px solid #000000; 
+    padding: 0px 30px; 
+    width: 80%;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 10px;
+}
+.final-pay-btn:active{
+    background-color: #4e4e4e;
+    transition: background-color 0.2s ease;
+}
+.full-use-btn{
+    background-color: #4e4e4e;
+    transition: background-color 0.2s ease;
+}
+
+/* 현재 선택된 상태 */
+.payment-box.active {
+  background-color: #e9e9e9 !important;
+}
+
+/* 포인트 입력창과 버튼을 한 줄로 */
+.point-input-group {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.point-input {
+  flex: 1; /* 남은 공간 다 차지 */
+  height: 35px;
+  border: 1px solid #ccc;
+}
+
+.full-use-btn {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 2px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.final-pay-btn {
+  width: 100%;
+  height: 60px;
+  background-color: #000;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+}

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './sidebar.css'
+import { useNavigate } from 'react-router-dom'
 
 const mainNav = [
   { to: '#dashboard', label: '대시보드', id: 'dashboard' },
@@ -139,6 +140,15 @@ const iconsById = {
 
 export default function Sidebar() {
   const [activeId, setActiveId] = useState('dashboard')
+  const [adminName,setAdminName] = useState('Admin')
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    const savedName = localStorage.getItem('adminName')
+    if(savedName){
+      setAdminName(savedName)
+    }
+  },[])
 
   const renderLink = (item) => {
     const Icon = iconsById[item.id] || IconHome
@@ -158,6 +168,13 @@ export default function Sidebar() {
     )
   }
 
+  const handleLogout=()=>{
+    if(window.confirm("로그아웃 하시겠습니까?")) {
+      localStorage.clear();
+      navigate('/admin')
+    }
+  }
+
   return (
     <aside className="sidebar">
       <div className="sidebar__top">
@@ -169,7 +186,7 @@ export default function Sidebar() {
           </span>
           <span className="sidebar__title">Parking</span>
         </a>
-        <button type="button" className="sidebar__exit" aria-label="나가기">
+        <button type="button" className="sidebar__exit" aria-label="나가기" onClick={handleLogout}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
@@ -179,10 +196,7 @@ export default function Sidebar() {
       </div>
 
       <div className="sidebar__user">
-        <span className="sidebar__user-name">Admin 1</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <span className="sidebar__user-name">{adminName} 관리자님</span>
       </div>
 
       <ul className="sidebar__nav">{mainNav.map((item) => renderLink(item))}</ul>

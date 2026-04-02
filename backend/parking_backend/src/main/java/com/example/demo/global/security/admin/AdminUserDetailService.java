@@ -5,6 +5,7 @@ import com.example.demo.domain.admin.enums.AdminStatus;
 import com.example.demo.domain.admin.repository.AdminRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +29,7 @@ public class AdminUserDetailService implements UserDetailsService {
         //2. 계정 상태 체크 (ACTIVE 상태일때만 로그인 허용)
         if(admin.getStatus()!= AdminStatus.ACTIVE){
             log.error("---------- [AdminAuth] 비활성화된 계정 접근: "+loginId+" ----------");
-            throw new RuntimeException("비활성화된 관리자 계정입니다.");
+            throw new DisabledException("비활성화되거나 탈퇴된 관리자 계정입니다.");
         }
 
         //3. AdminAuthDto 객체 생성 및 반환
