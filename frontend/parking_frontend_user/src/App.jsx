@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import MainLayout from './shared/layouts/MainLayout.jsx'
-import DashBoard from './features/dash/DashBoard.jsx'
+import DashBoard from './features/dash/pages/DashBoard.jsx'
 import LoginPage from './features/auth/pages/LoginPage.jsx' // 1. 로그인 페이지 가져오기
 import SignupPage from './features/auth/pages/SignupPage.jsx'
 import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx'
