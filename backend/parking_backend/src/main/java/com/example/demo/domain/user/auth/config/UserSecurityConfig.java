@@ -36,6 +36,7 @@ public class UserSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception {
         http.csrf(csrf->csrf.disable())
+                .securityMatcher("/", "/login/**", "/oauth2/**", "/api/user/**", "/api/auth/**")
                 .cors(cors->cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
