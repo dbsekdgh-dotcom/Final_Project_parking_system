@@ -55,7 +55,6 @@ public class AdminSecurityConfig {
         http.authorizeHttpRequests(auth->auth
                 .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
-                .requestMatchers("/api/prepays/**").permitAll() // 테스트를 위해 잠깐 넣어둡니다....
                 .anyRequest().authenticated()
         );
 
@@ -72,7 +71,7 @@ public class AdminSecurityConfig {
         // 예외 처리 (권한 부족 시) -- 추후 확장성 고려해 작성함
         http.exceptionHandling(ex->ex.accessDeniedHandler(adminAccessDeniedHandler));
         // JWT 필터 추가
-        //http.addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
