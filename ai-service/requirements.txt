@@ -12,3 +12,9 @@
  langchain-chroma
  chromadb
  pytz
+<<<<<<< HEAD
+ boto3
+=======
+ ultralytics
+ easyocr
+>>>>>>> 70a4c1cc8f775918bcd8b6069a74ed2831fec665

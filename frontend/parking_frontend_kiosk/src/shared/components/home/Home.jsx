@@ -22,7 +22,7 @@ const Home = () => {
               </p>
               <button 
                 className="main-button" 
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/entry-exit')}
               >
                 입차/출차 시작
               </button>
