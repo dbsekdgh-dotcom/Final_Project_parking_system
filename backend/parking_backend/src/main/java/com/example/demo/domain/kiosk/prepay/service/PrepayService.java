@@ -10,7 +10,8 @@ import com.example.demo.domain.shared.parkinglog.repository.ParkinglogRepository
 import com.example.demo.domain.shared.reservation.enums.Status;
 import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
 import com.example.demo.domain.shared.subscription.repository.SubscriptionRepository;
-import com.example.demo.domain.shared.vehicle.repository.VehicleRepository;
+import com.example.demo.domain.shared.vehicle.VehicleRepository;
+import com.example.demo.domain.shared.vehicle.enums.VehicleStatus;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +92,7 @@ public class PrepayService {
             return true;
         }
         //정기권일 때
-        Long vehicleId=vehicleRepository.getVehicleIdByCarNumber(parkingLog.getCarNumberSnapshot()).orElse(null);
+        Long vehicleId=vehicleRepository.getVehicleIdByCarNumber(parkingLog.getCarNumberSnapshot(), VehicleStatus.ACTIVE).orElse(null);
         if(vehicleId!=null){
             Long subscriptionId=subscriptionRepository.getSubscriptionIdByVehicleId(vehicleId).orElse(null);
             if(subscriptionId!=null){
