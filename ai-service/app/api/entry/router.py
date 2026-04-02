@@ -19,7 +19,7 @@ class OCRService:
             return "설정 오류 (토큰 없음)"
 
         print(f"--- [Plate Recognizer] 실전 분석 시작 ---")
-        print(f"📸 분석할 S3 주소: {image_url}")
+        print(f" 분석할 S3 주소: {image_url}")
 
         try:
             # 1. S3 URL에서 이미지 데이터 가져오기 (메모리에 임시 저장)
