@@ -13,22 +13,23 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-public class AdminRefreshController {
+@RequestMapping("/admin")
+public class AdminAuthController {
     private final AdminJWTUtil adminJWTUtil;
 
-    @GetMapping("/admin/test")
-    public Map<String,Object> test(@AuthenticationPrincipal AdminAuthDto adminAuthDto){
-        log.info("----------- [Admin Test API] 호출 성공 -----------");
+//    @GetMapping("/admin/test")
+//    public Map<String,Object> test(@AuthenticationPrincipal AdminAuthDto adminAuthDto){
+//        log.info("----------- [Admin Test API] 호출 성공 -----------");
+//
+//        //인증된 관리자의 정보를 응답으로 보냄
+//        return Map.of(
+//                "message","관리자 인증에 성공했습니다! 성벽을 통과하셨네요.",
+//                "loginId",adminAuthDto.getUsername(),
+//                "name", adminAuthDto.getName()
+//        );
+//    }
 
-        //인증된 관리자의 정보를 응답으로 보냄
-        return Map.of(
-                "message","관리자 인증에 성공했습니다! 성벽을 통과하셨네요.",
-                "loginId",adminAuthDto.getUsername(),
-                "name", adminAuthDto.getName()
-        );
-    }
-
-    @RequestMapping("/admin/refresh")
+    @PostMapping("/refresh")
     public Map<String,Object> refresh(@RequestHeader("Authorization")String authHeader,
                                       @RequestParam("refreshToken")String refreshToken){
         log.info("----------- [Admin Token Refresh] 시작 -----------");
@@ -39,16 +40,18 @@ public class AdminRefreshController {
 
         String accessToken = authHeader.substring(7);
 
-        //2. Access 토큰이 아직 살아있다면? 그대로 반환
+        //2. Access 토큰이 아직 살아있다면 그대로 반환
         if(!isExpired(accessToken)){
+            log.info("Access토큰이 아직 유효함. 기존 토큰 반환.");
             return Map.of("accessToken",accessToken,"refreshToken",refreshToken);
         }
         //3. Access토큰이 만료되었다면 Refresh토큰 검증
         Claims claims = adminJWTUtil.validateToken(refreshToken);
-        //4. 새로운 Access토큰 발급(예:5분)
+        //4. 새로운 Access토큰 발급(5분)
         String newAccessToken = adminJWTUtil.generateToken(Map.of(
                 "loginId",claims.get("loginId"),
-                "name",claims.get("name")
+                "name",claims.get("name"),
+                "role","ROLE_ADMIN"
         ),5);
         //5. Refresh토큰도 만료 임박(1시간 미만)했다면 같이 갱신
         String newRefreshToken = refreshToken;
