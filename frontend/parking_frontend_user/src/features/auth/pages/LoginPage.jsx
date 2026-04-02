@@ -18,7 +18,7 @@ const LoginPage = () => {
         },
         onSuccess: (data) => {
             console.log("로그인 성공! 서버 응답:", data);
-            
+
             // 백엔드 UserLoginResponseDto 구조에 맞춰 저장
             localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
@@ -45,7 +45,7 @@ const LoginPage = () => {
 
     const onLogin = (e) => {
         e.preventDefault();
-        
+
         // 간단한 프론트엔드 자체 검증
         if (!email || !password) {
             alert("이메일과 비밀번호를 모두 입력해주세요.");
@@ -76,29 +76,29 @@ const LoginPage = () => {
 
                     <form className="loginForm" onSubmit={onLogin}>
                         <label className="fieldLabel" htmlFor="email">이메일</label>
-                        <input 
-                            id="email" 
-                            type="email" 
-                            placeholder="park@email.com" 
+                        <input
+                            id="email"
+                            type="email"
+                            placeholder="park@email.com"
                             className="fieldInput"
                             value={email}
                             onChange={onChange}
-                            required 
+                            required
                         />
 
                         <label className="fieldLabel" htmlFor="password">비밀번호</label>
-                        <input 
-                            id="password" 
-                            type="password" 
-                            placeholder="비밀번호" 
+                        <input
+                            id="password"
+                            type="password"
+                            placeholder="비밀번호"
                             className="fieldInput"
                             value={password}
                             onChange={onChange}
-                            required 
+                            required
                         />
 
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className="loginButton"
                             disabled={loginMutation.isPending}
                         >
