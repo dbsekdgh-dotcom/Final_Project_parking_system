@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./entryExit.css";
 
-const OCR_ENDPOINT = "http://localhost:8000/api/v1/entry/plate-ocr";
-const SLOT_COUNT = 7;
+const OCR_ENDPOINT = "http://localhost:8000/api/v1/entryexit/plate-ocr";
+const SLOT_COUNT = 8;
 
 export default function EntryExit() {
   const navigate = useNavigate();
