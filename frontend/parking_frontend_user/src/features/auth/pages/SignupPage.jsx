@@ -36,10 +36,12 @@ const SignupPage = () => {
         mutationFn: (submitData) => api.post("/api/user/auth/local/signup", submitData), 
         onSuccess: () => {
             alert("회원가입 성공!! 로그인 해 주세요.");
-            navigate("/");
+            navigate("/"); // 로그인 페이지로 이동
         },
         onError: (error) => {
-            const serverErrorMessage = error.response?.data?.message || error.response?.data || "회원가입 실패!!";
+            // ⭐ 백엔드 UserAuthExceptionHandler에서 보낸 메시지 출력
+            // "이미 사용 중인 이메일입니다" 등이 출력됩니다.
+            const serverErrorMessage = error.response?.data?.message || "회원가입에 실패했습니다. 다시 시도해주세요.";
             alert(serverErrorMessage);
         }
     });
@@ -47,16 +49,19 @@ const SignupPage = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // 1. 비밀번호 일치 확인 (프론트엔드 1차 검증)
         if (formData.password !== formData.passwordCheck) {
             alert("비밀번호가 일치하지 않습니다.");
             return;
         }
 
+        // 2. 비밀번호 길이 확인 (백엔드 조건과 동일하게 맞춤)
         if (formData.password.length < 8) {
-            alert("비밀번호는 최소 8자 이상이어야 합니다.")
-            return
+            alert("비밀번호는 최소 8자 이상이어야 합니다.");
+            return;
         }
 
+        // passwordCheck를 제외한 나머지 데이터만 서버로 전송
         const { passwordCheck, ...submitData } = formData;
         mutate(submitData);
     };
@@ -96,6 +101,17 @@ const SignupPage = () => {
                         {isPending ? "가입 중..." : "회원가입"}
                     </button>
                 </form>
+
+                <div className="bottomRow">
+                    <span className="bottomText">계정이 있으신가요?</span>
+                    <button
+                        type="button"
+                        className="signupButton"
+                        onClick={() => navigate("/")}
+                    >
+                        로그인하기
+                    </button>
+                </div>
             </div>
         </div>
     );

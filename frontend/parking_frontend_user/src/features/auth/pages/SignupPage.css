@@ -80,3 +80,22 @@
   justify-self: end;
 }
 
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bottomText {
+  color: #7e819c;
+  font-size: 0.88rem;
+}
+
+.signupButton {
+  border: none;
+  background: transparent;
+  color: #6a78d1;
+  cursor: pointer;
+  font-weight: 700;
+}
+

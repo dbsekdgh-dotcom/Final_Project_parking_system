@@ -24,8 +24,14 @@ public enum ErrorCode {
     PAYMENT_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "결제가 완료되지 않았습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
 
-    // AUTH
+    // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "가입되지 않은 이메일 주소입니다."),
+    EMAIL_DUPLICATE(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
+    ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "사용할 수 없는 계정입니다. 관리자에게 문의하세요."),
 
     //EXIT & SETTLEMENT
     ALREADY_EXITED(HttpStatus.BAD_REQUEST,"이미 출차가 완료된 차량입니다."),

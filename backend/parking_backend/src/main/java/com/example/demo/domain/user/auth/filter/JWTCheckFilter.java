@@ -26,7 +26,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        log.info("check path: "+path);
+        log.info("JWTCheckFilter - 현재 요청 경로: {}", path);
+
+        // OPTIONS 요청(Preflight)은 필터를 타지 않게 설정 (CORS 해결 핵심)
+        if (request.getMethod().equals("OPTIONS")) {
+            return true;
+        }
+
+        // 필터를 타지 말아야 할 경로들
         if (path.startsWith("/login") ||
                 path.startsWith("/oauth2") ||
                 path.startsWith("/oauth-redirect") ||
@@ -34,8 +41,8 @@ public class JWTCheckFilter extends OncePerRequestFilter {
                 path.startsWith("/api/user/auth/local/signup") ||
                 path.startsWith("/api/user/auth/local/login") ||
                 path.startsWith("/api/test/")
-
         ) {
+            log.info("JWTCheckFilter - 필터 제외 경로 통과: {}", path);
             return true;
         }
         return false;
@@ -44,10 +51,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        log.info("-----------------JWTCheckFilter 실행--------------------");
+        log.info("----------------- JWTCheckFilter 실행 시작 --------------------");
 
         String authHeader = request.getHeader("Authorization");
 
+        // 헤더가 없거나 Bearer로 시작하지 않으면 다음 필터로 넘김 (인증 실패가 아님, 그냥 통과)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -61,7 +69,8 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             log.info("JWT 인증 성공: {}", claims);
 
             String email = (String) claims.get("email");
-            String role = (String) claims.get("role");
+            // role이 null일 경우를 대비해 기본값 부여
+            String role = claims.get("role") != null ? (String) claims.get("role") : "ROLE_USER";
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(
@@ -73,22 +82,20 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (RuntimeException e) {
-            log.error("JWT 검증 실패: {}",e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=utf-8");
-
-            PrintWriter printWriter = response.getWriter();
-
-            printWriter.println("{\"error\": \""+e.getMessage()+"\"}");
-            printWriter.close();
-
-
+            log.error("JWT 검증 실패: {}", e.getMessage());
+            sendErrorResponse(response, e.getMessage());
         } catch (Exception e) {
-            log.error("알 수 없는 인증 에러: {}",e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=utf-8");
-            response.getWriter().println("{\"error\": \"INVALID_TOKEN\"}");
+            log.error("알 수 없는 인증 에러: {}", e.getMessage());
+            sendErrorResponse(response, "INVALID_TOKEN");
         }
+    }
 
+    // 에러 응답 공통 메소드
+    private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter printWriter = response.getWriter();
+        printWriter.println("{\"error\": \"" + message + "\"}");
+        printWriter.close();
     }
 }
