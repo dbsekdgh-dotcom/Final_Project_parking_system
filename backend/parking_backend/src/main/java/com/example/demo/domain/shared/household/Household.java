@@ -14,4 +14,8 @@ public class Household {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long householdId;
     private Integer unitNo;
+    private Integer totalVisitCount;
+    private Integer todayVisitCount;
+    private Integer monthlyVisitCount;
+    private Integer activeReservationCount;
 }
