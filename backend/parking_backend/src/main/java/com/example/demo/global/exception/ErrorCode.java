@@ -25,7 +25,13 @@ public enum ErrorCode {
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
 
     // AUTH
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
+
+    //EXIT & SETTLEMENT
+    ALREADY_EXITED(HttpStatus.BAD_REQUEST,"이미 출차가 완료된 차량입니다."),
+    BLACKLIST_VEHICLE(HttpStatus.FORBIDDEN, "제한된 차량입니다. 관리자에게 문의하세요."),
+    GRACE_PERIOD_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "회차 시간이 초과되어 요금이 발생했습니다.");
+
 
     private final HttpStatus status;
     private final String message;

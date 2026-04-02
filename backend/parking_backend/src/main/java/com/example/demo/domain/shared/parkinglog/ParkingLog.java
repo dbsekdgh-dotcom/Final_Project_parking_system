@@ -9,6 +9,7 @@ import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.java.Log;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
@@ -118,4 +119,13 @@ public class ParkingLog {
     @Column(name = "exit_plate_image", length = 512)
     @Comment("EXIT_REQUESTED : 출차시 차량번호 이미지 저장 경로")
     private String exitPlateImage;
+
+    public void requestExit(LocalDateTime exitTime, ParkingStatus parkingStatus, Integer rawFee,Integer totalDiscountMinutes, Integer totalDiscountAmount,Long calculatedFee){
+        this.exitTime=exitTime;
+        this.parkingStatus=parkingStatus;
+        this.rawFee=rawFee;
+        this.totalDiscountMinutes=totalDiscountMinutes;
+        this.totalDiscountAmount=totalDiscountAmount;
+        this.calculatedFee=calculatedFee;
+    }
 }

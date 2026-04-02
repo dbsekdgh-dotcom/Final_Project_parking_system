@@ -95,3 +95,30 @@
     font-size: 2rem;
     font-weight: bold;
 }
+.error-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: #e74c3c; /* 빨간색 계열로 경고 의미 전달 */
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+
+.back-to-list-btn {
+    padding: 12px 24px;
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}

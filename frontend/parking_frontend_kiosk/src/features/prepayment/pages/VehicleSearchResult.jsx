@@ -3,12 +3,12 @@ import '../../../app.css'
 import './prepayment.css'
 import useVehicleStore from '../../../store/useVehicleStore'
 import { useQuery } from '@tanstack/react-query'
-import {searchCar} from '../api/carNumberApi'
+import {searchCar} from '../../../shared/api/VehicleApi'
 import { useNavigate } from 'react-router-dom'
 import VehicleList from '../../../shared/components/vehicleList/VehicleList'
 
 const VehicleSearchResult = () => {
-  const {searchKeyword,setSelectedVehicle}=useVehicleStore();
+  const {searchKeyword,selectedVehicle,setSelectedVehicle}=useVehicleStore();
   const navigate=useNavigate();
 
   const {data, isLoading, isError}=useQuery({
