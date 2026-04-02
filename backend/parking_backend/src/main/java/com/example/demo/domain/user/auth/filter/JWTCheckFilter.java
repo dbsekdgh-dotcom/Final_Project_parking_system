@@ -26,15 +26,25 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        log.info("check path: "+path);
-        if (path.startsWith("/login") ||
-                path.startsWith("/oauth2") ||
-                path.startsWith("/oauth-redirect") ||
-                path.startsWith("/api/user/auth/refresh") ||
-                path.startsWith("/api/test/")
-        ) {
+        log.info("JWTCheckFilter - 현재 경로 체크: " + path);
+
+        // 1. OPTIONS 메서드는 무조건 제외 (CORS 예비 요청)
+        if (request.getMethod().equals("OPTIONS")) {
             return true;
         }
+
+        // 2. 회원가입/로그인 경로는 필터를 타지 않도록 '확실하게' true 리턴
+        // path.startsWith() 대신 정교하게 체크하거나 로그에 찍힌 경로와 똑같이 맞춰줍니다.
+        if (path.contains("/api/user/auth/local/signup") ||
+                path.contains("/api/user/auth/local/login") ||
+                path.contains("/api/user/auth/refresh") ||
+                path.startsWith("/login") ||
+                path.startsWith("/oauth2")) {
+
+            log.info("필터 제외 대상 경로이므로 실행하지 않음: " + path);
+            return true;
+        }
+
         return false;
     }
 
