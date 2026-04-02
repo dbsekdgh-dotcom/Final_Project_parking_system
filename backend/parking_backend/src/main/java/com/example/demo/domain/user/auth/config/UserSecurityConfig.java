@@ -37,7 +37,7 @@ public class UserSecurityConfig {
                 .addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/","/login/**","/oauth2/**","/oauth-redirect/**").permitAll()
+                        .requestMatchers("/","/login/**","/oauth2/**","/oauth-redirect/**", "/api/user/auth/refresh").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth->oauth
                         .userInfoEndpoint(userInfo->userInfo.userService(customOAuth2UserService))
