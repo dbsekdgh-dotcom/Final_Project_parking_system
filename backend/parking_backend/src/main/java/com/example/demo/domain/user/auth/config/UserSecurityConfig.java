@@ -34,20 +34,23 @@ public class UserSecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception {
-        http.csrf(csrf->csrf.disable())
-                .securityMatcher("/", "/login/**", "/oauth2/**", "/api/user/**", "/api/auth/**")
-                .cors(cors->cors.configurationSource(corsConfigurationSource))
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/", "/login/**", "/oauth2/**", "/api/user/**", "/api/auth/**")
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 1. 필터 추가 (JWT 체크)
                 .addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
 
-                .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/","/login/**","/oauth2/**","/oauth-redirect/**", "/api/user/auth/refresh",
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/", "/login/**", "/oauth2/**", "/oauth-redirect/**", "/api/user/auth/refresh",
                                 "/api/user/auth/local/signup", "/api/user/auth/local/login").permitAll()
-
-                        .anyRequest().authenticated())
-                .oauth2Login(oauth->oauth
-                        .userInfoEndpoint(userInfo->userInfo.userService(customOAuth2UserService))
+                        .anyRequest().authenticated()
+                )
+                // 2. OAuth2 설정 (이 부분이 빠져있어서 추가했습니다)
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                 );
 
