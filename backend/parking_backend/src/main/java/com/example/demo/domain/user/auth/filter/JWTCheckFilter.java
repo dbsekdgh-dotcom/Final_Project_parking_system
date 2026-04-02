@@ -63,6 +63,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
         try {
             String accessToken = authHeader.substring(7);
+
             Claims claims = jwtUtil.validateToken(accessToken);
 
             log.info("JWT 인증 성공: {}", claims);
