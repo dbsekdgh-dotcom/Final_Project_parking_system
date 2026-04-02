@@ -27,7 +27,7 @@ public class ParkingFeePolicy {
 
     @Comment("등록한 관리자 ID")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id")
+    @JoinColumn(name = "admin_id",nullable = false)
     private Admin admin;
 
     @Enumerated(EnumType.STRING)
