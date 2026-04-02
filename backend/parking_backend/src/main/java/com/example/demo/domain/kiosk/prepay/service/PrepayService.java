@@ -1,10 +1,13 @@
 package com.example.demo.domain.kiosk.prepay.service;
 
 import com.example.demo.domain.kiosk.prepay.dtos.request.VehicleExitRequest;
+import com.example.demo.domain.shared.household.Household;
+import com.example.demo.domain.shared.household.repository.HouseholdRepository;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.repository.ParkinglogRepository;
+import com.example.demo.domain.shared.reservation.enums.Status;
 import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
 import com.example.demo.domain.shared.subscription.repository.SubscriptionRepository;
 import com.example.demo.domain.shared.vehicle.repository.VehicleRepository;
@@ -25,9 +28,15 @@ public class PrepayService {
     private final VehicleRepository vehicleRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final ReservationRepository reservationRepository;
+    private final HouseholdRepository householdRepository;
 
     //EXIT_REQUESTED 시 요금 계산
     public void calculateParkingFee(VehicleExitRequest vehicleExitRequest){
+
+        ParkingLog parkingLog=(ParkingLog) parkinglogRepository.findById(vehicleExitRequest.getParkingLogId()).orElseThrow(()->{
+            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
+        });
+
         int exitTime;
         int rowFee;
         int totalDiscountMinutes;
@@ -35,10 +44,7 @@ public class PrepayService {
         Long calculatedFee;
         boolean feeFree=false;
         boolean isBlackList=false;
-
-        ParkingLog parkingLog=(ParkingLog) parkinglogRepository.findById(vehicleExitRequest.getParkingLogId()).orElseThrow(()->{
-            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
-        });
+        Long parkingFeePolicyId=parkingLog.getParkingFeePolicyId();
 
         //이미 출차된 상태일 때
         if(vehicleExitRequest.getParkingStatus()== ParkingStatus.EXITED){
@@ -59,6 +65,14 @@ public class PrepayService {
         }
 
         //외부인/방문예약 구분
+        //타입이 방문인 경우 방문예약일이 경과했는지 체크
+        if(parkingTypeSnapshot.equals(ParkingTypeSnapshot.RESERVATION)){
+            Long householdId=reservationRepository.getHostUserIdbyCarNumber(parkingLog.getCarNumberSnapshot(), Status.ENTERED).orElse(null);
+            if(householdId!=null){
+                Household household=householdRepository.findById(householdId).orElse(null);
+
+            }
+        }
 
         //방문예약기한이 초과한경우 & 방문예약 횟수가 초과한경우 조회
 
@@ -85,13 +99,6 @@ public class PrepayService {
             }
             return false;
         }
-        //타입이 방문인 경우 방문예약일이 경과했는지 체크
-        if(parkingTypeSnapshot.equals(ParkingTypeSnapshot.RESERVATION)){
-            Long householdId=reservationRepository.getHostUserIdbyCarNumber(parkingLog.getCarNumberSnapshot()).orElse(null);
-
-
-        }
-
         return false;
     }
 
