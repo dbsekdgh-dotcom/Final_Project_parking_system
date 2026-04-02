@@ -20,6 +20,10 @@ public class AdminAuthDto extends User {
         this.name = name;
     }
 
+    public String getName(){
+        return name;
+    }
+
     public Map<String,Object> getClaims(){
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("loginId",loginId);
