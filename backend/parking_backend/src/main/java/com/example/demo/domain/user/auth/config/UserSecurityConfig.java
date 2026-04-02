@@ -1,6 +1,5 @@
 package com.example.demo.domain.user.auth.config;
 
-
 import com.example.demo.domain.user.auth.filter.JWTCheckFilter;
 import com.example.demo.domain.user.auth.handler.OAuth2SuccessHandler;
 import com.example.demo.domain.user.auth.jwt.JWTUtil;
@@ -28,21 +27,20 @@ public class UserSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final CorsConfigurationSource corsConfigurationSource;
     private final JWTUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // ⭐ 핵심: 이 필터 체인이 작동할 범위를 제한합니다.
+                // 관리자 API를 제외한 사용자 관련 API 경로를 모두 적어주세요.
+                .securityMatcher("/api/user/**", "/login/**", "/oauth2/**", "/", "/oauth-redirect/**")
+
                 .csrf(csrf -> csrf.disable())
-                // 1. CORS 설정을 활성화하고 아래에서 만든 Bean을 사용하도록 지정
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(userCorsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // 2. OPTIONS 요청(Preflight)은 무조건 허용해야 함
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/oauth-redirect/**", "/api/user/auth/refresh",
                                 "/api/user/auth/local/signup", "/api/user/auth/local/login").permitAll()
@@ -55,9 +53,9 @@ public class UserSecurityConfig {
         return http.build();
     }
 
-    // 3. CORS 상세 설정 Bean (주석 해제 및 보강)
+    // 3. AdminSecurityConfig와 충돌을 피하기 위해 메서드 이름을 변경함
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource userCorsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 리액트 앱 주소 허용
@@ -73,4 +71,6 @@ public class UserSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 }
