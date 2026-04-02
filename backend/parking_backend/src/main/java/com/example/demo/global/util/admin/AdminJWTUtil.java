@@ -40,7 +40,7 @@ public class AdminJWTUtil {
     }
 
     //2. 토큰 검증
-    public Claims vaildateToken(String token){
+    public Claims validateToken(String token){
         Claims claim=null; //Map을 상속받은 인터페이스
         try {
             claim = Jwts.parser()

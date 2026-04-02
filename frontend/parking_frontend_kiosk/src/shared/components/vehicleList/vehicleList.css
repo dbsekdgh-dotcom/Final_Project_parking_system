@@ -1,0 +1,24 @@
+
+.vehicle-card {
+    width: 330px;
+    height: 60px;
+    padding: 10px;
+    font-size: 1.2rem;
+    background-color: rgb(255, 255, 255);
+    border: 2px black solid;
+    color: rgb(8, 8, 8);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vehicle-card:active{
+    background-color: #f0f0f0;
+}
+.vehicle-number{
+    letter-spacing: 2px;
+}
+.arrow-icon{
+    font-size: 2rem;
+    font-weight: bold;
+}

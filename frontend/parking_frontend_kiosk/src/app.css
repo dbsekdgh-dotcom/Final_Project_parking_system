@@ -4,10 +4,7 @@
   flex-direction: column;  /* 2. 요소들을 위아래(세로)로 배치 */
   justify-content: center; /* 3. 세로 방향 중앙 정렬 */
   align-items: center;     /* 4. 가로 방향 중앙 정렬 */
-  
   width: 100vw;            /* 5. 너비를 화면 전체(Viewport Width)로 */
   height: 100vh;           /* 6. 높이를 화면 전체(Viewport Height)로 */
-  
   margin: 0;               /* 기본 마진 제거 */
-  background-color: #f5f5f5; /* (선택) 배경색 */
 }
