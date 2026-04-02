@@ -7,38 +7,53 @@ import axios from "../api/axios";
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ email: "", password: ""});
-    const { email, password} = formData;
+    const [formData, setFormData] = useState({ email: "", password: "" });
+    const { email, password } = formData;
 
     const loginMutation = useMutation({
         mutationFn: async (loginData) => {
-            const response = await axios.post("/api/user/auth/local/login", loginData)
+            // 백엔드의 UserLoginController 경로와 일치하는지 확인하세요!
+            const response = await axios.post("/api/user/auth/local/login", loginData);
             return response.data;
         },
         onSuccess: (data) => {
-            console.log("서버가 준 데이터 전체:", data);
+            console.log("로그인 성공! 서버 응답:", data);
+            
+            // 백엔드 UserLoginResponseDto 구조에 맞춰 저장
             localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
             localStorage.setItem("userName", data.name);
+            localStorage.setItem("userEmail", data.email);
 
             alert(`${data.name}님, 환영합니다!`);
-            navigate("/dashboard")
+            navigate("/dashboard"); // 성공 시 대시보드로 이동
         },
         onError: (error) => {
-            const serverMessage = error.response?.data?.message || "로그인 정보가 올바르지 않습니다."
-            alert(serverMessage);
+            // ⭐ 백엔드 UserAuthExceptionHandler에서 던진 에러 메시지 추출
+            // error.response.data 구조: { status: 401, code: "LOGIN_FAILED", message: "..." }
+            const serverMessage = error.response?.data?.message || "로그인 중 오류가 발생했습니다.";
+            const errorCode = error.response?.data?.code;
+
+            console.error(`로그인 실패 [${errorCode}]:`, serverMessage);
+            alert(serverMessage); // 사용자에게 "비밀번호가 일치하지 않습니다" 등을 보여줌
         }
     });
+
     const onChange = (e) => {
-        setFormData({...formData, [e.target.id]: e.target.value});
+        setFormData({ ...formData, [e.target.id]: e.target.value });
     };
 
     const onLogin = (e) => {
         e.preventDefault();
-        loginMutation.mutate(formData)
-    };
+        
+        // 간단한 프론트엔드 자체 검증
+        if (!email || !password) {
+            alert("이메일과 비밀번호를 모두 입력해주세요.");
+            return;
+        }
 
-    
+        loginMutation.mutate(formData);
+    };
 
     return (
         <div className="loginPage">
@@ -66,8 +81,8 @@ const LoginPage = () => {
                             type="email" 
                             placeholder="park@email.com" 
                             className="fieldInput"
-                            value={email}      // ⭐ 상태 연결
-                            onChange={onChange} // ⭐ 핸들러 연결
+                            value={email}
+                            onChange={onChange}
                             required 
                         />
 
@@ -77,12 +92,11 @@ const LoginPage = () => {
                             type="password" 
                             placeholder="비밀번호" 
                             className="fieldInput"
-                            value={password}   // ⭐ 상태 연결
-                            onChange={onChange} // ⭐ 핸들러 연결
+                            value={password}
+                            onChange={onChange}
                             required 
                         />
 
-                        {/* ⭐ type="submit"으로 변경 및 로딩 중 비활성화 */}
                         <button 
                             type="submit" 
                             className="loginButton"
