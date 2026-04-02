@@ -1,0 +1,145 @@
+.loginPage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  padding: 24px;
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 430px;
+  background-color: #ffffff;
+  border: 1px solid #e7e6f2;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(86, 95, 132, 0.1);
+}
+
+.loginHeader {
+  background: #cfe0ff;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.loginHeader::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -60px;
+  width: 220px;
+  height: 160px;
+  background: radial-gradient(
+    circle at top right,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.35) 35%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  pointer-events: none;
+}
+
+.loginLogo {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #233b6e;
+  position: relative;
+  z-index: 1;
+}
+
+.loginMain {
+  padding: 26px 24px 22px;
+  display: grid;
+  gap: 14px;
+}
+
+.loginTitle {
+  margin: 0;
+  color: #32324d;
+}
+
+.loginSubtitle {
+  margin: 0;
+  color: #6a6b87;
+  font-size: 0.92rem;
+}
+
+.dividerRow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.dividerLine {
+  height: 1px;
+  background-color: #d7d9ea;
+}
+
+.dividerText {
+  color: #8b8daa;
+  font-size: 0.84rem;
+}
+
+.loginForm {
+  display: grid;
+  gap: 9px;
+}
+
+.fieldLabel {
+  font-size: 0.84rem;
+  color: #6f708b;
+}
+
+.fieldInput {
+  border: 1px solid #d9ddef;
+  border-radius: 10px;
+  padding: 11px 12px;
+  outline: none;
+  background-color: #fcfcff;
+}
+
+.loginButton {
+  margin-top: 6px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: #cfe0ff;
+  color: #233b6e;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(86, 95, 132, 0.1);
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+.loginButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(86, 95, 132, 0.12);
+  filter: brightness(0.99);
+}
+
+.loginButton:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(86, 95, 132, 0.1);
+}
+
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bottomText {
+  color: #7e819c;
+  font-size: 0.88rem;
+}
+
+.signupButton {
+  border: none;
+  background: transparent;
+  color: #6a78d1;
+  cursor: pointer;
+  font-weight: 700;
+}
+
