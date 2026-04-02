@@ -16,7 +16,8 @@ export const loginAdmin = async (loginData) => {
             headers: {
                 //시큐리티가 좋아하는 Content-Type로 명시해줌
                 'Content-Type':'application/x-www-form-urlencoded'
-            }
+            },
+            withCredentials: true
         });
         return response.data; // {accessToken,refreshToken,adminName ...} 반환
     }catch(error){

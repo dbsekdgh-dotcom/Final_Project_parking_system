@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,26 +39,27 @@ public class AdminSecurityConfig {
     private final AdminLoginFailureHandler adminLoginFailureHandler;
 
     @Bean
-    public SecurityFilterChain adminFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource, AdminJWTUtil adminJWTUtil) throws Exception{
+    public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception{
         log.info("----------- [Admin Security Configuration Loading] -----------");
 
-        //1. 세션 및 csrf 비활성화
+        // cors 설정 (리액트와 통신을 위해, 가장 선순위로 설정해줘야함)
+        http.cors(cors->cors.configurationSource(corsConfigurationSource()));
+
+        // 세션 및 csrf 비활성화
+        http.csrf(csrf->csrf.disable());
         http.sessionManagement(sessionConfig ->{
             sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS); //세션 생성하지 않기
         });
-        http.csrf(csrf->csrf.disable());
 
-        //2. cors 설정 (리액트와 통신을 위해)
-        http.cors(cors->cors.configurationSource(corsConfigurationSource()));
-
-        //3. 권한 설정 (인가)
+        // 권한 설정 (인가)
         http.authorizeHttpRequests(auth->auth
+                .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                 .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
                 .anyRequest().authenticated()
         );
 
-        //4. 로그인 설정 (핸들러 연결)
+        // 로그인 설정 (핸들러 연결)
         http.formLogin(form->form
                 .loginProcessingUrl("/admin/login") // 리액트에서 보낼 로그인 엔드포인트
                 .usernameParameter("loginId")
@@ -67,11 +69,9 @@ public class AdminSecurityConfig {
         );
         // 이 필터체인은 무조건 관리자 서비스만 쓰라는 의미 (UserUserSecurityConfig와 겹칠때를 대비)
         http.userDetailsService(adminUserDetailService);
-
-        //5. 예외 처리 (권한 부족 시) -- 추후 확장성 고려해 작성함
+        // 예외 처리 (권한 부족 시) -- 추후 확장성 고려해 작성함
         http.exceptionHandling(ex->ex.accessDeniedHandler(adminAccessDeniedHandler));
-
-        //6. JWT 필터 추가
+        // JWT 필터 추가
         http.addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -89,11 +89,13 @@ public class AdminSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 오리진(리액트 주소 등) 설정
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:[*]"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS"));
         // 쿠키나 인증 정보를 포함한 요청을 허용할지 여부
         configuration.setAllowCredentials(true);
+        // 브라우저가 Set-Cookie 헤더를 읽을 수 있도록 노출 설정
+        configuration.addExposedHeader("Set-Cookie");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**",configuration); // 모든 경로에 대해 위 설정 적용
         return source;
