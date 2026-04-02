@@ -16,6 +16,7 @@ const LoginPage = () => {
             return response.data;
         },
         onSuccess: (data) => {
+            console.log("서버가 준 데이터 전체:", data);
             localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
             localStorage.setItem("userName", data.name);
