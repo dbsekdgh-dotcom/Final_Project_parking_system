@@ -1,6 +1,9 @@
 package com.example.demo.domain.user.auth.handler;
 
+import com.example.demo.domain.shared.user.User;
+import com.example.demo.domain.shared.user.enums.Status;
 import com.example.demo.domain.user.auth.jwt.JWTUtil;
+import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.LocalDate; // ⭐ 추가
 import java.util.Map;
 
 @Slf4j
@@ -21,6 +25,7 @@ import java.util.Map;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
+    private final UserAuthRepository userAuthRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -28,35 +33,73 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String email = null;
+        String name = "Social User";
+        LocalDate birthDate = LocalDate.of(1900, 1, 1); // 기본값 설정 (엔티티가 nullable=false 이므로)
+        String phone = "010-0000-0000"; // 기본값 설정 (엔티티가 nullable=false 이므로)
 
-        log.info("### 전체 Attributes 데이터: {}", attributes);
+        log.info("### 소셜 로그인 시도 - 전체 Attributes: {}", attributes);
 
-        // 1. 네이버일 경우 (데이터가 'response' 맵 안에 있음)
-        if (attributes.get("response") != null) {
+        // 1. 서비스별 정보 추출
+        if (attributes.get("response") != null) { // 네이버
             Map<String, Object> naverResponse = (Map<String, Object>) attributes.get("response");
             email = (String) naverResponse.get("email");
-        }
-        // 2. 카카오일 경우 (데이터가 'kakao_account' 맵 안에 있음)
-        else if (attributes.get("kakao_account") != null) {
+            name = (String) naverResponse.get("name");
+
+            // 전화번호 추출 및 포맷팅 (010-1234-5678 형태라면 그대로 사용)
+            String mobile = (String) naverResponse.get("mobile");
+            if (mobile != null) phone = mobile;
+
+            // 생년월일 조합 및 LocalDate 변환
+            String year = (String) naverResponse.get("birthyear");
+            String day = (String) naverResponse.get("birthday");
+            if (year != null && day != null) {
+                try {
+                    birthDate = LocalDate.parse(year + "-" + day); // "1994-09-07" -> LocalDate
+                } catch (Exception e) {
+                    log.warn("### 생년월일 파싱 실패, 기본값 사용");
+                }
+            }
+        } else if (attributes.get("kakao_account") != null) { // 카카오
             Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
             email = (String) kakaoAccount.get("email");
-        }
-        // 3. 그 외 (구글 등 기본 구조)
-        else {
+            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+            if (profile != null) name = (String) profile.get("nickname");
+        } else {
             email = (String) attributes.get("email");
+            name = (String) attributes.get("name");
         }
 
         if (email == null) {
-            log.error("### 이메일 추출 실패! 인증 정보를 확인하세요.");
-            // 에러 페이지로 리다이렉트 하거나 예외 처리
+            log.error("### 이메일 추출 실패!");
             response.sendRedirect("http://localhost:5173/login?error=email_not_found");
             return;
         }
 
-        log.info("소셜 로그인 성공! 추출된 이메일: {}", email);
+        final String finalEmail = email;
+        final String finalName = (name != null) ? name : "소셜사용자";
+        final LocalDate finalBirth = birthDate;
+        final String finalPhone = phone;
 
-        // JWT 생성 및 리다이렉트 로직 (기존과 동일)
-        Map<String, Object> claims = Map.of("email", email, "role", "ROLE_USER");
+        // 2. DB 저장 로직
+        try {
+            userAuthRepository.findByEmail(finalEmail).orElseGet(() -> {
+                log.info("### 신규 소셜 사용자 등록: {}", finalEmail);
+                return userAuthRepository.save(User.builder()
+                        .email(finalEmail)
+                        .name(finalName)
+                        .birth(finalBirth) // LocalDate 타입으로 전달
+                        .phone(finalPhone) // String 타입으로 전달
+                        .status(Status.ACTIVE)
+                        .build());
+            });
+        } catch (Exception e) {
+            log.error("### DB 저장 에러: {}", e.getMessage());
+            response.sendRedirect("http://localhost:5173/login?error=db_error");
+            return;
+        }
+
+        // 3. JWT 발행 및 리다이렉트 (기존 동일)
+        Map<String, Object> claims = Map.of("email", finalEmail, "role", "ROLE_USER");
         String accessToken = jwtUtil.generateAccessToken(claims);
         String refreshToken = jwtUtil.generateRefreshToken(claims);
 
