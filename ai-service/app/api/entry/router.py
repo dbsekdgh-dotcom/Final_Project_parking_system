@@ -1,40 +1,56 @@
 import os
-import tempfile
+import requests
+import io
+from dotenv import load_dotenv
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+# 최상위 .env 로드 (아까 성공한 경로 설정 유지)
+parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
+env_path = os.path.join(parent_dir, ".env")
+load_dotenv(dotenv_path=env_path)
 
-from app.services.entry.ocr_service import ocr_service
+class OCRService:
+    def extract_license_plate_from_url(self, image_url: str):
+        """
+        [실전용] S3 URL을 받아 해당 이미지를 분석합니다.
+        """
+        API_TOKEN = os.getenv("PLATE_RECOGNIZER_TOKEN")
+        
+        if not API_TOKEN:
+            return "설정 오류 (토큰 없음)"
 
-api_router = APIRouter()
-
-
-@api_router.get("/test")
-def test_connection():
-    return {
-        "status": "success",
-        "message": "안내판(API Router)이 메인 스위치와 잘 연결되었습니다!"
-    }
-
-
-@api_router.post("/entry/plate-ocr")
-async def plate_ocr(file: UploadFile = File(...)):
-    if not file:
-        raise HTTPException(status_code=400, detail="파일이 비어 있습니다.")
-
-    suffix = os.path.splitext(file.filename or "")[1] or ".jpg"
-    try:
-        contents = await file.read()
-    except Exception:
-        raise HTTPException(status_code=400, detail="파일 읽기 실패")
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        image_path = os.path.join(tmpdir, f"upload{suffix}")
-        with open(image_path, "wb") as f:
-            f.write(contents)
+        print(f"--- [Plate Recognizer] 실전 분석 시작 ---")
+        print(f"📸 분석할 S3 주소: {image_url}")
 
         try:
-            plate_number = ocr_service.extract_license_plate(image_path)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"OCR 처리 실패: {str(e)}")
+            # 1. S3 URL에서 이미지 데이터 가져오기 (메모리에 임시 저장)
+            response = requests.get(image_url, timeout=10)
+            if response.status_code != 200:
+                return f"이미지 다운로드 실패 ({response.status_code})"
+            
+            # 이미지 바이트 데이터를 파일처럼 취급할 수 있게 변환
+            image_bytes = io.BytesIO(response.content)
 
-    return {"plateNumber": plate_number}
+            # 2. Plate Recognizer API에 전송 (파일 대신 메모리 데이터 전송)
+            api_response = requests.post(
+                "https://api.platerecognizer.com/v1/plate-reader/",
+                data=dict(regions=["kr"]),
+                files=dict(upload=image_bytes), # test.jpg 대신 다운로드한 데이터 사용
+                headers={"Authorization": f"Token {API_TOKEN}"}
+            )
+
+            # 3. 결과 처리
+            if api_response.status_code in [200, 201]:
+                result_data = api_response.json()
+                if result_data.get("results"):
+                    detected_plate = result_data["results"][0]["plate"]
+                    print(f"👉 최종 인식된 번호: {detected_plate}")
+                    return detected_plate.upper()
+                return "인식 실패"
+            else:
+                return f"API 에러 ({api_response.status_code})"
+
+        except Exception as e:
+            print(f"!!! 시스템 에러 발생 !!!: {str(e)}")
+            return f"에러: {str(e)}"
+
+ocr_service = OCRService()
