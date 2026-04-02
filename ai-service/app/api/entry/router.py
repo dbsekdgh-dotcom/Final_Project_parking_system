@@ -1,56 +1,53 @@
+from fastapi import APIRouter, UploadFile, File, HTTPException
 import os
-import requests
-import io
-from dotenv import load_dotenv
+import uuid
+import boto3  # S3 사용을 위해 필요
+from app.services.entry.ocr_service import ocr_service  # 위에서 만든 OCRService 임포트
 
-# 최상위 .env 로드 (아까 성공한 경로 설정 유지)
-parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
-env_path = os.path.join(parent_dir, ".env")
-load_dotenv(dotenv_path=env_path)
+router = APIRouter(prefix="/parking", tags=["Parking"])
 
-class OCRService:
-    def extract_license_plate_from_url(self, image_url: str):
-        """
-        [실전용] S3 URL을 받아 해당 이미지를 분석합니다.
-        """
-        API_TOKEN = os.getenv("PLATE_RECOGNIZER_TOKEN")
-        
-        if not API_TOKEN:
-            return "설정 오류 (토큰 없음)"
+# S3 설정 (환경변수 권장)
+S3_BUCKET = os.getenv("S3_BUCKET_NAME")
+s3_client = boto3.client('s3')
 
-        print(f"--- [Plate Recognizer] 실전 분석 시작 ---")
-        print(f" 분석할 S3 주소: {image_url}")
+@router.post("/entryexit")
+async def vehicle_entry(file: UploadFile = File(...)):
+    """
+    차량 입차 시 이미지를 받아 S3에 저장하고 번호판을 분석합니다.
+    """
+    # 1. 파일 확장자 체크
+    extension = file.filename.split(".")[-1].lower()
+    if extension not in ["jpg", "jpeg", "png"]:
+        raise HTTPException(status_code=400, detail="지원하지 않는 이미지 형식입니다.")
 
-        try:
-            # 1. S3 URL에서 이미지 데이터 가져오기 (메모리에 임시 저장)
-            response = requests.get(image_url, timeout=10)
-            if response.status_code != 200:
-                return f"이미지 다운로드 실패 ({response.status_code})"
-            
-            # 이미지 바이트 데이터를 파일처럼 취급할 수 있게 변환
-            image_bytes = io.BytesIO(response.content)
+    # 2. S3에 저장할 고유 파일명 생성
+    file_name = f"entry/{uuid.uuid4()}.{extension}"
 
-            # 2. Plate Recognizer API에 전송 (파일 대신 메모리 데이터 전송)
-            api_response = requests.post(
-                "https://api.platerecognizer.com/v1/plate-reader/",
-                data=dict(regions=["kr"]),
-                files=dict(upload=image_bytes), # test.jpg 대신 다운로드한 데이터 사용
-                headers={"Authorization": f"Token {API_TOKEN}"}
-            )
+    try:
+        # 3. S3 업로드
+        # file.file을 직접 읽어 S3에 전송합니다.
+        s3_client.upload_fileobj(
+            file.file,
+            S3_BUCKET,
+            file_name,
+            ExtraArgs={'ContentType': file.content_type}
+        )
 
-            # 3. 결과 처리
-            if api_response.status_code in [200, 201]:
-                result_data = api_response.json()
-                if result_data.get("results"):
-                    detected_plate = result_data["results"][0]["plate"]
-                    print(f"👉 최종 인식된 번호: {detected_plate}")
-                    return detected_plate.upper()
-                return "인식 실패"
-            else:
-                return f"API 에러 ({api_response.status_code})"
+        # 4. S3 객체 URL 생성 (Public 읽기가 가능한 권한 설정이 필요합니다)
+        image_url = f"https://{S3_BUCKET}.s3.amazonaws.com/{file_name}"
 
-        except Exception as e:
-            print(f"!!! 시스템 에러 발생 !!!: {str(e)}")
-            return f"에러: {str(e)}"
+        # 5. [핵심] OCR 서비스 호출 (기존의 보정 로직이 포함된 함수)
+        # API 분석 + normalize + 정규식 검증이 한 번에 일어납니다.
+        detected_plate = ocr_service.extract_license_plate_from_url(image_url)
 
-ocr_service = OCRService()
+        # 6. 최종 결과 반환
+        return {
+            "success": True,
+            "plate_number": detected_plate,
+            "image_url": image_url,
+            "message": "입차 처리가 완료되었습니다."
+        }
+
+    except Exception as e:
+        print(f" 라우터 에러: {str(e)}")
+        raise HTTPException(status_code=500, detail="서버 내부 오류가 발생했습니다.")
