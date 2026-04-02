@@ -18,26 +18,31 @@ const SignupPage = () => {
 
     const handleChange = (e) => {
         const { id, value } = e.target;
-        setFormData({
-            ...formData,
-            [id]: value
-        });
+        
+        if (id === "phone") {
+            const rawValue = value.replace(/[^0-9]/g, "");
+            let formattedValue = "";
+            if (rawValue.length < 4) formattedValue = rawValue;
+            else if (rawValue.length < 8) formattedValue = `${rawValue.slice(0, 3)}-${rawValue.slice(3)}`;
+            else formattedValue = `${rawValue.slice(0, 3)}-${rawValue.slice(3, 7)}-${rawValue.slice(7, 11)}`;
+            
+            setFormData(prev => ({ ...prev, [id]: formattedValue }));
+        } else {
+            setFormData(prev => ({ ...prev, [id]: value }));
+        }
     };
 
-    
     const { mutate, isPending } = useMutation({
-        mutationFn: (submitData) => {
-            return api.post("/api/user/auth/local/signup", submitData);
-        }, 
+        mutationFn: (submitData) => api.post("/api/user/auth/local/signup", submitData), 
         onSuccess: () => {
             alert("회원가입 성공!! 로그인 해 주세요.");
             navigate("/");
         },
         onError: (error) => {
-            const serverErrorMessage = error.response?.data || "회원가입 실패!";
+            const serverErrorMessage = error.response?.data?.message || error.response?.data || "회원가입 실패!!";
             alert(serverErrorMessage);
         }
-    }); // 여기서 한 번에 닫힙니다.
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -45,6 +50,11 @@ const SignupPage = () => {
         if (formData.password !== formData.passwordCheck) {
             alert("비밀번호가 일치하지 않습니다.");
             return;
+        }
+
+        if (formData.password.length < 8) {
+            alert("비밀번호는 최소 8자 이상이어야 합니다.")
+            return
         }
 
         const { passwordCheck, ...submitData } = formData;
