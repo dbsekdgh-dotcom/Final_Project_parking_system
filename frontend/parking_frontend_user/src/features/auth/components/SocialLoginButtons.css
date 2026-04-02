@@ -1,0 +1,42 @@
+.socialLoginButtons {
+  display: grid;
+  gap: 10px;
+}
+
+.socialLoginButton {
+  border: 1px solid #e7e6f2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: #ffffff;
+  height: 48px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  box-shadow: 0 8px 18px rgba(86, 95, 132, 0.06);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease,
+    filter 120ms ease;
+}
+
+.socialLoginButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(86, 95, 132, 0.1);
+  border-color: #d7d9ea;
+}
+
+.socialLoginButton:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(86, 95, 132, 0.06);
+}
+
+.socialLoginButtonKakao {
+  background: #fee500;
+  border-color: #e8d200;
+  color: #000000;
+}
+
+.socialLoginButtonNaver {
+  background: #03c75a;
+  border-color: #02b252;
+  color: #000000;
+}
+

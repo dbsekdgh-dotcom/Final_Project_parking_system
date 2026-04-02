@@ -4,6 +4,9 @@ import PrepaymentMain from "./features/prepayment/pages/PrepaymentMain";
 import EntryExit from "./features/entryExit/pages/EntryExit";
 import VehicleSearchResult from "./features/prepayment/pages/VehicleSearchResult";
 import SelectedVehicleInfo from "./features/prepayment/pages/SelectedVehicleInfo";
+import EntryParkingSpace from "./features/entry/entryparkingspace/pages/EntryParkingSpace";
+import EntryConfirmationPopup from "./features/entry/entryconfirmation/pages/EntryConfirmationPopup";
+import EntryCompletePage from "./features/entry/entrycomplate/pages/EntryComplatePage";
 
 
 
@@ -15,6 +18,9 @@ function App() {
       {/* 2. 각 버튼에 매칭되는 경로들 */}
 
       <Route path="/entry-exit" element={<EntryExit />} />
+      <Route path="/entry-parkingspace" element={<EntryParkingSpace/>}/>
+      <Route path="/entry-confirmation" element={<EntryConfirmationPopup/>}/>
+      <Route path="/entry-compleate" element={<EntryCompletePage/>}/>
       <Route path="/prepayment" element={<PrepaymentMain/>}></Route>
       <Route path="/searchResult" element={<VehicleSearchResult />}></Route>
       <Route path="/selectedVehicle" element={<SelectedVehicleInfo />}></Route>
