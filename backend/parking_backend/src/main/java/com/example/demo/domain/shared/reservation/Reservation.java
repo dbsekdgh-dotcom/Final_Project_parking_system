@@ -44,4 +44,7 @@ public class Reservation {
     @CreationTimestamp
     private LocalDateTime createdAt;
     private LocalDateTime cancelledAt;
+    @Builder.Default
+    @Column(name = "is_free", nullable = false)
+    private boolean isFree=true;
 }

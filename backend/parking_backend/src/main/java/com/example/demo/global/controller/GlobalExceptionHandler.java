@@ -2,6 +2,8 @@ package com.example.demo.global.controller;
 
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,6 +15,7 @@ import com.example.demo.global.response.ErrorResponse;
 //  "code": "ALREADY_EXITED",
 //  "message": "이미 출차가 완료된 차량입니다."
 //}
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -27,6 +30,17 @@ public class GlobalExceptionHandler {
                 errorCode.getMessage() //이미 출차가 완료된 차량입니다.
         );
         return ResponseEntity.status(errorCode.getStatus()).body(response);
+    }
 
+    //상기 오류 외
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handlerException(Exception e){
+        //에러 수정을 위한 로그 메세지 출력
+        log.error("정의되지 않은 서버 에러",e);
+
+        //react에 반환할 내용
+        return ResponseEntity
+                .status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
+                .body(new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR.name(),ErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
     }
 }

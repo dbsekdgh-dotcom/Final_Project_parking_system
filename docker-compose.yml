@@ -13,8 +13,12 @@ services:
       - SPRING_DATASOURCE_URL=${DB_URL}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      # 백엔드가 컨테이너 환경에서 Redis를 찾을 수 있도록 설정 (localhost 대신 서비스명 redis 사용)
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - ai
+      - redis
     restart: always
 
   ai:
@@ -25,4 +29,14 @@ services:
     env_file:
       - .env
     # AI 서버 내에서도 RDS 정보를 써야 한다면 env_file이 이미 해결해줍니다.
+    restart: always
+    depends_on:
+      - redis
+  
+  # Redis 서비스
+  redis:
+    image: redis:latest
+    container_name: parking-redis
+    ports:
+      - "6379:6379"
     restart: always

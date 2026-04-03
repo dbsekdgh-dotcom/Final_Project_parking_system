@@ -1,4 +1,4 @@
-package com.example.demo.domain.kiosk.prepay.dtos.request;
+package com.example.demo.domain.kiosk.payment.dtos.request;
 
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class VehicleExitRequest {
+public class VehicleExitRequestDto {
     private Long parkingLogId;
     private String vehicleNumber;
     private LocalDateTime exiteTime;

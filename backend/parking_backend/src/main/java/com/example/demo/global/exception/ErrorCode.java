@@ -23,6 +23,13 @@ public enum ErrorCode {
     // PAYMENT
     PAYMENT_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "결제가 완료되지 않았습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
+    ALREADY_PROCESSING(HttpStatus.CONFLICT,"이미 결제가 진행 중인 차량입니다."),
+    PAYMENT_TIMEOUT(HttpStatus.BAD_REQUEST,"결제 제한 시간이 초과되었습니다."),
+    ALREADY_PAID(HttpStatus.BAD_REQUEST,"이미 정산이 완료된 차량입니다."),
+    ALREADY_EXITED(HttpStatus.GONE,"이미 출차가 완료된 차량입니다."),
+    BLACKLIST_VEHICLE(HttpStatus.FORBIDDEN, "제한된 차량입니다. 관리자에게 문의하세요."),
+    GRACE_PERIOD_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "회차 시간이 초과되어 요금이 발생했습니다."),
+    NOT_PAYMENT_TARGET(HttpStatus.BAD_REQUEST, "정산 대상 차량이 아닙니다."),
 
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -33,10 +40,14 @@ public enum ErrorCode {
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "사용할 수 없는 계정입니다. 관리자에게 문의하세요."),
 
-    //EXIT & SETTLEMENT
-    ALREADY_EXITED(HttpStatus.BAD_REQUEST,"이미 출차가 완료된 차량입니다."),
-    BLACKLIST_VEHICLE(HttpStatus.FORBIDDEN, "제한된 차량입니다. 관리자에게 문의하세요."),
-    GRACE_PERIOD_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "회차 시간이 초과되어 요금이 발생했습니다.");
+    //AI
+    AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),
+    PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY,"결제 서비스 호출에 실패하였습니다."),
+    REDIS_CONNECTION_FAILURE(HttpStatus.SERVICE_UNAVAILABLE,"실시간 서비스 이용이 불가능합니다."),
+
+    // [추가] 정의되지 않은 모든 서버 에러를 위한 공통 코드
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요."),
+    ;
 
 
     private final HttpStatus status;
