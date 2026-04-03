@@ -29,8 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //로그인과 리프레시 경로는 이 필터를 타지 않고 바로 컨트롤러로 보냄.
         if(path.startsWith("/admin/login")
-                || path.startsWith("/admin/refresh")
-                || path.startsWith("/mypage")){    //추가한 내용(테스트 후 주석으로 묶을 예정)
+                || path.startsWith("/admin/refresh")){    //윤진 =>추가한 내용(테스트 후 주석으로 묶을 예정)
             return true;
         }
         return false;

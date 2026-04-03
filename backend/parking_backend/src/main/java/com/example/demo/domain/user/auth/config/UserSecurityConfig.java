@@ -34,7 +34,7 @@ public class UserSecurityConfig {
         http
                 // ⭐ 핵심: 이 필터 체인이 작동할 범위를 제한합니다.
                 // 관리자 API를 제외한 사용자 관련 API 경로를 모두 적어주세요.
-                .securityMatcher("/api/user/**", "/login/**", "/oauth2/**", "/", "/oauth-redirect/**")
+                .securityMatcher("/api/user/**",   "/oauth2/**", "/oauth-redirect/**")//"/login/**","/",
 
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(userCorsConfigurationSource()))
@@ -42,9 +42,17 @@ public class UserSecurityConfig {
                 .addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/", "/login/**", "/oauth2/**", "/oauth-redirect/**", "/api/user/auth/refresh",
-                                "/api/user/auth/local/signup", "/api/user/auth/local/login").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/login/**",
+                                "/oauth2/**",
+                                "/oauth-redirect/**",
+                                "/api/user/auth/refresh",
+                                "/api/user/auth/local/signup",
+                                "/api/user/auth/local/login",
+                                "/api/user/mypage/**").permitAll()
                         .anyRequest().authenticated())
+
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
