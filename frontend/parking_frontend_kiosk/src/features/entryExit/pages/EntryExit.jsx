@@ -108,7 +108,7 @@ export default function EntryExit() {
         </div>
 
         <div className="action-panel">
-          <button className="action-button" type="button">
+          <button className="action-button" type="button" onClick={()=>{navigate("/entry-confirmation")}}>
             입차
           </button>
           <button className="action-button" type="button">
