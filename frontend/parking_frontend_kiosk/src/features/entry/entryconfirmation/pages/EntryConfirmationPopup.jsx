@@ -1,7 +1,9 @@
 import React from 'react';
 import './EntryConfirmationPopup.css';
+import { useNavigate } from 'react-router-dom';
 
 const EntryConfirmationPopup = ({ onConfirm, onCancel }) => {
+   const navigate=useNavigate();
   return (
     <div className="popup-overlay">
       <div className="popup-content">
@@ -24,10 +26,10 @@ const EntryConfirmationPopup = ({ onConfirm, onCancel }) => {
 
         {/* 버튼 영역 */}
         <div className="popup-buttons">
-          <button className="btn btn-primary" onClick={onConfirm}>
+          <button className="btn btn-primary" onClick={()=>navigate("/entry-parkingspace")}>
             입차
           </button>
-          <button className="btn btn-secondary" onClick={onCancel}>
+          <button className="btn btn-secondary" onClick={()=>navigate("/")}>
             회차
           </button>
         </div>
