@@ -15,6 +15,18 @@
   box-shadow: 0 8px 18px rgba(86, 95, 132, 0.06);
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease,
     filter 120ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.socialLoginButton__icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .socialLoginButton:hover {

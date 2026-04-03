@@ -1,6 +1,8 @@
 package com.example.demo.domain.admin.controller;
 
+import com.example.demo.global.redis.RedisService;
 import com.example.demo.global.security.admin.AdminAuthDto;
+import com.example.demo.global.util.admin.AdminJWTException;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
@@ -22,6 +24,7 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminAuthController {
     private final AdminJWTUtil adminJWTUtil;
+    private final RedisService redisService;
 
     @PostMapping("/refresh")
     public Map<String,Object> refresh(@RequestHeader(value = HttpHeaders.AUTHORIZATION,required = false)String authHeader,
@@ -50,8 +53,17 @@ public class AdminAuthController {
             log.info("Access토큰이 아직 유효함. 기존 토큰 유지.");
             return Map.of("accessToken",accessToken);
         }
-        // Access토큰이 만료되었다면 Refresh토큰 검증
+        // Access토큰이 만료되었다면 Refresh토큰 검증 및 클레임 추출
         Claims claims = adminJWTUtil.validateToken(refreshToken);
+        String loginId = (String) claims.get("loginId");
+
+        // Redis에 저장된 토큰과 대조
+        String savedToken = redisService.getRefreshToken(loginId);
+        if(savedToken == null || !savedToken.equals(refreshToken)){
+            log.warn("토큰 불일치!!! 탈취 의심 혹은 로그아운된 세션: {}", loginId);
+            throw new RuntimeException("INVALID_REFRESH_IN_REDIS");
+        }
+
         // 새로운 Access토큰 발급(30분)
         String newAccessToken = adminJWTUtil.generateToken(Map.of(
                 "loginId",claims.get("loginId"),
@@ -65,6 +77,10 @@ public class AdminAuthController {
                     "loginId",claims.get("loginId"),
                     "name",claims.get("name")
             ), 60 * 24); // 24시간으로 갱신
+
+            // Redis에 새로운 토큰 업데이트
+            redisService.saveRefreshToken(loginId, newRefreshToken, 60*24);
+
             ResponseCookie newCookie = ResponseCookie.from("refreshToken",newRefreshToken)
                     .httpOnly(true)
                     .secure(false)
@@ -94,5 +110,38 @@ public class AdminAuthController {
         long leftMin = gap / (1000 * 60);
         //1시간도 안남았는지..
         return leftMin < 60;
+    }
+
+    @PostMapping("/logout")
+    public Map<String, String> adminLogout(HttpServletRequest request, HttpServletResponse response){
+        String loginId =null;
+        //헤더에서 토큰을 꺼내 직접 아이디 추출
+        String headerAuth = request.getHeader("Authorization");
+        if(headerAuth!=null && headerAuth.startsWith("Bearer ")){
+            String accessToken = headerAuth.substring(7);
+            try{
+                Claims claims = adminJWTUtil.validateToken(accessToken);
+                loginId = (String) claims.get("loginId");
+            }catch (AdminJWTException e){
+                log.info("만료된 토큰으로 로그아웃 시도 중... ID 추출 시도");
+            } catch (Exception e){
+                log.error("로그아웃 토큰 파싱 실패: {}", e.getMessage());
+            }
+        }
+
+        log.info("----------- [Admin Logout] 시작: {} -----------", loginId);
+
+        if(loginId!=null){
+            redisService.deleteRefreshToken(loginId);
+        }
+        // 브라우저의 쿠키 무효화 (Max-Age를 0으로 설정)
+        ResponseCookie cookie = ResponseCookie.from("refreshToken","")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0) //즉시만료
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
+        return Map.of("result","success");
     }
 }

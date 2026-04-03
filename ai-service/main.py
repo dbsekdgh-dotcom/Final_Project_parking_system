@@ -1,12 +1,14 @@
 import numpy as np
 import cv2
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.domain.entryexitocr.router import entryexit_router
 from app.domain.payment.router import payment_router
-
+from app.domain.entry.entryimagesave.entryimagesaveRouter import s3_router
 app = FastAPI()
 
+print("AWS_REGION=",os.getenv("AWS_REGION"))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -19,11 +21,18 @@ app.include_router(
     entryexit_router,
     prefix="/api/v1/parking/entryexit",
     tags=["EntryExit OCR"]
+    
 )
 
 app.include_router(
     payment_router,
     prefix="api/v1/parking/payment"
+)
+
+app.include_router(
+    s3_router,
+    prefix="/api/v1/s3",
+    tags=["S3 Upload"]
 )
 
 if __name__ == "__main__":
