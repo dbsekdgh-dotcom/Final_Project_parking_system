@@ -57,7 +57,7 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info(">>>>>>>>>> Redis템플릿에 [{}]의 Refresh Token 기록 완료",loginId);
 
         // Refresh Token을 위한 HttpOnly 쿠키 생성
-        // jakarta.servlet.http.Cookie 대신 Spring의 ResponseCookie를 쓰면 설정이 더 편합니다.
+        // jakarta.servlet.http.Cookie 대신 Spring의 ResponseCookie를 쓰면 설정이 더 편함.
         String cookieString = org.springframework.http.ResponseCookie.from("refreshToken",refreshToken)
                 .httpOnly(true) // JS 접근 차단(XSS방어)
                 .secure(false) // 로컬 테스트(http) 중이면 false, 배포시 true

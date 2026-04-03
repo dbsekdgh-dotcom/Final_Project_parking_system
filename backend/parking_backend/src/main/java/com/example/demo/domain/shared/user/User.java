@@ -11,6 +11,7 @@ import java.time.ZonedDateTime; // 추가
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user")
 public class User {

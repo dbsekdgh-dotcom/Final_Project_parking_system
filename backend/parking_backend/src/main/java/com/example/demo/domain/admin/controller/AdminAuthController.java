@@ -1,5 +1,6 @@
 package com.example.demo.domain.admin.controller;
 
+import com.example.demo.global.redis.RedisService;
 import com.example.demo.global.security.admin.AdminAuthDto;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminAuthController {
     private final AdminJWTUtil adminJWTUtil;
+    private final RedisService redisService;
 
     @PostMapping("/refresh")
     public Map<String,Object> refresh(@RequestHeader(value = HttpHeaders.AUTHORIZATION,required = false)String authHeader,
@@ -50,8 +52,17 @@ public class AdminAuthController {
             log.info("Access토큰이 아직 유효함. 기존 토큰 유지.");
             return Map.of("accessToken",accessToken);
         }
-        // Access토큰이 만료되었다면 Refresh토큰 검증
+        // Access토큰이 만료되었다면 Refresh토큰 검증 및 클레임 추출
         Claims claims = adminJWTUtil.validateToken(refreshToken);
+        String loginId = (String) claims.get("loginId");
+
+        // Redis에 저장된 토큰과 대조
+        String savedToken = redisService.getRefreshToken(loginId);
+        if(savedToken == null || !savedToken.equals(refreshToken)){
+            log.warn("토큰 불일치!!! 탈취 의심 혹은 로그아운된 세션: {}", loginId);
+            throw new RuntimeException("INVALID_REFRESH_IN_REDIS");
+        }
+
         // 새로운 Access토큰 발급(30분)
         String newAccessToken = adminJWTUtil.generateToken(Map.of(
                 "loginId",claims.get("loginId"),
@@ -65,6 +76,10 @@ public class AdminAuthController {
                     "loginId",claims.get("loginId"),
                     "name",claims.get("name")
             ), 60 * 24); // 24시간으로 갱신
+
+            // Redis에 새로운 토큰 업데이트
+            redisService.saveRefreshToken(loginId, newRefreshToken, 60*24);
+
             ResponseCookie newCookie = ResponseCookie.from("refreshToken",newRefreshToken)
                     .httpOnly(true)
                     .secure(false)
