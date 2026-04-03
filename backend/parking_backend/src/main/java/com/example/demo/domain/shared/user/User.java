@@ -89,4 +89,8 @@ public class User {
         // 정보 수정 시에도 동일하게 적용
         this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
+
+    public void addLocalPassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }

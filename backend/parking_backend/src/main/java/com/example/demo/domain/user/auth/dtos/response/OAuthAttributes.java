@@ -44,6 +44,7 @@ public class OAuthAttributes {
     private static OAuthAttributes extractFromNaver(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
+        // 생년월일 파싱 로직 (잘 작성됨)
         String year = (String) response.get("birthyear");
         String day = (String) response.get("birthday");
         LocalDate parsedBirth = (year != null && day != null)
@@ -56,8 +57,10 @@ public class OAuthAttributes {
                 .phone((String) response.get("mobile"))
                 .birth(parsedBirth)
                 .provider(Provider.NAVER)
-                .attributes(attributes)
-                .nameAttributeKey(userNameAttributeName)
+                // ⭐ 수정 포인트: attributes를 'response' 맵으로 교체하고,
+                // nameAttributeKey를 "id"로 명시하는 것이 훨씬 안전합니다.
+                .attributes(response)
+                .nameAttributeKey("id")
                 .providerId((String) response.get("id"))
                 .build();
     }

@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom'
 import './sidebar-css.css'
+import AuthAccountLinkWidget from '../../../features/auth/components/AuthAccountLinkWidget'
 
 const navItems = [
-  { to: '/', label: '홈', end: true, icon: HomeIcon },
+  { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },
   { to: '/season-pass', label: '정기권', icon: TicketIcon },
   { to: '/visit', label: '방문 예약', icon: CalendarIcon },
   { to: '/mypage', label: '마이페이지', icon: UserIcon },
@@ -20,8 +21,7 @@ export function Sidebar() {
       <div className="sidebar__user">
         <div className="sidebar__avatar" aria-hidden />
         <div className="sidebar__user-text">
-          <div className="sidebar__user-name">김입주민</div>
-          <div className="sidebar__user-meta">A동 1001호</div>
+          <AuthAccountLinkWidget metaText="A동 1001호" />
         </div>
         <span className="sidebar__badge">입주민</span>
       </div>

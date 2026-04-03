@@ -33,6 +33,12 @@ public enum ErrorCode {
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "사용할 수 없는 계정입니다. 관리자에게 문의하세요."),
 
+    // AUTH (계정 연동 및 비밀번호 관련 추가)
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    ALREADY_LINKED_LOCAL(HttpStatus.CONFLICT, "이미 로컬 계정이 연동되어 있습니다."),
+    SOCIAL_LINK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "소셜 계정 연동 중 오류가 발생했습니다."),
+    PHONE_DUPLICATE(HttpStatus.CONFLICT, "이미 등록된 전화번호입니다."), // 아까 말한 폰 유니크 제약용
+
     //EXIT & SETTLEMENT
     ALREADY_EXITED(HttpStatus.BAD_REQUEST,"이미 출차가 완료된 차량입니다."),
     BLACKLIST_VEHICLE(HttpStatus.FORBIDDEN, "제한된 차량입니다. 관리자에게 문의하세요."),
