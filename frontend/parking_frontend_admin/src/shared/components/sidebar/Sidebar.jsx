@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './sidebar.css'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 const mainNav = [
   { to: '#dashboard', label: '대시보드', id: 'dashboard' },
@@ -140,15 +141,15 @@ const iconsById = {
 
 export default function Sidebar() {
   const [activeId, setActiveId] = useState('dashboard')
-  const [adminName,setAdminName] = useState('Admin')
+  const [adminName, setAdminName] = useState('Admin')
   const navigate = useNavigate();
 
-  useEffect(()=>{
+  useEffect(() => {
     const savedName = localStorage.getItem('adminName')
-    if(savedName){
+    if (savedName) {
       setAdminName(savedName)
     }
-  },[])
+  }, [])
 
   const renderLink = (item) => {
     const Icon = iconsById[item.id] || IconHome
@@ -168,12 +169,23 @@ export default function Sidebar() {
     )
   }
 
-  const handleLogout=()=>{
-    if(window.confirm("로그아웃 하시겠습니까?")) {
-      localStorage.clear();
-      navigate('/admin')
+  const handleLogout = async () => {
+    if (!window.confirm("로그아웃 하시겠습니까?")) return;
+
+    try {
+        // adminApi 인스턴스를 사용하면 인터셉터가 알아서 토큰을 붙여줍니다.
+        // baseURL이 '/api/admin'이므로, 뒤에는 '/logout'만 붙이면 됩니다.
+        await adminApi.post('/logout'); 
+
+        localStorage.clear();
+        alert('로그아웃 되었습니다.');
+        window.location.href = '/admin';
+    } catch (error) {
+        console.error("로그아웃 중 오류 발생:", error);
+        localStorage.clear();
+        window.location.href = '/admin';
     }
-  }
+};
 
   return (
     <aside className="sidebar">

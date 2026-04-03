@@ -7,6 +7,7 @@ import com.example.demo.domain.user.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Order(2)
 public class UserSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;

@@ -2,6 +2,7 @@ package com.example.demo.domain.admin.controller;
 
 import com.example.demo.global.redis.RedisService;
 import com.example.demo.global.security.admin.AdminAuthDto;
+import com.example.demo.global.util.admin.AdminJWTException;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
@@ -109,5 +110,38 @@ public class AdminAuthController {
         long leftMin = gap / (1000 * 60);
         //1시간도 안남았는지..
         return leftMin < 60;
+    }
+
+    @PostMapping("/logout")
+    public Map<String, String> adminLogout(HttpServletRequest request, HttpServletResponse response){
+        String loginId =null;
+        //헤더에서 토큰을 꺼내 직접 아이디 추출
+        String headerAuth = request.getHeader("Authorization");
+        if(headerAuth!=null && headerAuth.startsWith("Bearer ")){
+            String accessToken = headerAuth.substring(7);
+            try{
+                Claims claims = adminJWTUtil.validateToken(accessToken);
+                loginId = (String) claims.get("loginId");
+            }catch (AdminJWTException e){
+                log.info("만료된 토큰으로 로그아웃 시도 중... ID 추출 시도");
+            } catch (Exception e){
+                log.error("로그아웃 토큰 파싱 실패: {}", e.getMessage());
+            }
+        }
+
+        log.info("----------- [Admin Logout] 시작: {} -----------", loginId);
+
+        if(loginId!=null){
+            redisService.deleteRefreshToken(loginId);
+        }
+        // 브라우저의 쿠키 무효화 (Max-Age를 0으로 설정)
+        ResponseCookie cookie = ResponseCookie.from("refreshToken","")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0) //즉시만료
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
+        return Map.of("result","success");
     }
 }
