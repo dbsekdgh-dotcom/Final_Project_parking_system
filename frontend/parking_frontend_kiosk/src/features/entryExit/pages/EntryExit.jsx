@@ -1,16 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./entryExit.css";
+import { usePlateOCRMutation } from "../../entry/hooks/usePlateImage";
+import { useQueryClient } from "@tanstack/react-query";
 
-const OCR_ENDPOINT = "http://localhost:8000/api/v1/parking/entryexit/";
 const SLOT_COUNT = 8;
 
 export default function EntryExit() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending, isError } = usePlateOCRMutation();
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [plateNumber, setPlateNumber] = useState("");
-  const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState("");
 
   useEffect(() => {
@@ -24,56 +27,51 @@ export default function EntryExit() {
     return Array.from({ length: SLOT_COUNT }, (_, i) => chars[i] ?? "");
   }, [plateNumber]);
 
-  const handleFileChange = async (e) => {
+  // ✅ OCR 실행
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
 
-    setPlateNumber("");
-    setOcrError("");
-    setOcrLoading(true);
+    mutate(file, {
+      onSuccess: (data) => {
+        const plate =
+          data?.plate_number ??
+          data?.plateNumber ??
+          data?.plate ??
+          "";
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+        if (!plate) {
+          setOcrError("번호 인식 실패");
+          return;
+        }
 
-      const res = await fetch(OCR_ENDPOINT, {
-        method: "POST",
-        body: formData,
-      });
+        const cleaned = plate.replace(/\s+/g, "");
+        setPlateNumber(cleaned);
 
-      if (!res.ok) {
-        throw new Error(`OCR 요청 실패 (${res.status})`);
-      }
-
-      const data = await res.json();
-      console.log("백엔드 응답 확인:", data);
-      const next =
-      data?.plate_number ??
-        data?.plateNumber ??
-         data?.plate ??
-           "";
-
-      if (typeof next !== "string" || next.trim().length === 0) {
-        setOcrError("번호 인식 결과를 가져오지 못했습니다.");
-        return;
-      }
-
-      setPlateNumber(next.replace(/\s+/g, ""));
-    } catch {
-      setOcrError("OCR 호출 실패(백엔드 엔드포인트 확인 필요)");
-    } finally {
-      setOcrLoading(false);
-    }
+        // ⭐⭐⭐ 전역 세션 저장 (핵심)
+        queryClient.setQueryData(["entry-session"], {
+          plateNumber: cleaned,
+          file: file,
+        });
+      },
+      onError: () => {
+        setOcrError("OCR 실패");
+      },
+    });
   };
 
   return (
     <div className="entry-exit-page">
       <div className="entry-exit-topbar">
         <div className="entry-exit-title">입차 / 출차</div>
-        <button className="back-button" type="button" onClick={() => navigate("/")}>
+        <button
+          className="back-button"
+          type="button"
+          onClick={() => navigate("/")}
+        >
           돌아가기
         </button>
       </div>
@@ -99,18 +97,26 @@ export default function EntryExit() {
             {previewUrl ? (
               <img src={previewUrl} alt="업로드된 차량 사진" />
             ) : (
-              <div className="upload-placeholder">사진이 여기에 표시됩니다</div>
+              <div className="upload-placeholder">
+                사진이 여기에 표시됩니다
+              </div>
             )}
           </div>
 
-          {ocrLoading ? <div className="ocr-status">인식 중...</div> : null}
-          {ocrError ? <div className="ocr-error">{ocrError}</div> : null}
+          {isPending && <div className="ocr-status">인식 중...</div>}
+          {isError && <div className="ocr-error">OCR 요청 실패</div>}
+          {ocrError && <div className="ocr-error">{ocrError}</div>}
         </div>
 
         <div className="action-panel">
-          <button className="action-button" type="button" onClick={()=>{navigate("/entry-confirmation")}}>
+          <button
+            className="action-button"
+            type="button"
+            onClick={() => navigate("/entry-confirmation")}
+          >
             입차
           </button>
+
           <button className="action-button" type="button">
             출차
           </button>
@@ -119,4 +125,3 @@ export default function EntryExit() {
     </div>
   );
 }
-
