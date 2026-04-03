@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./entryExit.css";
+
 import { usePlateOCRMutation } from "../../entry/hooks/usePlateImage";
+import { useEntryMutation } from "../../entry/hooks/UseEntryMutate";
 import { useQueryClient } from "@tanstack/react-query";
 
 const SLOT_COUNT = 8;
@@ -10,11 +12,21 @@ export default function EntryExit() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { mutate, isPending, isError } = usePlateOCRMutation();
+  // ✅ OCR mutation
+  const {
+    mutate: ocrMutate,
+    isPending: ocrLoading,
+    isError: ocrError,
+  } = usePlateOCRMutation();
+
+  // ✅ 입차 mutation (S3 + DB)
+  const {
+    mutate: entryMutate,
+    isPending: entryLoading,
+  } = useEntryMutation();
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [plateNumber, setPlateNumber] = useState("");
-  const [ocrError, setOcrError] = useState("");
 
   useEffect(() => {
     return () => {
@@ -27,7 +39,7 @@ export default function EntryExit() {
     return Array.from({ length: SLOT_COUNT }, (_, i) => chars[i] ?? "");
   }, [plateNumber]);
 
-  // ✅ OCR 실행
+
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -35,7 +47,7 @@ export default function EntryExit() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
 
-    mutate(file, {
+    ocrMutate(file, {
       onSuccess: (data) => {
         const plate =
           data?.plate_number ??
@@ -44,27 +56,50 @@ export default function EntryExit() {
           "";
 
         if (!plate) {
-          setOcrError("번호 인식 실패");
+          alert("번호판 인식 실패");
           return;
         }
 
         const cleaned = plate.replace(/\s+/g, "");
         setPlateNumber(cleaned);
 
-        // ⭐⭐⭐ 전역 세션 저장 (핵심)
+       
         queryClient.setQueryData(["entry-session"], {
           plateNumber: cleaned,
           file: file,
         });
       },
-      onError: () => {
-        setOcrError("OCR 실패");
+      onError: (err) => {
+        console.error("OCR 실패:", err);
+        alert("OCR 요청 실패");
+      },
+    });
+  };
+
+
+  const handleEntry = () => {
+    const session = queryClient.getQueryData(["entry-session"]);
+
+    if (!session) {
+      alert("먼저 차량 사진을 업로드하세요.");
+      return;
+    }
+
+    entryMutate(session, {
+      onSuccess: () => {
+        // 성공하면 다음 화면 이동
+        navigate("/entry-confirmation");
+      },
+      onError: (err) => {
+        console.error("입차 실패:", err);
+        alert("입차 처리 실패");
       },
     });
   };
 
   return (
     <div className="entry-exit-page">
+      {/* ---------- TOP BAR ---------- */}
       <div className="entry-exit-topbar">
         <div className="entry-exit-title">입차 / 출차</div>
         <button
@@ -76,7 +111,9 @@ export default function EntryExit() {
         </button>
       </div>
 
+      {/* ---------- MAIN ---------- */}
       <div className="entry-exit-layout">
+        {/* 번호판 영역 */}
         <div className="plate-panel">
           <div className="plate-panel-label">차량 번호판</div>
 
@@ -103,18 +140,23 @@ export default function EntryExit() {
             )}
           </div>
 
-          {isPending && <div className="ocr-status">인식 중...</div>}
-          {isError && <div className="ocr-error">OCR 요청 실패</div>}
-          {ocrError && <div className="ocr-error">{ocrError}</div>}
+          {ocrLoading && (
+            <div className="ocr-status">번호판 인식 중...</div>
+          )}
+          {ocrError && (
+            <div className="ocr-error">OCR 요청 실패</div>
+          )}
         </div>
 
+        {/* 버튼 영역 */}
         <div className="action-panel">
           <button
             className="action-button"
             type="button"
-            onClick={() => navigate("/entry-confirmation")}
+            onClick={handleEntry}
+            disabled={entryLoading}
           >
-            입차
+            {entryLoading ? "입차 처리 중..." : "입차"}
           </button>
 
           <button className="action-button" type="button">
