@@ -1,11 +1,13 @@
 package com.example.demo.domain.shared.user;
 
 import com.example.demo.domain.shared.household.Household;
-import com.example.demo.domain.shared.user.enums.Status; // 방금 만든 Status 이넘 임포트
+import com.example.demo.domain.shared.user.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime; // 추가
 
 @Entity
 @Getter
@@ -17,15 +19,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long userId; // PK: BIGINT
+    private Long userId;
 
-    // [핵심] household_id를 객체로 참조합니다.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "household_id") // DB의 FK 컬럼명과 매핑
+    @JoinColumn(name = "household_id")
     private Household household;
 
     @Column(name = "password")
-    private String password; // 소셜 로그인은 NULL 가능하므로 기본값 없음
+    private String password;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -34,20 +35,20 @@ public class User {
     private String name;
 
     @Column(name = "birth", nullable = false)
-    private LocalDate birth; // DB: DATE -> Java: LocalDate
+    private LocalDate birth;
 
     @Column(name = "phone", nullable = false, unique = true, length = 30)
     private String phone;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = Status.ACTIVE; // 기본값 ACTIVE
+    private Status status = Status.ACTIVE;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
@@ -64,9 +65,33 @@ public class User {
         this.status = (status != null) ? status : Status.ACTIVE;
     }
 
+    // ==========================================
+    // [강제 KST 주입 로직]
+    // 시스템 서버 시간이 UTC라도 무시하고 한국 시간을 꽂습니다.
+    // ==========================================
+
+    @PrePersist
+    public void onPrePersist() {
+        // ZonedDateTime을 통해 물리적으로 한국(+09:00) 시간을 가져와서 변환
+        this.createdAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+        this.updatedAt = this.createdAt;
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+    }
+
+    // ==========================================
+
     public void updateUserInfo(String name, String phone) {
         this.name = name;
         this.phone = phone;
-        this.updatedAt = LocalDateTime.now();
+        // 정보 수정 시에도 동일하게 적용
+        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+    }
+
+    public void addLocalPassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }

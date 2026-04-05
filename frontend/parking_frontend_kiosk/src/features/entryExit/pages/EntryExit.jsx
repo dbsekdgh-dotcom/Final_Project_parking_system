@@ -2,16 +2,31 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./entryExit.css";
 
-const OCR_ENDPOINT = "http://localhost:8000/api/v1/parking/entryexit/";
+import { usePlateOCRMutation } from "../../entry/hooks/usePlateImage";
+import { useEntryMutation } from "../../entry/hooks/UseEntryMutate";
+import { useQueryClient } from "@tanstack/react-query";
+
 const SLOT_COUNT = 8;
 
 export default function EntryExit() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // ✅ OCR mutation
+  const {
+    mutate: ocrMutate,
+    isPending: ocrLoading,
+    isError: ocrError,
+  } = usePlateOCRMutation();
+
+  // ✅ 입차 mutation (S3 + DB)
+  const {
+    mutate: entryMutate,
+    isPending: entryLoading,
+  } = useEntryMutation();
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [plateNumber, setPlateNumber] = useState("");
-  const [ocrLoading, setOcrLoading] = useState(false);
-  const [ocrError, setOcrError] = useState("");
 
   useEffect(() => {
     return () => {
@@ -24,61 +39,81 @@ export default function EntryExit() {
     return Array.from({ length: SLOT_COUNT }, (_, i) => chars[i] ?? "");
   }, [plateNumber]);
 
-  const handleFileChange = async (e) => {
+
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
 
-    setPlateNumber("");
-    setOcrError("");
-    setOcrLoading(true);
+    ocrMutate(file, {
+      onSuccess: (data) => {
+        const plate =
+          data?.plate_number ??
+          data?.plateNumber ??
+          data?.plate ??
+          "";
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+        if (!plate) {
+          alert("번호판 인식 실패");
+          return;
+        }
 
-      const res = await fetch(OCR_ENDPOINT, {
-        method: "POST",
-        body: formData,
-      });
+        const cleaned = plate.replace(/\s+/g, "");
+        setPlateNumber(cleaned);
 
-      if (!res.ok) {
-        throw new Error(`OCR 요청 실패 (${res.status})`);
-      }
+       
+        queryClient.setQueryData(["entry-session"], {
+          plateNumber: cleaned,
+          file: file,
+        });
+      },
+      onError: (err) => {
+        console.error("OCR 실패:", err);
+        alert("OCR 요청 실패");
+      },
+    });
+  };
 
-      const data = await res.json();
-      console.log("백엔드 응답 확인:", data);
-      const next =
-      data?.plate_number ??
-        data?.plateNumber ??
-         data?.plate ??
-           "";
 
-      if (typeof next !== "string" || next.trim().length === 0) {
-        setOcrError("번호 인식 결과를 가져오지 못했습니다.");
-        return;
-      }
+  const handleEntry = () => {
+    const session = queryClient.getQueryData(["entry-session"]);
 
-      setPlateNumber(next.replace(/\s+/g, ""));
-    } catch {
-      setOcrError("OCR 호출 실패(백엔드 엔드포인트 확인 필요)");
-    } finally {
-      setOcrLoading(false);
+    if (!session) {
+      alert("먼저 차량 사진을 업로드하세요.");
+      return;
     }
+
+    entryMutate(session, {
+      onSuccess: () => {
+        // 성공하면 다음 화면 이동
+        navigate("/entry-confirmation");
+      },
+      onError: (err) => {
+        console.error("입차 실패:", err);
+        alert("입차 처리 실패");
+      },
+    });
   };
 
   return (
     <div className="entry-exit-page">
+      {/* ---------- TOP BAR ---------- */}
       <div className="entry-exit-topbar">
         <div className="entry-exit-title">입차 / 출차</div>
-        <button className="back-button" type="button" onClick={() => navigate("/")}>
+        <button
+          className="back-button"
+          type="button"
+          onClick={() => navigate("/")}
+        >
           돌아가기
         </button>
       </div>
 
+      {/* ---------- MAIN ---------- */}
       <div className="entry-exit-layout">
+        {/* 번호판 영역 */}
         <div className="plate-panel">
           <div className="plate-panel-label">차량 번호판</div>
 
@@ -99,18 +134,31 @@ export default function EntryExit() {
             {previewUrl ? (
               <img src={previewUrl} alt="업로드된 차량 사진" />
             ) : (
-              <div className="upload-placeholder">사진이 여기에 표시됩니다</div>
+              <div className="upload-placeholder">
+                사진이 여기에 표시됩니다
+              </div>
             )}
           </div>
 
-          {ocrLoading ? <div className="ocr-status">인식 중...</div> : null}
-          {ocrError ? <div className="ocr-error">{ocrError}</div> : null}
+          {ocrLoading && (
+            <div className="ocr-status">번호판 인식 중...</div>
+          )}
+          {ocrError && (
+            <div className="ocr-error">OCR 요청 실패</div>
+          )}
         </div>
 
+        {/* 버튼 영역 */}
         <div className="action-panel">
-          <button className="action-button" type="button">
-            입차
+          <button
+            className="action-button"
+            type="button"
+            onClick={handleEntry}
+            disabled={entryLoading}
+          >
+            {entryLoading ? "입차 처리 중..." : "입차"}
           </button>
+
           <button className="action-button" type="button">
             출차
           </button>
@@ -119,4 +167,3 @@ export default function EntryExit() {
     </div>
   );
 }
-

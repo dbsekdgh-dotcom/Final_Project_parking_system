@@ -2,14 +2,19 @@ import {create} from "zustand"
 
 const useVehicleStore=create(set=>({
     searchKeyword:'',
-    selectedVehicle:'',
+    selectedVehicle:null,
+
+    //keypad 입력 시 저장될 데이터
     addSearchKeyword: (vehicleNumber)=>set(state=>({
         searchKeyword:state.searchKeyword.length<4? state.searchKeyword+vehicleNumber:state.searchKeyword
     })),
     deleteSearchKeyword: ()=>set(state=>({
         searchKeyword:state.searchKeyword.length>0? state.searchKeyword.slice(0,-1):state.searchKeyword
     })),
-    resetSearchKeyword:()=>set({searchKeyword:''})   ,
-    setSelectedVehicle:(vehicleNumber)=>set({selectedVehicle:vehicleNumber})
+    resetSearchKeyword:()=>set({searchKeyword:''}),
+
+    //사용자가 차량 선택시 저장될 데이터(parking_log_id,vehicleNumber)
+    setSelectedVehicle:(vehicle)=>set({selectedVehicle:vehicle}),
+    resetSelectedVehicle : ()=>set({selectedVehicle:null})
 }))
 export default useVehicleStore;

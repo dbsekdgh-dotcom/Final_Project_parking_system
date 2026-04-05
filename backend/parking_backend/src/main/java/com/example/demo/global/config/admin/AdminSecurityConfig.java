@@ -6,11 +6,14 @@ import com.example.demo.global.security.admin.handler.AdminAccessDeniedHandler;
 import com.example.demo.global.security.admin.handler.AdminLoginFailureHandler;
 import com.example.demo.global.security.admin.handler.AdminLoginSuccessHandler;
 import com.example.demo.global.util.admin.AdminJWTUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,6 +34,7 @@ import java.util.List;
 @EnableMethodSecurity // 일반적으로 설정해둠
 @RequiredArgsConstructor
 @Log4j2
+@Order(1)
 public class AdminSecurityConfig {
     private final AdminUserDetailService adminUserDetailService;
     private final AdminJWTUtil adminJWTUtil;
@@ -42,6 +46,8 @@ public class AdminSecurityConfig {
     public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception{
         log.info("----------- [Admin Security Configuration Loading] -----------");
 
+        http.securityMatcher("/admin/**");
+
         // cors 설정 (리액트와 통신을 위해, 가장 선순위로 설정해줘야함)
         http.cors(cors->cors.configurationSource(corsConfigurationSource()));
 
@@ -52,11 +58,12 @@ public class AdminSecurityConfig {
         });
 
         // 권한 설정 (인가)
-        http.authorizeHttpRequests(auth->auth
-                .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+        http.authorizeHttpRequests(auth -> auth
+                // 최상단에 로그아웃을 가장 먼저 배치
+                .requestMatchers(HttpMethod.POST,"/admin/logout").permitAll()
                 .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
         );
 
         // 로그인 설정 (핸들러 연결)
@@ -67,6 +74,20 @@ public class AdminSecurityConfig {
                 .successHandler(adminLoginSuccessHandler)
                 .failureHandler(adminLoginFailureHandler)
         );
+
+        //로그아웃 설정
+        http.logout(logout->logout
+                .disable()
+//                .logoutUrl("/admin/logout")
+//                .addLogoutHandler((request, response, authentication) ->{
+//                    log.info("Security Logout Handler 동작");
+//                })
+//                .logoutSuccessHandler((request, response, authentication) -> {
+//                    //성공 시 다른 페이지로 리다이렉트 하지않고 200 OK만 응답
+//                    response.setStatus(HttpServletResponse.SC_OK);
+//                })
+        );
+
         // 이 필터체인은 무조건 관리자 서비스만 쓰라는 의미 (UserUserSecurityConfig와 겹칠때를 대비)
         http.userDetailsService(adminUserDetailService);
         // 예외 처리 (권한 부족 시) -- 추후 확장성 고려해 작성함
