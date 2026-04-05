@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class VehicleExitRequestDto {
+public class VehiclePaymentRequestDto {
     private Long parkingLogId;
     private String vehicleNumber;
     private LocalDateTime exiteTime;
