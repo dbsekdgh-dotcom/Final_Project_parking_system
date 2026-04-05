@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         // 브라우저에서 호출할 때 앞에 /api를 붙이도록 약속합니다.
         '/api': {
-          target: env.VITE_API_BASE_URL || 'http://localhost:8080',
+          target: env.VITE_API_BASE_URL, // 'http://localhost:8080'
           changeOrigin: true,
           // 실제 백엔드에는 /api를 떼고 전달합니다. 
           // 예: /api/admin/logout -> /admin/logout (8080으로 전달)

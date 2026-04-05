@@ -120,21 +120,31 @@ public class AdminAuthController {
         if(headerAuth!=null && headerAuth.startsWith("Bearer ")){
             String accessToken = headerAuth.substring(7);
             try{
+                //정상 토큰일때 ID 추출
                 Claims claims = adminJWTUtil.validateToken(accessToken);
                 loginId = (String) claims.get("loginId");
             }catch (AdminJWTException e){
+                //만료된 토큰일때
                 log.info("만료된 토큰으로 로그아웃 시도 중... ID 추출 시도");
+                try {
+                    // 만료된 토큰이라도 서명(Key)만 맞으면 내부 Payload(Claims)를 강제로 읽을 수 있음
+                    loginId = adminJWTUtil.getAdminLoginIdWithoutValidation(accessToken);
+                }catch (Exception ex){
+                    log.error("만료 토큰에서 ID 추출 실패: {}",ex.getMessage());
+                }
             } catch (Exception e){
                 log.error("로그아웃 토큰 파싱 실패: {}", e.getMessage());
             }
         }
 
-        log.info("----------- [Admin Logout] 시작: {} -----------", loginId);
+        log.info("----------- [Admin Logout] 최종 확인 ID: {} -----------", loginId);
 
+        //ID가 확보되면 Redis에서 삭제
         if(loginId!=null){
             redisService.deleteRefreshToken(loginId);
+            log.info("Redis RefreshToken 삭제 완료: {}", loginId);
         }
-        // 브라우저의 쿠키 무효화 (Max-Age를 0으로 설정)
+        // 브라우저의 쿠키 무효화 (Max-Age를 0으로 설정) - ID유무과 상관없음
         ResponseCookie cookie = ResponseCookie.from("refreshToken","")
                 .httpOnly(true)
                 .secure(false)
