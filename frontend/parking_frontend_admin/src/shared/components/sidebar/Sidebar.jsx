@@ -173,19 +173,24 @@ export default function Sidebar() {
     if (!window.confirm("로그아웃 하시겠습니까?")) return;
 
     try {
-        // adminApi 인스턴스를 사용하면 인터셉터가 알아서 토큰을 붙여줍니다.
-        // baseURL이 '/api/admin'이므로, 뒤에는 '/logout'만 붙이면 됩니다.
-        await adminApi.post('/logout'); 
-
-        localStorage.clear();
-        alert('로그아웃 되었습니다.');
-        window.location.href = '/admin';
+      // adminApi 인스턴스를 사용하면 인터셉터가 알아서 토큰을 붙여줌.
+      // baseURL이 '/api/admin'이므로, 뒤에는 '/logout'만 붙이면 됨.
+      await axios.post('/api/admin/logout',null,{
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      })
+      console.log("서버 로그아웃 처리 완료!");
     } catch (error) {
-        console.error("로그아웃 중 오류 발생:", error);
-        localStorage.clear();
-        window.location.href = '/admin';
+      console.error("로그아웃 중 오류 발생:", error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.clear();
+      alert('로그아웃 되었습니다.');
+      window.location.href = '/admin'; //리다이렉트
     }
-};
+  };
 
   return (
     <aside className="sidebar">

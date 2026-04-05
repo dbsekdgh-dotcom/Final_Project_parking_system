@@ -58,8 +58,10 @@ public class AdminSecurityConfig {
         });
 
         // 권한 설정 (인가)
-        http.authorizeHttpRequests(auth->auth
-                .requestMatchers("/admin/login","/admin/refresh","/admin/logout").permitAll() // 로그인 경로는 누구나 접근 가능
+        http.authorizeHttpRequests(auth -> auth
+                // 최상단에 로그아웃을 가장 먼저 배치
+                .requestMatchers(HttpMethod.POST,"/admin/logout").permitAll()
+                .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
                 .anyRequest().permitAll()
         );

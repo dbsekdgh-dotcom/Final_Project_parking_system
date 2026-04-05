@@ -61,4 +61,22 @@ public class AdminJWTUtil {
         }
         return claim;
     }
+
+    //토큰 만료 여부 상관없이 admin 아이디 추출
+    public String getAdminLoginIdWithoutValidation(String token){
+        try {
+            //validateToken과 달리 예외가 발생해도 Claims를 반환받기 위해 try-catch 활용
+            return (String) Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getPayload()
+                    .get("loginId");
+        }catch (ExpiredJwtException e){
+            //만료된 경우 예외 객체 안에 담긴 Claims에서 loginId를 꺼냄
+            return (String) e.getClaims().get("loginId");
+        }catch (Exception e){
+            return null;
+        }
+    }
 }
