@@ -14,4 +14,6 @@ public interface SocialAccountRepository extends JpaRepository<SocialAccount, Lo
     Optional<SocialAccount> findByProviderAndProviderId(Provider provider, String providerId);
 
     List<SocialAccount> findByUser(User user);
+
+    boolean existsByUser(User user);
 }

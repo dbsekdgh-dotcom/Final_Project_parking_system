@@ -4,6 +4,7 @@ import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.user.auth.dtos.request.UserLoginRequestDto;
 import com.example.demo.domain.user.auth.dtos.response.UserLoginResponseDto;
 import com.example.demo.domain.user.auth.jwt.JWTUtil;
+import com.example.demo.domain.user.auth.repository.SocialAccountRepository;
 import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import com.example.demo.domain.shared.user.enums.Status; // Status 임포트 확인
 import com.example.demo.global.exception.AuthException; // 내 커스텀 예외
@@ -22,6 +23,7 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class UserLoginService {
 
+    private final SocialAccountRepository socialAccountRepository;
     private final UserAuthRepository userAuthRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
@@ -37,6 +39,14 @@ public class UserLoginService {
         // 2. 가입 여부 확인 (USER_NOT_FOUND 활용)
         User user = userAuthRepository.findByEmail(userLoginRequestDto.getEmail())
                 .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
+
+        if(user.getPassword() == null) {
+            if (socialAccountRepository.existsByUser(user)) {
+
+                log.warn("비밀번호 미설정 소셜 가입자의 로컬 로그인 시도 차단: {}",user.getEmail());
+                throw new AuthException(ErrorCode.SOCIAL_USER_LOGIN_ATTEMPT);
+            }
+        }
 
         // 3. 비밀번호 일치 확인 (LOGIN_FAILED 활용)
         if (!passwordEncoder.matches(userLoginRequestDto.getPassword(), user.getPassword())) {

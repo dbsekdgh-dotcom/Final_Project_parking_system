@@ -4,6 +4,8 @@ import SocialLoginButtons from "../components/SocialLoginButtons";
 import "./LoginPage.css";
 import { useMutation } from "@tanstack/react-query";
 import axios from "../api/axios";
+import Swal from "sweetalert2";
+import FindAccountButtons from "../components/FindAccountButtons";
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -12,30 +14,69 @@ const LoginPage = () => {
 
     const loginMutation = useMutation({
         mutationFn: async (loginData) => {
-            // 백엔드의 UserLoginController 경로와 일치하는지 확인하세요!
             const response = await axios.post("/api/user/auth/local/login", loginData);
             return response.data;
         },
         onSuccess: (data) => {
             console.log("로그인 성공! 서버 응답:", data);
 
-            // 백엔드 UserLoginResponseDto 구조에 맞춰 저장
             localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
             localStorage.setItem("userName", data.name);
             localStorage.setItem("userEmail", data.email);
 
-            alert(`${data.name}님, 환영합니다!`);
-            navigate("/dashboard"); // 성공 시 대시보드로 이동
+            // 성공 알림도 SweetAlert2로 통일!
+            Swal.fire({
+                icon: 'success',
+                title: '로그인 성공',
+                text: `${data.name}님, 환영합니다!`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            navigate("/dashboard");
         },
         onError: (error) => {
-            // ⭐ 백엔드 UserAuthExceptionHandler에서 던진 에러 메시지 추출
-            // error.response.data 구조: { status: 401, code: "LOGIN_FAILED", message: "..." }
             const serverMessage = error.response?.data?.message || "로그인 중 오류가 발생했습니다.";
             const errorCode = error.response?.data?.code;
 
             console.error(`로그인 실패 [${errorCode}]:`, serverMessage);
-            alert(serverMessage); // 사용자에게 "비밀번호가 일치하지 않습니다" 등을 보여줌
+
+            // 1. 소셜 로그인 유도
+            if (errorCode === "SOCIAL_USER_LOGIN_ATTEMPT") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '이미 가입된 계정입니다',
+                    text: '이 계정은 소셜 로그인으로 가입되었습니다. 상단의 버튼을 이용해 주세요!',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: '확인'
+                });
+            } 
+            // 2. 가입되지 않은 유저 -> 회원가입 이동 제안
+            else if (errorCode === "USER_NOT_FOUND") {
+                Swal.fire({
+                    icon: 'question',
+                    title: '계정을 찾을 수 없습니다',
+                    text: '가입되지 않은 이메일입니다. 회원가입 페이지로 이동할까요?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '이동하기',
+                    cancelButtonText: '취소'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate("/signup");
+                    }
+                });
+            } 
+            // 3. 그 외 에러 (비밀번호 틀림 등)
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '로그인 실패',
+                    text: serverMessage,
+                });
+            }
         }
     });
 
@@ -46,9 +87,23 @@ const LoginPage = () => {
     const onLogin = (e) => {
         e.preventDefault();
 
-        // 간단한 프론트엔드 자체 검증
         if (!email || !password) {
-            alert("이메일과 비밀번호를 모두 입력해주세요.");
+            Swal.fire({
+                icon: 'warning',
+                title: '입력 오류',
+                text: '이메일과 비밀번호를 모두 입력해주세요.',
+                confirmButtonColor: '#3085d6',
+            });
+            return;
+        }
+
+        if (password.length< 8) {
+            Swal.fire({
+                icon: 'error',
+                title: '비밀번호 형식 오류',
+                text: '비밀번호는 최소 8자 이상이어야 합니다. 다시 확인해 주세요.',
+                confirmButtonColor: '#d33',
+            })
             return;
         }
 
@@ -105,7 +160,7 @@ const LoginPage = () => {
                             {loginMutation.isPending ? "로그인 중..." : "로그인"}
                         </button>
                     </form>
-
+                    <FindAccountButtons />
                     <div className="bottomRow">
                         <span className="bottomText">계정이 없으신가요?</span>
                         <button
