@@ -2,12 +2,9 @@ package com.example.demo.domain.user.mypage.point.controller;
 
 import com.example.demo.domain.user.mypage.point.dto.PointResponseDto;
 import com.example.demo.domain.user.mypage.point.service.PointService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.Setter;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,8 +13,34 @@ public class PointController {
 
     private final PointService pointService;
 
+    //1. 포인트 조회
     @GetMapping("/{userId}")
     public PointResponseDto gerUserPoint(@PathVariable Long userId){
         return pointService.getUserPoint(userId);
+    }
+
+    //2. 포인트 적림
+    @PostMapping("/earn")
+    public String earnPoints(
+            @RequestParam Long userId,
+            @RequestParam Long paymentId,
+            @RequestParam int amount,
+            @RequestParam String description
+    ){
+        //실제 User와  Payment객체를 Service에서 조회하도록
+        pointService.earnPoints(userId,paymentId,amount,description);
+        return "포인트 적립 완료";
+    }
+
+    //3. 포인트 사용
+    @PostMapping("/use")
+    public String usePoints(
+            @RequestParam Long userId,
+            @RequestParam Long paymentId,
+            @RequestParam int amount,
+            @RequestParam String description
+    ){
+        pointService.usePoints(userId,paymentId,amount,description);
+        return "포인트 사용 완료";
     }
 }

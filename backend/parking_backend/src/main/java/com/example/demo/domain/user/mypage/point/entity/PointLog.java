@@ -1,20 +1,17 @@
 package com.example.demo.domain.user.mypage.point.entity;
 
 import com.example.demo.domain.shared.payment.Payment;
-import com.example.demo.domain.shared.payment.QPayment;
 import com.example.demo.domain.shared.user.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Polymorphism;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name="point_log")
 public class PointLog {
@@ -35,7 +32,7 @@ public class PointLog {
     private Payment payment;
 
     @Column(name="change_amount", nullable = false)
-    private int changAmount;
+    private int changeAmount;
 
     @Column(name="before_point",nullable = false)
     private int beforePoint;
