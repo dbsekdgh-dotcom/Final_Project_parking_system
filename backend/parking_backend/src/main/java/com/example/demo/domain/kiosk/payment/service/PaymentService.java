@@ -1,6 +1,8 @@
 package com.example.demo.domain.kiosk.payment.service;
 
+import com.example.demo.domain.kiosk.payment.dtos.request.FeeCalculationRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.request.VehiclePaymentRequestDto;
+import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
 import com.example.demo.domain.shared.household.repository.HouseholdRepository;
 import com.example.demo.domain.shared.parkingTicket.repository.ParkingTicketRepository;
@@ -16,9 +18,6 @@ import com.example.demo.domain.shared.subscription.repository.SubscriptionReposi
 import com.example.demo.domain.shared.vehicle.VehicleRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,23 +37,6 @@ public class PaymentService {
     private final VehicleRepository vehicleRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final HouseholdRepository householdRepository;
-
-
-    @Getter
-    @Builder
-    public static class FeeCalculationRequest{
-        private final long parkingTime;
-        private final ParkingFeePolicy policy;
-        private final int prepaidFee;
-        private final int discountAmount;
-    }
-
-    @Getter
-    @AllArgsConstructor
-    public static class FeeCalculationResponse{
-        private final int rawFee;
-        private final int calculdatedFee;
-    }
 
 
     //무료 요금 대상자인지 확인
@@ -113,7 +95,7 @@ public class PaymentService {
     }
 
     //요금 계산
-    public FeeCalculationResponse calculateBaseFee(FeeCalculationRequest request){
+    public FeeCalculationResponseDto calculateBaseFee(FeeCalculationRequestDto request){
         // 1. 무료 주차 시간을 넘지 않은 경우 0
         long parkingTime=request.getParkingTime();
         int baseTime=request.getPolicy().getGraceMinutes();
@@ -125,7 +107,7 @@ public class PaymentService {
         int totalDiscountAmount=request.getDiscountAmount();
 
         if(parkingTime<=baseTime) {
-            return new FeeCalculationResponse(0,0);
+            return new FeeCalculationResponseDto(0,0);
         }
 
         // 2. 24시간 단위 요금 계산
@@ -153,7 +135,7 @@ public class PaymentService {
         // 6. 최종 요금
         int calculatedFee=rawFee-prepaid-discountAmount;
 
-        return new FeeCalculationResponse(rawFee,calculatedFee);
+        return new FeeCalculationResponseDto(rawFee,calculatedFee);
     }
 
     //요금 계산(사전정산 및 주차시간이 하루가 지난 경우 반영)
@@ -172,14 +154,14 @@ public class PaymentService {
 
         //요금 계산
         int baseTime=parkingFeePolicy.getGraceMinutes();
-        FeeCalculationRequest request=FeeCalculationRequest.builder()
+        FeeCalculationRequestDto request=FeeCalculationRequestDto.builder()
                 .parkingTime(parkingTime)
                 .policy(parkingFeePolicy)
                 .prepaidFee(parkingLog.getFee())
                 .discountAmount(parkingLog.getTotalDiscountAmount())
                 .build();
 
-        FeeCalculationResponse feeCalculationResponse=calculateBaseFee(request);
+        FeeCalculationResponseDto feeCalculationResponseDto=calculateBaseFee(request);
 
         // 7. return
         return null;
