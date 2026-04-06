@@ -1,4 +1,4 @@
-package com.example.demo.domain.user.vehicle.service;
+package com.example.demo.domain.shared.vehicle.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

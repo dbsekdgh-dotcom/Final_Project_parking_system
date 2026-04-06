@@ -1,0 +1,56 @@
+package com.example.demo.domain.user.mypage.point.entity;
+
+import com.example.demo.domain.shared.payment.Payment;
+import com.example.demo.domain.shared.payment.QPayment;
+import com.example.demo.domain.shared.user.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Polymorphism;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name="point_log")
+public class PointLog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="point_log_id")
+    private Long pointLogId;
+
+    //user_id FK
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id",nullable = false)
+    private User user;
+
+    //Payment_id FK
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="payment_id",nullable = false)
+    private Payment payment;
+
+    @Column(name="change_amount", nullable = false)
+    private int changAmount;
+
+    @Column(name="before_point",nullable = false)
+    private int beforePoint;
+
+    @Column(name="after_point",nullable = false)
+    private int afterPoint;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="reason",nullable = false)
+    private PointReason reason;
+
+    @Column(name="description")
+    private String description;
+
+    @Column(name="created_at",nullable = false)
+    private LocalDateTime createdAt;
+
+}
