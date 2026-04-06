@@ -20,6 +20,9 @@ public class ParkingLogRepositoryTest {
     @Autowired
     private ParkingLogRepository parkingLogRepository;
 
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private org.springframework.mail.javamail.JavaMailSender javaMailSender;
+
     @Test
     @DisplayName("관리자 페이지 상단 요약 통계 정보 조회 테스트")
     void getParkingSummaryTest(){
