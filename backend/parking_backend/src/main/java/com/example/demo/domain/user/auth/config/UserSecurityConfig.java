@@ -50,9 +50,10 @@ public class UserSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/oauth-redirect/**", "/api/user/auth/refresh",
-                                "/api/user/auth/local/signup", "/api/user/auth/local/login",
-                                //  "/api/user/mypage/**"=> TODO: JWT 인증 적용 후 authenticated()로 변경해야됨
-                                "/api/user/mypage/**").permitAll()
+                                "/api/user/auth/local/signup", "/api/user/auth/local/login"
+                                ,"/api/user/auth/local/find-email","/api/user/auth/local/send-code",
+                                "/api/user/auth/local/verify-code","/api/user/auth/local/find-email",
+                                "/api/user/auth/local/reset-password").permitAll()
                         .anyRequest().authenticated())
 
                 .oauth2Login(oauth -> oauth

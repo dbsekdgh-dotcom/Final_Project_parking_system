@@ -45,7 +45,14 @@ public enum ErrorCode {
     ALREADY_LINKED_LOCAL(HttpStatus.CONFLICT, "이미 로컬 계정이 연동되어 있습니다."),
     SOCIAL_LINK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "소셜 계정 연동 중 오류가 발생했습니다."),
     PHONE_DUPLICATE(HttpStatus.CONFLICT, "이미 등록된 전화번호입니다."), // 아까 말한 폰 유니크 제약용
+    SOCIAL_USER_LOGIN_ATTEMPT(HttpStatus.CONFLICT, "소셜 계정으로 가입된 사용자입니다. 소셜 로그인을 이용해 주세요."),
 
+    // AUTH (인증번호 관련 추가)
+    USER_INFORMATION_MISMATCH(HttpStatus.NOT_FOUND, "입력하신 정보와 일치하는 사용자가 없습니다."), // ← 이거!
+    VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."),
+    VERIFICATION_CODE_EXPIRED(HttpStatus.GONE, "인증 시간이 초과되었습니다. 다시 시도해 주세요."),
+    MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 발송 중 오류가 발생했습니다."),
+    UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "인증되지 않은 접근입니다. 먼저 이메일 인증을 완료해주세요."),
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),
     PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY,"결제 서비스 호출에 실패하였습니다."),
