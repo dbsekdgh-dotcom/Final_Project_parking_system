@@ -19,6 +19,7 @@ public enum ErrorCode {
     PARKING_FULL(HttpStatus.CONFLICT, "주차장이 만차입니다."),
     VEHICLE_ALREADY_ENTERED(HttpStatus.CONFLICT, "이미 입차된 차량입니다."),
     VEHICLE_NOT_ENTERED(HttpStatus.BAD_REQUEST, "입차 기록이 없습니다."),
+    PARKING_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND,"정책을 찾을 수 없습니다."),
 
     // PAYMENT
     PAYMENT_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "결제가 완료되지 않았습니다."),

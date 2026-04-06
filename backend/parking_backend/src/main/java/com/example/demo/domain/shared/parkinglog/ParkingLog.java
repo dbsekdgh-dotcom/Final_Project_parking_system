@@ -8,6 +8,7 @@ import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import jakarta.persistence.*;
+import jdk.jfr.Timestamp;
 import lombok.*;
 import lombok.extern.java.Log;
 import org.hibernate.annotations.Comment;
@@ -46,13 +47,14 @@ public class ParkingLog {
     private Boolean isBlacklist;
 
     @Comment("DETECTED : 인식된 시간")
+    @Timestamp
     private LocalDateTime entryTime;
 
     @Comment("EXIT_REQUESTED : 출차 대기 시간")
     private LocalDateTime exitTime;
 
     // 연관관계로 설정하는 것이 좋습니다 (ID만 쓸 경우 @Column(name="...") 명시)
-    @Comment("DETECTED : 인식한 카메라 ID")
+    @Comment("ENTERED : 인식한 카메라 ID")
     @Column(name = "entry_camera_id")
     private Long entryCameraId;
 

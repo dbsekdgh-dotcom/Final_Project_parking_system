@@ -9,8 +9,10 @@ import { useQueryClient } from "@tanstack/react-query";
 const SLOT_COUNT = 8;
 
 export default function EntryExit() {
+  const [uploadFile,setUploadFile]=useState(null)
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  
 
   // ✅ OCR mutation
   const {
@@ -44,6 +46,8 @@ export default function EntryExit() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setUploadFile(file);
+
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
 
@@ -66,7 +70,6 @@ export default function EntryExit() {
        
         queryClient.setQueryData(["entry-session"], {
           plateNumber: cleaned,
-          file: file,
         });
       },
       onError: (err) => {
@@ -85,7 +88,10 @@ export default function EntryExit() {
       return;
     }
 
-    entryMutate(session, {
+    entryMutate({
+      plateNumber: session.plateNumber,
+      file:uploadFile,
+    }, {
       onSuccess: () => {
         // 성공하면 다음 화면 이동
         navigate("/entry-confirmation");

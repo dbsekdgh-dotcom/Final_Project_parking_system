@@ -65,4 +65,7 @@ public class Vehicle {
     public void assignUser(User user) {
         this.user = user;
     }
+    public boolean isResident(){
+        return this.user !=null && this.user.getHousehold()!=null;
+    }
 }
