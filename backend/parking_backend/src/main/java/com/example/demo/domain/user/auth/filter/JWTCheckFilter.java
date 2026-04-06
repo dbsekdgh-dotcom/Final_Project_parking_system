@@ -30,23 +30,22 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
-        // ⭐ 원래 쓰시던 제외 경로들입니다.
-        // 단, 계정 연동 시 /oauth2 경로에서도 쿠키를 읽어야 하므로
-        // 쿠키가 존재할 때는 필터를 타도록 조건을 걸어주는게 안전합니다.
+        // ⭐ [수정] 아이디/비밀번호 찾기 관련 경로들을 제외 목록에 추가합니다.
         if (path.startsWith("/login") ||
                 path.startsWith("/oauth-redirect") ||
                 path.startsWith("/api/user/auth/refresh") ||
                 path.startsWith("/api/user/auth/local/signup") ||
                 path.startsWith("/api/user/auth/local/login") ||
+                path.startsWith("/api/user/auth/local/find-email") ||  // 추가
+                path.startsWith("/api/user/auth/local/send-code") ||   // 추가
+                path.startsWith("/api/user/auth/local/verify-code") || // 추가
+                path.startsWith("/api/user/auth/local/reset-password") || // 추가
                 path.startsWith("/api/test/")
         ) {
             return true;
         }
 
-        // 소셜 로그인 시작 경로는 보통 제외하지만,
-        // '연동'을 위해 쿠키를 들고 가는 경우 필터를 거쳐야 합니다.
         if (path.startsWith("/oauth2")) {
-            // 쿠키 중에 temp_jwt가 있다면 필터를 수행(false 반환), 없으면 통과(true 반환)
             boolean hasTempCookie = request.getCookies() != null &&
                     Arrays.stream(request.getCookies()).anyMatch(c -> "temp_jwt".equals(c.getName()));
             return !hasTempCookie;
@@ -58,16 +57,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        log.info("----------------- JWTCheckFilter 실행 시작 --------------------");
+        log.info("----------------- JWTCheckFilter 실행 시작 (Path: {}) --------------------", request.getRequestURI());
 
         String authHeader = request.getHeader("Authorization");
         String token = null;
 
-        // 1. 헤더에서 먼저 찾기 (기존 방식)
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
         }
-        // 2. 헤더에 없으면 쿠키에서 찾기 (연동 방식 추가)
         else if (request.getCookies() != null) {
             token = Arrays.stream(request.getCookies())
                     .filter(cookie -> "temp_jwt".equals(cookie.getName()))
@@ -80,15 +77,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             }
         }
 
-        // 토큰이 아예 없으면 그냥 다음 필터로 보냄
+        // 토큰이 없으면 그냥 통과 (이후 SecurityConfig의 authorizeHttpRequests에서 걸러짐)
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            // ⭐ JWTUtil에서 이미 PrincipalDetails를 만들도록 수정했으므로,
-            // 필터 코드는 이렇게 한 줄로 아주 깔끔해집니다! (중복 로직 제거)
+            // 토큰이 있을 때만 검증 실행
             Authentication authentication = jwtUtil.getAuthentication(token);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -96,6 +92,9 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (RuntimeException e) {
+            // 만약 permitAll 대상인데 만료된 토큰이 넘어온 경우를 대비해
+            // 여기서 에러를 내기보다 로그만 찍고 통과시키는 방법도 있지만,
+            // 보통은 위 shouldNotFilter에서 경로를 완벽히 막아주는 게 정석입니다.
             log.error("JWT 검증 실패: {}", e.getMessage());
             sendErrorResponse(response, e.getMessage());
         } catch (Exception e) {
