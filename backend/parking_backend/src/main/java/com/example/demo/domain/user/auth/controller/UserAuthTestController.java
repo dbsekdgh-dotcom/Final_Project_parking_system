@@ -20,7 +20,8 @@ public class UserAuthTestController {
     @GetMapping("/token")
     public Map<String, String> generateTestToken() {
         Map<String, Object> claims = Map.of("email", "test@example.com", "role", "ROLE_USER");
-        String token = jwtUtil.generateToken(claims, 60); // 60분짜리 토큰
+        String token = jwtUtil.generateToken(claims,
+                60); // 60분짜리 토큰
         return Map.of("token", token);
     }
 
