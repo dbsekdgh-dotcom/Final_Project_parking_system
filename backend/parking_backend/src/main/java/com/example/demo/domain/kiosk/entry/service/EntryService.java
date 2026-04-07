@@ -1,8 +1,11 @@
 package com.example.demo.domain.kiosk.entry.service;
 
+import com.example.demo.domain.kiosk.entry.dtos.response.CameraResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.EntryCheckResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.OcrResponse;
 import com.example.demo.domain.kiosk.entry.repository.*;
+import com.example.demo.domain.shared.camera.enums.CameraType;
+import com.example.demo.domain.shared.camera.Camera;
 import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy;
 import com.example.demo.domain.shared.parkingfeepolicy.enums.ParkingType;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
@@ -19,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 @Service
@@ -37,7 +42,7 @@ public class EntryService {
 
 
 
-    public void detectedEntry(MultipartFile file){
+    public Long detectedEntry(MultipartFile file){
         OcrResponse ocr= aiClient.requestOcr(file);
         String carNumber=ocr.getPlateNumber();
         EntryCheckResponse info = entryVehicleRepository
@@ -80,8 +85,24 @@ public class EntryService {
                     graceMinutesSnapshot(policy.getGraceMinutes()).
                     entryPlateImage(ocr.getS3path()).
                     build();
-            parkinglogRepository.save(log);
+           ParkingLog saved= parkinglogRepository.save(log);
+           return saved.getParkingLogId();
         }
+        return null;
+    }
+    public List<CameraResponse> getEntryCameras() {
+        return entryCameraRepository.findAllByCameraType(CameraType.ENTRY)
+                .stream()
+                .map(CameraResponse::new)
+                .toList();
+    }
 
+    public void enterWithCamera(Long parkingLogId, Long cameraId) {
+        ParkingLog log = parkinglogRepository.findById(parkingLogId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        Camera camera = entryCameraRepository.findById(cameraId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        log.enter(camera);
+        parkinglogRepository.save(log);
     }
 }

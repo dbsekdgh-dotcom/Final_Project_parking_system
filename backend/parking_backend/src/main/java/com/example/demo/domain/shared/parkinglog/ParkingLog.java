@@ -131,4 +131,9 @@ public class ParkingLog {
         this.totalDiscountAmount=totalDiscountAmount;
         this.calculatedFee=calculatedFee;
     }
+    public void enter(Camera camera){
+        this.entryCameraId=camera.getId();
+        this.parkingStatus=ParkingStatus.ENTERED;
+        this.enteredAt=LocalDateTime.now();
+    }
 }
