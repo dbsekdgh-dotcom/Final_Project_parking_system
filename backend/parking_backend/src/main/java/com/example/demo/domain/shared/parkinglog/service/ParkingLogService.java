@@ -2,8 +2,8 @@ package com.example.demo.domain.shared.parkinglog.service;
 
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
+import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummaryResponse;
-import com.example.demo.domain.shared.parkinglog.dtos.response.VehicleSearchResponseDto;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
@@ -27,8 +27,8 @@ public class ParkingLogService {
     private final ParkingLogRepository parkinglogRepository;
 
     //차량번호 4자리 입력 후 차량 조회 시 조회될 차량번호 목록
-    public List<VehicleSearchResponseDto> getActiveVehicleList(String vehicleNumber){
-        List<VehicleSearchResponseDto> list=parkinglogRepository.getActiveVehicleList(vehicleNumber.trim());
+    public List<ParkingLogSettlementDto> getActiveVehicleList(String vehicleNumber){
+        List<ParkingLogSettlementDto> list=parkinglogRepository.getActiveVehicleList(vehicleNumber.trim());
         if(list==null || list.isEmpty()){
             throw new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
         }

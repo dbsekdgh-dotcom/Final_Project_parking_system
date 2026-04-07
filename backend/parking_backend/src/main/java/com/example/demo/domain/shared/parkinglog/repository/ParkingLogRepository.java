@@ -1,7 +1,7 @@
 package com.example.demo.domain.shared.parkinglog.repository;
 
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
-import com.example.demo.domain.shared.parkinglog.dtos.response.VehicleSearchResponseDto;
+import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import org.springframework.data.domain.Page;
@@ -15,9 +15,14 @@ import java.util.List;
 
 public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, ParkingLogRepositoryCustom {
     //차량번호 4자리 입력 후 차량 조회 시 조회될 차량번호 목록
-    @Query("select new com.example.demo.domain.shared.parkinglog.dtos.response.VehicleSearchResponseDto(p.parkingLogId,p.carNumberSnapshot)" +
-            "from ParkingLog p where p.carNumberSnapshot like %:vehicleNumber and p.exitedAt is null")
-    List<VehicleSearchResponseDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber);
+    @Query("select new com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto(" +
+            "p.parkingLogId,p.carNumberSnapshot, u.userId, up.currentPoint) " +
+            "from ParkingLog p " +
+            "left join p.vehicle v " +
+            "left join v.user u " +
+            "left join UserPoint up on up.user = u " +
+            "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null")
+    List<ParkingLogSettlementDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber);
 
     //차량번호 스냅샷에 키워드가 포함된 데이터를 페이징하여 조회
     Page<ParkingLog> findByCarNumberSnapshotContaining(String carNumber, Pageable pageable);
