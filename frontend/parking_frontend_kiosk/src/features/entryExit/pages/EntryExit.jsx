@@ -92,9 +92,8 @@ export default function EntryExit() {
       plateNumber: session.plateNumber,
       file:uploadFile,
     }, {
-      onSuccess: () => {
-        // 성공하면 다음 화면 이동
-        navigate("/entry-confirmation");
+      onSuccess: (data) => {
+        navigate("/entry-confirmation", { state: { parkingLogId: data.parkingLogId } });
       },
       onError: (err) => {
         console.error("입차 실패:", err);

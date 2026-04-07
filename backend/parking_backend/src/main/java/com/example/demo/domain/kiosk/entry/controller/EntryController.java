@@ -1,15 +1,16 @@
 package com.example.demo.domain.kiosk.entry.controller;
 
+import com.example.demo.domain.kiosk.entry.dtos.response.CameraResponse;
 import com.example.demo.domain.kiosk.entry.service.EntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -17,11 +18,25 @@ import org.springframework.web.multipart.MultipartFile;
 public class EntryController {
     private final EntryService entryService;
 
-//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<Void> entry(@RequestPart("plateNumber")String plateNumber,
-//                                      @RequestPart("s3path")String s3Path,
-//                                      @RequestPart("file")MultipartFile file){
-//
-//    }
+    // 입차 감지: OCR + S3 → ParkingLog(DETECTED) → parkingLogId 반환
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Long>> entry(@RequestPart("file") MultipartFile file) {
+        Long parkingLogId = entryService.detectedEntry(file);
+        return ResponseEntity.ok(Map.of("parkingLogId", parkingLogId));
+    }
 
+    // ENTRY 카메라 목록 조회
+    @GetMapping("/cameras")
+    public ResponseEntity<List<CameraResponse>> getEntryCameras() {
+        return ResponseEntity.ok(entryService.getEntryCameras());
+    }
+
+    // 입구 카메라 선택 → ParkingLog(ENTERED) 확정
+    @PatchMapping("/{parkingLogId}/enter")
+    public ResponseEntity<Void> enterWithCamera(
+            @PathVariable Long parkingLogId,
+            @RequestParam Long cameraId) {
+        entryService.enterWithCamera(parkingLogId, cameraId);
+        return ResponseEntity.ok().build();
+    }
 }
