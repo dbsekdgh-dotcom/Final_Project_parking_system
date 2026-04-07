@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './header.css'
+import { useLocation } from 'react-router-dom'
 
 function pad(n) {
   return String(n).padStart(2, '0')
@@ -7,6 +8,26 @@ function pad(n) {
 
 export default function Header() {
   const [now, setNow] = useState(() => new Date())
+  const location = useLocation() //현재 경로 감지용
+
+  const menuConfig = {
+    '/admin/dashboard': {
+      title : '대시보드',
+      subtitle : '전체 주차 현황 요약'
+    },
+    '/admin/parking-space': {
+      title : '주차공간',
+      subtitle : '구역별 주차 가능 현황'
+    },
+    '/admin/entry-exit': {
+      title : '입출차 기록',
+      subtitle : '주차 로그 & 결제 상태'
+    },
+    // 다른 메뉴들도 여기에 계속 추가
+  }
+
+  // 현재 경로에 맞는 설정 가져오기(없으면 기본값)
+  const currentMenu = menuConfig[location.pathname] || {title: '관리자 시스템', subtitle: 'Parking Management'}
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000)
@@ -32,8 +53,9 @@ export default function Header() {
           </svg>
         </span>
         <div className="header__titles">
-          <h1 className="header__title">대시보드</h1>
-          <p className="header__subtitle">description</p>
+          {/* 동적으로 바뀌는 타이틀과 서브타이틀 */}
+          <h1 className="header__title">{currentMenu.title}</h1>
+          <p className="header__subtitle">{currentMenu.subtitle}</p>
         </div>
       </div>
       <div className="header__right">

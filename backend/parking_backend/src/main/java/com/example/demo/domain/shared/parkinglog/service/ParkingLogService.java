@@ -1,11 +1,15 @@
 package com.example.demo.domain.shared.parkinglog.service;
 
+import com.example.demo.domain.shared.parkinglog.ParkingLog;
+import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummaryResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.VehicleSearchResponseDto;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,5 +33,17 @@ public class ParkingLogService {
     //관리자 입출차 기록 페이지 상단 요약정보 4가지 정보 조회(현재주차,금일출차완료,미납,금일로그)
     public ParkingLogSummaryResponse getMainSummary(){
         return parkinglogRepository.getParkingSummary();
+    }
+
+    //관리자 입출차 기록 페이지 하단 내역테이블 정보 조회 + 페이징
+    public Page<ParkingLogListResponse> getParkingLogList(String keyword, Pageable pageable){
+        Page<ParkingLog> logPage;
+        // 키워드 존재 여부에 따른 조회 분기처리
+        if(keyword!=null && !keyword.isBlank()){
+            logPage = parkinglogRepository.findByCarNumberSnapshotContaining(keyword,pageable);
+        }else {
+            logPage = parkinglogRepository.findAll(pageable);
+        }
+        return logPage.map(ParkingLogListResponse::toListDto);
     }
 }
