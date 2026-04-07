@@ -131,9 +131,10 @@ public class ParkingLog {
         this.totalDiscountAmount=totalDiscountAmount;
         this.calculatedFee=calculatedFee;
     }
-    public void enter(Camera camera){
+    public void enter(Camera camera, LocalDateTime freeExitUntil){
         this.entryCameraId=camera.getId();
         this.parkingStatus=ParkingStatus.ENTERED;
         this.enteredAt=LocalDateTime.now();
+        this.freeExitUntil=freeExitUntil; // RESIDENT=null, SUBSCRIPTION=정기권만료일, 나머지=입차시간+grace
     }
 }

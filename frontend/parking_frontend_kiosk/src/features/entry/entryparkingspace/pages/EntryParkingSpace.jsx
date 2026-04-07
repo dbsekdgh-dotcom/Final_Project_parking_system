@@ -1,55 +1,114 @@
 import React, { useEffect, useState } from 'react';
 import './EntryParkingSpace.css';
-import { fetchEntrySpace } from '../../api/EntryApi';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { fetchParkingLogType, fetchEntrySpace, assignParkingSpace } from '../../api/EntryApi';
+
+const FLOOR_BY_TYPE = {
+  RESIDENT: 'B2',
+  VISIT: 'B1',
+  USER: 'B1',
+  RESERVATION: 'B1',
+};
 
 const EntryParkingSpace = () => {
-  // 데이터 구조: label(코드), subLabel(명칭) 분리
-  const [spotData,setSpotData] = useState([]);
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const parkingLogId = state?.parkingLogId;
 
-  const [selectedFloor, setSelectedFloor] = useState('B1');
-  const [selectedSpot, setSelectedSpot] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  useEffect(()=>{
-    fetchEntrySpace()
-    .then(setSpotData)
-    .catch((err)=>console.error('자리 목록 조회 실패:',err))
-  },[]);
-  
+  const [floor, setFloor] = useState(null);
+  const [spotData, setSpotData] = useState([]);
+  const [selectedSpotId, setSelectedSpotId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // 1) parkingTypeSnapshot 조회 → 층 결정
+  useEffect(() => {
+    if (!parkingLogId) return;
+    fetchParkingLogType(parkingLogId)
+      .then(({ parkingTypeSnapshot }) => {
+        setFloor(FLOOR_BY_TYPE[parkingTypeSnapshot] ?? 'B1');
+      })
+      .catch((err) => console.error('주차 타입 조회 실패:', err));
+  }, [parkingLogId]);
+
+  // 2) 층이 결정되면 해당 층 자리 조회
+  useEffect(() => {
+    if (!floor) return;
+    fetchEntrySpace(floor)
+      .then(setSpotData)
+      .catch((err) => console.error('자리 목록 조회 실패:', err));
+  }, [floor]);
+
+  const handleSpotClick = (spot) => {
+    if (spot.status !== 'AVAILABLE') return;
+    setSelectedSpotId(spot.id);
+  };
+
+  const getSpotClass = (spot) => {
+    const classes = ['parking-spot'];
+    if (spot.status === 'OCCUPIED') classes.push('occupied');
+    else classes.push('available');
+    if (spot.isDisabled) classes.push('disabled-spot');
+    if (spot.isEvCharge) classes.push('ev-spot');
+    if (selectedSpotId === spot.id) classes.push('selected');
+    return classes.join(' ');
+  };
+
+  const getSubLabel = (spot) => {
+    if (spot.isDisabled) return '장애인';
+    if (spot.isEvCharge) return 'EV';
+    return null;
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedSpotId) return;
+    setLoading(true);
+    try {
+      await assignParkingSpace({ parkingLogId, spaceId: selectedSpotId });
+      navigate('/entry-complete', { state: { parkingLogId } });
+    } catch (err) {
+      console.error('자리 배정 실패:', err);
+      alert('선택한 자리를 배정할 수 없습니다. 다시 선택해주세요.');
+      setSelectedSpotId(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectedSpotCode = spotData.find((s) => s.id === selectedSpotId)?.spaceCode;
+
   return (
     <div className="parking-container">
       <header className="parking-header">
-        <h1>입차 / 출차</h1>
-        <div className={`floor-select-box ${showDropdown ? 'active' : ''}`} onClick={() => setShowDropdown(!showDropdown)}>
-          <span className="selected-floor">{selectedFloor} 층</span>
-          
-          {showDropdown && (
-            <ul className="floor-options">
-              <li onClick={() => { setSelectedFloor('B1'); setShowDropdown(false); }}>B1 층</li>
-              <li onClick={() => { setSelectedFloor('B2'); setShowDropdown(false); }}>B2 층</li>
-            </ul>
-          )}
-        </div>
+        <h1>주차 공간 선택</h1>
+        {floor && <span className="floor-badge">{floor} 층</span>}
       </header>
 
       <div className="map-canvas">
         {spotData.map((spot) => (
           <div
             key={spot.id}
-            className={`parking-spot ${spot.typeClass || ''} ${selectedSpot === spot.id ? 'selected' : ''}`}
-            onClick={() => setSelectedSpot(spot.id)}
+            className={getSpotClass(spot)}
+            onClick={() => handleSpotClick(spot)}
           >
             <div className="spot-text-wrapper">
-              <span className="spot-label">{spot.label}</span>
-              {/* subLabel이 있을 때만 줄바꿈과 함께 출력 */}
-              {spot.subLabel && <span className="sub-label">{spot.subLabel}</span>}
+              <span className="spot-label">{spot.spaceCode}</span>
+              {getSubLabel(spot) && (
+                <span className="sub-label">{getSubLabel(spot)}</span>
+              )}
             </div>
           </div>
         ))}
       </div>
 
       <footer className="parking-footer">
-        <p>공간을 선택해주세요</p>
-        <button className="submit-btn" disabled={!selectedSpot}>선택</button>
+        <p>{selectedSpotCode ? `선택된 자리: ${selectedSpotCode}` : '공간을 선택해주세요'}</p>
+        <button
+          className="submit-btn"
+          disabled={!selectedSpotId || loading}
+          onClick={handleSubmit}
+        >
+          {loading ? '처리 중...' : '선택 완료'}
+        </button>
       </footer>
     </div>
   );

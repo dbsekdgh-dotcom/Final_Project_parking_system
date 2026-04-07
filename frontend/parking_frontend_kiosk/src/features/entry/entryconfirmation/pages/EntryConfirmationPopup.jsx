@@ -26,7 +26,7 @@ const EntryConfirmationPopup = () => {
     setLoading(true);
     try {
       await confirmEnter({ parkingLogId, cameraId: camera.cameraId });
-      navigate('/entry-parkingspace', { state: { cameraId: camera.cameraId } });
+      navigate('/entry-parkingspace', { state: { cameraId: camera.cameraId, parkingLogId } });
     } catch (error) {
       console.error('입차 확정 실패:', error);
       alert('입차 처리에 실패했습니다.');

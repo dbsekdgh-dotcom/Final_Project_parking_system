@@ -1,6 +1,8 @@
 package com.example.demo.domain.kiosk.entry.controller;
 
 import com.example.demo.domain.kiosk.entry.dtos.response.CameraResponse;
+import com.example.demo.domain.kiosk.entry.dtos.response.ParkingLogTypeResponse;
+import com.example.demo.domain.kiosk.entry.dtos.response.ParkingSpaceResponse;
 import com.example.demo.domain.kiosk.entry.service.EntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -37,6 +39,27 @@ public class EntryController {
             @PathVariable Long parkingLogId,
             @RequestParam Long cameraId) {
         entryService.enterWithCamera(parkingLogId, cameraId);
+        return ResponseEntity.ok().build();
+    }
+
+    // parkingLog의 parkingTypeSnapshot 조회 (층 결정용)
+    @GetMapping("/{parkingLogId}/type")
+    public ResponseEntity<ParkingLogTypeResponse> getParkingType(@PathVariable Long parkingLogId) {
+        return ResponseEntity.ok(entryService.getParkingType(parkingLogId));
+    }
+
+    // 층별 주차 공간 목록 조회
+    @GetMapping("/space")
+    public ResponseEntity<List<ParkingSpaceResponse>> getSpaces(@RequestParam String floor) {
+        return ResponseEntity.ok(entryService.getSpacesByFloor(floor));
+    }
+
+    // 자리 선택 → parking_log.parking_space_id 업데이트
+    @PatchMapping("/{parkingLogId}/space")
+    public ResponseEntity<Void> assignSpace(
+            @PathVariable Long parkingLogId,
+            @RequestParam Long spaceId) {
+        entryService.assignSpace(parkingLogId, spaceId);
         return ResponseEntity.ok().build();
     }
 }
