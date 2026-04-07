@@ -26,7 +26,7 @@ app.include_router(
 
 app.include_router(
     payment_router,
-    prefix="api/v1/parking/payment"
+    prefix="/api/v1/parking/payment"
 )
 
 app.include_router(

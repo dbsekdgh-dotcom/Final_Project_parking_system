@@ -17,4 +17,22 @@ public enum ParkingStatus {
     public String getDescription() {
         return description;
     }
+
+    public boolean canTransitTo(ParkingStatus next){
+        return switch (this){
+            case DETECTED ->
+                next == ENTERED || next == ENTRY_CANCELLED;
+            case ENTERED ->
+                next == EXIT_REQUESTED || next == FORCE_EXITED;
+            case EXIT_REQUESTED ->
+                next == EXITED || next == FORCE_EXITED;
+            default -> false;
+        };
+    }
+    public boolean isActiveSession(){
+        return this == DETECTED || this==ENTERED||this==EXIT_REQUESTED;
+    }
+    public boolean isFinished(){
+        return this == EXITED || this==ENTRY_CANCELLED || this==FORCE_EXITED;
+    }
 }
