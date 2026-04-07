@@ -1,7 +1,9 @@
 import React from 'react';
 import './EntryComplatePage.css';
+import { useNavigate } from 'react-router-dom';
 
 const EntryCompletePage = ({ onGoHome }) => {
+  const navigate=useNavigate();
   return (
     <div className="entry-complete-wrapper">
       <div className="entry-complete-content">
@@ -24,7 +26,7 @@ const EntryCompletePage = ({ onGoHome }) => {
 
         {/* 홈으로 버튼 */}
         <div className="button-area">
-          <button className="go-home-btn" onClick={onGoHome}>
+          <button className="go-home-btn" onClick={()=>navigate("/")}>
             홈으로 돌아가기
           </button>
         </div>
