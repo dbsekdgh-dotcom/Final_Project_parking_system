@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserWithdrawRequestDto {
     @NotBlank(message = "비밀번호를 입력해주세요.")
-    @Size(min = 9, message = "비밀번호는 최소 8자 이상이어야 합니다.")
+    @Size(min = 8, message = "비밀번호는 최소 8자 이상이어야 합니다.")
     private String password;
     @NotBlank(message = "비밀번호 확인을 입력해주세요.")
     private String confirmPassword;

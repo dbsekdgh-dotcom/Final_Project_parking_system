@@ -71,7 +71,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         if (email == null) {
             log.error("### 이메일 추출 실패!");
-            response.sendRedirect("http://localhost:5173/login?error=email_not_found");
+            response.sendRedirect("http://localhost:5202/login?error=email_not_found");
             return;
         }
 
@@ -94,7 +94,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             });
         } catch (Exception e) {
             log.error("### DB 저장 에러: {}", e.getMessage());
-            response.sendRedirect("http://localhost:5173/login?error=db_error");
+            response.sendRedirect("http://localhost:5202/login?error=db_error");
             return;
         }
 
@@ -104,7 +104,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String refreshToken = adminJWTUtil.generateUserRefreshToken(claims);
 
 // ⭐ build() 다음에 encode()를 추가해야 한글(name)이 안전하게 변환됩니다.
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/oauth-redirect")
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("name", finalName)

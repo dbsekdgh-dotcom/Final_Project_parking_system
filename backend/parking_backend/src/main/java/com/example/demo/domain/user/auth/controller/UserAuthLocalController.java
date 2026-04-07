@@ -1,8 +1,7 @@
 package com.example.demo.domain.user.auth.controller;
 
-import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.user.auth.dtos.request.*;
-import com.example.demo.domain.user.auth.dtos.response.UserFindEmailResponseDto;
+import com.example.demo.domain.user.auth.dtos.response.UserFindResponseDto;
 import com.example.demo.domain.user.auth.dtos.response.UserLoginResponseDto;
 import com.example.demo.domain.user.auth.dtos.response.UserMeResponseDto;
 import com.example.demo.domain.user.auth.principal.PrincipalDetails;
@@ -34,19 +33,29 @@ public class UserAuthLocalController {
     private final UserEmailService userEmailService;
     private final UserVerificationService userVerificationService;
     private final UserWithdrawService userWithdrawService;
+    private final UserRecoverService userRecoverService;
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody UserSignupRequestDto userSignupRequestDto) {
         userSignupService.signup(userSignupRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 성공적으로 완료되었습니다.");
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDto> userLogin(@RequestBody UserLoginRequestDto userLoginRequestDto) {
         UserLoginResponseDto userLoginResponseDto = userLoginService.userLogin(userLoginRequestDto);
         return ResponseEntity.ok(userLoginResponseDto);
     }
 
+    /**
+     * 소셜 계정에 로컬 비밀번호 연동
+     */
     @PostMapping("/link-password")
     public ResponseEntity<String> linkPassword(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -58,6 +67,9 @@ public class UserAuthLocalController {
         return ResponseEntity.ok("연동 성공!");
     }
 
+    /**
+     * 내 연동 정보 조회 (로컬/소셜 여부)
+     */
     @GetMapping("/me")
     public ResponseEntity<UserMeResponseDto> getMyInfo(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -68,15 +80,24 @@ public class UserAuthLocalController {
         return ResponseEntity.ok(userMeResponseDto);
     }
 
+    /**
+     * 아이디(이메일) 찾기
+     */
     @PostMapping("/find-email")
-    public ResponseEntity<UserFindEmailResponseDto> findEmail(@RequestBody UserFindEmailRequestDto userFindEmailRequestDto) {
-        String maskedEmail = userFindService.findEmail(userFindEmailRequestDto.getName(), userFindEmailRequestDto.getPhone());
-        return ResponseEntity.ok(new UserFindEmailResponseDto(maskedEmail));
+    public ResponseEntity<UserFindResponseDto> findEmail(@RequestBody UserFindEmailRequestDto userFindEmailRequestDto) {
+        UserFindResponseDto response = userFindService.findEmail(
+                userFindEmailRequestDto.getName(),
+                userFindEmailRequestDto.getPhone()
+        );
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * 비밀번호 재설정용 인증 코드 발송
+     */
     @PostMapping("/send-code")
     public ResponseEntity<?> sendCode(@Valid @RequestBody UserPasswordVerifyRequestDto userPasswordVerifyRequestDto) {
-        userAuthRepository.findByNameAndEmailAndPhone(
+        userAuthRepository.findByNameAndEmailAndPhoneForReset(
                 userPasswordVerifyRequestDto.getName(),
                 userPasswordVerifyRequestDto.getEmail(),
                 userPasswordVerifyRequestDto.getPhone()
@@ -86,6 +107,9 @@ public class UserAuthLocalController {
         return ResponseEntity.ok(Map.of("message", "인증번호가 이메일로 발송되었습니다"));
     }
 
+    /**
+     * 이메일 인증 코드 검증
+     */
     @PostMapping("/verify-code")
     public ResponseEntity<?> verifyCode(@Valid @RequestBody UserCodeCheckRequestDto userCodeCheckRequestDto) {
         boolean isVerified = userVerificationService.verifyCode(
@@ -102,6 +126,9 @@ public class UserAuthLocalController {
         }
     }
 
+    /**
+     * 비밀번호 재설정 (실제 변경)
+     */
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody UserPasswordResetRequestDto userPasswordResetRequestDto) {
         if (!userPasswordResetRequestDto.getNewPassword().equals(userPasswordResetRequestDto.getConfirmPassword())) {
@@ -114,21 +141,41 @@ public class UserAuthLocalController {
 
     /**
      * 회원 탈퇴 (Soft Delete)
-     * PrincipalDetails의 이메일을 사용하여 서비스를 호출합니다.
      */
     @DeleteMapping("/withdraw")
     public ResponseEntity<String> withdraw(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @Valid @RequestBody UserWithdrawRequestDto userWithdrawRequestDto
-    ) {
-        // 필터 로직 상 userId가 null일 수 있으므로, 확실한 식별자인 email을 사용합니다.
+            @RequestBody UserWithdrawRequestDto userWithdrawRequestDto) {
+
         String email = principalDetails.getUser().getEmail();
-
-        log.info("회원 탈퇴 요청 API 호출 - 유저 이메일: {}", email);
-
-        // 서비스 레이어의 withdraw(String email, ...)를 호출합니다.
         userWithdrawService.withdraw(email, userWithdrawRequestDto);
 
-        return ResponseEntity.ok("회원 탈퇴 처리가 완료되었습니다.");
+        return ResponseEntity.ok("회원 탈퇴가 성공적으로 처리되었습니다.");
+    }
+
+    /**
+     * [계정 복구] 인증번호 발송
+     * 💡 변경 사항: userEmailService 대신 UserFindService를 호출하여 이름/이메일/전번 검증을 수행합니다.
+     */
+    @PostMapping("/send-recover-code")
+    public ResponseEntity<?> sendRecoverCode(@Valid @RequestBody UserRecoverSendCodeRequestDto userRecoverSendCodeRequestDto) {
+        log.info("계정 복구 인증번호 발송 요청 이메일: {}", userRecoverSendCodeRequestDto.getEmail());
+
+        // UserFindService의 sendRecoverCode를 호출하여 DB 검증 후 메일 발송
+        userFindService.sendRecoverCode(userRecoverSendCodeRequestDto);
+
+        return ResponseEntity.ok(Map.of("message", "계정 복구 인증번호가 이메일로 발송되었습니다."));
+    }
+
+    /**
+     * [계정 복구] 최종 승인 및 비밀번호 재설정
+     */
+    @PostMapping("/recover")
+    public ResponseEntity<Map<String, String>> recoverAccount(@Valid @RequestBody UserRecoverRequestDto userRecoverRequestDto) {
+        log.info("계정 복구 최종 요청 이메일: {}", userRecoverRequestDto.getEmail());
+
+        userRecoverService.recoverAccount(userRecoverRequestDto);
+
+        return ResponseEntity.ok(Map.of("message", "계정이 성공적으로 복구되었습니다. 다시 로그인해 주세요."));
     }
 }

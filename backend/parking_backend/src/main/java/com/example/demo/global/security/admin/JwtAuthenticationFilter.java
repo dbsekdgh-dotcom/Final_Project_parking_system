@@ -51,7 +51,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/api/user/auth/local/send-code")
                 || path.startsWith("/api/user/auth/local/verify-code")
                 || path.startsWith("/api/user/auth/local/reset-password")
-                || path.startsWith("/api/test/")) {
+                || path.startsWith("/api/user/auth/local/send-recover-code")
+                || path.startsWith("/api/user/auth/local/recover")
+                || path.startsWith("/api/user/auth/local/verify-recover-code")
+                || path.startsWith("/api/test/"
+        )) {
             return true;
         }
 
@@ -69,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
 
-        if (path.startsWith("/admin/")) {
+        if (path.startsWith("/admin")) { // 기존 "/admin/" 에서 "/" 제거 (더 확실하게 매칭)
             handleAdminJwt(request, response, filterChain);
         } else {
             handleUserJwt(request, response, filterChain);

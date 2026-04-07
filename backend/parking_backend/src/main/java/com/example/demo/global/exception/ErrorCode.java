@@ -41,7 +41,8 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "사용할 수 없는 계정입니다. 관리자에게 문의하세요."),
-    WITHDRAWN_ACCOUNT(HttpStatus.FORBIDDEN, "탈퇴한 계정입니다. 고객센터에 문의하세요."),
+    WITHDRAWN_ACCOUNT(HttpStatus.FORBIDDEN, "탈퇴한 계정입니다. 복구하시겠습니까?"),
+
     // AUTH (계정 연동 및 비밀번호 관련 추가)
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     ALREADY_LINKED_LOCAL(HttpStatus.CONFLICT, "이미 로컬 계정이 연동되어 있습니다."),
@@ -50,8 +51,7 @@ public enum ErrorCode {
     SOCIAL_USER_LOGIN_ATTEMPT(HttpStatus.CONFLICT, "소셜 계정으로 가입된 사용자입니다. 소셜 로그인을 이용해 주세요."),
 
     // AUTH (인증번호 관련 추가)
-    USER_INFORMATION_MISMATCH(HttpStatus.NOT_FOUND, "입력하신 정보와 일치하는 사용자가 없습니다."), // ← 이거!
-    VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."),
+    USER_INFORMATION_MISMATCH(HttpStatus.NOT_FOUND, "입력하신 정보와 일치하는 탈퇴 계정을 찾을 수 없습니다. 이름, 이메일, 휴대폰 번호를 다시 확인해 주세요."),    VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."),
     VERIFICATION_CODE_EXPIRED(HttpStatus.GONE, "인증 시간이 초과되었습니다. 다시 시도해 주세요."),
     MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 발송 중 오류가 발생했습니다."),
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "인증되지 않은 접근입니다. 먼저 이메일 인증을 완료해주세요."),
@@ -59,7 +59,12 @@ public enum ErrorCode {
     // AUTH (회원 탈퇴 관련 추가)
     INVALID_CONFIRM_TEXT(HttpStatus.BAD_REQUEST, "탈퇴 확인 문구가 일치하지 않습니다."),
     WITHDRAW_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
+    RESTORE_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "복구 인증 세션이 만료되었습니다."), // 복구 진행 중 단계가 끊겼을 때
 
+    // AUTH (계정 복구 관련 추가)
+    RECOVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "복구 가능한 탈퇴 기록이 없습니다."),
+    INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."), // 기존 VERIFICATION_CODE_MISMATCH와 통합 가능하지만 명확히 분리 시 사용
+    PHONE_ALREADY_ACTIVE(HttpStatus.CONFLICT, "이미 동일한 번호로 사용 중인 계정이 있어 복구가 불가능합니다."),
 
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),

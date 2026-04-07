@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/prepays")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173") // cors잠시 해제, 시큐리티 완성시 삭제
+@CrossOrigin(origins = "http://localhost:5203") // cors잠시 해제, 시큐리티 완성시 삭제
 public class PrepayController {
     private final ParkingLogService parkinglogService;
 
