@@ -20,7 +20,7 @@ function App() {
       <Route path="/entry-exit" element={<EntryExit />} />
       <Route path="/entry-parkingspace" element={<EntryParkingSpace/>}/>
       <Route path="/entry-confirmation" element={<EntryConfirmationPopup/>}/>
-      <Route path="/entry-compleate" element={<EntryCompletePage/>}/>
+      <Route path="/entry-complete" element={<EntryCompletePage/>}/>
       <Route path="/prepayment" element={<PrepaymentMain/>}></Route>
       <Route path="/searchResult" element={<VehicleSearchResult />}></Route>
       <Route path="/selectedVehicle" element={<SelectedVehicleInfo />}></Route>

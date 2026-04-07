@@ -70,7 +70,7 @@ public class UserSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 리액트 앱 주소 허용
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5202"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
