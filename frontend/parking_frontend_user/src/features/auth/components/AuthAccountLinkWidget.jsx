@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
-import "./auth-account-link-widget.css";
+import "./AuthAccountLinkWidget.css";
 import "./SocialLoginButtons.css";
 
 import kakaoIcon from "../../../assets/images/kakao_login_icon.png";

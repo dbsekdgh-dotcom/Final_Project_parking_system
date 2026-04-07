@@ -5,6 +5,8 @@ import { useMutation } from "@tanstack/react-query";
 import api from "../api/axios";
 import Swal from "sweetalert2";
 import localIcon from "../../../assets/images/local_login_icon.png";
+// ⭐ 계정 복구 로직 함수 임포트
+import { handleAccountRecover } from "../components/AccountRecoverButton";
 
 const SignupPage = () => {
     const navigate = useNavigate();
@@ -46,20 +48,69 @@ const SignupPage = () => {
             }).then(() => navigate("/"));
         },
         onError: (error) => {
-            const serverErrorMessage = error.response?.data?.message || "회원가입에 실패했습니다. 다시 시도해주세요.";
-            Swal.fire({
-                icon: 'error',
-                title: '회원가입 실패',
-                text: serverErrorMessage,
-                confirmButtonColor: '#d33',
-            });
+            const serverErrorMessage = error.response?.data?.message || "회원가입에 실패했습니다.";
+            const errorCode = error.response?.data?.code;
+
+            // ⭐ 1. 탈퇴한 계정으로 가입 시도 시 복구 유도
+            if (errorCode === "USER_WITHDRAWN" || serverErrorMessage.includes("탈퇴")) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '탈퇴된 계정입니다',
+                    html: `
+                        <div style="margin: 15px 0;">
+                            <p>입력하신 이메일은 현재 <b>탈퇴 상태</b>입니다.</p>
+                            <p style="font-size: 14px; color: #666;">다시 가입하는 대신 기존 계정을 복구하시겠습니까?</p>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 10px;">
+                            <button id="swal-signup-close" class="swal2-confirm swal2-styled" style="background-color: #757575; width: 100px;">취소</button>
+                            <button id="swal-signup-recover" class="swal2-confirm swal2-styled" style="background-color: #f8bb86; color: #000; font-weight: bold; width: 120px;">계정 복구</button>
+                        </div>
+                    `,
+                    showConfirmButton: false
+                });
+
+                setTimeout(() => {
+                    const closeBtn = document.getElementById('swal-signup-close');
+                    const recoverBtn = document.getElementById('swal-signup-recover');
+
+                    if (closeBtn) closeBtn.onclick = () => Swal.close();
+                    if (recoverBtn) {
+                        recoverBtn.onclick = () => {
+                            Swal.close();
+                            // 현재 입력된 정보를 복구 창에 미리 채워줌
+                            handleAccountRecover({
+                                name: formData.name,
+                                email: formData.email,
+                                phone: formData.phone
+                            });
+                        };
+                    }
+                }, 100);
+            } 
+            // 2. 이미 존재하는 계정 (일반 중복)
+            else if (errorCode === "EMAIL_ALREADY_EXISTS") {
+                Swal.fire({
+                    icon: 'error',
+                    title: '가입 불가',
+                    text: '이미 사용 중인 이메일입니다.',
+                    confirmButtonColor: '#3085d6',
+                });
+            }
+            // 3. 기타 에러
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '회원가입 실패',
+                    text: serverErrorMessage,
+                    confirmButtonColor: '#d33',
+                });
+            }
         }
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // 1. 비밀번호 일치 확인 (프론트엔드 1차 검증)
         if (formData.password !== formData.passwordCheck) {
             Swal.fire({ icon: 'error', title: '비밀번호 불일치', text: '비밀번호가 일치하지 않습니다.', confirmButtonColor: '#d33' });
             return;
@@ -70,7 +121,6 @@ const SignupPage = () => {
             return;
         }
 
-        // passwordCheck를 제외한 나머지 데이터만 서버로 전송
         const { passwordCheck, ...submitData } = formData;
         mutate(submitData);
     };
