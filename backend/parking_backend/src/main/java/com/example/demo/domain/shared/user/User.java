@@ -94,4 +94,12 @@ public class User {
     public void addLocalPassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+
+    public void withdraw() {
+        this.status = Status.DELETED;
+        this.deletedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+        // 수정 시간도 탈퇴 시간과 동일하게 맞춰줍니다.
+        this.updatedAt = this.deletedAt;
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.demo.domain.user.auth.config;
+package com.example.demo.global.config.user;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

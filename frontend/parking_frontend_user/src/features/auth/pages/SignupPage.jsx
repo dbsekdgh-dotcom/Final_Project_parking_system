@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./SignupPage.css";
 import { useMutation } from "@tanstack/react-query";
 import api from "../api/axios";
+import Swal from "sweetalert2";
+import localIcon from "../../../assets/images/local_login_icon.png";
 
 const SignupPage = () => {
     const navigate = useNavigate();
@@ -35,14 +37,22 @@ const SignupPage = () => {
     const { mutate, isPending } = useMutation({
         mutationFn: (submitData) => api.post("/api/user/auth/local/signup", submitData), 
         onSuccess: () => {
-            alert("회원가입 성공!! 로그인 해 주세요.");
-            navigate("/"); // 로그인 페이지로 이동
+            Swal.fire({
+                icon: 'success',
+                title: '회원가입 성공',
+                text: '로그인 해 주세요.',
+                timer: 1500,
+                showConfirmButton: false,
+            }).then(() => navigate("/"));
         },
         onError: (error) => {
-            // ⭐ 백엔드 UserAuthExceptionHandler에서 보낸 메시지 출력
-            // "이미 사용 중인 이메일입니다" 등이 출력됩니다.
             const serverErrorMessage = error.response?.data?.message || "회원가입에 실패했습니다. 다시 시도해주세요.";
-            alert(serverErrorMessage);
+            Swal.fire({
+                icon: 'error',
+                title: '회원가입 실패',
+                text: serverErrorMessage,
+                confirmButtonColor: '#d33',
+            });
         }
     });
 
@@ -51,13 +61,12 @@ const SignupPage = () => {
 
         // 1. 비밀번호 일치 확인 (프론트엔드 1차 검증)
         if (formData.password !== formData.passwordCheck) {
-            alert("비밀번호가 일치하지 않습니다.");
+            Swal.fire({ icon: 'error', title: '비밀번호 불일치', text: '비밀번호가 일치하지 않습니다.', confirmButtonColor: '#d33' });
             return;
         }
 
-        // 2. 비밀번호 길이 확인 (백엔드 조건과 동일하게 맞춤)
         if (formData.password.length < 8) {
-            alert("비밀번호는 최소 8자 이상이어야 합니다.");
+            Swal.fire({ icon: 'error', title: '비밀번호 형식 오류', text: '비밀번호는 최소 8자 이상이어야 합니다.', confirmButtonColor: '#d33' });
             return;
         }
 
@@ -98,6 +107,9 @@ const SignupPage = () => {
                            value={formData.passwordCheck} onChange={handleChange} required />
 
                     <button type="submit" className="primaryButton" disabled={isPending}>
+                        {!isPending && (
+                            <img src={localIcon} alt="" aria-hidden style={{ width: 20, height: 20, verticalAlign: "middle", marginRight: 6 }} />
+                        )}
                         {isPending ? "가입 중..." : "회원가입"}
                     </button>
                 </form>

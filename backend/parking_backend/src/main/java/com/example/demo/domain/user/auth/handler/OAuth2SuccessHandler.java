@@ -2,7 +2,7 @@ package com.example.demo.domain.user.auth.handler;
 
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.enums.Status;
-import com.example.demo.domain.user.auth.jwt.JWTUtil;
+import com.example.demo.global.util.admin.AdminJWTUtil;
 import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final JWTUtil jwtUtil;
+    private final AdminJWTUtil adminJWTUtil;
     private final UserAuthRepository userAuthRepository;
 
     @Override
@@ -98,16 +98,22 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             return;
         }
 
-        // 3. JWT 발행 및 리다이렉트 (기존 동일)
+        // 3. JWT 발행 및 리다이렉트 (수정된 부분)
         Map<String, Object> claims = Map.of("email", finalEmail, "role", "ROLE_USER");
-        String accessToken = jwtUtil.generateAccessToken(claims);
-        String refreshToken = jwtUtil.generateRefreshToken(claims);
+        String accessToken = adminJWTUtil.generateUserAccessToken(claims);
+        String refreshToken = adminJWTUtil.generateUserRefreshToken(claims);
 
+// ⭐ build() 다음에 encode()를 추가해야 한글(name)이 안전하게 변환됩니다.
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/oauth-redirect")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
-                .build().toUriString();
+                .queryParam("name", finalName)
+                .queryParam("email", finalEmail)
+                .build()
+                .encode()
+                .toUriString();
 
+        log.info("### 리다이렉트 URL: {}", targetUrl);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }

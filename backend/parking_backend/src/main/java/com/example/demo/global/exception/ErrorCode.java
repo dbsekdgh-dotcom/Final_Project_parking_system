@@ -40,7 +40,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "사용할 수 없는 계정입니다. 관리자에게 문의하세요."),
-
+    WITHDRAWN_ACCOUNT(HttpStatus.FORBIDDEN, "탈퇴한 계정입니다. 고객센터에 문의하세요."),
     // AUTH (계정 연동 및 비밀번호 관련 추가)
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     ALREADY_LINKED_LOCAL(HttpStatus.CONFLICT, "이미 로컬 계정이 연동되어 있습니다."),
@@ -54,6 +54,12 @@ public enum ErrorCode {
     VERIFICATION_CODE_EXPIRED(HttpStatus.GONE, "인증 시간이 초과되었습니다. 다시 시도해 주세요."),
     MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 발송 중 오류가 발생했습니다."),
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "인증되지 않은 접근입니다. 먼저 이메일 인증을 완료해주세요."),
+
+    // AUTH (회원 탈퇴 관련 추가)
+    INVALID_CONFIRM_TEXT(HttpStatus.BAD_REQUEST, "탈퇴 확인 문구가 일치하지 않습니다."),
+    WITHDRAW_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
+
+
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),
     PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY,"결제 서비스 호출에 실패하였습니다."),

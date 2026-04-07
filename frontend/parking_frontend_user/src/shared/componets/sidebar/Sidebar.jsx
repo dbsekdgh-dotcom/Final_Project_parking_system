@@ -4,7 +4,7 @@ import AuthAccountLinkWidget from '../../../features/auth/components/AuthAccount
 import LogoutButton from '../../../features/auth/components/LogoutButton'
 
 const navItems = [
-  { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },
+  { to: '/', label: '홈', end: true, icon: HomeIcon },
   { to: '/season-pass', label: '정기권', icon: TicketIcon },
   { to: '/visit', label: '방문 예약', icon: CalendarIcon },
   { to: '/mypage', label: '마이페이지', icon: UserIcon },
@@ -50,7 +50,7 @@ export function Sidebar() {
 
       <div className="sidebar__footer">
         <div className="sidebar__divider" />
-        <LogoutButton type="button" className="sidebar__logout">
+        <LogoutButton className="sidebar__logout">
           로그아웃
           <LogoutIcon />
         </LogoutButton>

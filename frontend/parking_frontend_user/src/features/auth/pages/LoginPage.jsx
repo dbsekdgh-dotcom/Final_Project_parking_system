@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // ⭐ useEffect 추가
 import { useNavigate } from "react-router-dom";
 import SocialLoginButtons from "../components/SocialLoginButtons";
 import "./LoginPage.css";
@@ -6,11 +6,13 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "../api/axios";
 import Swal from "sweetalert2";
 import FindAccountButtons from "../components/FindAccountButtons";
+import localIcon from "../../../assets/images/local_login_icon.png";
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: "", password: "" });
     const { email, password } = formData;
+
 
     const loginMutation = useMutation({
         mutationFn: async (loginData) => {
@@ -24,15 +26,7 @@ const LoginPage = () => {
             localStorage.setItem("refreshToken", data.refreshToken);
             localStorage.setItem("userName", data.name);
             localStorage.setItem("userEmail", data.email);
-
-            // 성공 알림도 SweetAlert2로 통일!
-            Swal.fire({
-                icon: 'success',
-                title: '로그인 성공',
-                text: `${data.name}님, 환영합니다!`,
-                timer: 1500,
-                showConfirmButton: false
-            });
+            sessionStorage.setItem("loginSuccess", data.name);
 
             navigate("/dashboard");
         },
@@ -42,7 +36,6 @@ const LoginPage = () => {
 
             console.error(`로그인 실패 [${errorCode}]:`, serverMessage);
 
-            // 1. 소셜 로그인 유도
             if (errorCode === "SOCIAL_USER_LOGIN_ATTEMPT") {
                 Swal.fire({
                     icon: 'warning',
@@ -52,7 +45,6 @@ const LoginPage = () => {
                     confirmButtonText: '확인'
                 });
             } 
-            // 2. 가입되지 않은 유저 -> 회원가입 이동 제안
             else if (errorCode === "USER_NOT_FOUND") {
                 Swal.fire({
                     icon: 'question',
@@ -69,7 +61,6 @@ const LoginPage = () => {
                     }
                 });
             } 
-            // 3. 그 외 에러 (비밀번호 틀림 등)
             else {
                 Swal.fire({
                     icon: 'error',
@@ -97,7 +88,7 @@ const LoginPage = () => {
             return;
         }
 
-        if (password.length< 8) {
+        if (password.length < 8) {
             Swal.fire({
                 icon: 'error',
                 title: '비밀번호 형식 오류',
@@ -157,6 +148,9 @@ const LoginPage = () => {
                             className="loginButton"
                             disabled={loginMutation.isPending}
                         >
+                            {!loginMutation.isPending && (
+                                <img src={localIcon} alt="" aria-hidden style={{ width: 20, height: 20, verticalAlign: "middle", marginRight: 6 }} />
+                            )}
                             {loginMutation.isPending ? "로그인 중..." : "로그인"}
                         </button>
                     </form>
