@@ -1,32 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './EntryParkingSpace.css';
+import { fetchEntrySpace } from '../../api/EntryApi';
 
 const EntryParkingSpace = () => {
   // 데이터 구조: label(코드), subLabel(명칭) 분리
-  const spotData = [
-    // A행 (A1~A9 일반, A10 장애인)
-    { id: 'A1', label: 'A1' }, { id: 'A2', label: 'A2' }, { id: 'A3', label: 'A3' },
-    { id: 'A4', label: 'A4' }, { id: 'A5', label: 'A5' }, { id: 'A6', label: 'A6' },
-    { id: 'A7', label: 'A7' }, { id: 'A8', label: 'A8' }, { id: 'A9', label: 'A9' },
-    { id: 'A10', label: 'A10', subLabel: '장애인', typeClass: 'disabled-spot' },
-
-    // B행 (B1~B9 일반, B10 전기차)
-    { id: 'B1', label: 'B1' }, { id: 'B2', label: 'B2' }, { id: 'B3', label: 'B3' },
-    { id: 'B4', label: 'B4' }, { id: 'B5', label: 'B5' }, { id: 'B6', label: 'B6' },
-    { id: 'B7', label: 'B7' }, { id: 'B8', label: 'B8' }, { id: 'B9', label: 'B9' },
-    { id: 'B10', label: 'B10', subLabel: '전기차', typeClass: 'ev-spot' },
-
-    // C행 (C1~C9 일반, C10 전기차)
-    { id: 'C1', label: 'C1' }, { id: 'C2', label: 'C2' }, { id: 'C3', label: 'C3' },
-    { id: 'C4', label: 'C4' }, { id: 'C5', label: 'C5' }, { id: 'C6', label: 'C6' },
-    { id: 'C7', label: 'C7' }, { id: 'C8', label: 'C8' }, { id: 'C9', label: 'C9' },
-    { id: 'C10', label: 'C10', subLabel: '전기차', typeClass: 'ev-spot' },
-  ];
+  const [spotData,setSpotData] = useState([]);
 
   const [selectedFloor, setSelectedFloor] = useState('B1');
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
-
+  useEffect(()=>{
+    fetchEntrySpace()
+    .then(setSpotData)
+    .catch((err)=>console.error('자리 목록 조회 실패:',err))
+  },[]);
+  
   return (
     <div className="parking-container">
       <header className="parking-header">

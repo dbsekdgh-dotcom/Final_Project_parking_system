@@ -16,6 +16,10 @@ export const fetchEntryCameras = async () => {
   const res = await axios.get(`${BASE}/cameras`);
   return res.data;
 };
+export const fetchEntrySpace = async ()=>{
+  const res = await axios.get(`${BASE}/space`);
+  return res.data;
+}
 
 // 입구 카메라 선택 → 입차 확정
 export const confirmEnter = async ({ parkingLogId, cameraId }) => {
