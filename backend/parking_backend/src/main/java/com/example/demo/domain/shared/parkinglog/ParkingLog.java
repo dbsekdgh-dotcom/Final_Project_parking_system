@@ -12,6 +12,7 @@ import jdk.jfr.Timestamp;
 import lombok.*;
 import lombok.extern.java.Log;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -47,7 +48,7 @@ public class ParkingLog {
     private Boolean isBlacklist;
 
     @Comment("DETECTED : 인식된 시간")
-    @Timestamp
+    @CreationTimestamp
     private LocalDateTime entryTime;
 
     @Comment("EXIT_REQUESTED : 출차 대기 시간")

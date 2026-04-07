@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { createEntry } from "../api/EntryApi";
+import { requestPlateOcr } from "../api/PlateOcrApi";
 
 export const usePlateOCRMutation = () =>{
     return useMutation({
-        mutationFn: createEntry,
+        mutationFn: requestPlateOcr,
     });
 };
