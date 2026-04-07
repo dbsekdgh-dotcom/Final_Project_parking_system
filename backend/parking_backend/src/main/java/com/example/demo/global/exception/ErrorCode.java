@@ -14,7 +14,9 @@ public enum ErrorCode {
     // VEHICLE
     VEHICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 차량이 없습니다."),
     DUPLICATE_VEHICLE(HttpStatus.CONFLICT, "이미 등록된 차량입니다."),
-
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고 내역을 찾을 수 없습니다."),
+    REPORT_CANNOT_CANCEL(HttpStatus.FORBIDDEN, "본인 신고만 취소 가능합니다."),
+    USER_NOT_FOUND_REPORT(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
     // PARKING
     PARKING_FULL(HttpStatus.CONFLICT, "주차장이 만차입니다."),
     VEHICLE_ALREADY_ENTERED(HttpStatus.CONFLICT, "이미 입차된 차량입니다."),
@@ -58,6 +60,13 @@ public enum ErrorCode {
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),
     PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY,"결제 서비스 호출에 실패하였습니다."),
     REDIS_CONNECTION_FAILURE(HttpStatus.SERVICE_UNAVAILABLE,"실시간 서비스 이용이 불가능합니다."),
+
+    // POINT 관련
+    POINT_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
+    POINT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 포인트 내역을 찾을 수 없습니다."),
+    POINT_EXPIRED(HttpStatus.BAD_REQUEST, "포인트가 만료되었습니다."),
+    POINT_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 사용된 포인트입니다."),
+    POINT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 포인트 요청입니다."),
 
     // [추가] 정의되지 않은 모든 서버 에러를 위한 공통 코드
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.")
