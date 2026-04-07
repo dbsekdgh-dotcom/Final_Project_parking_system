@@ -6,8 +6,9 @@ const ParkingLogTable = ({ logs, page, totalPages, onPageChange }) => {
     const typeLabel = {
         RESIDENT: '입주민',
         VISIT: '외부인',
-        USER: '정기권',
-        RESERVATION: '방문예약'
+        USER: '회원',
+        RESERVATION: '방문예약',
+        SUBSCRIPTION: '정기권'
     }
 
     const statusLabel={
