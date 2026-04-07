@@ -13,6 +13,9 @@ const ParkingLogPage = () => {
     const [totalPages, setTotalPages] = useState(0)
     const [filterStatus,setFilterStatus]=useState('ALL') //카드 클릭시 적용할 필터 상태 (예:'ALL','RESIDENT','VISIT'등)
 
+    //페이징 관련 계산
+    
+
     useEffect(() => { // 요약 정보는 마운트시 1번만 데이터 호출
         //API 호출해서 데이터 가져오기
         getParkingLogSummary()

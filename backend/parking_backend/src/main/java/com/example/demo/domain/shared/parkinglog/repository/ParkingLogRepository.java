@@ -2,6 +2,7 @@ package com.example.demo.domain.shared.parkinglog.repository;
 
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.VehicleSearchResponseDto;
+import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, ParkingLogRepositoryCustom {
@@ -20,7 +22,15 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     //차량번호 스냅샷에 키워드가 포함된 데이터를 페이징하여 조회
     Page<ParkingLog> findByCarNumberSnapshotContaining(String carNumber, Pageable pageable);
 
-    Page<ParkingLog> findByExitTimeIsNull(Pageable pageable);
+    //현재 주차중 (입차 완료(ENTERED) 상태이면서 출차시간이 없는경우)
+    Page<ParkingLog> findByParkingStatusAndExitedAtIsNull(ParkingStatus status, Pageable pageable);
+
+    //미납
     Page<ParkingLog> findByPaymentStatus(PaymentStatus status,Pageable pageable);
-    Page<ParkingLog> findByExitedAtIsNull(Pageable pageable);
+
+    //금일 출차완료 (출차시간이 오늘 00:00:00~23:59:59 사이)
+    Page<ParkingLog> findByExitedAtBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    //금일 로그 (오늘 생성된 모든 데이터)
+    Page<ParkingLog> findByEntryTimeBetween(LocalDateTime start,LocalDateTime end,Pageable pageable);
 }

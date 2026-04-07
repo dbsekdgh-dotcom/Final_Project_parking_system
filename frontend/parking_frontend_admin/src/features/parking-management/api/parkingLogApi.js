@@ -12,11 +12,11 @@ export const getParkingLogSummary = async()=> {
 }
 
 // 관리자 - 입출차기록 하단 내역 테이블 조회 (검색+페이징)
-export const getParkingLogList = async(keyword='',page=0,size=5) => {
+export const getParkingLogList = async(keyword='',page=0,status='ALL',size=5) => {
     try {
         const response = await adminApi.get('/parking/logs',{
             params:{
-                keyword,page,size,
+                keyword,page,size,status,
                 sort: 'parkingLogId,desc'
             }
         });
