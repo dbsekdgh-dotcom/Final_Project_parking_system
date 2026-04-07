@@ -52,11 +52,11 @@ public class EntryService {
         ParkingFeePolicy policy= entryParkingFeePolicyRepository.findActivePolicy(policyType).orElseThrow(()->
                 new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
         ParkingTypeSnapshot typeSnapshot;
-        if (info.isResident()){
+        if (info != null && info.isResident()){
             typeSnapshot = ParkingTypeSnapshot.RESIDENT;
         } else if (isReservation) {
             typeSnapshot = ParkingTypeSnapshot.RESERVATION;
-        }else {
+        } else {
             typeSnapshot = ParkingTypeSnapshot.VISIT;
         }
         Vehicle vehicle = isMemberVehicle ? entityManager.getReference(
@@ -66,12 +66,17 @@ public class EntryService {
         if(allowEntry){
             ParkingLog log= ParkingLog.builder().
                     vehicle(vehicle).
-                    carNumberSnapshot(info.getCarNumber()).
+                    carNumberSnapshot(carNumber).
                     isBlacklist(isBlacklist).
                     parkingTypeSnapshot(typeSnapshot).
                     paymentStatus(PaymentStatus.NONE).
                     parkingStatus(ParkingStatus.DETECTED).
                     parkingFeePolicyId(policy.getId()).
+                    fee(0).
+                    calculatedFee(0L).
+                    totalDiscountMinutes(0).
+                    totalDiscountAmount(0).
+                    rawFee(0).
                     graceMinutesSnapshot(policy.getGraceMinutes()).
                     entryPlateImage(ocr.getS3path()).
                     build();

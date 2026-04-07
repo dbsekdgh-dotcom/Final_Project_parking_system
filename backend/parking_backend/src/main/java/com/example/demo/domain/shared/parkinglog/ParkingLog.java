@@ -68,7 +68,7 @@ public class ParkingLog {
     private ParkingTypeSnapshot parkingTypeSnapshot;
 
     @Comment("사전정산, 일반정산 완료(SUCCESS) 상태 : 사용자가 실제로 결제한 요금")
-    private Integer fee;
+    private Integer fee=0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false)
@@ -87,7 +87,7 @@ public class ParkingLog {
     private Long parkingFeePolicyId;
 
     @Comment("EXIT_REQUESTED, 사전정산시 : 사용자가 지불해야 하는 돈")
-    private Long calculatedFee;
+    private Long calculatedFee=0L;
 
     @Comment("ENTERED : 실제로 들어온 시간")
     private LocalDateTime enteredAt;
@@ -96,13 +96,13 @@ public class ParkingLog {
     private LocalDateTime exitedAt;
 
     @Comment("할인받은 시간")
-    private Integer totalDiscountMinutes;
+    private Integer totalDiscountMinutes=0;
 
     @Comment("할인받은 요금")
-    private Integer totalDiscountAmount; // 오타 수정: totla -> total
+    private Integer totalDiscountAmount=0; // 오타 수정: totla -> total
 
     @Comment("할인 받기전 순수요금 ENTERED ~ 결제 까지")
-    private Integer rawFee;
+    private Integer rawFee=0;
 
     @Comment("결제완료(SUCCESS) 시간")
     private LocalDateTime paidAt;

@@ -17,11 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class EntryController {
     private final EntryService entryService;
 
-//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<Void> entry(@RequestPart("plateNumber")String plateNumber,
-//                                      @RequestPart("s3path")String s3Path,
-//                                      @RequestPart("file")MultipartFile file){
-//
-//    }
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> entry(@RequestPart("file") MultipartFile file) {
+        entryService.detectedEntry(file);
+        return ResponseEntity.ok().build();
+    }
 
 }
