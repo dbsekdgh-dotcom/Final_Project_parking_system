@@ -25,6 +25,7 @@ const ParkingLogPage = () => {
 
     //목록 정보 - 검색어나 페이지가 바뀔때마다 데이터 호출
     useEffect(() => {
+        console.log("필터 적용 요청:",filterStatus)
         getParkingLogList(searchQuery, page, filterStatus)
             .then(data => {
                 setParkingLogs(data.content);
@@ -43,6 +44,10 @@ const ParkingLogPage = () => {
     const handleCardClick=(status)=>{
         setFilterStatus(status)
         setPage(0) //필터 변경시 첫페이지로
+        setKeyword('')
+        setSearchQuery('')
+
+        console.log(`${status} 필터 적용 및 검색어 초기화`)
     }
 
     return (

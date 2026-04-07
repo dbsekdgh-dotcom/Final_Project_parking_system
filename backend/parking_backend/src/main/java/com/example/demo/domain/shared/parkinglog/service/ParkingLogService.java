@@ -4,6 +4,7 @@ import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummaryResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.VehicleSearchResponseDto;
+import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -36,11 +37,18 @@ public class ParkingLogService {
     }
 
     //관리자 입출차 기록 페이지 하단 내역테이블 정보 조회 + 페이징
-    public Page<ParkingLogListResponse> getParkingLogList(String keyword, Pageable pageable){
+    public Page<ParkingLogListResponse> getParkingLogList(String keyword,String status, Pageable pageable){
         Page<ParkingLog> logPage;
         // 키워드 존재 여부에 따른 조회 분기처리
         if(keyword!=null && !keyword.isBlank()){
             logPage = parkinglogRepository.findByCarNumberSnapshotContaining(keyword,pageable);
+        }else if (status!=null && !status.equals("ALL")){
+            logPage=switch (status){
+                case "CURRENT" -> parkinglogRepository.findByExitTimeIsNull(pageable); //현재 주차중
+                case "UNPAID" -> parkinglogRepository.findByPaymentStatus(PaymentStatus.UNPAID,pageable); //미납
+                case "EXITED" -> parkinglogRepository.findByExitedAtIsNull(pageable); //출차완료
+                default -> parkinglogRepository.findAll(pageable);
+            };
         }else {
             logPage = parkinglogRepository.findAll(pageable);
         }

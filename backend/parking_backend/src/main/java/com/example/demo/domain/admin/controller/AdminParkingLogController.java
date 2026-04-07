@@ -32,8 +32,9 @@ public class AdminParkingLogController {
     @GetMapping("/parking/logs")
     public ResponseEntity<Page<ParkingLogListResponse>> getParkingLogList(
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "ALL")String status,
             @PageableDefault(size = 5, sort = "parkingLogId", direction = Sort.Direction.DESC) Pageable pageable){
-        Page<ParkingLogListResponse> response = parkingLogService.getParkingLogList(keyword,pageable);
+        Page<ParkingLogListResponse> response = parkingLogService.getParkingLogList(keyword,status,pageable);
         return ResponseEntity.ok(response);
     }
 }

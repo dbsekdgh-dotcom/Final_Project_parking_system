@@ -2,6 +2,7 @@ package com.example.demo.domain.shared.parkinglog.repository;
 
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.VehicleSearchResponseDto;
+import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +19,8 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
 
     //차량번호 스냅샷에 키워드가 포함된 데이터를 페이징하여 조회
     Page<ParkingLog> findByCarNumberSnapshotContaining(String carNumber, Pageable pageable);
+
+    Page<ParkingLog> findByExitTimeIsNull(Pageable pageable);
+    Page<ParkingLog> findByPaymentStatus(PaymentStatus status,Pageable pageable);
+    Page<ParkingLog> findByExitedAtIsNull(Pageable pageable);
 }
