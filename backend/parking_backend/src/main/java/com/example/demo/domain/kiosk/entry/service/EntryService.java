@@ -9,7 +9,7 @@ import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
-import com.example.demo.domain.shared.parkinglog.repository.ParkinglogRepository;
+import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class EntryService {
     private final AiClient aiClient;
-    private final ParkinglogRepository parkinglogRepository;
+    private final ParkingLogRepository parkinglogRepository;
     private final EntryVehicleRepository entryVehicleRepository;
     private final EntryVehicleBlacklistRepository entryVehicleBlacklistRepository;
     private final EntryCameraRepository entryCameraRepository;

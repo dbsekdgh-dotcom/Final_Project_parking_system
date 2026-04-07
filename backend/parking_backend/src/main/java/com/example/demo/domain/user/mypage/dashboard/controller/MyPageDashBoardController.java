@@ -28,13 +28,6 @@ public class MyPageDashBoardController {
         mypageDashboardService.updateProfile(memberId,memberDto);
         return ResponseEntity.ok("회원 정보 수정 완료!");
     }
-    //3. 비밀번호 변경
-    @PatchMapping("/{memberId}/password")
-    public ResponseEntity<String >updatePassword(@PathVariable Long memberId,
-                                                 @RequestBody MyPageDashboardPasswordUpdateRequestDto dto){
-        mypageDashboardService.updatePassword(memberId,dto.getPassword());
-        return ResponseEntity.ok("비밀번호 변경완료!");
-    }
 
     //4. 회원 탈퇴
     @DeleteMapping("/{memberId}")
