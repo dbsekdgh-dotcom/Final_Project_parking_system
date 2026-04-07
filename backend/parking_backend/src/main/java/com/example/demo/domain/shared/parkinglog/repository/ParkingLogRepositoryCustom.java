@@ -1,0 +1,11 @@
+package com.example.demo.domain.shared.parkinglog.repository;
+
+import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummaryResponse;
+
+public interface ParkingLogRepositoryCustom {
+    //입출차 기록 페이지 상단 4가지 요약 데이터를 가져오는 메서드
+    ParkingLogSummaryResponse getParkingSummary();
+
+    //리스트 검색 / 페이징 처리 메서드 추가예정
+
+}

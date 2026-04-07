@@ -1,5 +1,6 @@
 package com.example.demo.global.controller;
 
+import com.example.demo.global.exception.AuthException;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -43,4 +44,20 @@ public class GlobalExceptionHandler {
                 .status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR.name(),ErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
     }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ErrorResponse> handlerAuthException(AuthException e) {
+        ErrorCode errorCode = e.getErrorCode();
+
+        ErrorResponse response = new ErrorResponse(
+                errorCode.name(),
+                errorCode.getMessage()
+        );
+
+        log.warn("인증 예외 발생: {}", errorCode.name());
+
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
+    }
+
+
 }

@@ -3,6 +3,7 @@ package com.example.demo.domain.user.auth.service;
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.UserRepository;
 import com.example.demo.domain.shared.user.enums.Status;
+import com.example.demo.domain.user.auth.dtos.request.UserPasswordResetRequestDto;
 import com.example.demo.domain.user.auth.dtos.request.UserPasswordUpdateRequestDto;
 import com.example.demo.domain.user.auth.dtos.response.UserMeResponseDto;
 import com.example.demo.domain.user.auth.repository.SocialAccountRepository;
@@ -24,6 +25,8 @@ public class UserLinkService {
     private final SocialAccountRepository socialAccountRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserVerificationService userVerificationService;
+
     @Transactional
     public void addLocalPassword(String email, UserPasswordUpdateRequestDto userPasswordUpdateRequestDto) {
         User user = userRepository.findByEmail(email)
@@ -65,6 +68,25 @@ public class UserLinkService {
                 .hasKakao(hasKakao)
                 .hasNaver(hasNaver)
                 .build();
+    }
+    @Transactional
+    public void resetPassword(UserPasswordResetRequestDto userPasswordResetRequestDto) {
+
+        if(!userVerificationService.hasVerificationPass(userPasswordResetRequestDto.getEmail())){
+            throw new AuthException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+
+        User user = userRepository.findByEmail(userPasswordResetRequestDto.getEmail())
+                .filter(u -> u.getStatus() == Status.ACTIVE)
+                .orElseThrow(()-> new AuthException(ErrorCode.USER_NOT_FOUND));
+
+        String encodedPassword = passwordEncoder.encode(userPasswordResetRequestDto.getNewPassword());
+
+        user.addLocalPassword(encodedPassword);
+
+        userVerificationService.deleteVerificationPass(userPasswordResetRequestDto.getEmail());
+
 
     }
 }

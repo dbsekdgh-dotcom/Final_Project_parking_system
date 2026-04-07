@@ -79,6 +79,15 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    //test용
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // ⭐ Redis (인증번호 임시 저장용)
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // ⭐ Mail (이메일 발송용)
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 //  QClass 생성 경로 설정
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile.absolutePath

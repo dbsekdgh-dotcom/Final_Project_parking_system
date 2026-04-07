@@ -11,7 +11,7 @@ import com.example.demo.domain.shared.parkingfeepolicy.repository.ParkingFeePoli
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
-import com.example.demo.domain.shared.parkinglog.repository.ParkinglogRepository;
+import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.reservation.enums.Status;
 import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
 import com.example.demo.domain.shared.subscription.repository.SubscriptionRepository;
@@ -30,7 +30,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional
 public class PaymentService {
-    private final ParkinglogRepository parkinglogRepository;
+    private final ParkingLogRepository parkinglogRepository;
     private final ReservationRepository reservationRepository;
     private final ParkingFeePolicyRepository parkingFeePolicyRepository;
     private final ParkingTicketRepository parkingTicketRepository;
