@@ -111,7 +111,7 @@ AdminSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 오리진(리액트 주소 등) 설정
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:[*]"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5201"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS"));
         // 쿠키나 인증 정보를 포함한 요청을 허용할지 여부
