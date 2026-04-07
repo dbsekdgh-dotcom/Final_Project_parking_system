@@ -83,8 +83,6 @@ dependencies {
     //test용
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    // ⭐ Redis (인증번호 임시 저장용)
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // ⭐ Mail (이메일 발송용)
     implementation 'org.springframework.boot:spring-boot-starter-mail'
