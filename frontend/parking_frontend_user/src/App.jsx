@@ -10,6 +10,7 @@ import DashBoard from './features/dash/pages/DashBoard.jsx';
 import LoginPage from './features/auth/pages/LoginPage.jsx';
 import SignupPage from './features/auth/pages/SignupPage.jsx';
 import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
+import ReportPage from './features/report/ReportPage.jsx';
 
 function App() {
   // [전역 청소 로직] 앱 진입 시 토큰 상태 점검
@@ -64,6 +65,7 @@ function App() {
           <Route path="/dashboard" element={<DashBoard />} />
           
           {/* 향후 추가될 마이페이지 등은 여기에 작성 */}
+          <Route path='/complaints' element={<ReportPage/>}/>
         </Route>
 
         {/* 4. 잘못된 경로는 모두 루트(/)로 리다이렉트 */}

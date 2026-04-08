@@ -20,11 +20,19 @@ import java.util.Map;
 public class EntryController {
     private final EntryService entryService;
 
-    // 입차 감지: OCR + S3 → ParkingLog(DETECTED) → parkingLogId 반환
+    // 입차 감지: OCR + S3 → 블랙리스트면 BLACKLIST_REJECTED 저장 후 403, 정상이면 DETECTED 저장 → parkingLogId 반환
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, Long>> entry(@RequestPart("file") MultipartFile file) {
-        Long parkingLogId = entryService.detectedEntry(file);
+    public ResponseEntity<Map<String, Long>> entry(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam Long cameraId) {
+        Long parkingLogId = entryService.detectedEntry(file, cameraId);
         return ResponseEntity.ok(Map.of("parkingLogId", parkingLogId));
+    }
+
+    // 차번호로 현재 ENTERED 상태인지 조회 (입차/출차 버튼 분기용)
+    @GetMapping("/check")
+    public ResponseEntity<Map<String, Object>> checkEntered(@RequestParam String carNumber) {
+        return ResponseEntity.ok(entryService.checkEntered(carNumber));
     }
 
     // ENTRY 카메라 목록 조회
@@ -33,12 +41,18 @@ public class EntryController {
         return ResponseEntity.ok(entryService.getEntryCameras());
     }
 
-    // 입구 카메라 선택 → ParkingLog(ENTERED) 확정
+    // EXIT 카메라 목록 조회
+    @GetMapping("/cameras/exit")
+    public ResponseEntity<List<CameraResponse>> getExitCameras() {
+        return ResponseEntity.ok(entryService.getExitCameras());
+    }
+
+    // 자리 선택 + 입차 확정: DETECTED → ENTERED, 자리 배정 (하나의 트랜잭션)
     @PatchMapping("/{parkingLogId}/enter")
     public ResponseEntity<Void> enterWithCamera(
             @PathVariable Long parkingLogId,
-            @RequestParam Long cameraId) {
-        entryService.enterWithCamera(parkingLogId, cameraId);
+            @RequestParam Long spaceId) {
+        entryService.enterWithCamera(parkingLogId, spaceId);
         return ResponseEntity.ok().build();
     }
 
@@ -54,16 +68,7 @@ public class EntryController {
         return ResponseEntity.ok(entryService.getSpacesByFloor(floor));
     }
 
-    // 자리 선택 → parking_log.parking_space_id 업데이트
-    @PatchMapping("/{parkingLogId}/space")
-    public ResponseEntity<Void> assignSpace(
-            @PathVariable Long parkingLogId,
-            @RequestParam Long spaceId) {
-        entryService.assignSpace(parkingLogId, spaceId);
-        return ResponseEntity.ok().build();
-    }
-
-    // DETECTED → ENTRY_CANCELLED (회차 버튼 또는 자동 취소 불가 시 수동 처리)
+    // DETECTED → ENTRY_CANCELLED (회차 버튼)
     @PatchMapping("/{parkingLogId}/cancel")
     public ResponseEntity<Void> cancelEntry(@PathVariable Long parkingLogId) {
         entryService.cancelEntry(parkingLogId);
