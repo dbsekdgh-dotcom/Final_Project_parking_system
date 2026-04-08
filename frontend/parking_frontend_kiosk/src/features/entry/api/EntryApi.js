@@ -44,3 +44,9 @@ export const assignParkingSpace = async ({ parkingLogId, spaceId }) => {
   });
   return res.data;
 };
+
+// DETECTED → ENTRY_CANCELLED (회차 버튼)
+export const cancelEntry = async (parkingLogId) => {
+  const res = await axios.patch(`${BASE}/${parkingLogId}/cancel`);
+  return res.data;
+};

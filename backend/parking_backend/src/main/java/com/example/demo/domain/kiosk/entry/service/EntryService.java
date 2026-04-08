@@ -18,6 +18,7 @@ import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.parkingspace.enums.Floor;
 import com.example.demo.domain.shared.parkingspace.enums.SpaceStatus;
+import com.example.demo.domain.shared.systemSetting.repository.SystemSettingRepository;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -45,6 +46,7 @@ public class EntryService {
     private final EntryParkingFeePolicyRepository entryParkingFeePolicyRepository;
     private final EntryParkingSpaceRepository entryParkingSpaceRepository;
     private final EntrySubscriptionRepository entrySubscriptionRepository;
+    private final EntrySystemSettingRepository entrySystemSettingRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -116,6 +118,15 @@ public class EntryService {
     }
 
     public void enterWithCamera(Long parkingLogId, Long cameraId) {
+        //ENTRY_LOCK 행에 FOR UPDATE 이 시점부터 다른 입차 트랜잭션 대기
+        entrySystemSettingRepository.findByIdWithLock("ENTRY_LOCK")
+                .orElseThrow(()-> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        //실제 잔여 자리 조회
+        long available = entryParkingSpaceRepository.countAvailableSpace();
+        if (available<=0){
+            throw new BusinessException(ErrorCode.PARKING_FULL);
+        }
+
         ParkingLog log = parkinglogRepository.findById(parkingLogId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
         Camera camera = entryCameraRepository.findById(cameraId)
@@ -158,10 +169,16 @@ public class EntryService {
                 .toList();
     }
 
+    public void cancelEntry(Long parkingLogId) {
+        ParkingLog log = parkinglogRepository.findById(parkingLogId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        log.cancel();
+    }
+
     public void assignSpace(Long parkingLogId, Long spaceId) {
         ParkingLog log = parkinglogRepository.findById(parkingLogId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
-        ParkingSpace space = entryParkingSpaceRepository.findById(spaceId)
+        ParkingSpace space = entryParkingSpaceRepository.findByIdWithLock(spaceId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
         if (space.getStatus() != SpaceStatus.AVAILABLE) {
             throw new BusinessException(ErrorCode.SPACE_NOT_AVAILABLE);

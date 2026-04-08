@@ -62,4 +62,11 @@ public class EntryController {
         entryService.assignSpace(parkingLogId, spaceId);
         return ResponseEntity.ok().build();
     }
+
+    // DETECTED → ENTRY_CANCELLED (회차 버튼 또는 자동 취소 불가 시 수동 처리)
+    @PatchMapping("/{parkingLogId}/cancel")
+    public ResponseEntity<Void> cancelEntry(@PathVariable Long parkingLogId) {
+        entryService.cancelEntry(parkingLogId);
+        return ResponseEntity.ok().build();
+    }
 }
