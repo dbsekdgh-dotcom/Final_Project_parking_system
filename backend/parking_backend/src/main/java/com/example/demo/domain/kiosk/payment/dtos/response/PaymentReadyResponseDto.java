@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PaymentReadyResponseDto {
-    private String tempPaymentId;
+    private String orderId;
     private Integer amount;
     private String orderName;
     private boolean isPaymentRequired;
