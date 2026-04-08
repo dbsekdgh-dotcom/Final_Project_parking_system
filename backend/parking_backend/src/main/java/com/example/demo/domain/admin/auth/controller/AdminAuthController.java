@@ -1,7 +1,6 @@
-package com.example.demo.domain.admin.controller;
+package com.example.demo.domain.admin.auth.controller;
 
 import com.example.demo.global.redis.RedisService;
-import com.example.demo.global.security.admin.AdminAuthDto;
 import com.example.demo.global.util.admin.AdminJWTException;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;

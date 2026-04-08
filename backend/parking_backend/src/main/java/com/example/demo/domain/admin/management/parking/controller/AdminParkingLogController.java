@@ -1,4 +1,4 @@
-package com.example.demo.domain.admin.controller;
+package com.example.demo.domain.admin.management.parking.controller;
 
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogDetailResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
