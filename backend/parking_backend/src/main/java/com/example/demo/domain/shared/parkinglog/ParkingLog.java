@@ -1,5 +1,6 @@
 package com.example.demo.domain.shared.parkinglog;
 
+import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.shared.camera.Camera; // Camera 엔티티 가정
 import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy; // Policy 엔티티 가정
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
@@ -123,17 +124,16 @@ public class ParkingLog {
     @Comment("EXIT_REQUESTED : 출차시 차량번호 이미지 저장 경로")
     private String exitPlateImage;
 
-    public void requestExit(LocalDateTime exitTime, ParkingStatus parkingStatus, Integer rawFee,Integer totalDiscountMinutes, Integer totalDiscountAmount,Long calculatedFee){
-        this.exitTime=exitTime;
-        this.parkingStatus=parkingStatus;
-        this.rawFee=rawFee;
-        this.totalDiscountMinutes=totalDiscountMinutes;
-        this.totalDiscountAmount=totalDiscountAmount;
-        this.calculatedFee=calculatedFee;
+    public void requestPayment(FeeCalculationResponseDto feeCalculationResponseDto){
+        this.rawFee=feeCalculationResponseDto.getRawFee();
+        this.totalDiscountMinutes=feeCalculationResponseDto.getTotalDiscountMinutes();
+        this.totalDiscountAmount=feeCalculationResponseDto.getTotalDiscountAmount();
+        this.calculatedFee=feeCalculationResponseDto.getCalculatedFee();
     }
-    public void enter(Camera camera){
+    public void enter(Camera camera, LocalDateTime freeExitUntil){
         this.entryCameraId=camera.getId();
         this.parkingStatus=ParkingStatus.ENTERED;
         this.enteredAt=LocalDateTime.now();
+        this.freeExitUntil=freeExitUntil; // RESIDENT=null, SUBSCRIPTION=정기권만료일, 나머지=입차시간+grace
     }
 }

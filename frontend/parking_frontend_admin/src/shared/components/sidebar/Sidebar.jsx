@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
 import './sidebar.css'
-import { useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import adminApi from '../../api/adminApi'
 
 const mainNav = [
-  { to: '#dashboard', label: '대시보드', id: 'dashboard' },
-  { to: '#parking-space', label: '주차공간', id: 'parking-space' },
-  { to: '#entry-exit', label: '입출차 기록', id: 'entry-exit' },
-  { to: '#fee', label: '요금 설정/조회', id: 'fee' },
-  { to: '#live-video', label: '실시간영상', id: 'live-video' },
-  { to: '#video-records', label: '영상 기록', id: 'video-records' },
-  { to: '#realtime-io', label: '실시간 입출차', id: 'realtime-io' },
-  { to: '#approval', label: '승인 관리', id: 'approval', badge: 4 },
-  { to: '#user-vehicle', label: '사용자 / 차량', id: 'user-vehicle' },
+  { to: '/admin/dashboard', label: '대시보드', id: 'dashboard' },
+  { to: '/admin/parking-space', label: '주차공간', id: 'parking-space' },
+  { to: '/admin/entry-exit', label: '입출차 기록', id: 'entry-exit' },
+  { to: '/admin/fee', label: '요금 설정/조회', id: 'fee' },
+  { to: '/admin/live-video', label: '실시간영상', id: 'live-video' },
+  { to: '/admin/video-records', label: '영상 기록', id: 'video-records' },
+  { to: '/admin/realtime-io', label: '실시간 입출차', id: 'realtime-io' },
+  { to: '/admin/approval', label: '승인 관리', id: 'approval', badge: 4 },
+  { to: '/admin/user-vehicle', label: '사용자 / 차량', id: 'user-vehicle' },
 ]
 
 const bottomNav = [
@@ -140,7 +141,8 @@ const iconsById = {
 }
 
 export default function Sidebar() {
-  const [activeId, setActiveId] = useState('dashboard')
+  const location = useLocation(); //현재 URL 위치 감지
+  // const [activeId, setActiveId] = useState('dashboard')
   const [adminName, setAdminName] = useState('Admin')
   const navigate = useNavigate();
 
@@ -153,18 +155,19 @@ export default function Sidebar() {
 
   const renderLink = (item) => {
     const Icon = iconsById[item.id] || IconHome
-    const isActive = activeId === item.id
+    // 현재 주소와 메뉴의 목적지가 같은지 확인
+    const isActive = location.pathname === item.to
     return (
       <li key={item.id} className="sidebar__item">
-        <a
-          href={item.to}
+        <Link
+          to={item.to}
           className={`sidebar__link${isActive ? ' sidebar__link--active' : ''}`}
-          onClick={() => setActiveId(item.id)}
+          // onClick={() => setActiveId(item.id)}
         >
           <Icon />
           <span className="sidebar__link-text">{item.label}</span>
           {item.badge != null && <span className="sidebar__badge">{item.badge}</span>}
-        </a>
+        </Link>
       </li>
     )
   }
@@ -175,20 +178,22 @@ export default function Sidebar() {
     try {
       // adminApi 인스턴스를 사용하면 인터셉터가 알아서 토큰을 붙여줌.
       // baseURL이 '/api/admin'이므로, 뒤에는 '/logout'만 붙이면 됨.
-      await axios.post('/api/admin/logout',null,{
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        }
-      })
+      await adminApi.post('/logout');
+      // await axios.post('/api/admin/logout',null,{
+      //   withCredentials: true,
+      //   headers: {
+      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      //   }
+      // })
       console.log("서버 로그아웃 처리 완료!");
     } catch (error) {
       console.error("로그아웃 중 오류 발생:", error);
     } finally {
-      localStorage.removeItem('accessToken');
+      // localStorage.removeItem('accessToken');
       localStorage.clear();
       alert('로그아웃 되었습니다.');
-      window.location.href = '/admin'; //리다이렉트
+      // window.location.href = '/admin'; //리다이렉트
+      navigate('/admin')
     }
   };
 

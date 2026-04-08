@@ -2,11 +2,13 @@ package com.example.demo.domain.shared.systemSetting;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Table(name = "system_setting")
 public class SystemSetting {
     @Id

@@ -1,0 +1,76 @@
+/* 상단 요약 카드 컨테이너 */
+.parking-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4열로 나열 */
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* 기본 카드 스타일 (시안의 어두운 배경 유지) */
+.summary-card {
+    background-color: #333; 
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 20px;
+    color: #fff;
+    cursor: pointer; /* 클릭 가능함을 표시 */
+    transition: all 0.25s ease; /* 부드러운 상태 변화 */
+    position: relative;
+    overflow: hidden;
+}
+
+/* 마우스를 올렸을 때 (Hover) */
+.summary-card:hover {
+    background-color: #3d3d3d;
+    border-color: #666;
+    transform: translateY(-4px); /* 살짝 위로 뜨는 효과 */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 선택된 활성화 상태 (Active) */
+/* 부모 컴포넌트에서 activeFilter와 일치할 때 'active' 클래스가 붙음 */
+.summary-card.active {
+    background-color: #444;
+    border: 2px solid #3b82f6; /* 포인트 컬러(파란색)로 테두리 강조 */
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); /* 은은한 네온 효과 */
+}
+
+/* 선택된 상태에서만 보이는 하단 강조 바 (디자인 포인트) */
+.summary-card.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #3b82f6;
+}
+
+/* 라벨 스타일 (제목) */
+.summary-label {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+
+/* 수치값 스타일 */
+.summary-value {
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    align-items: baseline;
+}
+
+/* 단위 스타일 (대, 건 등) */
+.summary-unit {
+    font-size: 16px;
+    margin-left: 4px;
+    font-weight: normal;
+    color: #888; /* 단위는 수치보다 조금 연하게 */
+}
+
+/* 선택된 카드의 라벨 색상 강조 */
+.summary-card.active .summary-label {
+    color: #fff;
+    font-weight: 600;
+}

@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleSearchResponseDto {
+public class ParkingLogSettlementDto {
     private Long parkingLogId;
     private String vehicleNumber;
+    private Long userId;
+    private Integer userPoint;
 }
