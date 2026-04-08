@@ -4,5 +4,10 @@ public enum PointReason {
     PAYMENT_EARN,
     PAYMENT_USE,
     REFUND,
-    ADMIN_ADJUST
+    ADMIN_GRANT,
+    ADMIN_REVOKE;
+
+    public boolean isDeduction(){
+        return this==PAYMENT_USE || this==REFUND || this==ADMIN_REVOKE;
+    }
 }

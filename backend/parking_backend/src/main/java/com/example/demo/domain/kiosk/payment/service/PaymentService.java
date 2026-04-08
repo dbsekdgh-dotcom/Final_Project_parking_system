@@ -51,7 +51,7 @@ public class PaymentService {
 
         //1. [NONE 처리] 입주민 /정기권 차량인 경우
         if (PaymentStatus.NONE.equals(status)) {
-            return new PaymentEligibilityResult(null, VehiclePaymentResponseDto.builder().isFree(true).message("등록된 차량(입주민/정기권)입니다. 안녕히 가세요.").rawFee(0).parkingTime(parkingTime).vehicleNumber(carNumber).build());
+            return new PaymentEligibilityResult(null, VehiclePaymentResponseDto.builder().isFree(true).message("등록된 차량(입주민/정기권)입니다.").rawFee(0).parkingTime(parkingTime).vehicleNumber(carNumber).build());
         }
 
         //2. [PAID/UNPAID 처리] 무료 출차시간 내에 출차한 경우

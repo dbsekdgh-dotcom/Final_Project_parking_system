@@ -34,6 +34,7 @@ public enum ErrorCode {
     BLACKLIST_VEHICLE(HttpStatus.FORBIDDEN, "제한된 차량입니다. 관리자에게 문의하세요."),
     GRACE_PERIOD_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "회차 시간이 초과되어 요금이 발생했습니다."),
     NOT_PAYMENT_TARGET(HttpStatus.BAD_REQUEST, "정산 대상 차량이 아닙니다."),
+    MINIMUM_POINT_NOT_ME(HttpStatus.BAD_REQUEST,"포인트는 100원부터 사용 가능합니다."),
 
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),

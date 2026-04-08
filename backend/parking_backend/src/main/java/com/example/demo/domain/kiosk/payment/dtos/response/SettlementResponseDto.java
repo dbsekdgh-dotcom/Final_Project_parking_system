@@ -1,7 +1,10 @@
 package com.example.demo.domain.kiosk.payment.dtos.response;
 
+import lombok.Builder;
+
+@Builder
 public class SettlementResponseDto {
-    private String status;
+    private String paymentStatus;
     private String vehicleNumber;
     private Integer paidAmount;
     private String exitDeadline;

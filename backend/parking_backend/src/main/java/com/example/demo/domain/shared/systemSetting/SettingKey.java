@@ -16,7 +16,14 @@ public enum SettingKey {
     ENTRY_ROCK("ENTRY_ROCK", "mutex"),
 
     // DETECTED 상태 자동 취소 시간 (분) - 기본값 1분
-    DETECTED_CANCEL_MINUTES("DETECTED_CANCEL_MINUTES", "1");
+    DETECTED_CANCEL_MINUTES("DETECTED_CANCEL_MINUTES", "1"),
+
+    // 최소 사용 가능 포인트 (기본값 100포인트부터)
+    MIN_USAGE_POINT("MIN_USAGE_POINT", "100"),
+
+    // 결제 포인트 적립률 (단위: %, 기본값 1%)
+    POINT_EARN_RATE("PAYMENT_POINT_EARN_RATE", "5");
+
 
     private final String key;
     private final String defaultValue;
