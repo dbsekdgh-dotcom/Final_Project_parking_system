@@ -14,4 +14,5 @@ public class SettlementRequestDto {
     private String vehicleNumber;
     private int usedPoint;
     private int paidAmount;
+    private String settlementType; //kiosk(사전정산) or EXIT_GATE(사후정산)
 }

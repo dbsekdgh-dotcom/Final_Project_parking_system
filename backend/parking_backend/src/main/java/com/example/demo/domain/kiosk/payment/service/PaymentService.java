@@ -133,6 +133,7 @@ public class PaymentService {
                 .totalDiscountMinutes(totalDiscountMinutes)
                 .totalDiscountAmount(totalDiscountAmount)
                 .amountToPay(amountToPay)
+                .paymentRequestedAt(LocalDateTime.now()) //결제요청 시간
                 .build();
     }
 
@@ -152,7 +153,6 @@ public class PaymentService {
         return Math.max(stackableSum,nonStackableMax);
     }
 
-    //요금 계산(사전정산 및 주차시간이 하루가 지난 경우 반영)
     public FeeCalculationResponseDto settlementFee(ParkingLog parkingLog,Long parkingFeePolicyId,Long parkingTime){
 
         //요금 정책이 없는 경우 오류 처리
@@ -178,7 +178,6 @@ public class PaymentService {
         return calculateBaseFee(request);
     }
 
-
     //EXIT_REQUESTED
     @Transactional
     public VehiclePaymentResponseDto requestPayment(ParkingLog parkingLog) {
@@ -201,10 +200,10 @@ public class PaymentService {
             calculationStartTime=parkingLog.getFreeExitUntil();
         }
         //주차 시간 계산(요금 계산용)
-        long billableTime=Duration.between(calculationStartTime,exitTime).toMinutes();//방문예약시간을 초과한 경우를 고려하여 parkingLog.getEnteredAt()대신 사용
+        long totalDurationForCalculation=Duration.between(calculationStartTime,exitTime).toMinutes();//방문예약시간을 초과한 경우를 고려하여 parkingLog.getEnteredAt()대신 사용
 
         // 기본 요금 계산
-        FeeCalculationResponseDto feeCalculationResponseDto=settlementFee(parkingLog,parkingFeePolicyId,billableTime);
+        FeeCalculationResponseDto feeCalculationResponseDto=settlementFee(parkingLog,parkingFeePolicyId,totalDurationForCalculation);
         if(feeCalculationResponseDto==null || feeCalculationResponseDto.getCalculatedFee()<=0)    {
             return VehiclePaymentResponseDto.builder().isFree(true).rawFee(0).message("결제할 요금이 없습니다.").parkingTime(parkingTime).build();
         }
