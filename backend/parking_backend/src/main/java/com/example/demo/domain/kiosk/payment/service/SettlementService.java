@@ -146,7 +146,7 @@ public class SettlementService {
             pointReason=PointReason.PAYMENT_USE;
         }
         // 회원 && 결제 시 미사용 && 첫 적립
-        String pointEarnRate=systemSettingRepository.findBySettingKey(SettingKey.POINT_EARN_RATE.getKey())
+        String pointEarnRate=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_POINT_EARN_RATE.getKey())
                 .map(SystemSetting::getSettingValue)
                 .orElse("1");
         if(usedPoint==0){
