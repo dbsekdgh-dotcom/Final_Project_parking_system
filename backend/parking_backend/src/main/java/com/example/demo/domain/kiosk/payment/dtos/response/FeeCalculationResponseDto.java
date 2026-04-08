@@ -13,4 +13,5 @@ public class FeeCalculationResponseDto {
     private int totalDiscountMinutes;
     private int totalDiscountAmount;
     private long parkingTime;
+    private long amountToPay;
 }

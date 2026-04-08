@@ -124,13 +124,15 @@ public class PaymentService {
         int totalDiscountAmount=Math.max(0,(rawFee*discountRate/100)+discountAmount);
 
         // 9. 최종 요금 (사전정산 후 사후 정산 시 할인금액이 아무리 커도 결제 금액은 0원)
-        long calculatedFee=Math.max(0,rawFee-prepaid-totalDiscountAmount);
+        long calculatedFee=Math.max(0,rawFee-totalDiscountAmount);
+        long amountToPay=Math.max(0,calculatedFee-prepaid);
 
         return FeeCalculationResponseDto.builder()
                 .rawFee(rawFee)
                 .calculatedFee(calculatedFee)
                 .totalDiscountMinutes(totalDiscountMinutes)
                 .totalDiscountAmount(totalDiscountAmount)
+                .amountToPay(amountToPay)
                 .build();
     }
 
@@ -218,6 +220,7 @@ public class PaymentService {
                 .parkingTime(parkingTime)
                 .rawFee(feeCalculationResponseDto.getRawFee())
                 .calculatedFee(feeCalculationResponseDto.getCalculatedFee())
+                .amountToPay(feeCalculationResponseDto.getAmountToPay())
                 .message("결제가 필요합니다.")
                 .build();
     }
