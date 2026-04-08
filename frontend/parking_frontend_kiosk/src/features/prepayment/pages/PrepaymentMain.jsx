@@ -19,7 +19,12 @@ const PrepaymentMain = () => {
 
   return (
     <div className='full-page-container'>
-      <h2 className='page-title'>차량번호 입력</h2>
+      <div className='page-header-container'>
+        <h2 className='page-title'>차량번호 입력</h2>
+        <button 
+          type='button' 
+          className='header-back-button' onClick={() => navigate('/')}>돌아가기</button>
+      </div>
       <div className='number-display'>
         {searchKeyword}
       </div>

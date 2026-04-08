@@ -1,11 +1,17 @@
 package com.example.demo.domain.kiosk.payment.dtos.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class FeeCalculationResponseDto {
-    private final int rawFee;
-    private final int calculdatedFee;
+    private int rawFee;
+    private long calculatedFee;
+    private int totalDiscountMinutes;
+    private int totalDiscountAmount;
+    private long parkingTime;
+    private long amountToPay;
 }

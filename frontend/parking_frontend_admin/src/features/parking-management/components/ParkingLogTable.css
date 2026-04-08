@@ -1,0 +1,107 @@
+/* 1. 테이블 전체를 감싸는 컨테이너 */
+.parking-table-wrapper {
+    background-color: #2a2a2a;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #444;
+    margin: 20px auto; /* 페이지 중앙 배치 */
+    width: 98%; /* 좌우 여백 확보 */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* 2. 테이블 본체: !important를 사용해 글자색 강제 및 균등 배분 */
+.parking-table-wrapper table.parking-log-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* 모든 컬럼 간격을 동일하게 고정 */
+    color: #ffffff !important; /* 검정색 글씨 방지 */
+}
+
+/* 3. 헤더(thead): 밝은 흰색 및 중앙 정렬 */
+.parking-table-wrapper .parking-log-table thead th {
+    padding: 20px 10px;
+    border-bottom: 2px solid #666; /* 구분선 더 밝게 */
+    color: #ffffff !important; /* 헤더 글자색 강제 */
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center; /* 가로 중앙 */
+    vertical-align: middle; /* 세로 중앙 */
+}
+
+/* 4. 본문(tbody): 행 간격 대폭 확대 및 중앙 정렬 */
+.parking-table-wrapper .parking-log-table tbody td {
+    padding: 28px 10px; /* 위아래 사이 간격 확대 */
+    border-bottom: 1px solid #444; /* 각 행 밑줄 */
+    color: #eeeeee !important; /* 본문 글자색 밝게 강제 */
+    font-size: 14px;
+    text-align: center; /* 가로 중앙 */
+    vertical-align: middle; /* 세로 중앙 */
+    word-break: break-all; /* 긴 텍스트 줄바꿈 방지 */
+}
+
+/* 차량번호: 폰트 사이즈 통일 및 강조 */
+.parking-table-wrapper .parking-log-table .font-bold {
+    font-weight: 700;
+    color: #ffffff !important;
+    font-size: 14px; /* 다른 텍스트와 통일 */
+}
+
+/* --- 유형 배지 (중앙 정렬 유지) --- */
+.type-badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+}
+.type-badge.RESIDENT { color: #4ade80 !important; background: rgba(74, 222, 128, 0.1); border: 1px solid #4ade80; }
+.type-badge.USER { color: #facc15 !important; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; }
+.type-badge.RESERVATION { color: #f472b6 !important; background: rgba(244, 114, 182, 0.1); border: 1px solid #f472b6; }
+.type-badge.VISIT { color: #cccccc !important; background: rgba(204, 204, 204, 0.1); border: 1px solid #cccccc; }
+
+/* --- 상태 및 결제 색상 강제 --- */
+.status-text { font-weight: 600; }
+.status-text.ENTERED { color: #4ade80 !important; }
+.status-text.DETECTED { color: #facc15 !important; }
+
+.payment-text.UNPAID { color: #f87171 !important; font-weight: 700; }
+.payment-text.PAID { color: #4ade80 !important; }
+.payment-text.NONE { color: #60a5fa !important; }
+
+/* 상세보기 버튼 */
+.detail-btn {
+    background: none;
+    border: none;
+    color: #3b82f6 !important;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* 5. 페이징 UI 중앙 정렬 */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+    margin-top: 35px;
+}
+
+.pagination-container button {
+    padding: 8px 18px;
+    background-color: #444;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination-container button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-info {
+    color: #ffffff !important;
+    font-weight: 600;
+}

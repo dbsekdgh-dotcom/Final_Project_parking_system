@@ -1,5 +1,6 @@
 package com.example.demo.domain.shared.parkinglog;
 
+import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.shared.camera.Camera; // Camera 엔티티 가정
 import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy; // Policy 엔티티 가정
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
@@ -12,6 +13,7 @@ import jdk.jfr.Timestamp;
 import lombok.*;
 import lombok.extern.java.Log;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -47,7 +49,7 @@ public class ParkingLog {
     private Boolean isBlacklist;
 
     @Comment("DETECTED : 인식된 시간")
-    @Timestamp
+    @CreationTimestamp
     private LocalDateTime entryTime;
 
     @Comment("EXIT_REQUESTED : 출차 대기 시간")
@@ -68,7 +70,7 @@ public class ParkingLog {
     private ParkingTypeSnapshot parkingTypeSnapshot;
 
     @Comment("사전정산, 일반정산 완료(SUCCESS) 상태 : 사용자가 실제로 결제한 요금")
-    private Integer fee;
+    private Integer fee=0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false)
@@ -87,7 +89,7 @@ public class ParkingLog {
     private Long parkingFeePolicyId;
 
     @Comment("EXIT_REQUESTED, 사전정산시 : 사용자가 지불해야 하는 돈")
-    private Long calculatedFee;
+    private Long calculatedFee=0L;
 
     @Comment("ENTERED : 실제로 들어온 시간")
     private LocalDateTime enteredAt;
@@ -96,13 +98,13 @@ public class ParkingLog {
     private LocalDateTime exitedAt;
 
     @Comment("할인받은 시간")
-    private Integer totalDiscountMinutes;
+    private Integer totalDiscountMinutes=0;
 
     @Comment("할인받은 요금")
-    private Integer totalDiscountAmount; // 오타 수정: totla -> total
+    private Integer totalDiscountAmount=0; // 오타 수정: totla -> total
 
     @Comment("할인 받기전 순수요금 ENTERED ~ 결제 까지")
-    private Integer rawFee;
+    private Integer rawFee=0;
 
     @Comment("결제완료(SUCCESS) 시간")
     private LocalDateTime paidAt;
@@ -122,12 +124,32 @@ public class ParkingLog {
     @Comment("EXIT_REQUESTED : 출차시 차량번호 이미지 저장 경로")
     private String exitPlateImage;
 
-    public void requestExit(LocalDateTime exitTime, ParkingStatus parkingStatus, Integer rawFee,Integer totalDiscountMinutes, Integer totalDiscountAmount,Long calculatedFee){
-        this.exitTime=exitTime;
-        this.parkingStatus=parkingStatus;
-        this.rawFee=rawFee;
-        this.totalDiscountMinutes=totalDiscountMinutes;
-        this.totalDiscountAmount=totalDiscountAmount;
-        this.calculatedFee=calculatedFee;
+    @Column(name = "payment_requested_at")
+    @Comment("요금 조회 및 결제 요청 시점 검증")
+    private LocalDateTime paymentRequestedAt;
+
+    public void requestPayment(FeeCalculationResponseDto feeCalculationResponseDto){
+        this.rawFee=feeCalculationResponseDto.getRawFee();
+        this.totalDiscountMinutes=feeCalculationResponseDto.getTotalDiscountMinutes();
+        this.totalDiscountAmount=feeCalculationResponseDto.getTotalDiscountAmount();
+        this.calculatedFee=feeCalculationResponseDto.getCalculatedFee();
+    }
+    public void enter(Camera camera, LocalDateTime freeExitUntil){
+        if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTERED)) {
+            throw new com.example.demo.global.exception.BusinessException(
+                    com.example.demo.global.exception.ErrorCode.INVALID_REQUEST);
+        }
+        this.entryCameraId=camera.getId();
+        this.parkingStatus=ParkingStatus.ENTERED;
+        this.enteredAt=LocalDateTime.now();
+        this.freeExitUntil=freeExitUntil; // RESIDENT=null, SUBSCRIPTION=정기권만료일, 나머지=입차시간+grace
+    }
+
+    public void cancel(){
+        if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTRY_CANCELLED)) {
+            throw new com.example.demo.global.exception.BusinessException(
+                    com.example.demo.global.exception.ErrorCode.INVALID_REQUEST);
+        }
+        this.parkingStatus = ParkingStatus.ENTRY_CANCELLED;
     }
 }

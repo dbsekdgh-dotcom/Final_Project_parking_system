@@ -19,7 +19,7 @@ public class AiClient {
     }
     public OcrResponse requestOcr(MultipartFile file){
         return webClient.post()
-                .uri("/entryexit")
+                .uri("/api/v1/parking/entryexit/")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(
                         BodyInserters.fromMultipartData(

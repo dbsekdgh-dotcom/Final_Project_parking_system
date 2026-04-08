@@ -1,10 +1,10 @@
-package com.example.demo.domain.user.auth.config;
+package com.example.demo.global.config.user;
 
-import com.example.demo.domain.user.auth.filter.JWTCheckFilter;
-import com.example.demo.domain.user.auth.handler.OAuth2FailureHandler; // ⭐ 추가
+import com.example.demo.domain.user.auth.handler.OAuth2FailureHandler;
 import com.example.demo.domain.user.auth.handler.OAuth2SuccessHandler;
-import com.example.demo.domain.user.auth.jwt.JWTUtil;
 import com.example.demo.domain.user.auth.service.CustomOAuth2UserService;
+import com.example.demo.global.security.admin.JwtAuthenticationFilter;
+import com.example.demo.global.util.admin.AdminJWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,8 +29,8 @@ public class UserSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final OAuth2FailureHandler oAuth2FailureHandler; // ⭐ 주입 추가
-    private final JWTUtil jwtUtil;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final AdminJWTUtil adminJWTUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -42,10 +42,10 @@ public class UserSecurityConfig {
                 .cors(cors -> cors.configurationSource(userCorsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // 1. JWT 필터 순서 조정: LogoutFilter 앞으로 당겨서 OAuth2 로직보다 먼저 쿠키를 읽게 함
-                .addFilterBefore(new JWTCheckFilter(jwtUtil), org.springframework.security.web.authentication.logout.LogoutFilter.class)
+                // JWT 필터 순서 조정: LogoutFilter 앞으로 당겨서 OAuth2 로직보다 먼저 쿠키를 읽게 함
+                .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), org.springframework.security.web.authentication.logout.LogoutFilter.class)
                 // 일반 API 요청을 위해 기존 위치에도 유지
-                .addFilterBefore(new JWTCheckFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
@@ -53,13 +53,15 @@ public class UserSecurityConfig {
                                 "/api/user/auth/local/signup", "/api/user/auth/local/login"
                                 ,"/api/user/auth/local/find-email","/api/user/auth/local/send-code",
                                 "/api/user/auth/local/verify-code","/api/user/auth/local/find-email",
-                                "/api/user/auth/local/reset-password").permitAll()
+                                "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
+                                "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
                         .anyRequest().authenticated())
 
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
-                        .failureHandler(oAuth2FailureHandler) // ⭐ 실패 핸들러 등록 (리액트로 에러 전달)
+                        .failureHandler(oAuth2FailureHandler)
                 );
 
         return http.build();
@@ -70,7 +72,7 @@ public class UserSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 리액트 앱 주소 허용
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5202"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
