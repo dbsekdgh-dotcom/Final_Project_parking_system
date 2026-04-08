@@ -54,7 +54,8 @@ public class UserSecurityConfig {
                                 ,"/api/user/auth/local/find-email","/api/user/auth/local/send-code",
                                 "/api/user/auth/local/verify-code","/api/user/auth/local/find-email",
                                 "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
-                                "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover").permitAll()
+                                "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover",
+                                "/api/user/auth/social-recover").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
                         .anyRequest().authenticated())
 

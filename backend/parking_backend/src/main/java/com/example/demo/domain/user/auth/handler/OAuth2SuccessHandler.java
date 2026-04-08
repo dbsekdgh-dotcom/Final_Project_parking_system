@@ -10,13 +10,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.time.LocalDate; // ⭐ 추가
+import java.time.LocalDate;
 import java.util.Map;
 
 @Slf4j
@@ -32,88 +33,119 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes = oAuth2User.getAttributes();
+
+        // 1. 소셜 서비스 구분 및 고유 ID 추출
+        String provider = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId().toUpperCase();
+        String providerId = extractProviderId(provider, attributes);
+
+        log.info("### 소셜 로그인 시도 [{}]: ID={}, Attributes={}", provider, providerId, attributes);
+
         String email = null;
         String name = "Social User";
-        LocalDate birthDate = LocalDate.of(1900, 1, 1); // 기본값 설정 (엔티티가 nullable=false 이므로)
-        String phone = "010-0000-0000"; // 기본값 설정 (엔티티가 nullable=false 이므로)
+        LocalDate birthDate = LocalDate.of(1900, 1, 1);
+        String phone = "010-0000-0000";
 
-        log.info("### 소셜 로그인 시도 - 전체 Attributes: {}", attributes);
+        // 2. 서비스별 정보 추출 (데이터 구조에 맞게 수정)
+        try {
+            if (provider.equals("NAVER")) {
+                // 네이버는 모든 정보가 'response' 맵 안에 들어있음
+                Map<String, Object> navResponse = (Map<String, Object>) attributes.get("response");
+                if (navResponse != null) {
+                    email = (String) navResponse.get("email");
+                    name = (String) navResponse.get("name");
+                    String mobile = (String) navResponse.get("mobile");
+                    if (mobile != null) phone = mobile;
 
-        // 1. 서비스별 정보 추출
-        if (attributes.get("response") != null) { // 네이버
-            Map<String, Object> naverResponse = (Map<String, Object>) attributes.get("response");
-            email = (String) naverResponse.get("email");
-            name = (String) naverResponse.get("name");
-
-            // 전화번호 추출 및 포맷팅 (010-1234-5678 형태라면 그대로 사용)
-            String mobile = (String) naverResponse.get("mobile");
-            if (mobile != null) phone = mobile;
-
-            // 생년월일 조합 및 LocalDate 변환
-            String year = (String) naverResponse.get("birthyear");
-            String day = (String) naverResponse.get("birthday");
-            if (year != null && day != null) {
-                try {
-                    birthDate = LocalDate.parse(year + "-" + day); // "1994-09-07" -> LocalDate
-                } catch (Exception e) {
-                    log.warn("### 생년월일 파싱 실패, 기본값 사용");
+                    String year = (String) navResponse.get("birthyear");
+                    String day = (String) navResponse.get("birthday");
+                    if (year != null && day != null) {
+                        birthDate = LocalDate.parse(year + "-" + day);
+                    }
+                }
+            } else if (provider.equals("KAKAO")) {
+                // 카카오는 이미 가공된 구조 또는 원본 구조 대응
+                if (attributes.containsKey("email")) {
+                    email = (String) attributes.get("email");
+                    name = (String) attributes.get("nickname");
+                } else {
+                    Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+                    if (kakaoAccount != null) {
+                        email = (String) kakaoAccount.get("email");
+                        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+                        if (profile != null) name = (String) profile.get("nickname");
+                    }
                 }
             }
-        } else if (attributes.get("kakao_account") != null) { // 카카오
-            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-            email = (String) kakaoAccount.get("email");
-            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-            if (profile != null) name = (String) profile.get("nickname");
-        } else {
-            email = (String) attributes.get("email");
-            name = (String) attributes.get("name");
+        } catch (Exception e) {
+            log.error("### 데이터 추출 중 오류: {}", e.getMessage());
         }
 
         if (email == null) {
-            log.error("### 이메일 추출 실패!");
-            response.sendRedirect("http://localhost:5202/login?error=email_not_found");
+            response.sendRedirect("http://localhost:5202/?error=email_not_found");
             return;
         }
 
-        final String finalEmail = email;
-        final String finalName = (name != null) ? name : "소셜사용자";
-        final LocalDate finalBirth = birthDate;
-        final String finalPhone = phone;
+        // 3. DB 조회 및 탈퇴(DELETED) 상태 체크
+        User user = userAuthRepository.findByEmail(email).orElse(null);
 
-        // 2. DB 저장 로직
-        try {
-            userAuthRepository.findByEmail(finalEmail).orElseGet(() -> {
-                log.info("### 신규 소셜 사용자 등록: {}", finalEmail);
-                return userAuthRepository.save(User.builder()
-                        .email(finalEmail)
-                        .name(finalName)
-                        .birth(finalBirth) // LocalDate 타입으로 전달
-                        .phone(finalPhone) // String 타입으로 전달
-                        .status(Status.ACTIVE)
-                        .build());
-            });
-        } catch (Exception e) {
-            log.error("### DB 저장 에러: {}", e.getMessage());
-            response.sendRedirect("http://localhost:5202/login?error=db_error");
+        if (user != null && user.getStatus() == Status.DELETED) {
+            log.info("### [탈퇴 유저 감지] 복구 URL 생성: email={}, providerId={}", email, providerId);
+
+            String recoveryUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/")
+                    .queryParam("error", "WITHDRAWN")
+                    .queryParam("email", email)
+                    .queryParam("provider", provider)
+                    .queryParam("providerId", providerId)
+                    .build()
+                    .encode()
+                    .toUriString();
+
+            getRedirectStrategy().sendRedirect(request, response, recoveryUrl);
             return;
         }
 
-        // 3. JWT 발행 및 리다이렉트 (수정된 부분)
-        Map<String, Object> claims = Map.of("email", finalEmail, "role", "ROLE_USER");
+        // 4. 신규 유저 자동 가입
+        if (user == null) {
+            user = userAuthRepository.save(User.builder()
+                    .email(email)
+                    .name(name)
+                    .birth(birthDate)
+                    .phone(phone)
+                    .status(Status.ACTIVE)
+                    .build());
+        }
+
+        // 5. 정상 유저 JWT 발행 및 리다이렉트
+        Map<String, Object> claims = Map.of("email", email, "role", "ROLE_USER");
         String accessToken = adminJWTUtil.generateUserAccessToken(claims);
         String refreshToken = adminJWTUtil.generateUserRefreshToken(claims);
 
-// ⭐ build() 다음에 encode()를 추가해야 한글(name)이 안전하게 변환됩니다.
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
-                .queryParam("name", finalName)
-                .queryParam("email", finalEmail)
+                .queryParam("name", name)
+                .queryParam("email", email)
                 .build()
                 .encode()
                 .toUriString();
 
-        log.info("### 리다이렉트 URL: {}", targetUrl);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    /**
+     * [추가 메서드] 서비스별 고유 ID 추출 로직
+     */
+    private String extractProviderId(String provider, Map<String, Object> attributes) {
+        if ("KAKAO".equals(provider)) {
+            Object id = attributes.get("id");
+            return id != null ? String.valueOf(id) : null;
+        } else if ("NAVER".equals(provider)) {
+            // ⭐ 네이버는 최상위가 아니라 'response' 객체 내부에 id가 있음
+            Map<String, Object> navResponse = (Map<String, Object>) attributes.get("response");
+            if (navResponse != null) {
+                return (String) navResponse.get("id");
+            }
+        }
+        return null;
     }
 }

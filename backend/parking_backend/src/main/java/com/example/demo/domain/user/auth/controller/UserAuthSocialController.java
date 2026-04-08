@@ -1,15 +1,16 @@
 package com.example.demo.domain.user.auth.controller;
 
 
+import com.example.demo.domain.shared.user.User;
+import com.example.demo.domain.user.auth.dtos.request.UserSocialRecoverRequestDto;
+import com.example.demo.domain.user.auth.service.UserSocialRecoverService;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 public class UserAuthSocialController {
 
     private final AdminJWTUtil adminJWTUtil;
+    private final UserSocialRecoverService userSocialRecoverService;
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(
@@ -64,4 +66,29 @@ public class UserAuthSocialController {
             return ResponseEntity.status(401).body(Map.of("error","REFRESH_TOKEN_EXPIRED"));
         }
     }
+    @PostMapping("/social-recover")
+    public ResponseEntity<?> socialRecover(
+            @Valid @RequestBody UserSocialRecoverRequestDto userSocialRecoverRequestDto) {
+
+        log.info("[API] 소셜 계정 복구 요청 - Email: {}", userSocialRecoverRequestDto.getEmail());
+
+        User user = userSocialRecoverService.socialRecover(userSocialRecoverRequestDto);
+
+        Map<String, Object> claims = Map.of(
+                "email", user.getEmail(),
+                "role","USER"
+        );
+
+        String accessToken = adminJWTUtil.generateUserAccessToken(claims);
+        String refreshToken = adminJWTUtil.generateUserRefreshToken(claims);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "계정이 성공적으로 복구되어 자동 로그인되었습니다.",
+                "accessToken", accessToken,
+                "refreshToken", refreshToken,
+                "email", user.getEmail(),
+                "name", user.getName()
+        ));
+    }
+
 }

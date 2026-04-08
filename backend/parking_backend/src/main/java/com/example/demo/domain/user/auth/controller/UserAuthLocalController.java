@@ -33,7 +33,7 @@ public class UserAuthLocalController {
     private final UserEmailService userEmailService;
     private final UserVerificationService userVerificationService;
     private final UserWithdrawService userWithdrawService;
-    private final UserRecoverService userRecoverService;
+    private final UserLocalRecoverService userLocalRecoverService;
 
     /**
      * 회원가입
@@ -174,7 +174,7 @@ public class UserAuthLocalController {
     public ResponseEntity<Map<String, String>> recoverAccount(@Valid @RequestBody UserRecoverRequestDto userRecoverRequestDto) {
         log.info("계정 복구 최종 요청 이메일: {}", userRecoverRequestDto.getEmail());
 
-        userRecoverService.recoverAccount(userRecoverRequestDto);
+        userLocalRecoverService.recoverAccount(userRecoverRequestDto);
 
         return ResponseEntity.ok(Map.of("message", "계정이 성공적으로 복구되었습니다. 다시 로그인해 주세요."));
     }
