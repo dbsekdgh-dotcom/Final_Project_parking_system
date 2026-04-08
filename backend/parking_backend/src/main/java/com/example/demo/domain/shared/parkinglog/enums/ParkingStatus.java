@@ -34,6 +34,6 @@ public enum ParkingStatus {
         return this == DETECTED || this==ENTERED||this==EXIT_REQUESTED;
     }
     public boolean isFinished(){
-        return this == EXITED || this==ENTRY_CANCELLED || this==FORCE_EXITED;
+        return this == EXITED || this==ENTRY_CANCELLED || this==FORCE_EXITED || this==BLACKLIST_REJECTED;
     }
 }

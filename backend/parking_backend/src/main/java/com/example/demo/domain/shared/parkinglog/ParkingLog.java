@@ -134,12 +134,11 @@ public class ParkingLog {
         this.totalDiscountAmount=feeCalculationResponseDto.getTotalDiscountAmount();
         this.calculatedFee=feeCalculationResponseDto.getCalculatedFee();
     }
-    public void enter(Camera camera, LocalDateTime freeExitUntil){
+    public void enter(LocalDateTime freeExitUntil){
         if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTERED)) {
             throw new com.example.demo.global.exception.BusinessException(
                     com.example.demo.global.exception.ErrorCode.INVALID_REQUEST);
         }
-        this.entryCameraId=camera.getId();
         this.parkingStatus=ParkingStatus.ENTERED;
         this.enteredAt=LocalDateTime.now();
         this.freeExitUntil=freeExitUntil; // RESIDENT=null, SUBSCRIPTION=정기권만료일, 나머지=입차시간+grace

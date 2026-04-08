@@ -7,7 +7,6 @@ import com.example.demo.domain.kiosk.entry.dtos.response.ParkingLogTypeResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingSpaceResponse;
 import com.example.demo.domain.kiosk.entry.repository.*;
 import com.example.demo.domain.shared.camera.enums.CameraType;
-import com.example.demo.domain.shared.camera.Camera;
 import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy;
 import com.example.demo.domain.shared.parkingfeepolicy.enums.ParkingType;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
@@ -31,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -52,7 +52,7 @@ public class EntryService {
 
 
 
-    public Long detectedEntry(MultipartFile file){
+    public Long detectedEntry(MultipartFile file, Long cameraId){
         OcrResponse ocr= aiClient.requestOcr(file);
         String carNumber=ocr.getPlateNumber();
         EntryCheckResponse info = entryVehicleRepository
@@ -88,7 +88,27 @@ public class EntryService {
                 Vehicle.class,
                 info.getVehicleId()
         ):null;
+
         if(!allowEntry){
+            // 블랙리스트 차량도 기록을 남기고 거부
+            ParkingLog rejected = ParkingLog.builder()
+                    .vehicle(vehicle)
+                    .carNumberSnapshot(carNumber)
+                    .isBlacklist(true)
+                    .parkingTypeSnapshot(typeSnapshot)
+                    .paymentStatus(PaymentStatus.NONE)
+                    .parkingStatus(ParkingStatus.BLACKLIST_REJECTED)
+                    .parkingFeePolicyId(policy.getId())
+                    .entryCameraId(cameraId)
+                    .fee(0)
+                    .calculatedFee(0L)
+                    .totalDiscountMinutes(0)
+                    .totalDiscountAmount(0)
+                    .rawFee(0)
+                    .graceMinutesSnapshot(policy.getGraceMinutes())
+                    .entryPlateImage(ocr.getS3path())
+                    .build();
+            parkinglogRepository.save(rejected);
             throw new BusinessException(ErrorCode.BLACKLIST_VEHICLE);
         }
         ParkingLog log= ParkingLog.builder().
@@ -99,6 +119,7 @@ public class EntryService {
                 paymentStatus(PaymentStatus.NONE).
                 parkingStatus(ParkingStatus.DETECTED).
                 parkingFeePolicyId(policy.getId()).
+                entryCameraId(cameraId).
                 fee(0).
                 calculatedFee(0L).
                 totalDiscountMinutes(0).
@@ -117,7 +138,14 @@ public class EntryService {
                 .toList();
     }
 
-    public void enterWithCamera(Long parkingLogId, Long cameraId) {
+    public List<CameraResponse> getExitCameras() {
+        return entryCameraRepository.findAllByCameraType(CameraType.EXIT)
+                .stream()
+                .map(CameraResponse::new)
+                .toList();
+    }
+
+    public void enterWithCamera(Long parkingLogId, Long spaceId) {
         //ENTRY_LOCK 행에 FOR UPDATE 이 시점부터 다른 입차 트랜잭션 대기
         entrySystemSettingRepository.findByIdWithLock("ENTRY_LOCK")
                 .orElseThrow(()-> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
@@ -129,11 +157,16 @@ public class EntryService {
 
         ParkingLog log = parkinglogRepository.findById(parkingLogId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
-        Camera camera = entryCameraRepository.findById(cameraId)
+        ParkingSpace space = entryParkingSpaceRepository.findByIdWithLock(spaceId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        if (space.getStatus() != SpaceStatus.AVAILABLE) {
+            throw new BusinessException(ErrorCode.SPACE_NOT_AVAILABLE);
+        }
+        log.setParkingSpace(space);
+        space.setStatus(SpaceStatus.OCCUPIED);
 
         LocalDateTime freeExitUntil = resolveFreeExitUntil(log);
-        log.enter(camera, freeExitUntil);
+        log.enter(freeExitUntil);
         parkinglogRepository.save(log);
     }
 
@@ -175,15 +208,15 @@ public class EntryService {
         log.cancel();
     }
 
-    public void assignSpace(Long parkingLogId, Long spaceId) {
-        ParkingLog log = parkinglogRepository.findById(parkingLogId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
-        ParkingSpace space = entryParkingSpaceRepository.findByIdWithLock(spaceId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
-        if (space.getStatus() != SpaceStatus.AVAILABLE) {
-            throw new BusinessException(ErrorCode.SPACE_NOT_AVAILABLE);
-        }
-        log.setParkingSpace(space);
-        space.setStatus(SpaceStatus.OCCUPIED);
+    // 차번호로 현재 ENTERED 상태인 레코드 조회 (입차/출차 버튼 분기용)
+    @Transactional(readOnly = true)
+    public Map<String, Object> checkEntered(String carNumber) {
+        return parkinglogRepository
+                .findFirstByCarNumberSnapshotAndParkingStatus(carNumber, ParkingStatus.ENTERED)
+                .map(log -> Map.<String, Object>of(
+                        "isEntered", true,
+                        "parkingLogId", log.getParkingLogId()))
+                .orElse(Map.of("isEntered", false));
     }
+
 }
