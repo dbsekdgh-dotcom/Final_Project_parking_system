@@ -15,6 +15,6 @@ public class VehiclePaymentResponseDto {
     private String vehicleNumber;
     private long parkingTime;
     private Integer rawFee;          // 10,000 (할인 전 원래 요금 - 화면엔 안 보이지만 로그용)
-    private long calculatedFee;        // 5,000 (할인 다 적용된 진짜 낼 돈)
-    private long amountToPay;
+    private long calculatedFee;        // 5,000 (누적금액 )
+    private long amountToPay;           //실제 결제 금액
 }

@@ -33,7 +33,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "left join fetch v.user u " +
             "left join fetch UserPoint up on up.user = u " +
             "where p.parkingLogId=:parkingLogId")
-    Optional<PaymentUserInfoResult> getDetailLogInfo(Long parkingLogId);
+    Optional<ParkingLog> getDetailLogInfo(Long parkingLogId);
 
     Optional<ParkingLog> findByParkingLogId(Long parkingLogId);
 
