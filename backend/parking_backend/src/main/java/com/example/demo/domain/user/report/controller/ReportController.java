@@ -2,12 +2,14 @@ package com.example.demo.domain.user.report.controller;
 
 import com.example.demo.domain.user.report.dto.ReportResponseDto;
 import com.example.demo.domain.user.report.entity.Report;
+import com.example.demo.domain.user.report.entity.ReportStatus;
 import com.example.demo.domain.user.report.entity.ReportType;
 import com.example.demo.domain.user.report.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -59,4 +61,17 @@ public class ReportController {
             Pageable pageable){
         return reportService.searchReports(userId, startDate,endDate,pageable);
     }
+
+    //신고 승인관련
+    @PatchMapping("/{reportId}/status")
+    public ResponseEntity<String> updateStatus(
+            @PathVariable Long reportId,
+            @RequestParam ReportStatus status,
+            @RequestParam(required = false)Long adminId){ //승인/거절시 필요!
+
+        reportService.updateReportStatus(reportId, status, adminId);
+        return ResponseEntity.ok("신고 상태가 " + status + "로 변경되었습니다.");
+
+    }
+
 }

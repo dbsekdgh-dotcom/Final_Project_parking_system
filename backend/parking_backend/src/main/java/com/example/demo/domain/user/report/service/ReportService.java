@@ -102,6 +102,23 @@ public class ReportService {
                 userId,start,end, ReportStatus.CANCELLED,pageable
         );
     }
+
+    public void updateReportStatus(Long reportId,ReportStatus newStatus,Long adminId){
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(()-> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+
+        //전달받은 status 값에 따라 엔티티의 특정 비즈니스 로직을 실행
+        switch (newStatus){
+            case APPROVED -> report.approve(adminId);
+            case REJECTED -> report.reject(adminId);
+            case CANCELLED -> report.cancel();
+            case PENDING -> {
+                //다시 대기로 돌리는 로직이 필요하다면 추가 (필요 없다면 아무것도 안함)
+            }
+        }
+        //Transactional 덕분에 여기서도 따로 save할 필요 없이 자동 업데이트됨
+    }
+
 }
 
 
