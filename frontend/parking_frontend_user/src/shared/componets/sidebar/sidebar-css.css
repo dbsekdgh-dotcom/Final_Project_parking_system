@@ -180,3 +180,12 @@
   background: rgba(226, 232, 240, 0.6);
   color: var(--sb-text);
 }
+
+.sidebar__withdraw {
+  color: #e74c3c;
+}
+
+.sidebar__withdraw:hover {
+  background: rgba(231, 76, 60, 0.08);
+  color: #c0392b;
+}

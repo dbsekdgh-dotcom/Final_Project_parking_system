@@ -110,14 +110,14 @@ public class AdminJWTUtil {
                 .compact();
     }
 
-    // 사용자 AccessToken 생성 (60분)
+    // 사용자 AccessToken 생성 (30분)
     public String generateUserAccessToken(Map<String, Object> valueMap) {
-        return generateUserToken(valueMap, 60);
+        return generateUserToken(valueMap, 30);
     }
 
-    // 사용자 RefreshToken 생성 (12시간)
+    // 사용자 RefreshToken 생성 (6시간)
     public String generateUserRefreshToken(Map<String, Object> valueMap) {
-        return generateUserToken(valueMap, 60 * 12);
+        return generateUserToken(valueMap, 60 * 6);
     }
 
     // 사용자 토큰 검증 (userKey 사용, RuntimeException 반환)

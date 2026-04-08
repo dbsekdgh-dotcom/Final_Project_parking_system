@@ -20,27 +20,40 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true) // 기본적으로 읽기 전용 트랜잭션 적용
+@Transactional(readOnly = true)
 public class UserLoginService {
 
     private final SocialAccountRepository socialAccountRepository;
     private final UserAuthRepository userAuthRepository;
     private final PasswordEncoder passwordEncoder;
     private final AdminJWTUtil adminJWTUtil;
+    private final UserVerificationService userVerificationService; // ⭐ Redis 저장을 위한 주입 추가
 
+    @Transactional // 로그인 성공 시 Redis 작업을 포함하므로 쓰기 트랜잭션 필요 시를 대비해 붙여줍니다.
     public UserLoginResponseDto userLogin(UserLoginRequestDto userLoginRequestDto) {
+
+        String email = userLoginRequestDto.getEmail();
 
         // 1. 필수 입력값 검증
         if (userLoginRequestDto.getEmail() == null || userLoginRequestDto.getEmail().isBlank() ||
                 userLoginRequestDto.getPassword() == null || userLoginRequestDto.getPassword().isBlank()) {
             throw new AuthException(ErrorCode.INVALID_REQUEST);
         }
+        // 5회 이상 실패 시 DB 조회조차 하지 않고 바로 에러 발생
+        if (userVerificationService.getLoginFailCount(email) >= 5 ) {
+            log.warn("로그인 시도 횟수 초과로 인한 차단: {}", email);
+            throw new AuthException(ErrorCode.TOO_MANY_LOGIN_ATTEMPTS);
+        }
 
         // 2. 가입 여부 확인
         User user = userAuthRepository.findByEmail(userLoginRequestDto.getEmail())
-                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> {
+                    userVerificationService.increaseLoginFailCount(email);
+                    log.warn("가입되지 않은 이메일 로그인 시도: {}", email);
+                    return new AuthException(ErrorCode.USER_NOT_FOUND);
+                });
 
-        // 3. 계정 상태 확인 (탈퇴 유저 여부를 먼저 체크하는 것이 효율적입니다)
+        // 3. 계정 상태 확인
         if (user.getStatus() == Status.DELETED) {
             log.warn("탈퇴한 계정의 로그인 시도 차단: {}", user.getEmail());
             throw new AuthException(ErrorCode.WITHDRAWN_ACCOUNT);
@@ -61,21 +74,34 @@ public class UserLoginService {
 
         // 5. 비밀번호 일치 확인
         if (!passwordEncoder.matches(userLoginRequestDto.getPassword(), user.getPassword())) {
+
+            userVerificationService.increaseLoginFailCount(email);
+
+            int currentFailCount = userVerificationService.getLoginFailCount(email);
+            log.warn("로그인 실패 - 이메일: {}, 실패 횟수: {}", email, currentFailCount);
+
             throw new AuthException(ErrorCode.LOGIN_FAILED);
         }
 
         // 6. 로그인 성공 처리 및 토큰 생성
         try {
+            // ⭐ 재발급 컨트롤러와의 규격을 맞추기 위해 role 추가
             Map<String, Object> claims = Map.of(
                     "email", user.getEmail(),
                     "name", user.getName(),
-                    "userId", user.getUserId() // 토큰에 ID를 담아두면 탈퇴/수정 시 편리합니다
+                    "userId", user.getUserId(),
+                    "role", "USER"
             );
 
             String accessToken = adminJWTUtil.generateUserAccessToken(claims);
             String refreshToken = adminJWTUtil.generateUserRefreshToken(claims);
 
-            log.info("로그인 성공: {}", user.getEmail());
+            // ⭐ [핵심 추가] 생성된 Refresh Token을 Redis에 저장 (6시간)
+            userVerificationService.saveRefreshToken(user.getEmail(), refreshToken);
+
+            userVerificationService.deleteLoginFailCount(email);
+
+            log.info("로그인 성공 및 Redis RT 저장 완료: {}", user.getEmail());
 
             return UserLoginResponseDto.builder()
                     .accessToken(accessToken)
@@ -88,5 +114,13 @@ public class UserLoginService {
             log.error("JWT 토큰 생성 중 에러 발생: ", e);
             throw new RuntimeException("로그인 처리 중 보안 토큰 발행에 실패했습니다.");
         }
+    }
+    @Transactional
+    public void logout(String email) {
+        log.info("로그아웃 처리 시작 - 이메일: {}", email);
+
+        userVerificationService.deleteRefreshToken(email);
+
+        log.info("로그아웃 완료 Redis 세션 제거 성공: {}", email);
     }
 }

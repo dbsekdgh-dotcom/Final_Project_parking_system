@@ -23,6 +23,7 @@ public class UserSignupService {
 
     private final UserAuthRepository userAuthRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserVerificationService userVerificationService; // ⭐ Redis 초기화를 위해 추가
 
     public void signup(UserSignupRequestDto userSignupRequestDto) {
 
@@ -67,6 +68,8 @@ public class UserSignupService {
                     .build();
 
             userAuthRepository.save(user);
+
+            userVerificationService.deleteLoginFailCount(user.getEmail());
             log.info("회원가입 완료: {}", user.getEmail());
 
         } catch (DataIntegrityViolationException e) {

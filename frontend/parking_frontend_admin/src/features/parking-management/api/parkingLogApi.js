@@ -26,3 +26,9 @@ export const getParkingLogList = async(keyword='',page=0,status='ALL',size=5) =>
         throw error;
     }
 } 
+
+//관리자 - 입출차기록 - 특정 입출차 기록 상세 조회
+export const getParkingLogDetail = async(id)=>{
+    const response = await adminApi.get(`/parking/logs/${id}`)
+    return response.data
+}

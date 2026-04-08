@@ -6,7 +6,8 @@ public enum ParkingStatus {
     ENTERED("입차완료"),
     EXIT_REQUESTED("출차요청"),
     EXITED("출차완료"),
-    FORCE_EXITED("강제출차");
+    FORCE_EXITED("강제출차"),
+    BLACKLIST_REJECTED("차단 차량 거부");
 
     private final String description;
 
