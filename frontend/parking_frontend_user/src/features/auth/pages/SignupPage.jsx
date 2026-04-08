@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import localIcon from "../../../assets/images/local_login_icon.png";
 // ⭐ 계정 복구 로직 함수 임포트
 import { handleAccountRecover } from '../utils/accountUtils.js';
+import { AUTH_ERROR_CODES } from '../constants/errorCodes';
 const SignupPage = () => {
     const navigate = useNavigate();
 
@@ -51,7 +52,7 @@ const SignupPage = () => {
             const errorCode = error.response?.data?.code;
 
             // ⭐ 1. 탈퇴한 계정으로 가입 시도 시 복구 유도
-            if (errorCode === "USER_WITHDRAWN" || serverErrorMessage.includes("탈퇴")) {
+            if (errorCode === AUTH_ERROR_CODES.WITHDRAWN_ACCOUNT) {
                 Swal.fire({
                     icon: 'warning',
                     title: '탈퇴된 계정입니다',
@@ -87,7 +88,7 @@ const SignupPage = () => {
                 }, 100);
             } 
             // 2. 이미 존재하는 계정 (일반 중복)
-            else if (errorCode === "EMAIL_ALREADY_EXISTS") {
+            else if (errorCode === AUTH_ERROR_CODES.EMAIL_DUPLICATE) {
                 Swal.fire({
                     icon: 'error',
                     title: '가입 불가',
