@@ -4,7 +4,6 @@ import com.example.demo.domain.user.report.dto.ReportResponseDto;
 import com.example.demo.domain.user.report.entity.Report;
 import com.example.demo.domain.user.report.entity.ReportType;
 import com.example.demo.domain.user.report.service.ReportService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,8 +38,10 @@ public class ReportController {
 
     //내가 받은 신고
     @GetMapping("/received")
-    public Page<Report> receivedReports( @RequestParam Long userId, Pageable pageable){
-        return reportService.getReceivedReports(userId,pageable);
+    public Page<ReportResponseDto> receivedReports(@RequestParam Long userId, Pageable pageable){
+        //service에서 가져온 Page<Report>를 .map()을 이용해 dto로 변환
+        return reportService.getReceivedReports(userId,pageable)
+                .map(ReportResponseDto::from);
     }
 
     //신고 취소

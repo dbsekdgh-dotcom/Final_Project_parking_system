@@ -24,9 +24,9 @@ public class ReportResponseDto {
         return new ReportResponseDto(
                 report.getId(),
                 report.getCarNumber(),
-                report.getReportType().name(),
+                report.getReportType()!=null? report.getReportType().name():"미지정", //Enum널 체크
                 report.getDescription(),
-                report.getReporter().getName(),
+                report.getReporter()!=null? report.getReporter().getName():"탈퇴한 사용자", //핵심!!!!
                 report.getCreatedAt()
         );
     }
