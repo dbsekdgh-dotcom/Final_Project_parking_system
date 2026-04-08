@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-// ⭐ 작성하신 인증 라우트 컴포넌트 임포트 (경로는 본인의 설정에 맞게 수정하세요)
+import React, { useEffect } from 'react';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+
+// 인증 라우트 컴포넌트
 import { PublicRoute, PrivateRoute } from './features/auth/components/AuthRoute'; 
 
+// 페이지 및 레이아웃 컴포넌트
 import MainLayout from './shared/layouts/MainLayout.jsx';
 import DashBoard from './features/dash/pages/DashBoard.jsx';
 import LoginPage from './features/auth/pages/LoginPage.jsx';
@@ -10,15 +12,16 @@ import SignupPage from './features/auth/pages/SignupPage.jsx';
 import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
 
 function App() {
-  // [전역 청소 로직] 앱 진입 시 토큰 없으면 스토리지 정리
+  // [전역 청소 로직] 앱 진입 시 토큰 상태 점검
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
 
+    // 토큰이 불완전하면 로그아웃 상태로 간주하고 정리
     if (!accessToken || !refreshToken) {
       if (localStorage.length > 0) {
         localStorage.clear();
-        console.log("세션 정보가 없어 스토리지를 정리했습니다.");
+        console.log("세션 정보가 불완전하여 스토리지를 정리했습니다.");
       }
     }
   }, []);
@@ -26,7 +29,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 1. 로그인/회원가입: 로그인한 사용자는 접근 불가 (PublicRoute) */}
+        {/* 1. 로그인: / 경로가 로그인 페이지임 */}
         <Route 
           path="/" 
           element={
@@ -35,6 +38,8 @@ function App() {
             </PublicRoute>
           } 
         />
+
+        {/* 2. 회원가입 */}
         <Route 
           path="/signup" 
           element={
@@ -44,10 +49,10 @@ function App() {
           } 
         />
 
-        {/* 소셜 로그인 처리: 토큰을 받아오는 통로이므로 그대로 유지 */}
+        {/* 소셜 로그인 리다이렉트 처리 */}
         <Route path="/oauth-redirect" element={<OAuthRedirectPage />} />
 
-        {/* 2. 내부 서비스: 로그인 안 한 사용자는 접근 불가 (PrivateRoute) */}
+        {/* 3. 보호된 경로 (로그인 필요) */}
         <Route 
           element={
             <PrivateRoute>
@@ -55,11 +60,14 @@ function App() {
             </PrivateRoute>
           }
         >
-          {/* MainLayout 안에서 렌더링될 페이지들 */}
+          {/* 로그인 후 첫 화면은 대시보드 */}
           <Route path="/dashboard" element={<DashBoard />} />
           
-          {/* 나중에 추가될 회원탈퇴, 마이페이지 등도 이 안(PrivateRoute)에 넣으시면 됩니다! */}
+          {/* 향후 추가될 마이페이지 등은 여기에 작성 */}
         </Route>
+
+        {/* 4. 잘못된 경로는 모두 루트(/)로 리다이렉트 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
 package com.example.demo.domain.shared.parkinglog.repository;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.PaymentUserInfoResult;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
@@ -25,6 +26,14 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "left join UserPoint up on up.user = u " +
             "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null")
     List<ParkingLogSettlementDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber);
+
+    @Query("select p " +
+            "from ParkingLog p " +
+            "left join fetch p.vehicle v " +
+            "left join fetch v.user u " +
+            "left join fetch UserPoint up on up.user = u " +
+            "where p.parkingLogId=:parkingLogId")
+    Optional<ParkingLog> getDetailLogInfo(Long parkingLogId);
 
     Optional<ParkingLog> findByParkingLogId(Long parkingLogId);
 

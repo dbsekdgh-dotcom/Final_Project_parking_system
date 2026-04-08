@@ -2,6 +2,8 @@ package com.example.demo.domain.kiosk.payment.dtos.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,4 +16,5 @@ public class FeeCalculationResponseDto {
     private int totalDiscountAmount;
     private long parkingTime;
     private long amountToPay;
+    private LocalDateTime paymentRequestedAt;
 }

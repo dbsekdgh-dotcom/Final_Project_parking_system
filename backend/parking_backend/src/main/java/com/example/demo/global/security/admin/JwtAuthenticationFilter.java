@@ -54,6 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/api/user/auth/local/send-recover-code")
                 || path.startsWith("/api/user/auth/local/recover")
                 || path.startsWith("/api/user/auth/local/verify-recover-code")
+                || path.startsWith("/api/user/auth/social-recover")
                 || path.startsWith("/api/test/"
         )) {
             return true;

@@ -6,10 +6,12 @@ import com.example.demo.domain.user.enums.Provider;
 import com.example.demo.domain.shared.user.enums.Status;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.Map;
 
+@Slf4j
 @Getter
 public class OAuthAttributes {
     private Map<String, Object> attributes;
@@ -34,6 +36,9 @@ public class OAuthAttributes {
         this.provider = provider;
     }
 
+    /**
+     * 소셜 서비스별로 데이터를 추출합니다.
+     */
     public static OAuthAttributes extractOAuthAttributes(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
         if ("naver".equals(registrationId)) {
             return extractFromNaver(userNameAttributeName, attributes);
@@ -41,15 +46,23 @@ public class OAuthAttributes {
         return extractFromKakao(userNameAttributeName, attributes);
     }
 
+    /**
+     * 네이버 정보 추출
+     */
     private static OAuthAttributes extractFromNaver(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
-        // 생년월일 파싱 로직 (잘 작성됨)
         String year = (String) response.get("birthyear");
         String day = (String) response.get("birthday");
-        LocalDate parsedBirth = (year != null && day != null)
-                ? LocalDate.parse(year + "-" + day)
-                : LocalDate.of(1900, 1, 1);
+        LocalDate parsedBirth = LocalDate.of(1900, 1, 1);
+
+        try {
+            if (year != null && day != null) {
+                parsedBirth = LocalDate.parse(year + "-" + day);
+            }
+        } catch (Exception e) {
+            log.warn("### [Naver] 생년월일 파싱 실패: {} {}", year, day);
+        }
 
         return OAuthAttributes.builder()
                 .name((String) response.get("name"))
@@ -57,33 +70,33 @@ public class OAuthAttributes {
                 .phone((String) response.get("mobile"))
                 .birth(parsedBirth)
                 .provider(Provider.NAVER)
-                // ⭐ 수정 포인트: attributes를 'response' 맵으로 교체하고,
-                // nameAttributeKey를 "id"로 명시하는 것이 훨씬 안전합니다.
-                .attributes(response)
-                .nameAttributeKey("id")
+                .attributes(attributes) // 전체 attributes 유지
+                .nameAttributeKey(userNameAttributeName)
                 .providerId((String) response.get("id"))
                 .build();
     }
 
+    /**
+     * 카카오 정보 추출
+     */
     private static OAuthAttributes extractFromKakao(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
 
-        // 1. 생년월일 변환 (yyyy-MM-dd)
+        // 생년월일 처리
         String birthyear = (String) kakaoAccount.get("birthyear");
         String birthday = (String) kakaoAccount.get("birthday");
         LocalDate parsedBirth = LocalDate.of(1900, 1, 1);
 
         try {
             if (birthyear != null && birthday != null) {
-                // 카카오 MMDD(0907) 형식을 yyyy-MM-dd로 변환
                 String formattedBirth = birthyear + "-" + birthday.substring(0, 2) + "-" + birthday.substring(2);
                 parsedBirth = LocalDate.parse(formattedBirth);
             }
         } catch (Exception e) {
-            // 파싱 에러 시 기본값 유지
+            log.warn("### [Kakao] 생년월일 파싱 실패: {} {}", birthyear, birthday);
         }
 
-        // 2. 전화번호 가공 (하이픈 추가: 010-XXXX-XXXX)
+        // 전화번호 포맷팅
         String rawPhone = (String) kakaoAccount.get("phone_number");
         String formattedPhone = formatPhoneNumber(rawPhone);
 
@@ -95,32 +108,32 @@ public class OAuthAttributes {
                 .provider(Provider.KAKAO)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
-                .providerId(String.valueOf(attributes.get("id")))
+                .providerId(String.valueOf(attributes.get("id"))) // Long 타입을 String으로 안전하게 변환
                 .build();
     }
 
-    // 전화번호 포맷팅 유틸리티 메서드
+    /**
+     * 전화번호 포맷팅 유틸리티 (010-XXXX-XXXX)
+     */
     private static String formatPhoneNumber(String phoneNumber) {
         if (phoneNumber == null) return "010-0000-0000";
 
-        // 숫자만 남기기 (+82 10-1234-5678 -> 821012345678)
         String cleaned = phoneNumber.replaceAll("[^0-9]", "");
-
-        // 한국 국가번호(82)를 0으로 변환 (821012345678 -> 01012345678)
         if (cleaned.startsWith("82")) {
             cleaned = "0" + cleaned.substring(2);
         }
 
-        // 하이픈 추가 (01012345678 -> 010-1234-5678)
         if (cleaned.length() == 11) {
             return cleaned.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
         } else if (cleaned.length() == 10) {
             return cleaned.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "$1-$2-$3");
         }
-
         return cleaned;
     }
 
+    /**
+     * User 엔티티로 변환
+     */
     public User toUserEntity() {
         return User.builder()
                 .name(this.name)
@@ -131,6 +144,9 @@ public class OAuthAttributes {
                 .build();
     }
 
+    /**
+     * SocialAccount 엔티티로 변환
+     */
     public SocialAccount toSocialAccountEntity(User user) {
         return SocialAccount.builder()
                 .user(user)

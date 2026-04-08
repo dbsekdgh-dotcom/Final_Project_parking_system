@@ -43,6 +43,7 @@ logs/
 .env.*
 !.env.example
 application-local.yml
+application-local.properties
 application-secret.yml
 application-aws.properties
 application-test.properties
