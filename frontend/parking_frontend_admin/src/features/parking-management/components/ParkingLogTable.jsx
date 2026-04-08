@@ -1,30 +1,9 @@
 import React from 'react'
 import './ParkingLogTable.css'
+import Pagination from '../../../shared/components/pagination/Pagination'
+import { PARKING_STATUS_LABELS, PARKING_TYPE_LABELS, PAYMENT_STATUS_LABELS } from '../../../shared/constants/parkingLabel'
 
-const ParkingLogTable = ({ logs, page, totalPages, onPageChange }) => {
-    //ENUM값을 한글로 보기 좋게 매핑(필요시 추가/수정)
-    const typeLabel = {
-        RESIDENT: '입주민',
-        VISIT: '외부인',
-        USER: '회원',
-        RESERVATION: '방문예약',
-        SUBSCRIPTION: '정기권'
-    }
-
-    const statusLabel={
-        DETECTED: '입차시도',
-        ENTRY_CANCELLED: '입차취소',
-        ENTERED: '입차완료',
-        EXIT_REQUESTED: '출차요청',
-        EXITED: '출차완료',
-        FORCE_EXITED: '강제출차'
-    }
-
-    const paymentLabel={
-        NONE: '무료',
-        UNPAID: '미납',
-        PAID: '납부완료'
-    }
+const ParkingLogTable = ({ logs, page, totalPages, onPageChange, onShowDetail }) => {
 
     return (
         <div className='parking-table-wrapper'>
@@ -50,27 +29,32 @@ const ParkingLogTable = ({ logs, page, totalPages, onPageChange }) => {
                                 <td>
                                     {/* 타입에 따라 색상이 변하는 배지 처리 */}
                                     <span className={`type-badge ${log.type}`}>
-                                        {typeLabel[log.type] || log.type}
+                                        {PARKING_TYPE_LABELS[log.type] || log.type}
                                     </span>
                                 </td>
                                 <td>
                                     {/* 주차상태 강조 (예: 입차완료 - 초록색) */}
                                     <span className={`status-text ${log.parkingStatus}`}>
-                                        {statusLabel[log.parkingStatus] || log.parkingStatus}
+                                        {PARKING_STATUS_LABELS[log.parkingStatus] || log.parkingStatus}
                                     </span>
                                 </td>
                                 <td>
                                     {/* 결제상태 강조 (예: 미납 - 빨간색) */}
                                     <span className={`payment-text ${log.paymentStatus}`}>
-                                        {paymentLabel[log.paymentStatus] || log.paymentStatus}
+                                        {PAYMENT_STATUS_LABELS[log.paymentStatus] || log.paymentStatus}
                                     </span>
                                 </td>
-                                <td>{log.entryTime}</td>
-                                <td>{log.exitTime || '-'}</td>
-                                <td>{log.parkingDuration || '-'} </td>
+                                <td>
+                                    {log.entryTime}
+                                    {log.parkingStatus==='ENTRY_CANCELLED' && (
+                                        <div><span className='cancel-note'>(취소)</span></div>
+                                    )}
+                                </td>
+                                <td>{log.parkingStatus ==='EXITED' ? log.exitTime : '-'}</td>
+                                <td>{log.parkingStatus==='ENTRY_CANCELLED' ? '-' : (log.parkingDuration || '-')} </td>
                                 <td>{log.parkingSpaceCode || '미지정'}</td>
                                 <td>
-                                    <button className='detail-btn'>상세보기</button>
+                                    <button className='detail-btn' onClick={()=>onShowDetail(log.parkingLogId)}>상세보기</button>
                                 </td>
                             </tr>
                         ))
@@ -84,12 +68,9 @@ const ParkingLogTable = ({ logs, page, totalPages, onPageChange }) => {
                 </tbody>
             </table>
 
-            {/* 페이징 UI (이전/다음 버튼) */}
-            <div className='pagination-container'>
-                    <button disabled={page===0} onClick={()=>onPageChange(page-1)}>이전</button>
-                    <span className='page-info'>{page+1} / {totalPages}</span>
-                    <button disabled={page>=totalPages-1} onClick={()=>onPageChange(page+1)}>다음</button>
-            </div>
+            {/* 페이징 UI */}
+            <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange}/>
+            
         </div>
     )
 }

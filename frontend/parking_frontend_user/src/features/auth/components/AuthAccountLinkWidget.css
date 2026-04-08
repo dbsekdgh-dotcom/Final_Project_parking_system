@@ -33,6 +33,22 @@
   max-width: 100%;
 }
 
+.aalw__btn-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.aalw__btn-row .aalw__account-link-btn {
+  margin-top: 0;
+  width: auto;
+  flex: none;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  padding: 8px 14px;
+}
+
 .aalw__account-link-btn {
   margin-top: 10px;
   width: 100%;

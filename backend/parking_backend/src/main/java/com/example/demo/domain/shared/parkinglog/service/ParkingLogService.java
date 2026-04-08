@@ -1,6 +1,7 @@
 package com.example.demo.domain.shared.parkinglog.service;
 
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
+import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogDetailResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummaryResponse;
@@ -63,5 +64,13 @@ public class ParkingLogService {
             logPage = parkinglogRepository.findAll(pageable);
         }
         return logPage.map(ParkingLogListResponse::toListDto);
+    }
+
+    //관리자 입출차 기록 페이지 - 상세보기 정보 조회
+    public ParkingLogDetailResponse getParkingLogDetail(Long parkingLogId){
+        ParkingLog log = parkinglogRepository.findById(parkingLogId)
+                .orElseThrow(()->new BusinessException(ErrorCode.PARKING_LOG_NOT_FOUND));
+        //BusinessException : 내가 의도적으로 낸 에러 / RuntimeException : 시스템이 낸 에러
+        return ParkingLogDetailResponse.toDetailDto(log); // 찾은 엔티티를 응답용 DTO로 반환
     }
 }

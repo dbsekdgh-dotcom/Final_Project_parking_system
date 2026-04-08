@@ -6,20 +6,34 @@ const OAuthRedirectPage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     
-    // ⭐ 중복 실행 방지를 위한 flag
+    // ⭐ 중복 실행 방지를 위한 flag (React StrictMode 대응)
     const isprocessed = useRef(false);
 
     useEffect(() => {
+        // 이미 처리가 시작되었다면 중복 실행 안 함
         if (isprocessed.current) return;
 
         const run = async () => {
             const error = searchParams.get("error");
             const accessToken = searchParams.get("accessToken");
             const refreshToken = searchParams.get("refreshToken");
+            
+            // 한글 이름 깨짐 방지 및 데이터 추출
+            const rawName = searchParams.get("name");
+            const name = rawName ? decodeURIComponent(rawName) : null;
+            const email = searchParams.get("email");
+
+            // [중요 디버깅 로그] - 여기서 name과 email이 null인지 꼭 확인하세요!
+            console.log("### [OAuthRedirect] URL 파라미터 추출 결과:", { 
+                accessToken: accessToken ? "있음" : "없음",
+                name: name, 
+                email: email 
+            });
 
             // 1. 에러 처리
             if (error) {
                 isprocessed.current = true;
+                console.error("### OAuth Error 발생:", error);
 
                 if (error === "email_mismatch") {
                     await Swal.fire({
@@ -36,22 +50,37 @@ const OAuthRedirectPage = () => {
                         confirmButtonColor: '#d33',
                     });
                 }
-
-                navigate("/dashboard", { replace: true });
+                navigate("/", { replace: true });
                 return;
             }
 
             // 2. 성공 처리
             if (accessToken && refreshToken) {
                 isprocessed.current = true;
-                const name = searchParams.get("name");
-                const email = searchParams.get("email");
+
+                // 로컬 스토리지 저장 (프로젝트 공통 키 이름인 userName, userEmail 사용)
                 localStorage.setItem("accessToken", accessToken);
                 localStorage.setItem("refreshToken", refreshToken);
-                if (name) localStorage.setItem("userName", name);
-                if (email) localStorage.setItem("userEmail", email);
+                
+                if (name) {
+                    localStorage.setItem("userName", name);
+                    console.log("### LocalStorage 저장 완료 - userName:", name);
+                }
+                if (email) {
+                    localStorage.setItem("userEmail", email);
+                    console.log("### LocalStorage 저장 완료 - userEmail:", email);
+                }
+
+                // 환영 메시지용 세션 정보 저장
                 sessionStorage.setItem("loginSuccess", name || "사용자");
+
+                // 저장 완료 후 대시보드로 이동
+                // (데이터 반영을 확실히 하기 위해 가끔 window.location.href="/dashboard"를 쓰기도 합니다)
                 navigate("/dashboard", { replace: true });
+            } else {
+                // 토큰이 없는 비정상적인 접근 처리
+                console.warn("### [경고] 토큰 없이 리다이렉트 페이지에 접근했습니다.");
+                navigate("/", { replace: true });
             }
         };
 
@@ -59,8 +88,25 @@ const OAuthRedirectPage = () => {
     }, [searchParams, navigate]);
 
     return (
-        <div style={{ textAlign: 'center', marginTop: '100px' }}>
-            <h2>인증 처리 중입니다...</h2>
+        <div style={{ 
+            textAlign: 'center', 
+            marginTop: '100px',
+            fontFamily: 'Arial, sans-serif'
+        }}>
+            <div className="spinner" style={{
+                border: '4px solid #f3f3f3',
+                borderTop: '4px solid #3498db',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 20px'
+            }}></div>
+            <style>{`
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            `}</style>
+            <h2>로그인 인증 처리 중입니다...</h2>
+            <p>잠시만 기다려 주세요.</p>
         </div>
     )
 }

@@ -11,6 +11,9 @@ import com.example.demo.domain.user.mypage.point.entity.PointReason;
 import com.example.demo.domain.user.mypage.point.entity.UserPoint;
 import com.example.demo.domain.user.mypage.point.repository.PointLogRepository;
 import com.example.demo.domain.user.mypage.point.repository.UserPointRepository;
+import com.example.demo.global.exception.AuthException;
+import com.example.demo.global.exception.CustomException;
+import com.example.demo.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
@@ -30,7 +33,7 @@ public class PointService {
     public PointResponseDto getUserPoint(Long userId){
 
         UserPoint userPoint = userPointRepository.findByUserUserId(userId)
-                .orElseThrow(()-> new IllegalArgumentException("포인트 정보 없음"));
+                .orElseThrow(()-> new CustomException(ErrorCode.POINT_NOT_FOUND));
 
         //포인트 이력 조회
         List<PointLog> logs=pointLogRepository.findByUserUserIdOrderByCreatedAtDesc(userId);
@@ -55,13 +58,13 @@ public class PointService {
     @Transactional
     public void earnPoints(Long userId, Long paymentId, int amount, String description){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 정보 없음"));
+                .orElseThrow(() -> new CustomException(ErrorCode.POINT_NOT_ENOUGH));
 
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(()-> new IllegalArgumentException("결제 정보 없음"));
+                .orElseThrow(()-> new CustomException(ErrorCode.POINT_INVALID_REQUEST));
 
         UserPoint userPoint = userPointRepository.findByUserUserId(userId)
-                .orElseThrow(()->new IllegalArgumentException("포인트 정보 없음"));
+                .orElseThrow(()->new CustomException(ErrorCode.POINT_NOT_ENOUGH));
 
         int before = userPoint.getCurrentPoint();
         int after = before + amount;
@@ -89,18 +92,18 @@ public class PointService {
     @Transactional
     public void usePoints(Long userId, Long paymentId, int amount, String description){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 정보 없음"));
+                .orElseThrow(() -> new CustomException(ErrorCode.POINT_NOT_ENOUGH));
 
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(()->new IllegalArgumentException("결제 정보 없음"));
+                .orElseThrow(()->new CustomException(ErrorCode.POINT_INVALID_REQUEST));
 
         UserPoint userPoint = userPointRepository.findByUserUserId(userId)
-                .orElseThrow(()->new IllegalArgumentException("포인트 정보 없음"));
+                .orElseThrow(()->new CustomException(ErrorCode.POINT_NOT_ENOUGH));
 
         int before = userPoint.getCurrentPoint();
 
         if (before < amount) {
-            throw new IllegalArgumentException("포인트 부족");
+            throw new CustomException(ErrorCode.POINT_NOT_ENOUGH);
         }
         int after = before - amount;
 
