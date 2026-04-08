@@ -21,7 +21,7 @@ public class Report {
 
     //신고한 유저
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "report_user_id", nullable =false,foreignKey = @ForeignKey(name="fk_rep_reporter")
+    @JoinColumn(name = "reporter_user_id", nullable =false,foreignKey = @ForeignKey(name="fk_rep_reporter")
     )
     private User reporter;
 
