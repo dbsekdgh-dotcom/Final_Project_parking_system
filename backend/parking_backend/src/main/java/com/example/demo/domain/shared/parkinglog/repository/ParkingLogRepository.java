@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, ParkingLogRepositoryCustom {
     //차량번호 4자리 입력 후 차량 조회 시 조회될 차량번호 목록
@@ -23,6 +24,8 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "left join UserPoint up on up.user = u " +
             "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null")
     List<ParkingLogSettlementDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber);
+
+    Optional<ParkingLog> findByParkingLogId(Long parkingLogId);
 
     //차량번호 스냅샷에 키워드가 포함된 데이터를 페이징하여 조회
     Page<ParkingLog> findByCarNumberSnapshotContaining(String carNumber, Pageable pageable);

@@ -124,6 +124,10 @@ public class ParkingLog {
     @Comment("EXIT_REQUESTED : 출차시 차량번호 이미지 저장 경로")
     private String exitPlateImage;
 
+    @Column(name = "payment_requested_at")
+    @Comment("요금 조회 및 결제 요청 시점 검증")
+    private LocalDateTime paymentRequestedAt;
+
     public void requestPayment(FeeCalculationResponseDto feeCalculationResponseDto){
         this.rawFee=feeCalculationResponseDto.getRawFee();
         this.totalDiscountMinutes=feeCalculationResponseDto.getTotalDiscountMinutes();
