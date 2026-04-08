@@ -1,12 +1,14 @@
 package com.example.demo.domain.kiosk.payment.dtos.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Getter
 public class SettlementRequestDto {
     private Long parkingLogId;
     private String vehicleNumber;

@@ -90,10 +90,10 @@ const SelectedVehicleInfo = () => {
         <button className='header-back-button' onClick={homeHandler}>처음으로</button>
         <div className='selected-vehicle-info'>
             <div>
-                <VehicleInfo vehicleNumber={data?.vehicleNumber} parkingTime={data?.parkingTime} fee={data?.calculatedFee}/>
+                <VehicleInfo vehicleNumber={data?.vehicleNumber} parkingTime={data?.parkingTime} fee={data?.amountToPay}/>
             </div>
             <div>
-                <PaymentMethod userPoint={selectedVehicle?.userPoint} fee={data?.calculatedFee} onConfirm={paymentHandler}/> 
+                <PaymentMethod userPoint={selectedVehicle?.userPoint} fee={data?.amountToPay} onConfirm={paymentHandler}/> 
             </div>
         </div>
     </div>
