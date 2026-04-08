@@ -124,6 +124,10 @@ public class ParkingLog {
     @Comment("EXIT_REQUESTED : 출차시 차량번호 이미지 저장 경로")
     private String exitPlateImage;
 
+    @Column(name = "payment_requested_at")
+    @Comment("요금 조회 및 결제 요청 시점 검증")
+    private LocalDateTime paymentRequestedAt;
+
     public void requestPayment(FeeCalculationResponseDto feeCalculationResponseDto){
         this.rawFee=feeCalculationResponseDto.getRawFee();
         this.totalDiscountMinutes=feeCalculationResponseDto.getTotalDiscountMinutes();
@@ -131,9 +135,21 @@ public class ParkingLog {
         this.calculatedFee=feeCalculationResponseDto.getCalculatedFee();
     }
     public void enter(Camera camera, LocalDateTime freeExitUntil){
+        if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTERED)) {
+            throw new com.example.demo.global.exception.BusinessException(
+                    com.example.demo.global.exception.ErrorCode.INVALID_REQUEST);
+        }
         this.entryCameraId=camera.getId();
         this.parkingStatus=ParkingStatus.ENTERED;
         this.enteredAt=LocalDateTime.now();
         this.freeExitUntil=freeExitUntil; // RESIDENT=null, SUBSCRIPTION=정기권만료일, 나머지=입차시간+grace
+    }
+
+    public void cancel(){
+        if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTRY_CANCELLED)) {
+            throw new com.example.demo.global.exception.BusinessException(
+                    com.example.demo.global.exception.ErrorCode.INVALID_REQUEST);
+        }
+        this.parkingStatus = ParkingStatus.ENTRY_CANCELLED;
     }
 }
