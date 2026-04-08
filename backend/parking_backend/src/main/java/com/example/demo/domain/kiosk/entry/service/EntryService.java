@@ -169,6 +169,12 @@ public class EntryService {
                 .toList();
     }
 
+    public void cancelEntry(Long parkingLogId) {
+        ParkingLog log = parkinglogRepository.findById(parkingLogId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        log.cancel();
+    }
+
     public void assignSpace(Long parkingLogId, Long spaceId) {
         ParkingLog log = parkinglogRepository.findById(parkingLogId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));

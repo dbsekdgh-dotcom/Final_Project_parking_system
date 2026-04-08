@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './EntryConfirmationPopup.css';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { fetchEntryCameras, confirmEnter } from '../../../entry/api/EntryApi';
+import { fetchEntryCameras, confirmEnter, cancelEntry } from '../../../entry/api/EntryApi';
 
 const EntryConfirmationPopup = () => {
   const navigate = useNavigate();
@@ -29,10 +29,22 @@ const EntryConfirmationPopup = () => {
       navigate('/entry-parkingspace', { state: { cameraId: camera.cameraId, parkingLogId } });
     } catch (error) {
       console.error('입차 확정 실패:', error);
-      alert('입차 처리에 실패했습니다.');
+      alert('입차 가능 시간이 초과되었습니다. 다시 시도해 주세요.');
+      navigate('/');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = async () => {
+    if (parkingLogId) {
+      try {
+        await cancelEntry(parkingLogId);
+      } catch (err) {
+        console.error('입차 취소 실패:', err);
+      }
+    }
+    navigate('/');
   };
 
   return (
@@ -64,7 +76,7 @@ const EntryConfirmationPopup = () => {
         </div>
 
         <div className="cancel-button-container">
-          <button className="btn-return" onClick={() => navigate('/')}>
+          <button className="btn-return" onClick={handleCancel}>
             회차
           </button>
         </div>
