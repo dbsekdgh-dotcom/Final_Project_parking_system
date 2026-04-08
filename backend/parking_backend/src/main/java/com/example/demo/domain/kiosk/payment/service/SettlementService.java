@@ -1,5 +1,6 @@
 package com.example.demo.domain.kiosk.payment.service;
 
+import com.example.demo.domain.kiosk.payment.dtos.request.PaymentConfirmRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.request.SettlementRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.PaymentReadyResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.SettlementResponseDto;
@@ -108,7 +109,11 @@ public class SettlementService {
             long p=savePayment(parkingLog,vehicle,0L,PaymentMethod.FREE_POLICY,paymentStatus,tempPaymentId);
         }
         //리턴
-        return PaymentReadyResponseDto.builder().tempPaymentId(tempPaymentId).build();
+        return PaymentReadyResponseDto.builder()
+                .orderId(tempPaymentId)
+                .orderName(String.format("[%s] 주차 요금 정산",parkingLog.getCarNumberSnapshot()))
+                .isPaymentRequired(isPaymentRequired)
+                .build();
     }
 
     public long savePayment(ParkingLog parkingLog, Vehicle vehicle,long priceSnapshot,PaymentMethod paymentMethod,PaymentStatus paymentStatus,String externalPaymentId){
@@ -123,32 +128,37 @@ public class SettlementService {
         return paymentRepository.save(payment).getPaymentId();
     }
     //결제 후/결제 실패/결제 취소 시
-    public void updatePaymentStatus(List<Long> paymentIds, PaymentStatus paymentstatus,long tossAmount){
-        paymentIds.stream().forEach(p->{
-            Payment payment=paymentRepository.findById(p)
-                    .orElseThrow(()-> new BusinessException(ErrorCode.PAYMENT_NOT_COMPLETED));
+    public void savePaymentReceipt(List<Payment> payments,PaymentConfirmRequestDto paymentConfirmRequestDto,PaymentStatus paymentStatus){
+        payments.forEach(payment->{
             // 1. 결제 성공 시에 금액 업데이트
-            if(paymentstatus==PaymentStatus.SUCCESS){
+            if(paymentStatus==PaymentStatus.SUCCESS){
                 if(payment.getPaymentMethod()==PaymentMethod.POINT){
                     payment.setAmount(payment.getPriceSnapshot());
                 }else if(payment.getPaymentMethod()==PaymentMethod.PAY){
-                    payment.setAmount(tossAmount);
+                    payment.setAmount(paymentConfirmRequestDto.getAmount());
                 }else{
                     payment.setAmount(0L);
                 }
+                payment.setExternalPaymentId(paymentConfirmRequestDto.getPaymentKey());
             }
             // 2.상태 업데이트
-            payment.setPaymentStatus(paymentstatus);
+            payment.setPaidAt(LocalDateTime.now());
+            payment.setPaymentStatus(paymentStatus);
         });
     }
 
-    //
-    public void pointProcessOfPayment(ParkingLog parkingLog,SettlementRequestDto settlementRequestDto,Payment payment){
+    //포인트 업데이트
+    public void pointProcessOfPayment(ParkingLog parkingLog,List<Payment> payments,PaymentConfirmRequestDto paymentConfirmRequestDto){
         String minUsagePoint=systemSettingRepository.findBySettingKey(SettingKey.MIN_USAGE_POINT.getKey())
                 .map(SystemSetting::getSettingValue)
                 .orElse("100");
 
-        int usedPoint=settlementRequestDto.getUsedPoint();
+        Payment payment=payments.stream()
+                .filter(p->p.getPaymentMethod().equals(PaymentMethod.POINT)).findFirst().orElse(null);
+
+        int usedPoint= payment.getPriceSnapshot().intValue();
+        int paidAmount=(int)paymentConfirmRequestDto.getAmount();
+
         if(Integer.parseInt(minUsagePoint)>usedPoint && usedPoint!=0){
             throw new BusinessException(ErrorCode.MINIMUM_POINT_NOT_ME);
         }
@@ -170,7 +180,7 @@ public class SettlementService {
                 .orElse("1");
         if(usedPoint==0){
             pointReason=PointReason.PAYMENT_EARN;
-            changeAmount=(int)Math.round(settlementRequestDto.getPaidAmount()*(Integer.parseInt(pointEarnRate)/100.0));
+            changeAmount=(int)Math.round(paidAmount*(Integer.parseInt(pointEarnRate)/100.0));
         }
         updatePointOfPayment(user,changeAmount,payment,pointReason);
     }
