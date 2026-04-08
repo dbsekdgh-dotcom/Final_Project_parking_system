@@ -1,9 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080', // 백엔드 서버 주소
+    baseURL: 'http://localhost:8081', // 백엔드 서버 주소
     timeout: 5000, // 5초 타임아웃 설정
 });
+
+
 
 // [요청 인터셉터] 모든 요청에 AccessToken을 실어 보냅니다.
 api.interceptors.request.use(
@@ -25,9 +27,19 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // ⭐ 중요: 로그인(/login)이나 회원가입 과정에서 발생한 401/400 에러는 
+        // ⭐ 중요: 로그인/회원가입/공개 엔드포인트에서 발생한 에러는
         // 토큰 재발급 로직을 타지 않고 바로 에러를 반환해야 합니다.
-        if (originalRequest.url.includes('/auth/local') || originalRequest.url.includes('/refresh')) {
+        // (주의: /me, /link-password 같은 인증 필요 엔드포인트는 제외해야 함)
+        const publicAuthEndpoints = [
+            '/auth/local/login',
+            '/auth/local/signup',
+            '/auth/local/find-email',
+            '/auth/local/send-code',
+            '/auth/local/verify-code',
+            '/auth/local/reset-password',
+            '/auth/refresh',
+        ];
+        if (publicAuthEndpoints.some(ep => originalRequest.url.includes(ep))) {
             return Promise.reject(error);
         }
 
@@ -43,7 +55,7 @@ api.interceptors.response.use(
                 }
 
                 // 토큰 갱신 요청 (이때는 순수 axios 사용 권장)
-                const res = await axios.post("http://localhost:8080/api/user/auth/refresh", {
+                const res = await axios.post("http://localhost:8081/api/user/auth/refresh", {
                     refreshToken: refreshToken
                 });
 

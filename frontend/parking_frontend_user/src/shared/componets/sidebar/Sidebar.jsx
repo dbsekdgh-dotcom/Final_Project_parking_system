@@ -2,9 +2,11 @@ import { NavLink } from 'react-router-dom'
 import './sidebar-css.css'
 import AuthAccountLinkWidget from '../../../features/auth/components/AuthAccountLinkWidget'
 import LogoutButton from '../../../features/auth/components/LogoutButton'
+// [추가] 회원 탈퇴 버튼 임포트 (auth/components 폴더 내 위치)
+import WithdrawButton from '../../../features/auth/components/WithdrawButton' 
 
 const navItems = [
-  { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },
+  { to: '/', label: '홈', end: true, icon: HomeIcon },
   { to: '/season-pass', label: '정기권', icon: TicketIcon },
   { to: '/visit', label: '방문 예약', icon: CalendarIcon },
   { to: '/mypage', label: '마이페이지', icon: UserIcon },
@@ -50,14 +52,21 @@ export function Sidebar() {
 
       <div className="sidebar__footer">
         <div className="sidebar__divider" />
-        <LogoutButton type="button" className="sidebar__logout">
+        
+        {/* 로그아웃 버튼 */}
+        <LogoutButton className="sidebar__logout">
           로그아웃
           <LogoutIcon />
         </LogoutButton>
+
+        {/* [추가] 회원 탈퇴 버튼 배치 (로그아웃 아래) */}
+        <WithdrawButton />
       </div>
     </aside>
   )
 }
+
+// --- 아래는 아이콘 컴포넌트들입니다 (수정 없음) ---
 
 function CarIcon({ className }) {
   return (

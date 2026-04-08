@@ -1,0 +1,68 @@
+/* 페이지 전체 컨테이너 */
+.parking-log-page {
+    padding: 20px;
+    background-color: #1e1e1e; /* 전체 배경색과 통일 */
+    min-height: 100vh;
+}
+
+/* 1. 검색 영역 섹션 */
+.search-section {
+    margin: 24px 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #2a2a2a; /* 테이블/카드와 통일감 있는 배경 */
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    width: fit-content;
+}
+
+/* 2. 검색 인풋 스타일 (시안 느낌 극대화) */
+.search-input {
+    width: 300px;
+    background-color: #1a1a1a; /* 인풋 내부를 더 어둡게 */
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 10px 14px;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+/* 포커스 시 파란색 포인트 테두리 */
+.search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+}
+
+.search-input::placeholder {
+    color: #777;
+}
+
+/* 3. 조회 버튼 스타일 */
+.search-button {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-button:hover {
+    background-color: #2563eb;
+}
+
+.search-button:active {
+    transform: scale(0.98);
+}

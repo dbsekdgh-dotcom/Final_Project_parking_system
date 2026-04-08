@@ -1,38 +1,21 @@
-.page-title{
-    font-size: 30px;
-}
-
-.number-display{
-    width: 100px;        /* 적절한 너비 */
-    height: 50px;        /* 값이 없어도 유지될 높이 */
-    min-height: 50px;    /* 최소 높이 고정 */
-    border-bottom: solid black 1px;
-    margin-bottom: 20px;
-    display: flex;      
+/* 1. 레이아웃 공통 (Layout) */
+.full-page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    align-items: end;
-    font-size: 24px;
-}
-
-.ok-button, .back-button{
-    margin-top: 10px;
-    width: 350px;
-    height: 60px;
-    padding: 10px;
-    font-size: 1.2rem;
-    background-color: rgb(0, 0, 0);
-    color: aliceblue;
-}
-
-/* 전체 컨테이너 */
-.page-container {
-    max-width: 900px;
+    min-height: 80vh;
     padding: 20px;
     text-align: center;
-    font-family: 'Pretendard', sans-serif;
+    font-family: 'Pretendard', -apple-system, sans-serif;
 }
 
-/* 제목 아래 구분선 */
+.page-title {
+    margin: 0;
+    font-size: 30px;
+    font-weight: bold;
+}
+
 .title-line {
     width: 60px;
     height: 3px;
@@ -40,85 +23,172 @@
     margin: 0 auto 40px auto;
 }
 
-/* 메시지 박스 (로딩/결과없음 공용) */
-.message-box {
-    margin: 20px 0;
-    min-height: 80px;
+/* 2. 메인 입력 페이지 (PrepaymentMain) */
+.number-display {
+    width: 200px;         /* 너비를 조금 넓힘 */
+    height: 60px;
+    border-bottom: 2px solid black;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;      /* 숫자 가독성 향상 */
+    font-weight: bold;
+}
+
+/* 3. 버튼 스타일 (Buttons) */
+.ok-button, .back-button {
+    margin-top: 20px;
+    width: 350px;
+    height: 60px;
+    font-size: 1.2rem;
+    background-color: #000;
+    color: #f0f8ff; /* aliceblue */
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ok-button:active, .back-button:active {
+    background-color: #333;
+    transform: translateY(-1px);
+}
+
+/* 4. 상태 메시지 (Loading / Error / Empty) */
+.loading-spinner {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #000; /* ⚙️ 아이콘 색상을 까만색으로! */
+    animation: spin 2s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-text, .loading-full {
+    font-size: 18px;
+    font-weight: 700;
+    color: #555;
+}
+
+.error-content-box {
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 8px;
+    padding: 40px; 
+    border-radius: 12px;
+    background-color: #f9f9f9; 
+    min-width: 350px;
+}
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
 }
 
-.loading-text {
-    font-size: 16px;
-    font-weight: 700;
-    color: #333;
+.error-message {
+    color: #e74c3c;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.loading-message{
+    color: #000; 
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
+.error-sub-message {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* 5. 결제 확인 상세 (SelectedVehicleInfo) */
+.selected-vehicle-info { 
+    display: grid;
+    grid-template-columns: repeat(2, 350px);
+    justify-content: center;
+    align-items: start;
+    gap: 40px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.selected-vehicle-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 350px);
+    justify-content: center;
+    align-items: start;
+    gap: 40px;
+    width: 100%;
+}
+
+.selected-vehicle-wrapper > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 내부 컴포넌트 왼쪽 정렬 */
+    text-align: left;
+}
+
+/* 6. 기타 */
 .empty-text {
     font-size: 15px;
     color: #888;
     line-height: 1.5;
 }
 
-.back-button:hover {
+.error-back-btn {
+    margin-top: 25px;
+    padding: 12px 30px;
+    font-size: 1rem;
     background-color: #333;
-    transition: background-color 0.2s ease;
-}
-
-.ok-button:active{
-    background-color: #333;
-    transition: background-color 0.2s ease;
-}
-
-.selectedVehicleInfo{
-    display: grid;
-    grid-template-columns:repeat(2, 350px);
-    justify-content: center;
-    align-items: start;
-    gap: 50px;
-    width: 100%;
-    margin-top: 5%;
-}
-/* VehicleInfo와 PaymentMethod를 감싸는 각각의 div에 적용 */
-.selectedVehicleInfo > div {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* 내부 제목들을 왼쪽 정렬 */
-}
-.payment-subtitle{
-    width: 100%;
-    max-width: 750px;
-    text-align: left;
-    margin-bottom: 10px;
-    font-size: 2rem;
-    font-weight: bold;
-}
-.error-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.error-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.error-message {
-    color: #e74c3c; /* 빨간색 계열로 경고 의미 전달 */
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-
-.back-to-list-btn {
-    padding: 12px 24px;
-    background-color: #4A90E2;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* 1. 레이아웃 추가 (상단 헤더용) */
+.page-header-container {
+    display: flex;
+    justify-content: center; /* 제목을 가운데 정렬 */
+    align-items: center;
+    position: relative;     /* 버튼을 absolute로 배치하기 위한 기준 */
+    width: 100%;            /* 전체 너비 사용 */
+    max-width: 500px;       /* 키패드보다 조금 넓게 설정 (적절히 조절 가능) */
+    margin: 0 auto 10px auto;
+}
+.header-back-button {
+    position: absolute;
+    right: 0;               /* 컨테이너의 맨 오른쪽 끝으로 */
+    top: 50%;               /* 세로 중앙 정렬 시작 */
+    transform: translateY(-50%); /* 세로 중앙 정렬 완성 */
+    padding: 8px 16px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;    /* 글자가 줄바꿈되지 않게 */
+}
+
+.header-back-button:active {
+    background-color: #333;
+    transform: translateY(-1px);
+}
+
+.content-area {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

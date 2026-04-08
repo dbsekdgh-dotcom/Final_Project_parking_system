@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react' // useRef 추가
+import React, { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import Swal from 'sweetalert2'
 
 const OAuthRedirectPage = () => {
     const [searchParams] = useSearchParams();
@@ -9,35 +10,52 @@ const OAuthRedirectPage = () => {
     const isprocessed = useRef(false);
 
     useEffect(() => {
-        // 이미 처리되었다면 실행하지 않음
         if (isprocessed.current) return;
 
-        const error = searchParams.get("error");
-        const accessToken = searchParams.get("accessToken");
-        const refreshToken = searchParams.get("refreshToken");
+        const run = async () => {
+            const error = searchParams.get("error");
+            const accessToken = searchParams.get("accessToken");
+            const refreshToken = searchParams.get("refreshToken");
 
-        // 1. 에러 처리
-        if (error) {
-            isprocessed.current = true; // 처리 완료 표시
-            
-            if (error === "email_mismatch") {
-                alert("현재 로그인된 계정 정보와 일치하는 소셜 계정만 연동할 수 있습니다.");
-            } else {
-                alert("소셜 로그인 중 오류가 발생했습니다.");
+            // 1. 에러 처리
+            if (error) {
+                isprocessed.current = true;
+
+                if (error === "email_mismatch") {
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: '계정 불일치',
+                        text: '현재 로그인된 계정 정보와 일치하는 소셜 계정만 연동할 수 있습니다.',
+                        confirmButtonColor: '#3085d6',
+                    });
+                } else {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: '오류',
+                        text: '소셜 로그인 중 오류가 발생했습니다.',
+                        confirmButtonColor: '#d33',
+                    });
+                }
+
+                navigate("/dashboard", { replace: true });
+                return;
             }
-            
-            // 파라미터를 지우면서 대시보드로 이동
-            navigate("/dashboard", { replace: true });
-            return;
-        }
 
-        // 2. 성공 처리
-        if (accessToken && refreshToken) {
-            isprocessed.current = true;
-            localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("refreshToken", refreshToken);
-            navigate("/dashboard", { replace: true });
-        }
+            // 2. 성공 처리
+            if (accessToken && refreshToken) {
+                isprocessed.current = true;
+                const name = searchParams.get("name");
+                const email = searchParams.get("email");
+                localStorage.setItem("accessToken", accessToken);
+                localStorage.setItem("refreshToken", refreshToken);
+                if (name) localStorage.setItem("userName", name);
+                if (email) localStorage.setItem("userEmail", email);
+                sessionStorage.setItem("loginSuccess", name || "사용자");
+                navigate("/dashboard", { replace: true });
+            }
+        };
+
+        run();
     }, [searchParams, navigate]);
 
     return (

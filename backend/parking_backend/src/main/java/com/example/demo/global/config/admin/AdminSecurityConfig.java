@@ -35,7 +35,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Log4j2
 @Order(1)
-public class AdminSecurityConfig {
+public class
+AdminSecurityConfig {
     private final AdminUserDetailService adminUserDetailService;
     private final AdminJWTUtil adminJWTUtil;
     private final AdminAccessDeniedHandler adminAccessDeniedHandler;
@@ -62,6 +63,10 @@ public class AdminSecurityConfig {
                 // 최상단에 로그아웃을 가장 먼저 배치
                 .requestMatchers(HttpMethod.POST,"/admin/logout").permitAll()
                 .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
+
+                // 테스트하기위해 잠시 추가
+                .requestMatchers("/admin/parking/summary").permitAll()
+
                 .requestMatchers("/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
                 .anyRequest().permitAll()
         );
@@ -110,7 +115,7 @@ public class AdminSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 오리진(리액트 주소 등) 설정
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:[*]"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5201"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS"));
         // 쿠키나 인증 정보를 포함한 요청을 허용할지 여부

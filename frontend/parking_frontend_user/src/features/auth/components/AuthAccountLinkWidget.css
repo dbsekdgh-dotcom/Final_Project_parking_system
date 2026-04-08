@@ -123,6 +123,12 @@
   outline: none;
 }
 
+.aalw__input:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
 .aalw__error {
   color: #dc2626;
   font-size: 0.9rem;
@@ -137,6 +143,10 @@
   background: #cfe0ff;
   color: #233b6e;
   font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .aalw__primary-btn:disabled {
@@ -147,37 +157,6 @@
 .aalw__social-buttons {
   display: grid;
   gap: 10px;
-}
-
-.aalw__local-link-btn {
-  border: none;
-  border-radius: 10px;
-  padding: 12px 14px;
-  cursor: pointer;
-  background: #cfe0ff;
-  color: #233b6e;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 8px 18px rgba(86, 95, 132, 0.1);
-  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
-  height: 48px;
-}
-
-.aalw__local-link-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(86, 95, 132, 0.12);
-  filter: brightness(0.99);
-}
-
-.aalw__local-link-icon {
-  width: 24px;
-  height: 24px;
-  display: block;
-  object-fit: contain;
-  flex-shrink: 0;
 }
 
 .aalw__secondary-btn {
@@ -192,22 +171,5 @@
 
 .aalw__secondary-btn:hover {
   background: rgba(148, 163, 184, 0.12);
-}
-
-.aalw__modal-description {
-  color: #6a6b87;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.aalw__readonly-grid {
-  display: grid;
-  gap: 12px;
-}
-
-.aalw__input:disabled {
-  background: #f8fafc;
-  color: #6b7280;
-  cursor: not-allowed;
 }
 
