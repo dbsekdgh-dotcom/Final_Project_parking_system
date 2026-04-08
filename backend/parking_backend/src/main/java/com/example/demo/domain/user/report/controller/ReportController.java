@@ -1,5 +1,6 @@
 package com.example.demo.domain.user.report.controller;
 
+import com.example.demo.domain.user.report.dto.ReportResponseDto;
 import com.example.demo.domain.user.report.entity.Report;
 import com.example.demo.domain.user.report.entity.ReportType;
 import com.example.demo.domain.user.report.service.ReportService;
@@ -32,7 +33,7 @@ public class ReportController {
 
     //내가 신고한 내역
     @GetMapping("/my")
-    public Page<Report> myReports(@RequestParam Long userId, Pageable pageable ){
+    public Page<ReportResponseDto> myReports(@RequestParam Long userId, Pageable pageable ){
         return reportService.getMyReports(userId,pageable);
     }
 

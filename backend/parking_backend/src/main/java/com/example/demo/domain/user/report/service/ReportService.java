@@ -5,6 +5,7 @@ import com.example.demo.domain.shared.user.UserRepository;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.domain.shared.vehicle.enums.VehicleStatus;
 import com.example.demo.domain.shared.vehicle.VehicleRepository;
+import com.example.demo.domain.user.report.dto.ReportResponseDto;
 import com.example.demo.domain.user.report.entity.Report;
 import com.example.demo.domain.user.report.entity.ReportStatus;
 import com.example.demo.domain.user.report.entity.ReportType;
@@ -58,10 +59,12 @@ public class ReportService {
 
     //내가 신고한 내역
     @Transactional(readOnly = true)
-    public Page<Report> getMyReports(Long userId, Pageable pageable) {
-        return reportRepository.findByReporter_UserIdAndStatusNot(
-                userId, ReportStatus.CANCELLED, pageable
-        );
+    public Page<ReportResponseDto> getMyReports(Long userId, Pageable pageable) {
+
+        Page<Report> reports = reportRepository
+                .findByReporter_UserIdAndStatusNot(userId,ReportStatus.CANCELLED,pageable);
+
+        return reports.map(ReportResponseDto::from);
     }
 
     //내가 받은 신고
