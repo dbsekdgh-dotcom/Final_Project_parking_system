@@ -37,7 +37,7 @@ public class AdminParkingLogController {
     }
 
     //특정 입출차 기록 상세 조회
-    @GetMapping("/{parkingLogId}")
+    @GetMapping("/parking/logs/{parkingLogId}")
     public ResponseEntity<ParkingLogDetailResponse> getParkingLogDetail(@PathVariable Long parkingLogId){
         ParkingLogDetailResponse response = parkingLogService.getParkingLogDetail(parkingLogId);
         return ResponseEntity.ok(response);

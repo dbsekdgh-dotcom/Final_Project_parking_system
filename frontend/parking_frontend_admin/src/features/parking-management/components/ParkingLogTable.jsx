@@ -44,9 +44,14 @@ const ParkingLogTable = ({ logs, page, totalPages, onPageChange, onShowDetail })
                                         {PAYMENT_STATUS_LABELS[log.paymentStatus] || log.paymentStatus}
                                     </span>
                                 </td>
-                                <td>{log.entryTime}</td>
-                                <td>{log.exitTime || '-'}</td>
-                                <td>{log.parkingDuration || '-'} </td>
+                                <td>
+                                    {log.entryTime}
+                                    {log.parkingStatus==='ENTRY_CANCELLED' && (
+                                        <div><span className='cancel-note'>(취소)</span></div>
+                                    )}
+                                </td>
+                                <td>{log.parkingStatus ==='EXITED' ? log.exitTime : '-'}</td>
+                                <td>{log.parkingStatus==='ENTRY_CANCELLED' ? '-' : (log.parkingDuration || '-')} </td>
                                 <td>{log.parkingSpaceCode || '미지정'}</td>
                                 <td>
                                     <button className='detail-btn' onClick={()=>onShowDetail(log.parkingLogId)}>상세보기</button>
