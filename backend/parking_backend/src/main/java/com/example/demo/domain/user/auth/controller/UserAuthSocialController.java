@@ -1,7 +1,7 @@
 package com.example.demo.domain.user.auth.controller;
 
 
-import com.example.demo.domain.user.auth.jwt.JWTUtil;
+import com.example.demo.global.util.admin.AdminJWTUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 public class UserAuthSocialController {
 
-    private final JWTUtil jwtUtil;
+    private final AdminJWTUtil adminJWTUtil;
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(
@@ -35,7 +35,7 @@ public class UserAuthSocialController {
         String refreshToken = authHeader.substring(7);
 
         try {
-            Claims claims = jwtUtil.validateToken(refreshToken);
+            Claims claims = adminJWTUtil.validateUserToken(refreshToken);
 
             String email = claims.getSubject();
 
@@ -49,9 +49,9 @@ public class UserAuthSocialController {
                     "role", role
             );
 
-            String newAccessToken = jwtUtil.generateAccessToken(newClaims);
+            String newAccessToken = adminJWTUtil.generateUserAccessToken(newClaims);
 
-            String newRefreshToken = jwtUtil.generateRefreshToken(newClaims);
+            String newRefreshToken = adminJWTUtil.generateUserRefreshToken(newClaims);
 
             log.info("새로운 토큰 발급 완료");
 

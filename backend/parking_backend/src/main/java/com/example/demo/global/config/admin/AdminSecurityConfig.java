@@ -35,7 +35,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Log4j2
 @Order(1)
-public class AdminSecurityConfig {
+public class
+AdminSecurityConfig {
     private final AdminUserDetailService adminUserDetailService;
     private final AdminJWTUtil adminJWTUtil;
     private final AdminAccessDeniedHandler adminAccessDeniedHandler;

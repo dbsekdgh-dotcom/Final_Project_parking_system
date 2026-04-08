@@ -2,7 +2,7 @@ package com.example.demo.domain.user.auth.service;
 
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.user.auth.dtos.response.OAuthAttributes;
-import com.example.demo.domain.user.auth.jwt.JWTUtil;
+import com.example.demo.global.util.admin.AdminJWTUtil;
 import com.example.demo.domain.user.auth.principal.PrincipalDetails;
 import com.example.demo.domain.user.auth.repository.SocialAccountRepository;
 import com.example.demo.domain.user.auth.repository.UserAuthRepository;
@@ -29,7 +29,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private final UserAuthRepository userAuthRepository;
     private final SocialAccountRepository socialAccountRepository;
-    private final JWTUtil jwtUtil; // 쿠키 검증을 위해 주입
+    private final AdminJWTUtil adminJWTUtil; // 쿠키 검증을 위해 주입
     private final HttpServletRequest request; // 현재 요청의 쿠키를 읽기 위해 주입
 
     @Override
@@ -84,7 +84,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     .map(cookie -> {
                         try {
                             // JWTUtil을 사용하여 토큰에서 이메일 추출
-                            return jwtUtil.validateToken(cookie.getValue()).getSubject();
+                            return adminJWTUtil.validateUserToken(cookie.getValue()).getSubject();
                         } catch (Exception e) {
                             log.error("### [연동체크] 쿠키 토큰 검증 실패: {}", e.getMessage());
                             return null;

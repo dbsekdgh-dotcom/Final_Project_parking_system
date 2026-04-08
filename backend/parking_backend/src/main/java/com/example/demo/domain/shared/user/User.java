@@ -94,4 +94,22 @@ public class User {
     public void addLocalPassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+
+    public void withdraw() {
+        this.status = Status.DELETED;
+        this.phone = this.phone + "_" + System.currentTimeMillis();
+        this.deletedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+        // 수정 시간도 탈퇴 시간과 동일하게 맞춰줍니다.
+        this.updatedAt = this.deletedAt;
+    }
+
+    public void recover(String rawPhone) {
+        this.status = Status.ACTIVE;           // 1. 상태를 ACTIVE로 변경
+        this.phone = rawPhone;                 // 2. 전달받은 원본 번호(더미 제거된)로 재설정
+        this.deletedAt = null;                 // 3. 탈퇴일자 초기화
+
+        // 4. 수정 시간 갱신 (KST 강제 주입 로직과 통일)
+        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+    }
+
 }

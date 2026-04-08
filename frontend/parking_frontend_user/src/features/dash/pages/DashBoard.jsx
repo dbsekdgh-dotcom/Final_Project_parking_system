@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import Swal from "sweetalert2";
 import "./DashBoard.css";
 
 const parkingData = {
@@ -26,6 +27,20 @@ const typeColor = {
 };
 
 const DashBoard = () => {
+  useEffect(() => {
+    const name = sessionStorage.getItem("loginSuccess");
+    if (name) {
+      sessionStorage.removeItem("loginSuccess");
+      Swal.fire({
+        icon: "success",
+        title: "로그인 성공",
+        text: `${name}님, 환영합니다!`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  }, []);
+
   return (
     <div className="dashboard">
       {/* 상단 요약 영역 */}

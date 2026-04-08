@@ -36,7 +36,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         }
 
         // 리액트로 이동 (에러 코드를 정확히 실어서 보냄)
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/oauth-redirect")
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
                 .queryParam("error", errorType)
                 .build().toUriString();
 

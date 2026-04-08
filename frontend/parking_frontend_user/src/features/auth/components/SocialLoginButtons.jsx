@@ -5,7 +5,7 @@ import naverIcon from "../../../assets/images/naver_login_icon.png";
 
 const SocialLoginButtons = () => {
     const handleLogin = (provider) => {
-        const loginUrl = `http://localhost:8080/oauth2/authorization/${provider}`;
+        const loginUrl = `http://localhost:8081/oauth2/authorization/${provider}`;
         window.location.href = loginUrl;
     };
 

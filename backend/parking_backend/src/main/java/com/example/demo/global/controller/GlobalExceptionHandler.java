@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.example.demo.global.response.ErrorResponse;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 //@RestControllerAdvice :전역 예외 처리기(모든 컨트롤러의 예외를 여기서 처리)
 //react에 다음과 같이 json으로 전송
@@ -59,5 +60,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 
 }
