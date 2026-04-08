@@ -2,6 +2,7 @@ package com.example.demo.domain.user.auth.handler;
 
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.enums.Status;
+import com.example.demo.domain.user.auth.service.UserVerificationService; // ⭐ 추가
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import jakarta.servlet.ServletException;
@@ -27,6 +28,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final AdminJWTUtil adminJWTUtil;
     private final UserAuthRepository userAuthRepository;
+    private final UserVerificationService userVerificationService; // ⭐ Redis 저장을 위한 주입 추가
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -45,10 +47,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         LocalDate birthDate = LocalDate.of(1900, 1, 1);
         String phone = "010-0000-0000";
 
-        // 2. 서비스별 정보 추출 (데이터 구조에 맞게 수정)
+        // 2. 서비스별 정보 추출
         try {
             if (provider.equals("NAVER")) {
-                // 네이버는 모든 정보가 'response' 맵 안에 들어있음
                 Map<String, Object> navResponse = (Map<String, Object>) attributes.get("response");
                 if (navResponse != null) {
                     email = (String) navResponse.get("email");
@@ -63,7 +64,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     }
                 }
             } else if (provider.equals("KAKAO")) {
-                // 카카오는 이미 가공된 구조 또는 원본 구조 대응
                 if (attributes.containsKey("email")) {
                     email = (String) attributes.get("email");
                     name = (String) attributes.get("nickname");
@@ -115,10 +115,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .build());
         }
 
-        // 5. 정상 유저 JWT 발행 및 리다이렉트
-        Map<String, Object> claims = Map.of("email", email, "role", "ROLE_USER");
+        // 5. 정상 유저 JWT 발행 및 ⭐ Redis 저장
+        Map<String, Object> claims = Map.of(
+                "email", email,
+                "role", "USER" // 컨트롤러에서 쓰는 role 값과 통일
+        );
         String accessToken = adminJWTUtil.generateUserAccessToken(claims);
         String refreshToken = adminJWTUtil.generateUserRefreshToken(claims);
+
+        // ⭐ [핵심 추가] 소셜 로그인 성공 시 생성된 리프레시 토큰을 Redis에 저장
+        userVerificationService.saveRefreshToken(email, refreshToken);
+        log.info("### 소셜 로그인 성공 및 Redis RT 저장 완료: {}", email);
 
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
                 .queryParam("accessToken", accessToken)
@@ -132,15 +139,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    /**
-     * [추가 메서드] 서비스별 고유 ID 추출 로직
-     */
     private String extractProviderId(String provider, Map<String, Object> attributes) {
         if ("KAKAO".equals(provider)) {
             Object id = attributes.get("id");
             return id != null ? String.valueOf(id) : null;
         } else if ("NAVER".equals(provider)) {
-            // ⭐ 네이버는 최상위가 아니라 'response' 객체 내부에 id가 있음
             Map<String, Object> navResponse = (Map<String, Object>) attributes.get("response");
             if (navResponse != null) {
                 return (String) navResponse.get("id");

@@ -41,7 +41,7 @@ public class UserSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(userCorsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
+                .logout(logout -> logout.disable())
                 // JWT 필터 순서 조정: LogoutFilter 앞으로 당겨서 OAuth2 로직보다 먼저 쿠키를 읽게 함
                 .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), org.springframework.security.web.authentication.logout.LogoutFilter.class)
                 // 일반 API 요청을 위해 기존 위치에도 유지
@@ -56,6 +56,7 @@ public class UserSecurityConfig {
                                 "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
                                 "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover",
                                 "/api/user/auth/social-recover").permitAll()
+                        .requestMatchers("/api/user/auth/local/logout").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
                         .anyRequest().authenticated())
 
