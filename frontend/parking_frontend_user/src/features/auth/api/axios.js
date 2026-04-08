@@ -2,12 +2,10 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: 'http://localhost:8081', // 백엔드 서버 주소
-    timeout: 5000, // 5초 타임아웃 설정
+    timeout: 5000, 
 });
 
-
-
-// [요청 인터셉터] 모든 요청에 AccessToken을 실어 보냅니다.
+// [요청 인터셉터] 모든 API 호출 시 헤더에 AccessToken 첨부
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("accessToken");
@@ -16,67 +14,60 @@ api.interceptors.request.use(
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// [응답 인터셉터] 에러 발생 시 처리 로직
+// [응답 인터셉터] 401 에러 발생 시 토큰 갱신 로직 실행
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
-        // ⭐ 중요: 로그인/회원가입/공개 엔드포인트에서 발생한 에러는
-        // 토큰 재발급 로직을 타지 않고 바로 에러를 반환해야 합니다.
-        // (주의: /me, /link-password 같은 인증 필요 엔드포인트는 제외해야 함)
+        // 인증이 필요 없는 공개 경로는 재발급 로직에서 제외
         const publicAuthEndpoints = [
             '/auth/local/login',
             '/auth/local/signup',
-            '/auth/local/find-email',
-            '/auth/local/send-code',
-            '/auth/local/verify-code',
-            '/auth/local/reset-password',
             '/auth/refresh',
         ];
         if (publicAuthEndpoints.some(ep => originalRequest.url.includes(ep))) {
             return Promise.reject(error);
         }
 
-        // 401 Unauthorized 에러 발생 시 (토큰 만료 상황)
+        // 401 Unauthorized 발생 시 (토큰 만료)
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
                 const refreshToken = localStorage.getItem("refreshToken");
-                
-                if (!refreshToken) {
-                    throw new Error("No refresh token found");
-                }
+                if (!refreshToken) throw new Error("No refresh token found");
 
-                // 토큰 갱신 요청 (이때는 순수 axios 사용 권장)
-                const res = await axios.post("http://localhost:8081/api/user/auth/refresh", {
-                    refreshToken: refreshToken
+                // ⭐ 백엔드 규격에 맞춰 Header에 Bearer 토큰으로 Refresh 요청
+                const res = await axios.post("http://localhost:8081/api/user/auth/refresh", {}, {
+                    headers: {
+                        Authorization: `Bearer ${refreshToken}`
+                    }
                 });
 
                 if (res.status === 200) {
-                    const newAccessToken = res.data.accessToken;
-                    localStorage.setItem("accessToken", newAccessToken);
+                    const { accessToken, refreshToken: newRefreshToken } = res.data;
 
-                    // 새 토큰으로 기존 요청 재시도
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                    // ⭐ RTR: 새로운 Access와 Refresh 토큰을 모두 저장
+                    localStorage.setItem("accessToken", accessToken);
+                    if (newRefreshToken) {
+                        localStorage.setItem("refreshToken", newRefreshToken);
+                    }
+
+                    // 새 토큰으로 실패했던 기존 요청 재시도
+                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                     return api(originalRequest);
                 }
             } catch (refreshError) {
-                // 리프레시 토큰도 만료된 경우
-                console.error("세션이 만료되었습니다. 다시 로그인해주세요.");
+                console.error("세션 만료. 다시 로그인해주세요.");
                 localStorage.clear();
-                window.location.href = "/login";
+                window.location.href = "/"; // 메인/로그인 페이지로 이동
                 return Promise.reject(refreshError);
             }
         }
-
-        
         return Promise.reject(error);
     }
 );
