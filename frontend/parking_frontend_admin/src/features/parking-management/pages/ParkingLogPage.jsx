@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './ParkingLogPage.css'
-import { getParkingLogList, getParkingLogSummary } from '../api/parkingLogApi'
+import { getParkingLogDetail, getParkingLogList, getParkingLogSummary } from '../api/parkingLogApi'
 import ParkingSummaryCards from '../components/ParkingSummaryCards'
 import ParkingLogTable from '../components/ParkingLogTable'
 
@@ -12,9 +12,6 @@ const ParkingLogPage = () => {
     const [page, setPage] = useState(0) //현재 페이지
     const [totalPages, setTotalPages] = useState(0)
     const [filterStatus,setFilterStatus]=useState('ALL') //카드 클릭시 적용할 필터 상태 (예:'ALL','RESIDENT','VISIT'등)
-
-    //페이징 관련 계산
-    
 
     useEffect(() => { // 요약 정보는 마운트시 1번만 데이터 호출
         //API 호출해서 데이터 가져오기
@@ -53,6 +50,11 @@ const ParkingLogPage = () => {
         console.log(`${status} 필터 적용 및 검색어 초기화`)
     }
 
+    const handleShowDetail=(id)=>{
+        console.log("선택된 ID:",id)
+        getParkingLogDetail(id)
+    }
+
     return (
         <div className='parking-log-page' style={{ padding: '20px' }}>
             {/* 상단 카드 컴포넌트에 데이터 전달 */}
@@ -68,7 +70,7 @@ const ParkingLogPage = () => {
 
             {/* 하단 테이블 영역 */}
             <ParkingLogTable 
-            logs={parkingLogs} page={page} totalPages={totalPages} onPageChange={setPage} />
+            logs={parkingLogs} page={page} totalPages={totalPages} onPageChange={setPage} onShowDetail={handleShowDetail}/>
         </div>
     )
 }
