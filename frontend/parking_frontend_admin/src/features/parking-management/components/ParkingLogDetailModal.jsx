@@ -106,26 +106,42 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose }) => {
                         <section className='info-group payment-info'>
                             <div className='info-row'>
                                 <label>원래 요금 (원금)</label>
-                                <span>{data.rawFee?.toLocaleString()}원</span>
+                                <span>{data.rawFee?.toLocaleString() || 0}원</span>
                             </div>
                             <div className='info-row'>
                                 <label>총 할인 금액</label>
                                 <div className='value-with-btn'>
-                                    <span className='discount-val'>-{data.totalDiscountAmount?.toLocaleString()}원</span>
-                                    <button className='action-btn-small disabled'>할인수정</button>
+                                    <span className='discount-val'>
+                                        {data.totalDiscountAmount > 0? `-${data.totalDiscountAmount?.toLocaleString()}원` : '0원'}
+                                    </span>
+                                    {/* 입차취소나 출차완료나 강제출차가 아닐때만 할인 수정 가능하도록 처리 */}
+                                    <button className={`action-btn-small ${['EXITED','ENTRY_CALCELLED','FORCE_EXITED'].includes(data.parkingStatus) ? 'disabled' : ''}`}>
+                                        할인수정
+                                    </button>
                                 </div>
                             </div>
                             <div className='info-row highlight-row'>
-                                <label>최종 결제 금액</label>
-                                <span className='final-price'>{data.fee?.toLocaleString()}원</span>
+                                <label>최종 청구 금액</label>
+                                <span className='final-price'>
+                                    {(data.calculatedFee || 0).toLocaleString()}원
+                                </span>
+                            </div>
+                            <div className='info-row'>
+                                <label>실 결제 금액</label>
+                                <span className='paid-amount' style={{fontWeight:'bold', color:data.paymentStatus === 'PAID' ? '#4ade80' : '#ffb0b0'}}>
+                                    {data.paymentStatus === 'PAID'? `${data.fee?.toLocaleString()}원` : '0원 (미결제)'}
+                                </span>
                             </div>
                             <div className='info-row'>
                                 <label>결제 상태</label>
                                 <div className='value-with-btn'>
                                     <span className={`payment-val ${data.paymentStatus}`}>
-                                        {PAYMENT_STATUS_LABELS[data.paymentStatus]}
+                                        {PAYMENT_STATUS_LABELS[data.paymentStatus] || data.paymentStatus}
                                     </span>
-                                    <button className='action-btn-primary disabled'>결제처리</button>
+                                    {/* 미납(UNPAID), 차량이 주차장 안에 있는 상태일때만 결제처리 버튼 활성화 */}
+                                    <button className={`action-btn-primary ${data.paymentStatus !== 'UNPAID' ? 'disabled' : ''}`}>
+                                        결제처리
+                                    </button>
                                 </div>
                             </div>
                         </section>
