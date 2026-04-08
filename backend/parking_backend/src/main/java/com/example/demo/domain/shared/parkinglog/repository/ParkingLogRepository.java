@@ -8,6 +8,7 @@ import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -50,4 +51,10 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
 
     //금일 로그 (오늘 생성된 모든 데이터)
     Page<ParkingLog> findByEntryTimeBetween(LocalDateTime start,LocalDateTime end,Pageable pageable);
+
+    // DETECTED 상태로 cutoff 시간보다 오래된 로그 일괄 ENTRY_CANCELLED 처리
+    @Modifying
+    @Query("UPDATE ParkingLog p SET p.parkingStatus = 'ENTRY_CANCELLED' " +
+           "WHERE p.parkingStatus = 'DETECTED' AND p.entryTime < :cutoff")
+    int cancelExpiredDetected(@Param("cutoff") LocalDateTime cutoff);
 }
