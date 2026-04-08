@@ -6,8 +6,7 @@ import api from "../api/axios";
 import Swal from "sweetalert2";
 import localIcon from "../../../assets/images/local_login_icon.png";
 // ⭐ 계정 복구 로직 함수 임포트
-import { handleAccountRecover } from "../components/AccountRecoverButton";
-
+import { handleAccountRecover } from '../utils/accountUtils.js';
 const SignupPage = () => {
     const navigate = useNavigate();
 

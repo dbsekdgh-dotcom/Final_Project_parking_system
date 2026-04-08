@@ -44,6 +44,7 @@ public enum ErrorCode {
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "사용할 수 없는 계정입니다. 관리자에게 문의하세요."),
     WITHDRAWN_ACCOUNT(HttpStatus.FORBIDDEN, "탈퇴한 계정입니다. 복구하시겠습니까?"),
+    TOO_MANY_LOGIN_ATTEMPTS(HttpStatus.FORBIDDEN, "로그인 시도 횟수가 초과되었습니다. 5분 뒤에 다시 시도하거나 이메일 인증을 통해 차단을 해제해 주세요."),
 
     // AUTH (계정 연동 및 비밀번호 관련 추가)
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
@@ -67,6 +68,9 @@ public enum ErrorCode {
     RECOVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "복구 가능한 탈퇴 기록이 없습니다."),
     INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."), // 기존 VERIFICATION_CODE_MISMATCH와 통합 가능하지만 명확히 분리 시 사용
     PHONE_ALREADY_ACTIVE(HttpStatus.CONFLICT, "이미 동일한 번호로 사용 중인 계정이 있어 복구가 불가능합니다."),
+    SOCIAL_RECOVERY_PHONE_CONFLICT(HttpStatus.CONFLICT, "해당 전화번호로 가입된 활성 계정이 있어 소셜 복구가 불가능합니다."),
+    ALREADY_LINKED_SOCIAL(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 서비스 계정과 연동되어 있습니다."),
+    INVALID_USER_DATA_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 데이터 형식이 올바르지 않아 처리가 불가능합니다. 관리자에게 문의하세요."),
 
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),

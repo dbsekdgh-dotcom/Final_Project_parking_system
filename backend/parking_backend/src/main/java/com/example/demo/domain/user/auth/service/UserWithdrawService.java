@@ -22,6 +22,7 @@ public class UserWithdrawService {
     private final UserAuthRepository userAuthRepository;
     private final SocialAccountRepository socialAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserVerificationService userVerificationService;
 
     /**
      * 회원 탈퇴 로직
@@ -81,6 +82,8 @@ public class UserWithdrawService {
             // 현재는 @Transactional에 의해 전체 롤백됩니다.
             throw new AuthException(ErrorCode.SOCIAL_LINK_FAILED);
         }
+
+        userVerificationService.deleteRefreshToken(email);
 
         log.info("회원 탈퇴 성공 - 이메일: {}, 변경된 번호: {}", user.getEmail(), user.getPhone());
     }

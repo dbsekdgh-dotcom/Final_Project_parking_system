@@ -14,14 +14,14 @@ export default function EntryExit() {
   const queryClient = useQueryClient();
   
 
-  // ✅ OCR mutation
+  // OCR mutation
   const {
     mutate: ocrMutate,
     isPending: ocrLoading,
     isError: ocrError,
   } = usePlateOCRMutation();
 
-  // ✅ 입차 mutation (S3 + DB)
+  // 입차 mutation (S3 + DB)
   const {
     mutate: entryMutate,
     isPending: entryLoading,

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserRecoverService {
+public class UserLocalRecoverService {
 
     private final UserAuthRepository userAuthRepository;
     private final StringRedisTemplate redisTemplate;
