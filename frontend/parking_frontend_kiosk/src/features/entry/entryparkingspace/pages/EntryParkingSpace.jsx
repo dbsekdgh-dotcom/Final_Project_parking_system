@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './EntryParkingSpace.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { fetchParkingLogType, fetchEntrySpace, assignParkingSpace } from '../../api/EntryApi';
+import { fetchParkingLogType, fetchEntrySpace, confirmEnter, cancelEntry } from '../../api/EntryApi';
 
 const FLOOR_BY_TYPE = {
   RESIDENT: 'B2',
@@ -59,19 +59,32 @@ const EntryParkingSpace = () => {
     return null;
   };
 
+  // 입차 확정: 자리 배정 + DETECTED → ENTERED (단일 API 호출)
   const handleSubmit = async () => {
     if (!selectedSpotId) return;
     setLoading(true);
     try {
-      await assignParkingSpace({ parkingLogId, spaceId: selectedSpotId });
+      await confirmEnter({ parkingLogId, spaceId: selectedSpotId });
       navigate('/entry-complete', { state: { parkingLogId } });
     } catch (err) {
-      console.error('자리 배정 실패:', err);
+      console.error('입차 확정 실패:', err);
       alert('선택한 자리를 배정할 수 없습니다. 다시 선택해주세요.');
       setSelectedSpotId(null);
     } finally {
       setLoading(false);
     }
+  };
+
+  // 회차: DETECTED → ENTRY_CANCELLED
+  const handleCancel = async () => {
+    if (parkingLogId) {
+      try {
+        await cancelEntry(parkingLogId);
+      } catch (err) {
+        console.error('회차 처리 실패:', err);
+      }
+    }
+    navigate('/');
   };
 
   const selectedSpotCode = spotData.find((s) => s.id === selectedSpotId)?.spaceCode;
@@ -107,7 +120,14 @@ const EntryParkingSpace = () => {
           disabled={!selectedSpotId || loading}
           onClick={handleSubmit}
         >
-          {loading ? '처리 중...' : '선택 완료'}
+          {loading ? '처리 중...' : '입차'}
+        </button>
+        <button
+          className="cancel-btn"
+          disabled={loading}
+          onClick={handleCancel}
+        >
+          회차
         </button>
       </footer>
     </div>

@@ -1,0 +1,228 @@
+/* 모달 배경 오버레이 */
+.parking-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75); /* 배경을 좀 더 어둡게 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px); /* 배경 흐림 효과로 모달 집중도 상승 */
+}
+
+/* 모달 컨텐츠 박스 */
+.parking-modal-content {
+    background: #2a2a2a;
+    color: #efefef;
+    width: 880px;
+    max-height: 90vh;
+    border-radius: 12px;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid #444;
+}
+
+/* 헤더 섹션 */
+.parking-modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-left h2 {
+    font-size: 1.4rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.blacklist-tag {
+    background: #ff4d4f;
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.close-x-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-x-btn:hover {
+    color: #fff;
+}
+
+/* 바디 레이아웃: 좌측 이미지 / 우측 정보 */
+.parking-modal-body {
+    padding: 25px;
+    display: flex;
+    gap: 30px;
+}
+
+.modal-left-section {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.modal-right-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 이미지 컨테이너 */
+.image-container {
+    background: #1a1a1a;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.image-label {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+
+.main-img-box {
+    width: 100%;
+    height: 240px;
+    background: #111;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.main-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.sub-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* 정보 그룹 및 행 */
+.info-group {
+    background: #333;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.info-row label {
+    color: #bbb;
+    font-weight: 500;
+}
+
+.value-with-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 강조 텍스트 */
+.duration-text { color: #4ade80; font-weight: bold; }
+.deadline-text { color: #fbbf24; }
+.discount-val { color: #f87171; font-weight: 600; }
+.final-price { font-size: 1.2rem; color: #3b82f6; font-weight: bold; }
+
+.highlight-row {
+    border-top: 1px solid #444;
+    padding-top: 10px;
+    margin-top: 5px;
+}
+
+/* 버튼 스타일 */
+.action-btn-small {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background: #444;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.action-btn-small.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-btn-primary {
+    padding: 6px 12px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.action-btn-primary.disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+/* 상태별 색상 (공통) */
+.status-val.ENTERED { color: #4ade80; }
+.status-val.EXITED { color: #94a3b8; }
+.payment-val.UNPAID { color: #f87171; }
+.payment-val.PAID { color: #4ade80; }
+
+/* 유형 배지 */
+.type-badge {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.type-badge.RESIDENT { background: #1e3a8a; color: #bfdbfe; }
+.type-badge.VISIT { background: #374151; color: #d1d5db; }
+
+.cancel-text {
+    color: #ff4d4f; /* 흐린 빨강 또는 주황 */
+    font-size: 0.85rem;
+    font-weight: bold;
+}

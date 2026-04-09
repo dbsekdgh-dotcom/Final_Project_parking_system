@@ -67,6 +67,7 @@ function App() {
             </PrivateRoute>
           }
         >
+          {/* 로그인 후 첫 화면은 대시보드 */}
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/season-pass" element={<PlaceholderPage title="정기권" />} />
           <Route path="/visit" element={<PlaceholderPage title="방문 예약" />} />

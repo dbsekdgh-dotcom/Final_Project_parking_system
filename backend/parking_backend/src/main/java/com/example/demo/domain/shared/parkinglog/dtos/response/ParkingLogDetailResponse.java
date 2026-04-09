@@ -7,6 +7,7 @@ import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
+import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
 
@@ -36,11 +37,21 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime exitedAt; //실제 출차 완료 시점
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Comment("최근 결제 요청(키오스트 조회) 시점")
+    private LocalDateTime paymentRequestedAt; //요금 조회 및 결제 요청 시점 검증
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime paidAt; //결제완료 시점
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime freeExitUntil; //무료출차 가능 데드라인
+
     private String parkingDuration; // 주차 이용 시간(예-30분/1시간 20분)
 
     //요금 관련 정보
     private Integer fee; //실제 db에 기록된 결제 금액
     private Long calculatedFee; //현재 시간 기준 시스템이 계산한 예상 금액
+    private Integer totalDiscountAmount; //총 할인 금액
+    private Integer rawFee; //할인 전 원래 요금
 
     //위치 정보
     private String spaceCode; //주차 공간 번호
@@ -73,6 +84,11 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
                 .exitTime(entity.getExitTime())
                 .enteredAt(entity.getEnteredAt())
                 .exitedAt(entity.getExitedAt())
+                .paymentRequestedAt(entity.getPaymentRequestedAt())
+                .paidAt(entity.getPaidAt())
+                .freeExitUntil(entity.getFreeExitUntil())
+                .totalDiscountAmount(entity.getTotalDiscountAmount())
+                .rawFee(entity.getRawFee())
                 .fee(entity.getFee())
                 .calculatedFee(entity.getCalculatedFee())
                 .parkingDuration(duration)

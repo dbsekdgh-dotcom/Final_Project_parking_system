@@ -2,13 +2,21 @@ import axios from "axios";
 
 const BASE = "http://localhost:8081/api/v1/entry";
 
-// 입차 감지: 파일 전송 → parkingLogId 반환
-export const createEntry = async ({ file }) => {
+// 입차 감지: 파일 + 카메라ID 전송 → parkingLogId 반환
+// 블랙리스트 차량이면 403 응답
+export const createEntry = async ({ file, cameraId }) => {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("cameraId", cameraId);
 
   const res = await axios.post(BASE, formData);
   return res.data; // { parkingLogId }
+};
+
+// 차번호로 현재 ENTERED 상태인지 조회 → { isEntered, parkingLogId }
+export const checkVehicleEntered = async (carNumber) => {
+  const res = await axios.get(`${BASE}/check`, { params: { carNumber } });
+  return res.data;
 };
 
 // ENTRY 카메라 목록 조회
@@ -17,10 +25,16 @@ export const fetchEntryCameras = async () => {
   return res.data;
 };
 
-// 입구 카메라 선택 → 입차 확정
-export const confirmEnter = async ({ parkingLogId, cameraId }) => {
+// EXIT 카메라 목록 조회
+export const fetchExitCameras = async () => {
+  const res = await axios.get(`${BASE}/cameras/exit`);
+  return res.data;
+};
+
+// 자리 선택 + 입차 확정: DETECTED → ENTERED (하나의 트랜잭션)
+export const confirmEnter = async ({ parkingLogId, spaceId }) => {
   const res = await axios.patch(`${BASE}/${parkingLogId}/enter`, null, {
-    params: { cameraId },
+    params: { spaceId },
   });
   return res.data;
 };
@@ -34,14 +48,6 @@ export const fetchParkingLogType = async (parkingLogId) => {
 // 층별 주차 공간 목록 조회
 export const fetchEntrySpace = async (floor) => {
   const res = await axios.get(`${BASE}/space`, { params: { floor } });
-  return res.data;
-};
-
-// 자리 선택 → parking_log 업데이트
-export const assignParkingSpace = async ({ parkingLogId, spaceId }) => {
-  const res = await axios.patch(`${BASE}/${parkingLogId}/space`, null, {
-    params: { spaceId },
-  });
   return res.data;
 };
 

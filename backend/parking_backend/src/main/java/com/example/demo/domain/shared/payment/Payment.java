@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @ToString(exclude = {"parkingLog","store","vehicle"})
 @Builder
 @Getter
+@Setter
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
