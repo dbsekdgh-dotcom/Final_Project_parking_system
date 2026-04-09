@@ -88,9 +88,10 @@ public enum ErrorCode {
     POINT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 포인트 요청입니다."),
 
     // [추가] 정의되지 않은 모든 서버 에러를 위한 공통 코드
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.")
-    ;
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요."),
 
+    //Admin
+    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다");
 
     private final HttpStatus status;
     private final String message;

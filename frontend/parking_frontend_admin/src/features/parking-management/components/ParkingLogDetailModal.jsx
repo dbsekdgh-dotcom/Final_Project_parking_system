@@ -1,10 +1,44 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './ParkingLogDetailModal.css'
 import { PARKING_STATUS_LABELS, PARKING_TYPE_LABELS, PAYMENT_STATUS_LABELS } from '../../../shared/constants/parkingLabel'
+import { processForceExit } from '../api/parkingLogApi'
 
-const ParkingLogDetailModal = ({ isOpen, data, onClose }) => {
+const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
+    const [isSubmitting,setIsSubmitting]= useState(false); //버튼을 여러번 클릭시 에러 방지용
+
     // 모달이 닫혀있거나 데이터가 없으면 아무것도 렌더링하지 않음
     if (!isOpen || !data) return null;
+
+    // 상태변경 버튼 활성화 조건: 입차 완료 상태(ENTERED) 또는 입차 기록이 있는 경우 중,
+    // 이미 출차완료(EXITED), 강제출차(FORCE_EXITED)가 아닌 경우만 활성화
+    const isForceExitDisabled = ['EXITED','FORCE_EXITED','ENTRY_CANCELLED'].includes(data.parkingStatus)
+
+    // 강제 출차 핸들러
+    const handleForceExitClick=async()=>{
+        if(isForceExitDisabled) return;
+
+        const reason = window.prompt("강제 출차 사유를 입력해주세요.","관리자 직접 조치");
+
+        if(reason===null) return; //취소 클릭시
+        if(reason.trim()===""){
+            alert("사유를 반드시 입력해야 합니다.");
+            return;
+        }
+
+        if(window.confirm(`${data.carNumber} 차량을 강제 출차 처리하시겠습니까?`)){
+            try{
+                setIsSubmitting(true);
+                await processForceExit(data.parkingLogId, reason);
+                alert("강제 출차 처리가 완료되었습니다.");
+                if(onRefresh) onRefresh(); //부모 컴포넌트 새로고침 함수 호출
+                onClose(); //모달 닫기
+            }catch(error){
+                alert(error.response?.data?.message || "처리에 실패했습니다.");
+            }finally{
+                setIsSubmitting(false);
+            }
+        }
+    }
 
     return (
         <div className='parking-modal-overlay' onClick={onClose}>
@@ -29,7 +63,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose }) => {
                     <div className='modal-left-section'>
                         <div className='image-container'>
                             <p className='image-label'>입차 촬영 기록</p>
-                            <div className='main-img-box'>
+                            <div className='img-box'>
                                 {data.entryPlateImage ? (
                                     <img src={data.entryPlateImage} alt='입차 이미지' />
                                 ) : (
@@ -39,9 +73,11 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose }) => {
                         </div>
                         {/* 출차 이미지가 있다면 추가로 보여줌 */}
                         {data.exitPlateImage && (
-                            <div className='image-container secondary'>
+                            <div className='image-container'>
                                 <p className='image-label'>출차 촬영 기록</p>
-                                <img src={data.exitPlateImage} alt="출차 이미지" className='sub-img' />
+                                <div className='img-box'>
+                                    <img src={data.exitPlateImage} alt="출차 이미지" />
+                                </div>
                             </div>
                         )}
                     </div>
@@ -56,8 +92,11 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose }) => {
                                     <span className={`status-val ${data.parkingStatus}`}>
                                         {PARKING_STATUS_LABELS[data.parkingStatus]}
                                     </span>
-                                    {/* 수정 기능은 추후 구현예정 */}
-                                    <button className='action-btn-small disabled'>상태변경</button>
+                                    {/* 강제출차 버튼 활성화 / isForceExitDisabled가 true면 disabled 클래스 추가 및 클릭 방지 */}
+                                    <button className={`action-btn-small ${isForceExitDisabled || isSubmitting ? 'disabled':'danger-btn'}`}
+                                    onClick={handleForceExitClick} disabled={isForceExitDisabled || isSubmitting}>
+                                        {isSubmitting ? '처리중...' : '강제출차'}
+                                    </button>
                                 </div>
                             </div>
                             <div className='info-row'>
