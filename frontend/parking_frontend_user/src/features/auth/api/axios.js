@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const api = axios.create({
-    baseURL: 'http://localhost:8081', // 백엔드 서버 주소
-    timeout: 5000, 
+    baseURL: BASE_URL,
+    timeout: 5000,
 });
 
 // [요청 인터셉터] 모든 API 호출 시 헤더에 AccessToken 첨부
@@ -42,7 +44,7 @@ api.interceptors.response.use(
                 if (!refreshToken) throw new Error("No refresh token found");
 
                 // ⭐ 백엔드 규격에 맞춰 Header에 Bearer 토큰으로 Refresh 요청
-                const res = await axios.post("http://localhost:8081/api/user/auth/refresh", {}, {
+                const res = await axios.post(`${BASE_URL}/api/user/auth/refresh`, {}, {
                     headers: {
                         Authorization: `Bearer ${refreshToken}`
                     }
@@ -62,7 +64,6 @@ api.interceptors.response.use(
                     return api(originalRequest);
                 }
             } catch (refreshError) {
-                console.error("세션 만료. 다시 로그인해주세요.");
                 localStorage.clear();
                 window.location.href = "/"; // 메인/로그인 페이지로 이동
                 return Promise.reject(refreshError);

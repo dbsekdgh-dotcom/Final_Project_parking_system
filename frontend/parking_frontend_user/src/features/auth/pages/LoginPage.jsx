@@ -16,10 +16,10 @@ import { authService } from "../api/authService";
 import { handleAuthError } from "../utils/authErrorHandler";
 
 // ✅ 통합된 유틸리티에서 모든 계정 관리 로직 가져오기
-import { 
-    handleAccountRecover, 
-    openFindPwModal, 
-    openEmailVerificationModal // 인증 전용 모달 추가
+import {
+    handleLocalRecover,
+    openFindPwModal,
+    openEmailVerificationModal
 } from "../utils/accountUtils";
 
 const LoginPage = () => {
@@ -32,7 +32,6 @@ const LoginPage = () => {
         mutationFn: (loginData) => authService.login(loginData),
         
         onSuccess: (data) => {
-            console.log("로그인 성공! 서버 응답:", data);
             
             // 토큰 및 사용자 정보 저장
             localStorage.setItem("accessToken", data.accessToken);
@@ -52,8 +51,7 @@ const LoginPage = () => {
                     openEmailVerificationModal(targetEmail);
                 },
                 onRecover: (targetEmail) => {
-                    // ✅ 탈퇴 계정 복구 로직 연결
-                    handleAccountRecover({ email: targetEmail });
+                    handleLocalRecover(targetEmail);
                 }
             });
         }

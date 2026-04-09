@@ -136,6 +136,14 @@ public class UserAuthLocalController {
         }
         return ResponseEntity.ok(Map.of("message", "로그아웃이 성공적으로 처리되었습니다."));
     }
+    @PostMapping("/check-email")
+    public ResponseEntity<Map<String, String>> checkEmail(@Valid @RequestBody UserEmailCheckRequestDto userEmailCheckRequestDto) {
+        log.info("이메일 중복 체크 요청: {}", userEmailCheckRequestDto.getEmail());
+
+        userSignupService.checkEmailAvailability(userEmailCheckRequestDto);
+
+        return ResponseEntity.ok(Map.of("message", "사용 가능한 이메일입니다."));
+    }
 
 
 }

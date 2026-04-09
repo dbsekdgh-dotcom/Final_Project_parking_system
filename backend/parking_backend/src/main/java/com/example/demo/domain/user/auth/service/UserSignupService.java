@@ -2,6 +2,7 @@ package com.example.demo.domain.user.auth.service;
 
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.enums.Status;
+import com.example.demo.domain.user.auth.dtos.request.UserEmailCheckRequestDto;
 import com.example.demo.domain.user.auth.dtos.request.UserSignupRequestDto;
 import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import com.example.demo.global.exception.AuthException;
@@ -92,4 +93,19 @@ public class UserSignupService {
                 dto.getPhone() == null || dto.getPhone().isBlank() ||
                 dto.getBirth() == null;
     }
+    @Transactional(readOnly = true)
+    public void checkEmailAvailability(UserEmailCheckRequestDto userEmailCheckRequestDto) {
+        Optional<User> existingUser = userAuthRepository.findByEmail(userEmailCheckRequestDto.getEmail());
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            if (user.getStatus() == Status.DELETED) {
+                throw new AuthException(ErrorCode.WITHDRAWN_ACCOUNT);
+            } else {
+                throw new AuthException(ErrorCode.EMAIL_DUPLICATE);
+            }
+        }
+    }
+
 }
