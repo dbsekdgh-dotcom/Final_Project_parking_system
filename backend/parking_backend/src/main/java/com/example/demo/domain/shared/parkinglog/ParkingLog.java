@@ -164,4 +164,27 @@ public class ParkingLog {
         this.exitPlateImage = imagePath;
         this.exitTime = LocalDateTime.now();
     }
+
+    //관리자 상세모달 - 강제출차 case A: 단순 상태 변경 (ex. 사전정산 완료인 경우)
+    public void updateStatusToForceExit(LocalDateTime now){
+        this.parkingStatus=ParkingStatus.FORCE_EXITED; //상태변경
+        this.exitedAt=now; //실제 출차완료시점 기록
+        //exit_time, exit_camera_id는 기존값 유지
+    }
+
+    //관리자 상세모달 - 강제출차 case B: 미결제 차량 강제 출차처리 (관리자 직권 요금 면제)
+    public void  updateForFreeForceExit(Integer rawFee, LocalDateTime now){
+        this.parkingStatus=ParkingStatus.FORCE_EXITED; //상태변경
+        this.exitedAt=now; //실제 출차완료시점 기록
+
+        //비용 데이터 업데이트
+        this.rawFee=rawFee; //입차부터 현재까지 계산된 원금
+        this.calculatedFee=(long) rawFee; //청구금액
+        this.totalDiscountAmount=rawFee; //원금만큼 전액 할인 처리
+        this.fee = 0; //실제 납부 금액 0원 처리
+
+        //결제 상태 및 시간 업데이트
+        this.paymentStatus=PaymentStatus.PAID; //결제 완료로 간주
+        this.paidAt = now; //결제 시점 기록
+    }
 }

@@ -10,7 +10,7 @@ import com.example.demo.domain.shared.Notification.enums.Type;
 import com.example.demo.domain.shared.Notification.respository.NotificationRepository;
 import com.example.demo.domain.shared.activityLog.ActivityLog;
 import com.example.demo.domain.shared.activityLog.enums.ActivityType;
-import com.example.demo.domain.shared.activityLog.respository.ActivityLogRepository;
+import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
 import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
@@ -38,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

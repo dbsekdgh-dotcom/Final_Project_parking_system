@@ -32,3 +32,16 @@ export const getParkingLogDetail = async(id)=>{
     const response = await adminApi.get(`/parking/logs/${id}`)
     return response.data
 }
+
+//관리자 - 강제 출차 처리
+export const processForceExit = async(id, reason) => {
+    try{
+        const response = await adminApi.post(`/parking/logs/${id}/force-exit`,{
+            reason: reason // JSON body로 전달
+        })
+        return response.data
+    }catch(error){
+        console.error("강제 출차 처리 실패:",error)
+        throw error;
+    }
+}

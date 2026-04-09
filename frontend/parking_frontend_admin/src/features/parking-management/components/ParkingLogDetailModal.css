@@ -74,13 +74,16 @@
     padding: 25px;
     display: flex;
     gap: 30px;
+    align-items: flex-start;
 }
 
 .modal-left-section {
     flex: 1.2;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+    /* 우측 정보 섹션과 높이를 맞추기 위해 추가 */
+    align-self: stretch;
 }
 
 .modal-right-section {
@@ -92,45 +95,48 @@
 
 /* 이미지 컨테이너 */
 .image-container {
+    flex: 1;
     background: #1a1a1a;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
     border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
 }
 
 .image-label {
     font-size: 0.85rem;
     color: #aaa;
     margin-bottom: 8px;
+    font-weight: 600;
 }
 
-.main-img-box {
+.img-box {
+    flex: 1;
     width: 100%;
-    height: 240px;
-    background: #111;
+    /* min-height: 180px; */
+    background: #000;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
 }
 
-.main-img-box img {
+.img-box img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .no-image {
     color: #555;
     font-size: 0.9rem;
-}
-
-.sub-img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 정보 그룹 및 행 */
