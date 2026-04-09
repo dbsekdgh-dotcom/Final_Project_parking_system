@@ -2,6 +2,7 @@ package com.example.demo.domain.kiosk.payment.dtos.response;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
@@ -9,7 +10,9 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @ToString
+@Setter
 public class VehiclePaymentResponseDto {
+    private long parkingLogId;
     private boolean isFree;
     private String message;
     private String vehicleNumber;

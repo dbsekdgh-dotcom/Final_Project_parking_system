@@ -9,6 +9,7 @@ import EntryCompletePage from "./features/entry/entrycomplate/pages/EntryComplat
 import VehicleDeparture from "./features/exit/pages/vehicledeparture/VehicleDeparture";
 import PaymentConfirm from "./features/exit/pages/paymentconfirm/PaymentConfirm";
 import DepartureComplete from "./features/exit/pages/departurecomplete/DepartureComplete";
+import PrepaymentSuccess from "./features/prepayment/pages/PrepaymentSuccess";
 
 
 
@@ -27,6 +28,7 @@ function App() {
       <Route path="/selectedVehicle" element={<SelectedVehicleInfo />}></Route>
       <Route path="/exit-departure" element={<VehicleDeparture/>}/>
       <Route path="/exit-paymentconfirm" element={<PaymentConfirm/>}/>
+      <Route path="/prepaymentSuccess" element={<PrepaymentSuccess/>}></Route>
       <Route path="/exit-complete" element={<DepartureComplete onHome={() => navigate("/")}/>}/>
       <Route path="/store" element={<div style={{ padding: 40 }}>상가 관리 준비 중</div>} />
       <Route path="/find-car" element={<div style={{ padding: 40 }}>내차 찾기 준비 중</div>} />
