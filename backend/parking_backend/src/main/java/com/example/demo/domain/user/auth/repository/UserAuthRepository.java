@@ -85,4 +85,6 @@ public interface UserAuthRepository extends JpaRepository<User, Long> {
     void recoverByEmailWithPassword(@Param("email") String email,
                                     @Param("rawPhone") String rawPhone,
                                     @Param("encodedPassword") String encodedPassword);
+
+
 }

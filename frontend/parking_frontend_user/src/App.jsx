@@ -12,6 +12,13 @@ import SignupPage from './features/auth/pages/SignupPage.jsx';
 import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
 import ReportPage from './features/report/ReportPage.jsx';
 
+const PlaceholderPage = ({ title }) => (
+  <div style={{ padding: '2rem' }}>
+    <h2>{title}</h2>
+    <p>준비 중입니다.</p>
+  </div>
+);
+
 function App() {
   // [전역 청소 로직] 앱 진입 시 토큰 상태 점검
   useEffect(() => {
@@ -63,9 +70,10 @@ function App() {
         >
           {/* 로그인 후 첫 화면은 대시보드 */}
           <Route path="/dashboard" element={<DashBoard />} />
-          
-          {/* 향후 추가될 마이페이지 등은 여기에 작성 */}
-          <Route path='/complaints' element={<ReportPage/>}/>
+          <Route path="/season-pass" element={<PlaceholderPage title="정기권" />} />
+          <Route path="/visit" element={<PlaceholderPage title="방문 예약" />} />
+          <Route path="/mypage" element={<PlaceholderPage title="마이페이지" />} />
+          <Route path="/complaints" element={<ReportPage title="민원/신고" />} />
         </Route>
 
         {/* 4. 잘못된 경로는 모두 루트(/)로 리다이렉트 */}

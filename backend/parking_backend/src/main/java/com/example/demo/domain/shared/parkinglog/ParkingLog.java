@@ -8,6 +8,8 @@ import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.vehicle.Vehicle;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import lombok.*;
@@ -152,5 +154,14 @@ public class ParkingLog {
                     com.example.demo.global.exception.ErrorCode.INVALID_REQUEST);
         }
         this.parkingStatus = ParkingStatus.ENTRY_CANCELLED;
+    }
+    public void exitRequested(Long exitCameraId,String imagePath){
+        if (!this.parkingStatus.canTransitTo(ParkingStatus.EXIT_REQUESTED)){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        this.parkingStatus = ParkingStatus.EXIT_REQUESTED;
+        this.exitCameraId = exitCameraId;
+        this.exitPlateImage = imagePath;
+        this.exitTime = LocalDateTime.now();
     }
 }
