@@ -10,6 +10,7 @@ import DashBoard from './features/dash/pages/DashBoard.jsx';
 import LoginPage from './features/auth/pages/LoginPage.jsx';
 import SignupPage from './features/auth/pages/SignupPage.jsx';
 import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
+import ReportPage from './features/report/ReportPage.jsx';
 
 const PlaceholderPage = ({ title }) => (
   <div style={{ padding: '2rem' }}>
@@ -72,7 +73,7 @@ function App() {
           <Route path="/season-pass" element={<PlaceholderPage title="정기권" />} />
           <Route path="/visit" element={<PlaceholderPage title="방문 예약" />} />
           <Route path="/mypage" element={<PlaceholderPage title="마이페이지" />} />
-          <Route path="/complaints" element={<PlaceholderPage title="민원/신고" />} />
+          <Route path="/complaints" element={<ReportPage title="민원/신고" />} />
         </Route>
 
         {/* 4. 잘못된 경로는 모두 루트(/)로 리다이렉트 */}
