@@ -118,6 +118,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 5. 정상 유저 JWT 발행 및 ⭐ Redis 저장
         Map<String, Object> claims = Map.of(
                 "email", email,
+                "userId",user.getUserId(),
                 "role", "USER" // 컨트롤러에서 쓰는 role 값과 통일
         );
         String accessToken = adminJWTUtil.generateUserAccessToken(claims);

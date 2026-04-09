@@ -64,5 +64,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+    // 1. 패키지 경로에 맞춰서 import 확인하세요! (예: com.example.demo.global.exception.CustomException)
+    @ExceptionHandler(com.example.demo.global.exception.CustomException.class)
+    public ResponseEntity<ErrorResponse> handleCustomException(com.example.demo.global.exception.CustomException e) {
+        log.warn("### [비즈니스 예외] 커스텀 에러 발생: {}", e.getMessage());
+
+        // ErrorResponse 규격에 맞춰서 반환
+        ErrorResponse response = new ErrorResponse(
+                "BUSINESS_ERROR", // 프론트에서 구분할 코드명
+                e.getMessage()    // "해당 세대는 이미 입주가 완료되었습니다."
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
 
 }
