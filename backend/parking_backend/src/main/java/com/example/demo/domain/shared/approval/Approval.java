@@ -1,0 +1,65 @@
+package com.example.demo.domain.shared.approval;
+
+
+import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
+import com.example.demo.domain.shared.approval.enums.ApprovalType;
+import com.example.demo.domain.shared.user.User;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "approval")
+public class Approval {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "approval_id")
+    private Long approvalId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_type", nullable = false)
+    private ApprovalType approvalType;
+
+    @Column(name = "target_id", nullable = false)
+    private Long targetId;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_user_id")
+    private User requestUserId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ApprovalStatus status = ApprovalStatus.PENDING;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
+
+    @Column(name = "processed_by_admin_id")
+    private Long processedByAdminId;
+
+    @Column(name = "reject_reason", columnDefinition = "TEXT")
+    private String rejectReason;
+
+    @Builder
+    public Approval(ApprovalType approvalType, Long targetId, User requestUserId, ApprovalStatus status) {
+        this.approvalType = approvalType;
+        this.targetId = targetId;
+        this.requestUserId = requestUserId;
+        this.status = (status != null) ? status : ApprovalStatus.PENDING;
+    }
+
+    @PrePersist
+    public void onPrePersist() {
+        this.createdAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+    }
+}

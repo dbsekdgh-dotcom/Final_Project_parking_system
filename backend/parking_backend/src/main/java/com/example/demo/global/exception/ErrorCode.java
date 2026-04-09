@@ -74,6 +74,12 @@ public enum ErrorCode {
     ALREADY_LINKED_SOCIAL(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 서비스 계정과 연동되어 있습니다."),
     INVALID_USER_DATA_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 데이터 형식이 올바르지 않아 처리가 불가능합니다. 관리자에게 문의하세요."),
 
+    // APPLY (입주 신청 관련 추가)
+    ALREADY_APPLIED_RESIDENT(HttpStatus.CONFLICT, "이미 대기 중인 입주 신청 내역이 있습니다."),
+    HOUSEHOLD_ALREADY_ACTIVE(HttpStatus.CONFLICT, "해당 세대는 이미 입주가 완료되었습니다."),
+    NOT_AVAILABLE_HOUSEHOLD(HttpStatus.BAD_REQUEST, "신청 가능한 호수가 아닙니다."),
+
+
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),
     PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY,"결제 서비스 호출에 실패하였습니다."),
