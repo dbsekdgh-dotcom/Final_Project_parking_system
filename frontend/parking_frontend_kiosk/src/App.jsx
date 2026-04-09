@@ -11,7 +11,7 @@ import PaymentConfirm from "./features/exit/pages/paymentconfirm/PaymentConfirm"
 import DepartureComplete from "./features/exit/pages/departurecomplete/DepartureComplete";
 import PrepaymentSuccess from "./features/prepayment/pages/PrepaymentSuccess";
 import { PaymentPage } from "./shared/components/paymentPage/PaymentPage";
-import PaymentSuccessPage from "./shared/components/paymentPage/PaymentSuccessPage";
+import {PaymentSuccessPage} from "./shared/components/paymentPage/PaymentSuccessPage";
 import { PaymentFailPage } from "./shared/components/paymentPage/PaymentFailPage";
 
 
