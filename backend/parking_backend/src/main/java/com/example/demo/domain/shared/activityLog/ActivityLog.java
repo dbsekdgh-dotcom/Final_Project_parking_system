@@ -42,4 +42,8 @@ public class ActivityLog {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    public void entryActivity(){
+
+    }
+
 }
