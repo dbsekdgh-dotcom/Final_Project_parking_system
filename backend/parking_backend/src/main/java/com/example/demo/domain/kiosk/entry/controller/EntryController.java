@@ -20,12 +20,13 @@ import java.util.Map;
 public class EntryController {
     private final EntryService entryService;
 
-    // 입차 감지: OCR + S3 → 블랙리스트면 BLACKLIST_REJECTED 저장 후 403, 정상이면 DETECTED 저장 → parkingLogId 반환
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // 차량번호, s3path camera id를 받아 DETECTED ( insert )
+    @PostMapping
     public ResponseEntity<Map<String, Long>> entry(
-            @RequestPart("file") MultipartFile file,
+            @RequestParam String plateNumber,
+            @RequestParam String s3path,
             @RequestParam Long cameraId) {
-        Long parkingLogId = entryService.detectedEntry(file, cameraId);
+        Long parkingLogId = entryService.detectedEntry(plateNumber,s3path, cameraId);
         return ResponseEntity.ok(Map.of("parkingLogId", parkingLogId));
     }
 

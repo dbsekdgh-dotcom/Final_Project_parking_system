@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./entryExit.css";
-
+import { requestExit } from "../../exit/api/ExitApi";
 import { usePlateOCRMutation } from "../../entry/hooks/usePlateImage";
 import { useEntryMutation } from "../../entry/hooks/UseEntryMutate";
 import { checkVehicleEntered, fetchEntryCameras, fetchExitCameras } from "../../entry/api/EntryApi";
@@ -18,6 +18,9 @@ export default function EntryExit() {
   // null: OCR 전, true: 출차 모드, false: 입차 모드
   const [isEntered, setIsEntered] = useState(null);
   const [cameraLoading, setCameraLoading] = useState(false);
+  const [imagePath, setImagePath]=useState("");
+  const [parkingLogId,setParkingLogId] = useState(null);
+  const [exitLoading,setExitLoading] = useState(false);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -71,6 +74,7 @@ export default function EntryExit() {
           data?.plateNumber ??
           data?.plate ??
           "";
+        const s3path = data?.s3path ?? "";
 
         if (!plate) {
           alert("번호판 인식 실패");
@@ -79,6 +83,7 @@ export default function EntryExit() {
 
         const cleaned = plate.replace(/\s+/g, "");
         setPlateNumber(cleaned);
+        setImagePath(s3path)
         queryClient.setQueryData(["entry-session"], { plateNumber: cleaned });
 
         // OCR 성공 후 현재 ENTERED 상태 여부 조회
@@ -86,6 +91,9 @@ export default function EntryExit() {
         try {
           const result = await checkVehicleEntered(cleaned);
           setIsEntered(result.isEntered);
+          if (result.parkingLogId){
+            setParkingLogId(result.parkingLogId)
+          }
         } catch (err) {
           console.error("차량 상태 조회 실패:", err);
           alert("차량 상태 조회 실패");
@@ -101,14 +109,14 @@ export default function EntryExit() {
   };
 
   // 입차 카메라 버튼 클릭
-  const handleEntryCamera = (cameraId) => {
-    if (!uploadFile) {
+  const handleEntryCamera = (entryCameraId) => {
+    if (!plateNumber) {
       alert("먼저 차량 사진을 업로드하세요.");
       return;
     }
 
     entryMutate(
-      { file: uploadFile, cameraId },
+      { plateNumber, s3path:imagePath, cameraId },
       {
         onSuccess: (data) => {
           navigate("/entry-parkingspace", { state: { parkingLogId: data.parkingLogId } });
@@ -127,9 +135,39 @@ export default function EntryExit() {
   };
 
   // 출차 카메라 버튼 클릭 (추후 연결)
-  const handleExitCamera = (cameraId) => {
-    // TODO: 출차 도메인 연결 예정
-    console.log("출차 카메라 선택:", cameraId);
+  const handleExitCamera = async(exitCameraId) => {
+    if(!uploadFile){
+      alert("먼저 차량 사진을 업로드 하세요.");
+      return;
+    }
+    if(!parkingLogId){
+      alert("차량 정보를 확인할 수 없습니다.")
+      return;
+    }
+    
+    setExitLoading(true);
+    try{
+      const data = await requestExit(parkingLogId, exitCameraId,imagePath);
+      if (data.isFree){
+        navigate("/exit-departure",{
+          state:{ parkingLogId, message: data.message}
+        });
+      }else{
+        navigate("/exit-paymentconfirm",{
+          state:{
+            parkingLogId,
+            vehicleNumber: data.vehicleNumber,
+            parkingTime: data.parkingTime,
+            amountToPay: data.amountToPay,
+          }
+        });
+      }
+    }catch(err){
+      console.error("출차 요청 실패:",err);
+      alert(err?.response?.data?.message||"출차 요청 실패")
+    } finally {
+      setExitLoading(false);
+    }
   };
 
   return (
@@ -215,9 +253,12 @@ export default function EntryExit() {
                   key={cam.cameraId}
                   className="action-button"
                   type="button"
+                  disabled={exitLoading}
                   onClick={() => handleExitCamera(cam.cameraId)}
                 >
-                  {cam.description || cam.location || `${cam.cameraId}번 출구`}
+                  {exitLoading
+                  ?"처리 중 ..."
+                   :cam.description || cam.location || `${cam.cameraId}번 출구`}
                 </button>
               ))}
             </>

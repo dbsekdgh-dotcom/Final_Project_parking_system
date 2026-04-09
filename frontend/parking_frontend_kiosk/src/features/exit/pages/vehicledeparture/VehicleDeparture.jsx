@@ -1,12 +1,51 @@
 import { useState } from "react";
 import "./VehicleDeparture.css";
+import { useLocation, useNavigate } from "react-router-dom";
+import { cancelExit, confirmExit } from "../../api/ExitApi";
 
 export default function VehicleDeparture() {
-  const [status, setStatus] = useState(null); // null | 'confirmed' | 'cancelled'
+  const { status } = useLocation();
+  const navigate = useNavigate();
+  const parkingLogId = state?.parkingLogId;
+  const message= state?.message;
 
-  const handleDepart = () => setStatus("confirmed");
-  const handleCancel = () => setStatus("cancelled");
-  const handleReset = () => setStatus(null);
+  const [loading,setLoading] = useState(false);
+
+  //출차 확정 handler
+  const handleDepart = async()=>{
+    // parkingLogId가 넘어오지 못했을경우 
+    if (!parkingLogId){
+      alert("차량 정보를 확인 할 수 없습니다")
+      return;
+    }
+    setLoading(true);
+    try{
+      await confirmExit(parkingLogId);
+      navigate("/exit-complete");
+    }catch (err){
+      console.error("출차 실패", err);
+      alert(err?.response?.data?.message || "출차 처리 실패");
+    }finally{
+      setLoading(false);
+    }
+  };
+  //회차 handler
+  const handleCancel = async ()=>{
+    if(!parkingLogId){
+      navigate("/entry-exit");
+      return;
+    }
+    setLoading(true);
+    try{
+      await cancelExit(parkingLogId);
+      navigate("/entry-exit");
+    }catch(err){
+      console.error("회차 실패:",err);
+      alert(err?.response?.data?.message || "회차 처리 실패")
+    }finally{
+      setLoading(false)
+    }
+  };
 
   return (
     <div className="vd-backdrop">
@@ -43,8 +82,11 @@ export default function VehicleDeparture() {
             <div className="vd-divider" />
 
             <div className="vd-btn-group">
-              <button className="vd-btn vd-btn--primary" onClick={handleDepart}>
-                출차
+              <button className="vd-btn vd-btn--primary"
+               onClick={handleDepart}
+               disabled={loading}
+               >
+                {loading ? " 처리중...": "출차"}
               </button>
               <button className="vd-btn vd-btn--secondary" onClick={handleCancel}>
                 회차
