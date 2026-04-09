@@ -134,6 +134,7 @@ public class ParkingLog {
         this.totalDiscountAmount=feeCalculationResponseDto.getTotalDiscountAmount();
         this.calculatedFee=feeCalculationResponseDto.getCalculatedFee();
         this.paymentRequestedAt=feeCalculationResponseDto.getPaymentRequestedAt();
+        this.paymentRequestedAt=feeCalculationResponseDto.getPaymentRequestedAt();
     }
     public void enter(LocalDateTime freeExitUntil){
         if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTERED)) {

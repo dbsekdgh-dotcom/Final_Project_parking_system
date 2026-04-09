@@ -13,13 +13,13 @@ const PaymentMethod = ({fee,userPoint,onConfirm}) => {
         const use=Math.min(userPoint,fee)
         setUsePoint(use)
     }
-    const payMethodHandler=(e)=>{
-        if(payMethod=='CARD'){
-            setPayMethod('')
-        }else{
-            setPayMethod(e)
-        }
-    }
+    // const payMethodHandler=(e)=>{
+    //     if(payMethod=='CARD'){
+    //         setPayMethod('')
+    //     }else{
+    //         setPayMethod(e)
+    //     }
+    // }
     const payBtnHandler=()=>{
         const paymentData={
             "usedPoint":usePoint,

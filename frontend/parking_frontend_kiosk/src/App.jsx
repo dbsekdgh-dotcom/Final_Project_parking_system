@@ -6,6 +6,7 @@ import VehicleSearchResult from "./features/prepayment/pages/VehicleSearchResult
 import SelectedVehicleInfo from "./features/prepayment/pages/SelectedVehicleInfo";
 import EntryParkingSpace from "./features/entry/entryparkingspace/pages/EntryParkingSpace";
 import EntryCompletePage from "./features/entry/entrycomplate/pages/EntryComplatePage";
+import PrepaymentSuccess from "./features/prepayment/pages/PrepaymentSuccess";
 
 
 
@@ -22,6 +23,7 @@ function App() {
       <Route path="/prepayment" element={<PrepaymentMain/>}></Route>
       <Route path="/searchResult" element={<VehicleSearchResult />}></Route>
       <Route path="/selectedVehicle" element={<SelectedVehicleInfo />}></Route>
+      <Route path="/prepaymentSuccess" element={<PrepaymentSuccess/>}></Route>
       <Route path="/store" element={<div style={{ padding: 40 }}>상가 관리 준비 중</div>} />
       <Route path="/find-car" element={<div style={{ padding: 40 }}>내차 찾기 준비 중</div>} />
 
