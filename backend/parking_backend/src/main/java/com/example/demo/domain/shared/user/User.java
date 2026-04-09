@@ -54,8 +54,9 @@ public class User {
     private LocalDateTime deletedAt;
 
     @Builder
-    public User(Household household, String password, String email, String name,
+    public User(Long userId, Household household, String password, String email, String name,
                 LocalDate birth, String phone, Status status) {
+        this.userId = userId;
         this.household = household;
         this.password = password;
         this.email = email;

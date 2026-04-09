@@ -79,11 +79,10 @@ public class ParkingFeePolicy {
     @Comment("적용 종료 시점")
     private LocalDateTime effectiveTo = LocalDateTime.of(3000, 1, 1, 0, 0);
 
-    @Builder.Default
-    @Column(name = "version")
-    @ColumnDefault("1")
-    @Comment("정책 버전")
-    private Long version = 1L;
+    @Version
+    @Column(name = "version", nullable = false)
+    @Comment("낙관적 락 버전")
+    private Long version;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
