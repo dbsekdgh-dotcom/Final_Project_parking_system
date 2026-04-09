@@ -46,8 +46,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "사용할 수 없는 계정입니다. 관리자에게 문의하세요."),
-    WITHDRAWN_ACCOUNT(HttpStatus.FORBIDDEN, "탈퇴한 계정입니다. 복구하시겠습니까?"),
-    TOO_MANY_LOGIN_ATTEMPTS(HttpStatus.FORBIDDEN, "로그인 시도 횟수가 초과되었습니다. 5분 뒤에 다시 시도하거나 이메일 인증을 통해 차단을 해제해 주세요."),
+    WITHDRAWN_ACCOUNT(HttpStatus.CONFLICT, "탈퇴한 계정입니다. 복구하시겠습니까?"),    TOO_MANY_LOGIN_ATTEMPTS(HttpStatus.FORBIDDEN, "로그인 시도 횟수가 초과되었습니다. 5분 뒤에 다시 시도하거나 이메일 인증을 통해 차단을 해제해 주세요."),
 
     // AUTH (계정 연동 및 비밀번호 관련 추가)
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),

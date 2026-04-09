@@ -4,16 +4,18 @@ import useVehicleStore from '../../../store/useVehicleStore';
 import '../../../app.css'
 import PaymentMethod from '../../../shared/components/paymentMethod/PaymentMethod';
 import { useQuery } from '@tanstack/react-query';
-import { requestPrepayment } from '../../../shared/api/VehicleApi';
+import { requestPayment } from '../../../shared/api/VehicleApi';
 import { useNavigate } from 'react-router-dom';
+import {requestBeforePayment} from '../../../shared/api/VehicleApi'
 
 const SelectedVehicleInfo = () => {
     const {selectedVehicle, resetSearchKeyword, resetSelectedVehicle}=useVehicleStore();
     const navigate = useNavigate();
+    console.log("스토어에 저장된 원본 차량 정보:", selectedVehicle);
 
     const {data,isError, error ,isLoading}=useQuery({
         queryKey:['selectedVehicle',selectedVehicle],
-        queryFn:async()=>await requestPrepayment(selectedVehicle),
+        queryFn:async()=>await requestPayment(selectedVehicle),
         enabled: !!selectedVehicle
     })  
     
@@ -28,19 +30,29 @@ const SelectedVehicleInfo = () => {
         navigate('/')
     }
 
-    const paymentHandler=(paymentData)=>{
-        const settlementPayload={
-            "parkingLogId":data.parkingLogId,
-            "vehicleNumber":data.vehicleNumber,
-            "usedPoint":paymentData.usedPoint,
-            "paidAmount":paymentData.paidAmount,
-        }
-        if(paymentData.paidAmount==0){
-            //바로 DB호출
+    const paymentHandler=async(paymentData)=>{
+        console.log("지금 결제",data)
+
+        if(data.free){
+            navigate("/prepaymentSuccess",{
+            state:{
+                title : "정산이 완료 되었습니다. ",
+                subTitle : paymentData.message
+                }
+            })  
         }else{
-            //토스 페이먼츠 호출 후 db호출
+            const settlementPayload={
+                "parkingLogId":data.parkingLogId,
+                "vehicleNumber":data.vehicleNumber,
+                "usedPoint":paymentData.usedPoint,
+                "paidAmount":paymentData.paidAmount,
+                "settlementType":"prepay"
+            }
+            const res=await requestBeforePayment(settlementPayload);
+            console.log("결제 전 사전체크===>",res)
         }
-    }
+    }  
+    
 
     if (!selectedVehicle) {
         return (

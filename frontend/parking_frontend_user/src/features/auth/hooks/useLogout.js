@@ -13,7 +13,6 @@ const useLogout = () => {
             // 토큰이 만료되었을 수도 있으므로 에러가 나더라도 무시하고 진행하도록 try-catch 활용
             await api.post("/api/user/auth/local/logout");
         } catch (error) {
-            console.error("서버 로그아웃 처리 중 오류(이미 만료되었을 수 있음):", error);
         }
 
         // 2. 로컬 스토리지 삭제
@@ -33,8 +32,8 @@ const useLogout = () => {
             icon: 'success',
             title: '로그아웃',
             text: '로그아웃 되었습니다.',
-            timer: 1500,
-            showConfirmButton: false,
+            confirmButtonText: '확인',
+            confirmButtonColor: '#3085d6',
         });
         
         navigate("/", { replace: true });

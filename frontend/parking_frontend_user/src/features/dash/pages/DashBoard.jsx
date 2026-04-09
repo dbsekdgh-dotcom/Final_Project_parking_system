@@ -35,8 +35,8 @@ const DashBoard = () => {
         icon: "success",
         title: "로그인 성공",
         text: `${name}님, 환영합니다!`,
-        timer: 1500,
-        showConfirmButton: false,
+        confirmButtonText: "확인",
+        confirmButtonColor: "#3085d6",
       });
     }
   }, []);

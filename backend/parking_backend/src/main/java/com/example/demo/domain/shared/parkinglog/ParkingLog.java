@@ -8,6 +8,8 @@ import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.vehicle.Vehicle;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import lombok.*;
@@ -134,6 +136,7 @@ public class ParkingLog {
         this.totalDiscountAmount=feeCalculationResponseDto.getTotalDiscountAmount();
         this.calculatedFee=feeCalculationResponseDto.getCalculatedFee();
         this.paymentRequestedAt=feeCalculationResponseDto.getPaymentRequestedAt();
+        this.paymentRequestedAt=feeCalculationResponseDto.getPaymentRequestedAt();
     }
     public void enter(LocalDateTime freeExitUntil){
         if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTERED)) {
@@ -151,6 +154,15 @@ public class ParkingLog {
                     com.example.demo.global.exception.ErrorCode.INVALID_REQUEST);
         }
         this.parkingStatus = ParkingStatus.ENTRY_CANCELLED;
+    }
+    public void exitRequested(Long exitCameraId,String imagePath){
+        if (!this.parkingStatus.canTransitTo(ParkingStatus.EXIT_REQUESTED)){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        this.parkingStatus = ParkingStatus.EXIT_REQUESTED;
+        this.exitCameraId = exitCameraId;
+        this.exitPlateImage = imagePath;
+        this.exitTime = LocalDateTime.now();
     }
 
     //관리자 상세모달 - 강제출차 case A: 단순 상태 변경 (ex. 사전정산 완료인 경우)

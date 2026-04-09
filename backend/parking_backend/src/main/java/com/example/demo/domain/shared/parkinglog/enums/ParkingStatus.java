@@ -26,7 +26,7 @@ public enum ParkingStatus {
             case ENTERED ->
                 next == EXIT_REQUESTED || next == FORCE_EXITED;
             case EXIT_REQUESTED ->
-                next == EXITED || next == FORCE_EXITED;
+                next == EXITED || next == FORCE_EXITED || next == ENTERED;
             default -> false;
         };
     }

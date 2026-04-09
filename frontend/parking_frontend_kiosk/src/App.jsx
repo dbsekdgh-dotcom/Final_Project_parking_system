@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Home from "./shared/components/home/Home";
 import PrepaymentMain from "./features/prepayment/pages/PrepaymentMain";
 import EntryExit from "./features/entryExit/pages/EntryExit";
@@ -6,11 +6,15 @@ import VehicleSearchResult from "./features/prepayment/pages/VehicleSearchResult
 import SelectedVehicleInfo from "./features/prepayment/pages/SelectedVehicleInfo";
 import EntryParkingSpace from "./features/entry/entryparkingspace/pages/EntryParkingSpace";
 import EntryCompletePage from "./features/entry/entrycomplate/pages/EntryComplatePage";
+import VehicleDeparture from "./features/exit/pages/vehicledeparture/VehicleDeparture";
+import PaymentConfirm from "./features/exit/pages/paymentconfirm/PaymentConfirm";
+import DepartureComplete from "./features/exit/pages/departurecomplete/DepartureComplete";
+import PrepaymentSuccess from "./features/prepayment/pages/PrepaymentSuccess";
 
 
 
 function App() {
-
+  const navigate = useNavigate();
   return (
   <Routes >
       <Route path="/" element={<Home />}/>
@@ -22,6 +26,10 @@ function App() {
       <Route path="/prepayment" element={<PrepaymentMain/>}></Route>
       <Route path="/searchResult" element={<VehicleSearchResult />}></Route>
       <Route path="/selectedVehicle" element={<SelectedVehicleInfo />}></Route>
+      <Route path="/exit-departure" element={<VehicleDeparture/>}/>
+      <Route path="/exit-paymentconfirm" element={<PaymentConfirm/>}/>
+      <Route path="/prepaymentSuccess" element={<PrepaymentSuccess/>}></Route>
+      <Route path="/exit-complete" element={<DepartureComplete onHome={() => navigate("/")}/>}/>
       <Route path="/store" element={<div style={{ padding: 40 }}>상가 관리 준비 중</div>} />
       <Route path="/find-car" element={<div style={{ padding: 40 }}>내차 찾기 준비 중</div>} />
 

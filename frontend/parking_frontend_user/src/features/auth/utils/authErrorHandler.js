@@ -44,15 +44,7 @@ export const handleAuthError = (error, navigate, email, actions) => {
             break;
 
         case AUTH_ERROR_CODES.WITHDRAWN_ACCOUNT:
-            showAlert('error', '탈퇴된 계정입니다.', serverMessage, {
-                showCancelButton: true,
-                confirmButtonText: '계정 복구',
-                cancelButtonText: '취소'
-            }).then((result) => {
-                if (result.isConfirmed && actions?.onRecover) {
-                    actions.onRecover(email);
-                }
-            });
+            if (actions?.onRecover) actions.onRecover(email);
             break;
 
         case AUTH_ERROR_CODES.USER_NOT_FOUND:
