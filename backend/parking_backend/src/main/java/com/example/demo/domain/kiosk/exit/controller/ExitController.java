@@ -1,5 +1,6 @@
 package com.example.demo.domain.kiosk.exit.controller;
 
+import com.example.demo.domain.kiosk.exit.dtos.response.ExitPaymentResponseDto;
 import com.example.demo.domain.kiosk.exit.service.ExitService;
 import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +16,23 @@ public class ExitController {
     private final ExitService exitService;
 
     @PostMapping("/request")
-    public VehiclePaymentResponseDto requestExit(
+    public ExitPaymentResponseDto requestExit(
             @RequestParam Long parkingLogId,
             @RequestParam Long exitCameraId,
             @RequestParam(required = false,defaultValue = "") String imagePath
     ){
         log.info("출차 요청 - parkingLogId: {}, exitCameraId: {}",parkingLogId,exitCameraId);
-        return exitService.requestExit(parkingLogId,exitCameraId,imagePath);
+       VehiclePaymentResponseDto result=exitService.requestExit(parkingLogId,exitCameraId,imagePath);
+       return ExitPaymentResponseDto.builder().
+               parkingLogId(result.getParkingLogId()).
+               isFree(result.isFree()).
+               message(result.getMessage()).
+               vehicleNumber(result.getVehicleNumber()).
+               parkingTime(result.getParkingTime()).
+               rawFee(result.getRawFee()).
+               calculatedFee(result.getCalculatedFee()).
+               amountToPay(result.getAmountToPay()).
+               build();
     }
     // 출차 확정 EXIT_REQUESTED -> EXITED
     @PostMapping("/confirm")

@@ -105,6 +105,7 @@ public class EntryService {
             parkinglogRepository.save(rejected);
             throw new BusinessException(ErrorCode.BLACKLIST_VEHICLE);
         }
+        //실제 입차한 차량
         ParkingLog log= ParkingLog.builder().
                 vehicle(vehicle).
                 carNumberSnapshot(carNumber).
@@ -171,7 +172,7 @@ public class EntryService {
     private LocalDateTime resolveFreeExitUntil(ParkingLog log) {
         LocalDateTime now = LocalDateTime.now();
         return switch (log.getParkingTypeSnapshot()) {
-            case RESIDENT -> null;
+            case RESIDENT -> LocalDateTime.of(3000, 1, 1, 0, 0);
             case SUBSCRIPTION -> {
                 Long vehicleId = log.getVehicle().getId();
                 yield entrySubscriptionRepository.findActiveSubscriptionEndDate(vehicleId)
