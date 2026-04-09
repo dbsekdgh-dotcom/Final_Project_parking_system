@@ -1,5 +1,6 @@
 package com.example.demo.domain.shared.parkinglog.repository;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.PaymentUserInfoResult;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
@@ -26,7 +27,18 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null")
     List<ParkingLogSettlementDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber);
 
+    @Query("select p " +
+            "from ParkingLog p " +
+            "left join fetch p.vehicle v " +
+            "left join fetch v.user u " +
+            "left join fetch UserPoint up on up.user = u " +
+            "where p.parkingLogId=:parkingLogId")
+    Optional<ParkingLog> getDetailLogInfo(Long parkingLogId);
+
     Optional<ParkingLog> findByParkingLogId(Long parkingLogId);
+
+    // 차번호 + 상태로 조회 (입차/출차 분기 판단용)
+    Optional<ParkingLog> findFirstByCarNumberSnapshotAndParkingStatus(String carNumber, ParkingStatus status);
 
     //차량번호 스냅샷에 키워드가 포함된 데이터를 페이징하여 조회
     Page<ParkingLog> findByCarNumberSnapshotContaining(String carNumber, Pageable pageable);

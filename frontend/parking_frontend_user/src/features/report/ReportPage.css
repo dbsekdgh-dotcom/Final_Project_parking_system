@@ -1,0 +1,293 @@
+/* =====================
+   전체 레이아웃
+===================== */
+.report-page {
+  width: 100%;
+  height: 100%;
+  padding: 24px 16px 100px;
+  background-color: #f9f9f9;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  box-sizing: border-box;
+}
+
+/* =====================
+   헤더
+===================== */
+.report-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.report-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+
+.search-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.search-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.search-icon {
+  margin-right: 4px;
+}
+
+.search-sub {
+  font-size: 11px;
+  color: #e53935;
+  font-weight: 500;
+}
+
+/* =====================
+   탭
+===================== */
+.report-tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #999;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn--active {
+  color: #1a73e8;
+  border-bottom-color: #1a73e8;
+  font-weight: 700;
+}
+
+.tab-btn:hover:not(.tab-btn--active) {
+  color: #555;
+}
+
+/* =====================
+   카드 목록
+===================== */
+.report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.report-card {
+  display: flex;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  gap: 12px;
+  position: relative;
+}
+
+/* 아이콘 */
+.report-card__icon {
+  flex-shrink: 0;
+}
+
+.icon-box {
+  width: 40px;
+  height: 40px;
+  background-color: #f0f4ff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #1a73e8;
+}
+
+/* 본문 */
+.report-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.report-card__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.plate-number {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+}
+
+.report-card__category {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 2px;
+}
+
+.report-card__date {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 2px;
+}
+
+.report-card__location {
+  font-size: 12px;
+  color: #777;
+}
+
+/* 취소 버튼 */
+.report-card__action {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cancel-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.cancel-btn:hover {
+  color: #e53935;
+}
+
+/* =====================
+   상태 뱃지
+===================== */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge--approved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge--pending {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.badge--cancelled {
+  background-color: #f5f5f5;
+  color: #757575;
+}
+
+.badge--rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* =====================
+   페이지네이션
+===================== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.page-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.page-btn:hover:not(.page-btn--active) {
+  background: #f0f0f0;
+}
+
+.page-btn--active {
+  background-color: #1a73e8;
+  color: #fff;
+  border-color: #1a73e8;
+  font-weight: 700;
+}
+
+.page-btn--arrow {
+  font-size: 12px;
+  color: #999;
+  border-color: #eee;
+}
+
+/* =====================
+   하단 신고하기 버튼
+===================== */
+.report-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.report-submit-btn {
+  width: 100%;
+  display: block;
+  background-color: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.report-submit-btn:hover {
+  background-color: #1558b0;
+}
