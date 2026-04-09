@@ -7,8 +7,6 @@ import { useEntryMutation } from "../../entry/hooks/UseEntryMutate";
 import { checkVehicleEntered, fetchEntryCameras, fetchExitCameras } from "../../entry/api/EntryApi";
 import { useQueryClient } from "@tanstack/react-query";
 
-const SLOT_COUNT = 8;
-
 export default function EntryExit() {
   const [uploadFile, setUploadFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -53,8 +51,8 @@ export default function EntryExit() {
   }, [previewUrl]);
 
   const plateChars = useMemo(() => {
-    const chars = Array.from(plateNumber);
-    return Array.from({ length: SLOT_COUNT }, (_, i) => chars[i] ?? "");
+    if (!plateNumber) return [];
+    return Array.from(plateNumber);
   }, [plateNumber]);
 
   const handleFileChange = (e) => {
@@ -190,13 +188,15 @@ export default function EntryExit() {
         <div className="plate-panel">
           <div className="plate-panel-label">차량 번호판</div>
 
-          <div className="plate-underline">
-            {plateChars.map((ch, idx) => (
-              <div key={idx} className="plate-slot">
-                {ch}
-              </div>
-            ))}
-          </div>
+          {plateChars.length > 0 && (
+            <div className="plate-underline">
+              {plateChars.map((ch, idx) => (
+                <div key={idx} className="plate-slot">
+                  {ch}
+                </div>
+              ))}
+            </div>
+          )}
 
           <label className="upload-button">
             <input type="file" accept="image/*" onChange={handleFileChange} />

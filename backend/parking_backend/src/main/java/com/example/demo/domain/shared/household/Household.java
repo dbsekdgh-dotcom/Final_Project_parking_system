@@ -26,7 +26,7 @@ public class Household {
     private LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private IsActive isActive =IsActive.ACTIVE;
+    private IsActive isActive =IsActive.INACTIVE;
     @Column(nullable = false)
     @Builder.Default
     private Integer totalVisitCount=0;
