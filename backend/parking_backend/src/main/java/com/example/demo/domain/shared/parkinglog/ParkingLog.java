@@ -179,7 +179,7 @@ public class ParkingLog {
 
         //비용 데이터 업데이트
         this.rawFee=rawFee; //입차부터 현재까지 계산된 원금
-        this.calculatedFee=(long) rawFee; //청구금액
+        this.calculatedFee=0L; //청구금액
         this.totalDiscountAmount=rawFee; //원금만큼 전액 할인 처리
         this.fee = 0; //실제 납부 금액 0원 처리
 

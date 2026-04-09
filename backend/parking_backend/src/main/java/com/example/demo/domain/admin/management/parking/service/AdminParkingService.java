@@ -44,7 +44,6 @@ public class AdminParkingService {
     private final ObjectMapper objectMapper;
 
     public void processForceExit(Long parkingLogId, AdminAuthDto adminAuthDto, String reason) throws Exception{
-        log.error("강제 출차 서비스 실패..");
 
         Admin currentAdmin = adminRepository.findByLoginId(adminAuthDto.getUsername())
                 .orElseThrow(()->new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
