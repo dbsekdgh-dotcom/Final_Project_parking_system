@@ -1,6 +1,5 @@
 package com.example.demo.domain.user.auth.dtos.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -29,7 +28,4 @@ public class UserRecoverRequestDto {
     private String name;
     private String phone;
 
-    public boolean isPasswordMatching() {
-        return newPassword != null && newPassword.equals(passwordConfirm);
-    }
 }
