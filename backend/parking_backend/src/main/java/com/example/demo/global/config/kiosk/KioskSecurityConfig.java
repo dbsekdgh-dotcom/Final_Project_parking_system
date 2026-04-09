@@ -20,7 +20,7 @@ public class KioskSecurityConfig {
     @Bean
     public SecurityFilterChain kioskFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/v1/**", "/api/payment/**")
+            .securityMatcher("/api/v1/**", "/api/payment/**", "/api/exit/**")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(kioskCorsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

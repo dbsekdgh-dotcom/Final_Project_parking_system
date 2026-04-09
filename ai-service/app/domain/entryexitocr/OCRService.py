@@ -11,6 +11,7 @@ model=YOLO(str(model_path))
 reader = easyocr.Reader(['ko','en'])
 import cv2
 import numpy as np
+# 사진 보정
 def enhance(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # 대비 증가
@@ -22,6 +23,7 @@ def enhance(image):
     sharp = cv2.filter2D(gray, -1, kernel)
 
     return sharp
+
 def deskew(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 50, 150)

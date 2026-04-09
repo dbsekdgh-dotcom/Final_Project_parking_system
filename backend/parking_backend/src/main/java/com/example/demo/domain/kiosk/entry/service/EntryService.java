@@ -2,7 +2,6 @@ package com.example.demo.domain.kiosk.entry.service;
 
 import com.example.demo.domain.kiosk.entry.dtos.response.CameraResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.EntryCheckResponse;
-import com.example.demo.domain.kiosk.entry.dtos.response.OcrResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingLogTypeResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingSpaceResponse;
 import com.example.demo.domain.kiosk.entry.repository.*;
@@ -17,7 +16,6 @@ import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.parkingspace.enums.Floor;
 import com.example.demo.domain.shared.parkingspace.enums.SpaceStatus;
-import com.example.demo.domain.shared.systemSetting.repository.SystemSettingRepository;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -26,7 +24,6 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +34,6 @@ import java.util.Map;
 @Transactional
 @RequiredArgsConstructor
 public class EntryService {
-    private final AiClient aiClient;
     private final ParkingLogRepository parkinglogRepository;
     private final EntryVehicleRepository entryVehicleRepository;
     private final EntryVehicleBlacklistRepository entryVehicleBlacklistRepository;
@@ -52,9 +48,7 @@ public class EntryService {
 
 
 
-    public Long detectedEntry(MultipartFile file, Long cameraId){
-        OcrResponse ocr= aiClient.requestOcr(file);
-        String carNumber=ocr.getPlateNumber();
+    public Long detectedEntry(String carNumber,String s3path, Long cameraId){
         EntryCheckResponse info = entryVehicleRepository
                 .findEntryCheckInfo(carNumber)
                 .orElse(null);
@@ -106,7 +100,7 @@ public class EntryService {
                     .totalDiscountAmount(0)
                     .rawFee(0)
                     .graceMinutesSnapshot(policy.getGraceMinutes())
-                    .entryPlateImage(ocr.getS3path())
+                    .entryPlateImage(s3path)
                     .build();
             parkinglogRepository.save(rejected);
             throw new BusinessException(ErrorCode.BLACKLIST_VEHICLE);
@@ -126,7 +120,7 @@ public class EntryService {
                 totalDiscountAmount(0).
                 rawFee(0).
                 graceMinutesSnapshot(policy.getGraceMinutes()).
-                entryPlateImage(ocr.getS3path()).
+                entryPlateImage(s3path).
                 build();
         ParkingLog saved= parkinglogRepository.save(log);
         return saved.getParkingLogId();

@@ -9,7 +9,7 @@ export const searchCar=async(searchKeyword)=>{
 }
 
 //사용자가 선택한 차량번호로 결제 정보 조회
-export const requestPrepayment=async(selectedVehicle)=>{
+export const requestPayment=async(selectedVehicle)=>{
     try{
         const res=await axios.post(`${host}/request-payment`,selectedVehicle)
         console.log("res==>"+res.data);  
@@ -24,3 +24,23 @@ export const requestPrepayment=async(selectedVehicle)=>{
     }
 }
 
+//결제정보로 결제 요청->백엔드에 확인 요청 
+export const requestBeforePayment=async(settlementPayload)=>{
+    try{
+        const res=await axios.post(`${host}/request-ready-payment`,settlementPayload)
+        console.log("res==>"+res.data);
+        return res.data;
+    }catch(error){
+        const resErr=error?.response?.data;
+        const errMsg=resErr?.message || "결제 요청 중 오류가 발생하였습니다."
+        throw new Error(errMsg)
+    }
+}
+//결제 완료된 경우
+// export default requestAfterPayment=async()=>{
+//     try {
+//         const res=await axios.post(`${host}/request-after-payment`,)
+//     } catch (error) {
+        
+//     }
+// }

@@ -17,6 +17,19 @@ const ParkingLogPage = () => {
     const [selectedLog,setSelectedLog] = useState(null)
     const [isModalOpen,setIsModalOpen] = useState(false)
 
+    //상세보기 핸들러
+    const handleShowDetail =async (id) => {
+        try {
+            console.log("상세정보 요청 ID:", id)
+            const data = await getParkingLogDetail(id)
+            setSelectedLog(data)
+            setIsModalOpen(true)
+        }catch(err){
+            console.error("상세보기 로딩 실패:",err)
+            alert("정보를 불러오는 데 실패했습니다.")
+        }
+    }
+
     useEffect(() => { // 요약 정보는 마운트시 1번만 데이터 호출
         //API 호출해서 데이터 가져오기
         getParkingLogSummary()
@@ -54,17 +67,19 @@ const ParkingLogPage = () => {
         console.log(`${status} 필터 적용 및 검색어 초기화`)
     }
 
-    //상세보기 핸들러
-    const handleShowDetail =async (id) => {
-        try {
-            console.log("상세정보 요청 ID:", id)
-            const data = await getParkingLogDetail(id)
-            setSelectedLog(data)
-            setIsModalOpen(true)
-        }catch(err){
-            console.error("상세보기 로딩 실패:",err)
-            alert("정보를 불러오는 데 실패했습니다.")
-        }
+    //데이터를 새로고침하는 함수
+    const handleRefresh =()=>{
+        console.log("데이터 새로고침 실행..")
+        //하단 테이블 목록 갱신
+        getParkingLogList(searchQuery, page, filterStatus)
+        .then(data=>{
+            setParkingLogs(data.content);
+            setTotalPages(data.totalPages);
+        }).catch(err=>console.error("목록 호출 에러:",err))
+        //상단 요약 카드 정보 갱신
+        getParkingLogSummary()
+        .then(data=>setSummaryData(data))
+        .catch(err=>console.error("요약 정보 호출 에러:",err))
     }
 
     return (
@@ -85,7 +100,7 @@ const ParkingLogPage = () => {
                 logs={parkingLogs} page={page} totalPages={totalPages} onPageChange={setPage} onShowDetail={handleShowDetail} />
             
             {/* 모달 컴포넌트 추가 */}
-            <ParkingLogDetailModal isOpen={isModalOpen} data={selectedLog} onClose={()=>setIsModalOpen(false)}/>
+            <ParkingLogDetailModal isOpen={isModalOpen} data={selectedLog} onClose={()=>setIsModalOpen(false)} onRefresh={handleRefresh}/>
         </div>
     )
 }

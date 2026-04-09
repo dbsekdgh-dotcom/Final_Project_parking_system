@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Home from "./shared/components/home/Home";
 import PrepaymentMain from "./features/prepayment/pages/PrepaymentMain";
 import EntryExit from "./features/entryExit/pages/EntryExit";
@@ -9,11 +9,12 @@ import EntryCompletePage from "./features/entry/entrycomplate/pages/EntryComplat
 import VehicleDeparture from "./features/exit/pages/vehicledeparture/VehicleDeparture";
 import PaymentConfirm from "./features/exit/pages/paymentconfirm/PaymentConfirm";
 import DepartureComplete from "./features/exit/pages/departurecomplete/DepartureComplete";
+import PrepaymentSuccess from "./features/prepayment/pages/PrepaymentSuccess";
 
 
 
 function App() {
-
+  const navigate = useNavigate();
   return (
   <Routes >
       <Route path="/" element={<Home />}/>
@@ -27,7 +28,8 @@ function App() {
       <Route path="/selectedVehicle" element={<SelectedVehicleInfo />}></Route>
       <Route path="/exit-departure" element={<VehicleDeparture/>}/>
       <Route path="/exit-paymentconfirm" element={<PaymentConfirm/>}/>
-      <Route path="/exit-complete" element={<DepartureComplete/>}/>
+      <Route path="/prepaymentSuccess" element={<PrepaymentSuccess/>}></Route>
+      <Route path="/exit-complete" element={<DepartureComplete onHome={() => navigate("/")}/>}/>
       <Route path="/store" element={<div style={{ padding: 40 }}>상가 관리 준비 중</div>} />
       <Route path="/find-car" element={<div style={{ padding: 40 }}>내차 찾기 준비 중</div>} />
 

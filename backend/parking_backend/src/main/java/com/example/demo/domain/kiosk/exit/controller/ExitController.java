@@ -4,7 +4,6 @@ import com.example.demo.domain.kiosk.exit.service.ExitService;
 import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -15,7 +14,7 @@ public class ExitController {
 
     private final ExitService exitService;
 
-
+    @PostMapping("/request")
     public VehiclePaymentResponseDto requestExit(
             @RequestParam Long parkingLogId,
             @RequestParam Long exitCameraId,

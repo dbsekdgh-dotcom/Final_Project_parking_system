@@ -2,15 +2,12 @@ import axios from "axios";
 
 const BASE = "http://localhost:8081/api/v1/entry";
 
-// 입차 감지: 파일 + 카메라ID 전송 → parkingLogId 반환
-// 블랙리스트 차량이면 403 응답
-export const createEntry = async ({ file, cameraId }) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("cameraId", cameraId);
 
-  const res = await axios.post(BASE, formData);
-  return res.data; // { parkingLogId }
+export const createEntry = async ({ plateNumber, s3path, cameraId }) => {
+  const res = await axios.post(BASE,null,{
+    params:{ plateNumber,s3path,cameraId }
+  });
+  return res.data; 
 };
 
 // 차번호로 현재 ENTERED 상태인지 조회 → { isEntered, parkingLogId }

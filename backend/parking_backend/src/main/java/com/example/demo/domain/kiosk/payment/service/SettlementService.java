@@ -10,7 +10,7 @@ import com.example.demo.domain.shared.Notification.enums.Type;
 import com.example.demo.domain.shared.Notification.respository.NotificationRepository;
 import com.example.demo.domain.shared.activityLog.ActivityLog;
 import com.example.demo.domain.shared.activityLog.enums.ActivityType;
-import com.example.demo.domain.shared.activityLog.respository.ActivityLogRepository;
+import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
 import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
@@ -38,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,8 +60,13 @@ public class SettlementService {
         long parkingLogId=settlementRequestDto.getParkingLogId();
         int usedPoint=settlementRequestDto.getUsedPoint();
         int paidAmount= settlementRequestDto.getPaidAmount();
+
         //결제 금액 검증
         ParkingLog parkingLog=parkingLogRepository.findByParkingLogId(parkingLogId).orElse(null);
+        if(com.example.demo.domain.shared.parkinglog.enums.PaymentStatus.NONE.equals(parkingLog.getPaymentStatus())){
+            return parkingLog;
+        }
+        //혹시 요금 무료 대상자가 넘어오는 경우 방지
         if(parkingLog==null){
             throw new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
         }
@@ -80,7 +84,7 @@ public class SettlementService {
             throw new BusinessException(ErrorCode.PAYMENT_TIMEOUT);
         }
         //유저 포인트 검증
-        User user=parkingLogRepository.getDetailLogInfo(parkingLogId).map(i->i.getVehicle().getUser()).orElse(null);
+        User user=parkingLogRepository.getDetailLogInfo(parkingLogId).map(ParkingLog::getVehicle).map(Vehicle::getUser).orElse(null);
         int userCurrentPoint=user!=null?userPointRepository.findByUserUserId(user.getUserId()).get().getCurrentPoint() : 0;
         if(userCurrentPoint<usedPoint){
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
@@ -140,6 +144,8 @@ public class SettlementService {
                     payment.setAmount(0L);
                 }
                 payment.setExternalPaymentId(paymentConfirmRequestDto.getPaymentKey());
+            }else {
+                payment.setAmount(0L);
             }
             // 2.상태 업데이트
             payment.setPaidAt(LocalDateTime.now());
@@ -148,7 +154,11 @@ public class SettlementService {
     }
 
     //포인트 업데이트
-    public void pointProcessOfPayment(ParkingLog parkingLog,List<Payment> payments,PaymentConfirmRequestDto paymentConfirmRequestDto){
+    public void pointProcessOfPayment(User user,ParkingLog parkingLog,List<Payment> payments,PaymentConfirmRequestDto paymentConfirmRequestDto){
+        //회원인지 아닌지 구분
+        if(user==null){
+            return;
+        }
         String minUsagePoint=systemSettingRepository.findBySettingKey(SettingKey.MIN_USAGE_POINT.getKey())
                 .map(SystemSetting::getSettingValue)
                 .orElse("100");
@@ -156,18 +166,17 @@ public class SettlementService {
         Payment payment=payments.stream()
                 .filter(p->p.getPaymentMethod().equals(PaymentMethod.POINT)).findFirst().orElse(null);
 
-        int usedPoint= payment.getPriceSnapshot().intValue();
+        // usedPoint= payment.getPriceSnapshot().intValue();
+        int usedPoint=payments.stream()
+                .filter(p->p.getPaymentMethod().equals(PaymentMethod.POINT))
+                .mapToInt(p->p.getPriceSnapshot().intValue())
+                .sum();
         int paidAmount=(int)paymentConfirmRequestDto.getAmount();
 
         if(Integer.parseInt(minUsagePoint)>usedPoint && usedPoint!=0){
             throw new BusinessException(ErrorCode.MINIMUM_POINT_NOT_ME);
         }
 
-        //회원인지 아닌지 구분
-        User user=parkingLog.getVehicle().getUser();
-        if(user==null){
-            return;
-        }
         //결제 시 포인트 사용 :  userPoint update& PointLog insert
         int changeAmount=usedPoint;
         PointReason pointReason=null;
@@ -181,7 +190,12 @@ public class SettlementService {
         if(usedPoint==0){
             pointReason=PointReason.PAYMENT_EARN;
             changeAmount=(int)Math.round(paidAmount*(Integer.parseInt(pointEarnRate)/100.0));
+            payment=payments.stream().filter(p->p.getPaymentMethod().equals((PaymentMethod.PAY))).findFirst().orElse(null);
         }
+        if(payment==null){
+            payment=payments.get(0);
+        }
+
         updatePointOfPayment(user,changeAmount,payment,pointReason);
     }
 
@@ -224,53 +238,54 @@ public class SettlementService {
     }
 
     //parking Log 업데이트/updateParkingLogFinal(fee ,payment_status ,paid_at,free_exit_until)
-    public SettlementResponseDto updateParkingLogFinal(ParkingLog parkingLog,int paidAmount){
+    public SettlementResponseDto updateParkingLogFinal(ParkingLog parkingLog,long paidAmount){
         String postPaymentGraceMinutes=systemSettingRepository.findBySettingKey(SettingKey.POST_PAYMENT_GRACE_MINUTES.getKey())
                 .map(SystemSetting::getSettingValue)
                 .orElse("5");
         LocalDateTime nowtime=LocalDateTime.now();
         LocalDateTime freeExitUntil=nowtime.plusMinutes(Integer.parseInt(postPaymentGraceMinutes));
-        int finalPaidAmount=parkingLog.getFee()+paidAmount;
+        int finalPaidAmount= parkingLog.getFee()+(int)paidAmount;
         com.example.demo.domain.shared.parkinglog.enums.PaymentStatus paymentStatus= com.example.demo.domain.shared.parkinglog.enums.PaymentStatus.PAID;
         parkingLog.setFee(finalPaidAmount);
         parkingLog.setPaidAt(nowtime);
         parkingLog.setFreeExitUntil(freeExitUntil);
         parkingLog.setPaymentStatus(paymentStatus);
 
-        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("HH:mm:ss");
+        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("HH:mm");
         return SettlementResponseDto.builder()
                 .paymentStatus(paymentStatus.name())
                 .vehicleNumber(parkingLog.getCarNumberSnapshot())
-                .paidAmount(paidAmount)
+                .paidAmount((int)paidAmount)
                 .exitDeadline(freeExitUntil.format(formatter).formatted())
                 .build();
     }
 
     //결제 완료 알람
-    public void insertNotification(User user,LocalDateTime freeExitUntil){
+    public void insertNotification(User user,String freeExitUntil){
         if(user ==null) return;;
         Notification notification=Notification.builder().user(user).type(Type.PAYMENT).title("결제 완료 알람")
-                .content("정산이 완료되었습니다. " +freeExitUntil.format(DateTimeFormatter.ofPattern("HH:mm")) +"까지 출차해 주세요.")
+                .content("정산이 완료되었습니다. " +freeExitUntil +"까지 출차해 주세요.")
                 .status(Status.ACTIVE).build();
         notificationRepository.save(notification);
     }
 
     //활동로그 기록
-    public void insertActivityLog(ParkingLog parkingLog,User user, Payment payment, ActivityType activityType){
-        Household household=null;
-        if(user!=null){
-            household=user.getHousehold();
-        }
+    public void insertActivityLog(ParkingLog parkingLog,User user, List<Payment> payments, ActivityType activityType){
+        Household household=(user !=null)? user.getHousehold() : null;
 
-        ActivityLog activityLog=ActivityLog.builder()
-                .activityType(activityType)
-                .parkingLog(parkingLog)
-                .payment(payment)
-                .carNumber(parkingLog.getCarNumberSnapshot())
-                .household(household)
-                .message(activityType+"완료")
-                .build();
-        activityLogRepository.save(activityLog);
+        payments.forEach(payment->{
+            ActivityLog activityLog=ActivityLog.builder()
+                    .activityType(activityType)
+                    .parkingLog(parkingLog)
+                    .payment(payment)
+                    .carNumber(parkingLog.getCarNumberSnapshot())
+                    .household(household)
+                    .message(activityType+"완료")
+                    .build();
+            activityLogRepository.save(activityLog);
+        });
+
+
     }
 
 

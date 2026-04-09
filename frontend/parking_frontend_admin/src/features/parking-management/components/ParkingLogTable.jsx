@@ -50,7 +50,7 @@ const ParkingLogTable = ({ logs, page, totalPages, onPageChange, onShowDetail })
                                         <div><span className='cancel-note'>(취소)</span></div>
                                     )}
                                 </td>
-                                <td>{log.parkingStatus ==='EXITED' ? log.exitTime : '-'}</td>
+                                <td>{log.parkingStatus ==='EXITED' || log.parkingStatus ==='FORCE_EXITED' ? log.exitTime : '-'}</td>
                                 <td>{log.parkingStatus==='ENTRY_CANCELLED' ? '-' : (log.parkingDuration || '-')} </td>
                                 <td>{log.parkingSpaceCode || '미지정'}</td>
                                 <td>
