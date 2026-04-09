@@ -95,33 +95,41 @@ public class SettlementService {
     //결제 전 payment insert
     public PaymentReadyResponseDto insertPayment(ParkingLog parkingLog, SettlementRequestDto settlementRequestDto, PaymentStatus paymentStatus){
         Vehicle vehicle=parkingLog.getVehicle();
+        User user=(vehicle!=null)?vehicle.getUser():null;
+        String userEmail=(user!=null)? user.getEmail() : null;
         String tempPaymentId= UUID.randomUUID().toString();
         boolean isPaymentRequired=false;
         int paymentAmount=0;
 
         //포인트 결제금액이 있는 경우
         if(settlementRequestDto.getUsedPoint()>0){
-            long p=savePayment(parkingLog,vehicle,settlementRequestDto.getUsedPoint(),PaymentMethod.POINT,paymentStatus,tempPaymentId);
+            savePayment(parkingLog,vehicle,settlementRequestDto.getUsedPoint(),PaymentMethod.POINT,paymentStatus,tempPaymentId);
         }
         //신용카드 결제금액이 있는 경우
         if(settlementRequestDto.getPaidAmount()>0){
-            long p=savePayment(parkingLog,vehicle,settlementRequestDto.getPaidAmount(),PaymentMethod.PAY,paymentStatus,tempPaymentId);
+            savePayment(parkingLog,vehicle,settlementRequestDto.getPaidAmount(),PaymentMethod.PAY,paymentStatus,tempPaymentId);
+            paymentAmount=settlementRequestDto.getPaidAmount();
             isPaymentRequired=true;
 
         }
         //무료
         if(settlementRequestDto.getPaidAmount()+ settlementRequestDto.getUsedPoint()==0){
-            long p=savePayment(parkingLog,vehicle,0L,PaymentMethod.FREE_POLICY,paymentStatus,tempPaymentId);
+            savePayment(parkingLog,vehicle,0L,PaymentMethod.FREE_POLICY,paymentStatus,tempPaymentId);
         }
+
         //리턴
         return PaymentReadyResponseDto.builder()
                 .orderId(tempPaymentId)
                 .orderName(String.format("[%s] 주차 요금 정산",parkingLog.getCarNumberSnapshot()))
                 .isPaymentRequired(isPaymentRequired)
+                .parkingLogId(parkingLog.getParkingLogId())
+                .vehicleNumber(parkingLog.getCarNumberSnapshot())
+                .userEmail(userEmail)
+                .amount(paymentAmount)
                 .build();
     }
 
-    public long savePayment(ParkingLog parkingLog, Vehicle vehicle,long priceSnapshot,PaymentMethod paymentMethod,PaymentStatus paymentStatus,String externalPaymentId){
+    public void savePayment(ParkingLog parkingLog, Vehicle vehicle,long priceSnapshot,PaymentMethod paymentMethod,PaymentStatus paymentStatus,String externalPaymentId){
         Payment payment=Payment.builder()
                 .parkingLog(parkingLog)
                 .vehicle(vehicle)
@@ -130,7 +138,7 @@ public class SettlementService {
                 .paymentStatus(paymentStatus)
                 .externalPaymentId(externalPaymentId)
                 .paymentType(PaymentType.PARKING).build();
-        return paymentRepository.save(payment).getPaymentId();
+        paymentRepository.save(payment).getPaymentId();
     }
     //결제 후/결제 실패/결제 취소 시
     public void savePaymentReceipt(List<Payment> payments,PaymentConfirmRequestDto paymentConfirmRequestDto,PaymentStatus paymentStatus){

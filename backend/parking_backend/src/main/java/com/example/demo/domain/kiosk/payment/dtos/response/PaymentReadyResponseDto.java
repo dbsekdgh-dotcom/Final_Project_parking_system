@@ -14,5 +14,8 @@ public class PaymentReadyResponseDto {
     private Integer amount;
     private String orderName;
     private boolean isPaymentRequired;
+    private long parkingLogId;
+    private String vehicleNumber;
+    private String userEmail;
 
 }

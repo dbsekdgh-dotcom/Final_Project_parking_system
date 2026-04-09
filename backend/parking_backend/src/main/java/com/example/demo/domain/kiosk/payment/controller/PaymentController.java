@@ -1,11 +1,15 @@
 package com.example.demo.domain.kiosk.payment.controller;
 
+import com.example.demo.domain.kiosk.payment.dtos.request.PaymentConfirmRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.request.SettlementRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.PaymentReadyResponseDto;
+import com.example.demo.domain.kiosk.payment.dtos.response.SettlementResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
 import com.example.demo.domain.kiosk.payment.facade.PaymentFacade;
+import com.example.demo.domain.shared.activityLog.enums.ActivityType;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.service.ParkingLogService;
+import com.example.demo.domain.shared.payment.enums.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +53,9 @@ public class PaymentController {
     }
 
     //결제 후
-    //@PostMapping()
+    @PostMapping("/request-after-payment")
+    public SettlementResponseDto requestAfterPayment(@RequestBody PaymentConfirmRequestDto paymentConfirmRequestDto){
+        //토스에 결제 확인 요청 받고 success보내야됨
+        return paymentFacade.afterPayment(paymentConfirmRequestDto, ActivityType.PAYMENT_PRE, PaymentStatus.SUCCESS);
+    }
 }
