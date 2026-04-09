@@ -5,7 +5,6 @@ import com.example.demo.domain.user.entity.SocialAccount;
 import com.example.demo.domain.user.enums.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +22,5 @@ public interface SocialAccountRepository extends JpaRepository<SocialAccount, Lo
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM SocialAccount s WHERE s.user.userId = :userId")
     void deleteByUserId(@Param("userId") Long userId);
-
-    Optional<SocialAccount> findByUserAndProvider(User user, Provider provider);
 
     boolean existsByProviderAndProviderId(Provider provider, String providerId);}

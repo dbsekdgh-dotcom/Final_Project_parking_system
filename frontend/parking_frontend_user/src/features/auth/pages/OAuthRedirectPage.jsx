@@ -23,17 +23,10 @@ const OAuthRedirectPage = () => {
             const name = rawName ? decodeURIComponent(rawName) : null;
             const email = searchParams.get("email");
 
-            // [중요 디버깅 로그] - 여기서 name과 email이 null인지 꼭 확인하세요!
-            console.log("### [OAuthRedirect] URL 파라미터 추출 결과:", { 
-                accessToken: accessToken ? "있음" : "없음",
-                name: name, 
-                email: email 
-            });
 
             // 1. 에러 처리
             if (error) {
                 isprocessed.current = true;
-                console.error("### OAuth Error 발생:", error);
 
                 if (error === "email_mismatch") {
                     await Swal.fire({
@@ -64,11 +57,9 @@ const OAuthRedirectPage = () => {
                 
                 if (name) {
                     localStorage.setItem("userName", name);
-                    console.log("### LocalStorage 저장 완료 - userName:", name);
                 }
                 if (email) {
                     localStorage.setItem("userEmail", email);
-                    console.log("### LocalStorage 저장 완료 - userEmail:", email);
                 }
 
                 // 환영 메시지용 세션 정보 저장
@@ -79,7 +70,6 @@ const OAuthRedirectPage = () => {
                 navigate("/dashboard", { replace: true });
             } else {
                 // 토큰이 없는 비정상적인 접근 처리
-                console.warn("### [경고] 토큰 없이 리다이렉트 페이지에 접근했습니다.");
                 navigate("/", { replace: true });
             }
         };

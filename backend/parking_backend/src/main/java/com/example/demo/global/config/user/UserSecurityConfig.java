@@ -50,12 +50,10 @@ public class UserSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/oauth-redirect/**", "/api/user/auth/refresh",
-                                "/api/user/auth/local/signup", "/api/user/auth/local/login"
-                                ,"/api/user/auth/local/find-email","/api/user/auth/local/send-code",
-                                "/api/user/auth/local/verify-code","/api/user/auth/local/find-email",
-                                "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
-                                "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover",
-                                "/api/user/auth/social-recover").permitAll()
+                                "/api/user/auth/local/signup", "/api/user/auth/local/check-email", "/api/user/auth/local/login",
+                                "/api/user/auth/local/find-email","/api/user/auth/local/send-code", "/api/user/auth/local/verify-code",
+                                "/api/user/auth/local/find-email", "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
+                                "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover", "/api/user/auth/social-recover").permitAll()
                         .requestMatchers("/api/user/auth/local/logout").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
                         .anyRequest().authenticated())

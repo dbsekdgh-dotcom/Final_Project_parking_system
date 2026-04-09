@@ -1,7 +1,6 @@
 package com.example.demo.domain.user.auth.dtos.response;
 
 import com.example.demo.domain.shared.user.User;
-import com.example.demo.domain.user.entity.SocialAccount;
 import com.example.demo.domain.user.enums.Provider;
 import com.example.demo.domain.shared.user.enums.Status;
 import lombok.Builder;
@@ -144,14 +143,4 @@ public class OAuthAttributes {
                 .build();
     }
 
-    /**
-     * SocialAccount 엔티티로 변환
-     */
-    public SocialAccount toSocialAccountEntity(User user) {
-        return SocialAccount.builder()
-                .user(user)
-                .provider(this.provider)
-                .providerId(this.providerId)
-                .build();
-    }
 }
