@@ -116,7 +116,7 @@ export default function EntryExit() {
     }
 
     entryMutate(
-      { plateNumber, s3path:imagePath, cameraId },
+      { plateNumber, s3path:imagePath, cameraId: entryCameraId },
       {
         onSuccess: (data) => {
           navigate("/entry-parkingspace", { state: { parkingLogId: data.parkingLogId } });

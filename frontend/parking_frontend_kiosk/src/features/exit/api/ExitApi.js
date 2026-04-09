@@ -20,7 +20,7 @@ export const confirmExit = async (parkingLogId) =>{
 
 // 회차 : EXIT_REQUESTED -> ENTERED
 export const cancelExit = async (parkingLogId) =>{
-    await axios.patch(`${BASE}/confirm`,null,{
+    await axios.patch(`${BASE}/cancel`,null,{
         params: { parkingLogId }
     });
 };
