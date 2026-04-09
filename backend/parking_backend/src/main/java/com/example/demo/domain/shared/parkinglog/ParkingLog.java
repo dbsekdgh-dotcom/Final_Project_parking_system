@@ -187,4 +187,35 @@ public class ParkingLog {
         this.paymentStatus=PaymentStatus.PAID; //결제 완료로 간주
         this.paidAt = now; //결제 시점 기록
     }
+
+    //할인 금액을 관리자가 수정할 수 있는 상태인지 확인
+    public boolean isDiscountModifiable(){
+        //결제완료된 건 수정 불가
+        if(this.paymentStatus==PaymentStatus.PAID) return false;
+        //이미출차완료 or 강제출차된 차량 수정 불가
+        if(this.parkingStatus==ParkingStatus.EXITED || this.parkingStatus==ParkingStatus.FORCE_EXITED) return false;
+        //입차처리(ENTERED) 이후 단계만 가능
+        if(this.parkingStatus==ParkingStatus.DETECTED || this.parkingStatus==ParkingStatus.ENTRY_CANCELLED) return false;
+
+        return true;
+    }
+
+    //관리자 상세모달 - 할인수정
+    public void updateDiscountByAdmin(Integer newTotalDiscountAmount) {
+        if(!isDiscountModifiable()){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        //원금 초과 할인 방지
+        this.totalDiscountAmount = Math.min(newTotalDiscountAmount, this.rawFee);
+        // 최종 청구 금액 재계산 (원금 - 총 할인액)
+        this.calculatedFee= (long)Math.max(0,this.rawFee-this.totalDiscountAmount);
+        // 결제 요청 시점 초기화(금액이 바뀌었으므로 기존 요청 스냅샷 무효화) - 사용자가 이전 금액으로 결제 시도하는것을 막아줌
+        this.paymentRequestedAt =null;
+        // 결제 상태 상태값 조정
+        if(this.calculatedFee>0){
+            this.paymentStatus=PaymentStatus.UNPAID;
+        }else {
+            this.paymentStatus=PaymentStatus.NONE;
+        }
+    }
 }
