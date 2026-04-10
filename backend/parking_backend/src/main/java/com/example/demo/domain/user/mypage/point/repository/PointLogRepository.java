@@ -11,5 +11,6 @@ public interface PointLogRepository extends JpaRepository<PointLog,Long> {
     //특정 유저의 포인트 이력 조회(최신순)
     List<PointLog> findByUserUserIdOrderByCreatedAtDesc(Long userId);
 
+    boolean existsByPaymentPaymentId(long paymentId);
 
 }

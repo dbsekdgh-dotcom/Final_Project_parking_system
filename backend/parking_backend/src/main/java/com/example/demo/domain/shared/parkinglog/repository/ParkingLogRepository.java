@@ -37,6 +37,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
 
     Optional<ParkingLog> findByParkingLogId(Long parkingLogId);
 
+
     // 차번호 + 상태로 조회 (입차/출차 분기 판단용)
     Optional<ParkingLog> findFirstByCarNumberSnapshotAndParkingStatus(String carNumber, ParkingStatus status);
 

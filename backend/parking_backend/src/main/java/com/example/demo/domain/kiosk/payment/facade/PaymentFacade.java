@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.List;
@@ -85,13 +86,14 @@ public class PaymentFacade {
     }
 
     //결제 성공/실패/취소 시
+    @Transactional
     public SettlementResponseDto afterPayment(PaymentConfirmRequestDto dto, ActivityType activityType){
         // 0. 기초정보 조회
         List<Payment> payments=paymentRepository.findByExternalPaymentId(dto.getOrderId());
         if(payments.isEmpty())throw new BusinessException(ErrorCode.INVALID_REQUEST);
         ParkingLog parkingLog=parkingLogRepository.findByParkingLogId(dto.getParkingLogId())
                 .orElseThrow(()-> new BusinessException(ErrorCode.INVALID_REQUEST));
-
+        long totalAmount=payments.stream().mapToLong(Payment::getAmount).sum();
         String carNumber=parkingLog.getCarNumberSnapshot();
         PaymentStatus paymentStatus=PaymentStatus.READY;
         String tossErrorMsg=null;
@@ -101,24 +103,35 @@ public class PaymentFacade {
             aiServerClient.requestPaymentLock(carNumber);
             logger.info("락 완료 - carNumber: {}", carNumber);
 
-            // 2. 토스 승인 요청
-            try{
-                logger.info("결제 승인 요청 시작 - orderId: {}", dto.getOrderId());
-                ResponseEntity<JSONObject> tossResponse= tossPaymentService.confirmPayment(dto);
-                if(tossResponse.getStatusCode().is2xxSuccessful()){
-                    paymentStatus=PaymentStatus.SUCCESS;
-                }else{
-                    JSONObject body=tossResponse.getBody();
-                    tossErrorMsg=(String) body.get("message");
+            if(dto.getAmount()>0){
+                // 2. 토스 승인 요청
+                try{
+                    logger.info("결제 승인 요청 시작 - orderId: {}", dto.getOrderId());
+                    ResponseEntity<JSONObject> tossResponse= tossPaymentService.confirmPayment(dto);
+                    if(tossResponse.getStatusCode().is2xxSuccessful()){
+                        paymentStatus=PaymentStatus.SUCCESS;
+                    }else{
+                        JSONObject body=tossResponse.getBody();
+                        String code=(String) body.get("code");
+                        if("ALREADY_PROCESSED_PAYMENT".equals(code)){
+                            logger.info("이미 처리된 결제건입니다. 성공으로 간주합니다.");
+                            paymentStatus=PaymentStatus.SUCCESS;
+                        }else{
+                            tossErrorMsg=(String) body.get("message");
+                            paymentStatus=PaymentStatus.FAILED;
+                        }
+                    }
+                }catch (Exception e){
+                    logger.info("결제 통신 중 장애 발생 -  {}", e.getMessage());
                     paymentStatus=PaymentStatus.FAILED;
+                    tossErrorMsg="결제 통신 중 장애가 발생하였습니다.";
                 }
-            }catch (Exception e){
-                logger.info("결제 통신 중 장애 발생 -  {}", e.getMessage());
-                paymentStatus=PaymentStatus.FAILED;
-                tossErrorMsg="결제 통신 중 장애가 발생하였습니다.";
+            }else{
+                paymentStatus=PaymentStatus.SUCCESS;
             }
 
             // 3. db상태 변경
+            Thread.sleep(500);
             logger.info("DB 상태변경 시작  - parkingLogId: {}", dto.getParkingLogId());
             Vehicle vehicle=(parkingLog.getVehicle()!=null)?parkingLog.getVehicle():null;
             User user=(vehicle!=null)?vehicle.getUser():null;
@@ -131,7 +144,7 @@ public class PaymentFacade {
                 // 2. userPoint & PointLog update
                 settlementService.pointProcessOfPayment(user, parkingLog, payments, dto);
                 // 3. parking Log 업데이트
-                settlementResponseDto = settlementService.updateParkingLogFinal(parkingLog, dto.getAmount());
+                settlementResponseDto = settlementService.updateParkingLogFinal(parkingLog, totalAmount);
                 // 4. notification insert
                 settlementService.insertNotification(user, settlementResponseDto.getExitDeadline());
                 // 5. active log insert(포인트+카드 결제면 두줄?)// 사전정산인지, 출차 정산인지 여부는 컨트롤러에서
