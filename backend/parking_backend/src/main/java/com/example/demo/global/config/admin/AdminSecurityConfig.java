@@ -64,6 +64,9 @@ AdminSecurityConfig {
                 .requestMatchers(HttpMethod.POST,"/admin/logout").permitAll()
                 .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
 
+//                .requestMatchers("/admin/v1/reports/**").permitAll()   //윤진 추가 삭제예정
+
+
                 // 테스트하기위해 잠시 추가
                 .requestMatchers("/admin/parking/summary").permitAll()
 
@@ -115,7 +118,11 @@ AdminSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 오리진(리액트 주소 등) 설정
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5201"));
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:5201",
+                "http://localhost:5202", //윤진추가 삭제예정
+                "http://localhost:5203"//윤진추가 삭제예정
+        ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS"));
         // 쿠키나 인증 정보를 포함한 요청을 허용할지 여부

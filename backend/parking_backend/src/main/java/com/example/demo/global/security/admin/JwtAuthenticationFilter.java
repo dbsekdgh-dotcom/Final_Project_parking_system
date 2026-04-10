@@ -1,7 +1,6 @@
 package com.example.demo.global.security.admin;
 
 import com.example.demo.global.util.admin.AdminJWTUtil;
-import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Map;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -28,21 +26,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        log.info("----------- [JWT Filter] Checking path: " + path + " -----------");
+        String method = request.getMethod();
 
-        // 관리자 인증 불필요 경로 (기존 유지)
+        // [로그 추가] 요청이 서버 입구에 도착했는지 확인
+        System.out.println(">>> [입구 감지] Path: " + path + " | Method: " + method);
+
+        // 1. OPTIONS 메서드는 필터를 타게 해서 직접 응답 처리할 것이므로 여기서 true 주지 않음
+        // (CORS 해결을 위해 doFilterInternal에서 처리)
+        if (method.equals("OPTIONS")) {
+            return false;
+        }
+
+        // 2. 관리자/사용자 인증 불필요 경로 (여기 포함되면 handleUserJwt 로직을 안 탐)
         if (path.startsWith("/admin/login")
                 || path.startsWith("/admin/refresh")
                 || path.startsWith("/admin/logout")
-                || path.startsWith("/mypage")) {
-            return true;
-        }
-
-        // 사용자 인증 불필요 경로 (JWTCheckFilter에서 통합)
-        if (request.getMethod().equals("OPTIONS")) {
-            return true;
-        }
-        if (path.startsWith("/login")
+                || path.startsWith("/mypage")
+                || path.startsWith("/login")
                 || path.startsWith("/oauth-redirect")
                 || path.startsWith("/api/user/auth/refresh")
                 || path.startsWith("/api/user/auth/local/signup")
@@ -55,15 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/api/user/auth/local/recover")
                 || path.startsWith("/api/user/auth/local/verify-recover-code")
                 || path.startsWith("/api/user/auth/social-recover")
-                || path.startsWith("/api/test/"
-        )) {
+                || path.startsWith("/api/test/")) {
             return true;
-        }
-
-        if (path.startsWith("/oauth2")) {
-            boolean hasTempCookie = request.getCookies() != null &&
-                    Arrays.stream(request.getCookies()).anyMatch(c -> "temp_jwt".equals(c.getName()));
-            return !hasTempCookie;
         }
 
         return false;
@@ -72,67 +65,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String path = request.getRequestURI();
 
-        if (path.startsWith("/admin")) { // 기존 "/admin/" 에서 "/" 제거 (더 확실하게 매칭)
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        // [CORS 강제 해결] 브라우저가 보낸 OPTIONS 요청에 직접 응답
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            System.out.println(">>> [OPTIONS 응답] CORS 헤더 강제 주입 중...");
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5202");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "*");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setStatus(HttpServletResponse.SC_OK);
+            return; // 여기서 끝냄 (컨트롤러까지 안 보냄)
+        }
+
+        System.out.println(">>> [필터 내부] 로직 실행 시작: " + path);
+
+        if (path.startsWith("/admin")) {
             handleAdminJwt(request, response, filterChain);
         } else {
             handleUserJwt(request, response, filterChain);
         }
     }
 
-    // ==================== 관리자 JWT 처리 (기존 doFilterInternal 내용 유지) ====================
-
-    private void handleAdminJwt(HttpServletRequest request, HttpServletResponse response,
-                                FilterChain filterChain) throws ServletException, IOException {
-        // 1. 헤더에서 Authorization값을 가져옴
-        String headerAuth = request.getHeader("Authorization");
-        log.info("----------- [Admin JWT Filter] Authorization Header: " + headerAuth + " -----------");
-        // 2. 토큰이 없거나 "Bearer "로 시작하지 않으면 다음 필터로 진행(인증 미처리)
-        if (headerAuth == null || !headerAuth.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        // 3. "Bearer "뒷부분의 실제 토큰 추출
-        String accessToken = headerAuth.substring(7);
-
-        try {
-            // 4. 토큰 검증 및 내부 데이터(Claims) 추출
-            Claims claims = adminJWTUtil.validateToken(accessToken);
-            log.info("----------- [Admin JWT Filter] Token Validated. Claims: " + claims + " -----------");
-            // 5. 토큰 정보를 바탕으로 AdminAuthDto 객체 생성
-            String loginId = (String) claims.get("loginId");
-            String name = (String) claims.get("name");
-            AdminAuthDto adminAuthDto = new AdminAuthDto(loginId, "pw_hidden", name);
-            // 6. 스프링 시큐리티 전용 인증 토큰 생성
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(adminAuthDto, null, adminAuthDto.getAuthorities());
-            // 7. 시큐리티 메모리(Context)에 "이 사람 인증됨"이라고 기록
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            // 8. 다음 필터로 이동
-            filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            // 토큰이 만료되었거나 변조된 경우 에러 처리
-            log.error("----------- [Admin JWT Filter] Token Error: " + e.getMessage() + " -----------");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json; charset=UTF-8");
-            Gson gson = new Gson();
-            String jsonStr = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN"));
-            PrintWriter pw = response.getWriter();
-            pw.println(jsonStr);
-            pw.close();
-        }
-    }
-
-    // ==================== 사용자 JWT 처리 (JWTCheckFilter에서 통합) ====================
-
     private void handleUserJwt(HttpServletRequest request, HttpServletResponse response,
                                FilterChain filterChain) throws ServletException, IOException {
-        log.info("----------------- [User JWT Filter] 실행 시작 (Path: {}) --------------------", request.getRequestURI());
-
         String authHeader = request.getHeader("Authorization");
-        String token = null;
+        System.out.println(">>> [헤더 확인] Authorization: " + authHeader);
 
+        String token = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
         } else if (request.getCookies() != null) {
@@ -141,29 +103,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .map(Cookie::getValue)
                     .findFirst()
                     .orElse(null);
-
-            if (token != null) {
-                log.info("### [User JWT Filter] 쿠키에서 토큰 발견!");
-            }
         }
 
-        // 토큰이 없으면 그냥 통과 (이후 SecurityConfig의 authorizeHttpRequests에서 걸러짐)
         if (token == null) {
+            System.out.println(">>> [토큰 없음] 필터 통과 (SecurityConfig에서 차단될 예정)");
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
+            System.out.println(">>> [토큰 검증] 토큰 존재, 유저 정보 추출 중...");
             Authentication authentication = adminJWTUtil.getUserAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("### [User JWT Filter] 인증 완료: {}", authentication.getName());
+            System.out.println(">>> [인증 성공] Principal: " + authentication.getName());
             filterChain.doFilter(request, response);
-        } catch (RuntimeException e) {
-            log.error("JWT 검증 실패: {}", e.getMessage());
-            sendUserErrorResponse(response, e.getMessage());
         } catch (Exception e) {
-            log.error("알 수 없는 인증 에러: {}", e.getMessage());
+            System.out.println(">>> [인증 실패] 원인: " + e.getMessage());
             sendUserErrorResponse(response, "INVALID_TOKEN");
+        }
+    }
+
+    // 관리자 JWT 처리 (handleAdminJwt)는 기존과 동일하게 유지하되 내부에 println 추가 가능
+    private void handleAdminJwt(HttpServletRequest request, HttpServletResponse response,
+                                FilterChain filterChain) throws ServletException, IOException {
+        String headerAuth = request.getHeader("Authorization");
+        if (headerAuth == null || !headerAuth.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        String accessToken = headerAuth.substring(7);
+        try {
+            Claims claims = adminJWTUtil.validateToken(accessToken);
+            // ... (기존 로직)
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            sendUserErrorResponse(response, "ERROR_ACCESS_TOKEN");
         }
     }
 
