@@ -4,6 +4,7 @@ import com.example.demo.domain.shared.payment.Payment;
 import com.example.demo.domain.shared.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -47,6 +48,7 @@ public class PointLog {
     @Column(name="description")
     private String description;
 
+    @CreationTimestamp
     @Column(name="created_at",nullable = false)
     private LocalDateTime createdAt;
 

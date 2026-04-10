@@ -14,4 +14,5 @@ public class FeeCalculationRequestDto {
     private ParkingFeePolicy policy;
     private int prepaidFee;
     private List<DiscountTicketRequestDto> discountTicketRequestDtos;
+    private String vehicleNumber;
 }

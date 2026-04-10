@@ -79,7 +79,6 @@ public enum ErrorCode {
     HOUSEHOLD_ALREADY_ACTIVE(HttpStatus.CONFLICT, "해당 세대는 이미 입주가 완료되었습니다."),
     NOT_AVAILABLE_HOUSEHOLD(HttpStatus.BAD_REQUEST, "신청 가능한 호수가 아닙니다."),
 
-
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),
     PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY,"결제 서비스 호출에 실패하였습니다."),
@@ -97,6 +96,7 @@ public enum ErrorCode {
 
     //Admin
     ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다");
+
 
     private final HttpStatus status;
     private final String message;

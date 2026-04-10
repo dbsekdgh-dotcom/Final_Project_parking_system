@@ -1,6 +1,7 @@
 import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useEffect, useState } from "react";
 import useVehicleStore from "../../../store/useVehicleStore";
+import { useNavigate } from "react-router-dom";
 
 const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY;
 
@@ -10,6 +11,8 @@ export function PaymentPage() {
     const [widgets, setWidgets] = useState(null);
     const customerKey=paymentInfo?.userEmail?paymentInfo.userEmail:ANONYMOUS
     const amount=paymentInfo?.amount?Math.floor(Number(paymentInfo.amount)):0;
+    const navigate=useNavigate();
+
 
     console.log(paymentInfo)
 
@@ -55,33 +58,44 @@ export function PaymentPage() {
     return (
     <div className="wrapper">
         <div className="box_section">
-        {/* 결제 UI */}
-        <div id="payment-method" />
-        {/* 이용약관 UI */}
-        <div id="agreement" />
+            {/* 결제 UI */}
+            <div id="payment-method" />
+            {/* 이용약관 UI */}
+            <div id="agreement" />
 
-        {/* 결제하기 버튼 */}
-        <button
-            className="button"
-            disabled={!ready}
-            onClick={async () => {
-            try {
-                await widgets.requestPayment({
-                orderId: paymentInfo.orderId,
-                orderName: paymentInfo.orderName,
-                successUrl: window.location.origin + "payment/success",
-                failUrl: window.location.origin + "payment/fail",
-                customerEmail: paymentInfo.userEmail || undefined,
-                customerName: paymentInfo.vehicleNumber
-                });
-            } catch (error) {
-                // 에러 처리하기
-                console.error(error);
-            }
-            }}
-        >
-            결제하기
-        </button>
+            {/* 결제하기 버튼 */}
+            <button
+                className="button"
+                disabled={!ready}
+                onClick={async () => {
+                try {
+
+                    //store정보 리셋되는 걸 방지
+                    if(paymentInfo?.parkingLogId){
+                        localStorage.setItem("pendingParkingLogId",paymentInfo?.parkingLogId)
+                    }
+
+                    await widgets.requestPayment({
+                    orderId: paymentInfo.orderId,
+                    orderName: paymentInfo.orderName,
+                    successUrl: `${window.location.origin}/payment/success`,
+                    failUrl: `${window.location.origin}/payment/fail`,
+                    customerEmail: paymentInfo.userEmail || undefined,
+                    customerName: paymentInfo.vehicleNumber
+                    });
+                } catch (error) {
+                    // 에러 처리하기
+                    console.error(error);
+                    console.error(error.code);
+                    console.error(error.message);
+                    if(error.code==='USER_CANCEL'){
+                        const errorCode = error.code;
+                        const errorMsg = error.message;
+                        navigate(`/payment/fail?code=${errorCode}&message=${encodeURIComponent(errorMsg)}`);
+                    }
+                }
+                }}>결제하기
+            </button>
         </div>
     </div>
     );

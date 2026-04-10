@@ -167,12 +167,17 @@ public class SettlementService {
         if(user==null){
             return;
         }
+        //이미 처리된 요청이 있으면 종료
+        Payment payment=payments.stream()
+                .filter(p->p.getPaymentMethod().equals(PaymentMethod.POINT)).findFirst().orElse(null);
+
+        if(payment !=null){
+            if(pointLogRepository.existsByPaymentPaymentId(payment.getPaymentId()))return;
+        }
+
         String minUsagePoint=systemSettingRepository.findBySettingKey(SettingKey.MIN_USAGE_POINT.getKey())
                 .map(SystemSetting::getSettingValue)
                 .orElse("100");
-
-        Payment payment=payments.stream()
-                .filter(p->p.getPaymentMethod().equals(PaymentMethod.POINT)).findFirst().orElse(null);
 
         // usedPoint= payment.getPriceSnapshot().intValue();
         int usedPoint=payments.stream()
@@ -292,9 +297,5 @@ public class SettlementService {
                     .build();
             activityLogRepository.save(activityLog);
         });
-
-
     }
-
-
 }

@@ -1,0 +1,90 @@
+/* ResultView.css - 다른 페이지 간섭 방지 최종본 */
+
+.rv-main-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  z-index: 9999; /* 다른 요소들보다 항상 위에 위치 */
+  font-family: 'Pretendard', sans-serif;
+}
+
+.rv-content-layout {
+  text-align: center;
+  max-width: 400px;
+  width: 85%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 아이콘 스타일 */
+.rv-icon-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* 성공은 초록, 에러(느낌표)는 빨강 */
+.rv-bg-success { background-color: #4CAF50; }
+.rv-bg-error { background-color: #F44336; } 
+
+.rv-svg-icon {
+  width: 45px;
+  height: 45px;
+}
+
+/* 텍스트 스타일 */
+.rv-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: #000;
+}
+
+.rv-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 40px;
+  line-height: 1.4;
+}
+
+.rv-line {
+  width: 40px;
+  height: 3px;
+  background-color: #000;
+  margin-bottom: 50px;
+}
+
+/* ⭐️ 버튼 정렬의 핵심 (반반/꽉차게 자동 조절) */
+.rv-btn-group {
+  display: flex !important;
+  flex-direction: row-reverse !important; /* 버튼 순서: 이전(왼쪽), 홈(오른쪽) */
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.rv-action-btn {
+  flex: 1 !important;
+  height: 56px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}

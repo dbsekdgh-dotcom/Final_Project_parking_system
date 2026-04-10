@@ -40,10 +40,11 @@ const SelectedVehicleInfo = () => {
 
         if(data.free){
             //결제할 요금이 없는 경우 
-            navigate("/prepaymentSuccess",{
+            navigate("/PrepaymentResult",{
             state:{
                 title : "정산이 완료 되었습니다. ",
-                subTitle : paymentData.message
+                subTitle : paymentData.message || "안전하게 출차해주세요.",
+                type:"success"
                 }
             })  
         }else{

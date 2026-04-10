@@ -9,11 +9,10 @@ import EntryCompletePage from "./features/entry/entrycomplate/pages/EntryComplat
 import VehicleDeparture from "./features/exit/pages/vehicledeparture/VehicleDeparture";
 import PaymentConfirm from "./features/exit/pages/paymentconfirm/PaymentConfirm";
 import DepartureComplete from "./features/exit/pages/departurecomplete/DepartureComplete";
-import PrepaymentSuccess from "./features/prepayment/pages/PrepaymentSuccess";
 import { PaymentPage } from "./shared/components/paymentPage/PaymentPage";
 import {PaymentSuccessPage} from "./shared/components/paymentPage/PaymentSuccessPage";
 import { PaymentFailPage } from "./shared/components/paymentPage/PaymentFailPage";
-
+import PrepaymentResult from "./features/prepayment/pages/PrepaymentResult";
 
 
 function App() {
@@ -31,7 +30,7 @@ function App() {
       <Route path="/selectedVehicle" element={<SelectedVehicleInfo />}></Route>
       <Route path="/exit-departure" element={<VehicleDeparture/>}/>
       <Route path="/exit-paymentconfirm" element={<PaymentConfirm/>}/>
-      <Route path="/prepaymentSuccess" element={<PrepaymentSuccess/>}></Route>
+      <Route path="/PrepaymentResult" element={<PrepaymentResult/>}></Route>
       {/* 결제 페이지 이동 */}
       <Route path="/payment" element={<PaymentPage/>}></Route>
       {/* 결제 성공/실패 화면*/}

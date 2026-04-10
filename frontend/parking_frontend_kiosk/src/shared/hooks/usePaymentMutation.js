@@ -12,17 +12,22 @@ export const usePayment=()=>{
             return await requestAfterPayment(payload);
         },
         onSuccess:(afterResponse)=>{
-            navigate("/prepaymentSuccess",{
+            navigate("/PrepaymentResult",{
                 state:{
                     title : "정산이 완료 되었습니다. ",
-                    subTitle : afterResponse.message
+                    subTitle : afterResponse.message,
+                    type: "success"
                 }
             }) 
         },
         onError:(error)=>{
-            const message=error.message
-            const code=error.code
-            navigate(`/payment/fail?message=${error.message ||message}&code=${error.code ||code}`);
+            navigate("/PrepaymentResult",{
+                state:{
+                    title : "정산 중 오류가 발생하였습니다.",
+                    subTitle : error.message || "잠시 후 다시 시도해주세요.",
+                    type: "error"
+                }
+            }) 
         }
     })
     const beforeMutation=useMutation({
@@ -47,9 +52,13 @@ export const usePayment=()=>{
             }
         },
         onError:(error)=>{
-            const message=error.message
-            const code=error.code
-            navigate(`/payment/fail?message=${error.message ||message}&code=${error.code ||code}`);
+            navigate("/PrepaymentResult",{
+                state:{
+                    title : "정산 중 오류가 발생하였습니다.",
+                    subTitle : error.message || "잠시 후 다시 시도해주세요.",
+                    type: "error"
+                }
+            }) 
         }
     })
     return {beforeMutation,afterMutation}
