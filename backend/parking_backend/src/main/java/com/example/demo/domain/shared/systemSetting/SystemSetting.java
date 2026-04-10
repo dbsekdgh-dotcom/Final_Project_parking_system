@@ -16,4 +16,9 @@ public class SystemSetting {
     private String settingKey;
     @Column(name="setting_value", nullable = false, columnDefinition="TEXT")
     private String settingValue;
+    @Column(name="description", nullable = true)
+    private String description;
+    @Column(name="is_editable", nullable = false)
+    private Boolean isEditable = true;
+
 }

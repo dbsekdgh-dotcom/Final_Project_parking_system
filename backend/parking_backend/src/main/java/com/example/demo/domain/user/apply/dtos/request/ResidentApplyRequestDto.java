@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApprovalResidentRequestDto {
+public class ResidentApplyRequestDto {
     @NotNull(message = "호수 ID는 필수 입력값입니다.")
     @JsonProperty("householdId")
     private Long householdId;

@@ -34,14 +34,18 @@ public class ReportService {
     private final VehicleReportRepository vehicleReportRepository;
     private final UserRepository userRepository;
 
-    //신고 생성 + 통계 증가
-    public void createReport(Long userId, String carNumber, ReportType type, String description){
+    /**
+     * 신고 생성 + 통계 증가
+     * 파라미터 Long userId -> String email 변경
+     */
+    public void createReport(String email, String carNumber, ReportType type, String description){
 
-        User user =userRepository.findById(userId)
-                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
+        // 이메일로 유저 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
         Report report = Report.builder()
-                .reporter(user) //핵심
+                .reporter(user)
                 .carNumber(carNumber)
                 .reportType(type)
                 .description(description)
@@ -49,7 +53,7 @@ public class ReportService {
 
         reportRepository.save(report);
 
-        //통계 업데이트
+        // 통계 업데이트
         VehicleReportStat stat = vehicleReportRepository.findById(carNumber)
                 .orElseGet(() -> VehicleReportStat.create(carNumber));
 
@@ -57,21 +61,34 @@ public class ReportService {
         vehicleReportRepository.save(stat);
     }
 
-    //내가 신고한 내역
+    /**
+     * 내가 신고한 내역
+     * 파라미터 Long userId -> String email 변경
+     */
     @Transactional(readOnly = true)
-    public Page<ReportResponseDto> getMyReports(Long userId, Pageable pageable) {
+    public Page<ReportResponseDto> getMyReports(String email, Pageable pageable) {
+        // 이메일로 유저 조회 후 해당 유저의 ID로 검색
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
         Page<Report> reports = reportRepository
-                .findByReporter_UserIdAndStatusNot(userId,ReportStatus.CANCELLED,pageable);
+                .findByReporter_UserIdAndStatusNot(user.getUserId(), ReportStatus.CANCELLED, pageable);
 
         return reports.map(ReportResponseDto::from);
     }
 
-    //내가 받은 신고
+    /**
+     * 내가 받은 신고
+     * 파라미터 Long userId -> String email 변경
+     */
     @Transactional(readOnly = true)
-    public Page<Report> getReceivedReports(Long userId, Pageable pageable) {
+    public Page<Report> getReceivedReports(String email, Pageable pageable) {
+        // 이메일로 유저 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
-        List<Vehicle> vehicles = vehicleRepository.findByUser_UserIdAndStatus(userId, VehicleStatus.ACTIVE);
+        // 해당 유저가 소유한 활성 차량 리스트 조회
+        List<Vehicle> vehicles = vehicleRepository.findByUser_UserIdAndStatus(user.getUserId(), VehicleStatus.ACTIVE);
 
         List<String> carNumbers = vehicles.stream()
                 .map(Vehicle::getCarNumber)
@@ -83,42 +100,52 @@ public class ReportService {
         return reportRepository.findByCarNumberInAndStatusNot(carNumbers, ReportStatus.CANCELLED, pageable);
     }
 
-    //신고 취소
-    public void cancelReport(Long reportId, Long userId){
+    /**
+     * 신고 취소
+     * 파라미터 Long userId -> String email 변경
+     */
+    public void cancelReport(Long reportId, String email){
 
         Report report = reportRepository.findById(reportId)
-                .orElseThrow(()-> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
 
-        if (!report.getReporter().getUserId().equals(userId)){
-            throw  new CustomException(ErrorCode.REPORT_CANNOT_CANCEL);
+        // 이메일로 유저 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
+
+        // 본인이 작성한 신고인지 확인
+        if (!report.getReporter().getUserId().equals(user.getUserId())){
+            throw new CustomException(ErrorCode.REPORT_CANNOT_CANCEL);
         }
         report.cancel();
     }
 
-    //기간 검색
+    /**
+     * 기간 검색
+     * 파라미터 Long userId -> String email 변경
+     */
     @Transactional(readOnly = true)
-    public Page<Report> searchReports(Long userId,LocalDateTime start,LocalDateTime end,Pageable pageable){
+    public Page<Report> searchReports(String email, LocalDateTime start, LocalDateTime end, Pageable pageable){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
+
         return reportRepository.findByReporter_UserIdAndCreatedAtBetweenAndStatusNot(
-                userId,start,end, ReportStatus.CANCELLED,pageable
+                user.getUserId(), start, end, ReportStatus.CANCELLED, pageable
         );
     }
 
-    public void updateReportStatus(Long reportId,ReportStatus newStatus,Long adminId){
+    /**
+     * 신고 상태 변경 (기존 유지)
+     */
+    public void updateReportStatus(Long reportId, ReportStatus newStatus, Long adminId){
         Report report = reportRepository.findById(reportId)
-                .orElseThrow(()-> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
 
-        //전달받은 status 값에 따라 엔티티의 특정 비즈니스 로직을 실행
         switch (newStatus){
             case APPROVED -> report.approve(adminId);
             case REJECTED -> report.reject(adminId);
             case CANCELLED -> report.cancel();
-            case PENDING -> {
-                //다시 대기로 돌리는 로직이 필요하다면 추가 (필요 없다면 아무것도 안함)
-            }
+            case PENDING -> { }
         }
-        //Transactional 덕분에 여기서도 따로 save할 필요 없이 자동 업데이트됨
     }
-
 }
-
-
