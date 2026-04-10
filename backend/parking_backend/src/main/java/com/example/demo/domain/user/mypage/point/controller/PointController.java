@@ -3,7 +3,6 @@ package com.example.demo.domain.user.mypage.point.controller;
 import com.example.demo.domain.user.mypage.point.dto.PointResponseDto;
 import com.example.demo.domain.user.mypage.point.service.PointService;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

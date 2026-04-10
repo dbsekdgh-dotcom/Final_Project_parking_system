@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -32,9 +33,8 @@ public class UserSecurityConfig {
     private final AdminJWTUtil adminJWTUtil;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ⭐ 핵심 수정: /api/user/** 로 범위를 넓혀서 apply 경로를 포함시킵니다.
                 .securityMatcher("/api/user/**", "/api/report/**", "/login/**", "/oauth2/**", "/", "/oauth-redirect/**")
 
                 .csrf(csrf -> csrf.disable())
@@ -47,7 +47,7 @@ public class UserSecurityConfig {
                 .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 1. 인증 없이 접근 가능한 경로 (로그인, 회원가입 등)
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/oauth-redirect/**", "/api/user/auth/refresh",
@@ -56,7 +56,7 @@ public class UserSecurityConfig {
                                 "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
                                 "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover", "/api/user/auth/social-recover").permitAll()
 
-                        // 2. ⭐ 입주민 신청 관련 경로: 인증된 사용자만 접근 가능 (명시적 설정)
+                        // 2. 입주민 신청 관련 경로: 인증된 사용자만 접근 가능
                         .requestMatchers("/api/user/apply/**").authenticated()
 
                         // 신고 관련 경로: 인증된 사용자만 접근 가능
@@ -64,7 +64,7 @@ public class UserSecurityConfig {
 
                         // 3. 기타 인증이 필요한 경로들
                         .requestMatchers("/api/user/auth/local/logout").authenticated()
-                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
 
                         // 4. 나머지 모든 요청도 인증 필요
                         .anyRequest().authenticated())
@@ -83,9 +83,11 @@ public class UserSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5202"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
