@@ -17,4 +17,5 @@ public class FeeCalculationResponseDto {
     private long parkingTime;
     private long amountToPay;
     private LocalDateTime paymentRequestedAt;
+    private String vehicleNumber;
 }

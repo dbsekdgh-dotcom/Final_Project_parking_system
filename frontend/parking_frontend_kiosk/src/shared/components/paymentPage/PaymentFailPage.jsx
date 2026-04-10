@@ -1,17 +1,24 @@
-import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export function PaymentFailPage() {
   const [searchParams] = useSearchParams();
+  const navigate=useNavigate();
+
+  useEffect(()=>{
+    const errorMsg=searchParams.get("message") || "결제 중 알 수 없는 오류가 발생하였습니다."
+      navigate("/PrepaymentResult",{
+        state:{
+            title : "정산 중 오류가 발생하였습니다.",
+            subTitle : errorMsg,
+            type: "error"
+        }
+     }) 
+  },[searchParams])
 
   return (
-    <div className="result wrapper">
-      <div className="box_section">
-        <h2>
-          결제 실패
-        </h2>
-        <p>{`에러 코드: ${searchParams.get("code")}`}</p>
-        <p>{`실패 사유: ${searchParams.get("message")}`}</p>
-      </div>
+    <div>
+
     </div>
   );
 }

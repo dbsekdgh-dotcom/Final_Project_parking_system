@@ -1,39 +1,47 @@
 
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import useVehicleStore from "../../../store/useVehicleStore";
 import { usePayment } from "../../hooks/usePaymentMutation";
 
 export function PaymentSuccessPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {paymentInfo}=useVehicleStore();
   const {afterMutation}=usePayment();
+  const navigate=useNavigate();
+
   useEffect(() => {
-    //백엔드 승인 요청
+    const paymentKey=searchParams.get("paymentKey")
+    const orderId=searchParams.get("orderId")
+    const amount=searchParams.get("amount")
+    const parkingLogId=localStorage.getItem("pendingParkingLogId")
+
+    console.log(paymentKey)
+    console.log(orderId)
+    console.log(amount)
+    console.log(parkingLogId)
+
 
     // 결제 성공 시
-    const payload={
-    "paymentKey":searchParams.get("paymentKey"),
-    "orderId":searchParams.get("orderId"),
-    "amount":searchParams.get("amount"),
-    "parkingLogId":paymentInfo?.parkingLogId
+    if(paymentKey && orderId && amount && parkingLogId){
+      const payload={
+      "paymentKey":paymentKey,
+      "orderId":orderId,
+      "amount":amount,
+      "parkingLogId":parkingLogId
+      }
+      afterMutation.mutate(payload)
+    }else{
+      navigate("/PrepaymentResult",{
+        state:{
+            title : "정산 중 오류가 발생하였습니다.",
+            subTitle : "결제 정보가 올바르지 않습니다. 다시 시도해주세요.",
+            type: "error"
+        }
+      }) 
     }
-    afterMutation.mutate(payload)
-    },[]);
+    },[searchParams,afterMutation]);
 
   return (
-    <div className="result wrapper">
-      <div className="box_section">
-        <h2>
-          결제 성공
-        </h2>
-        <p>{`주문번호: ${searchParams.get("orderId")}`}</p>
-        <p>{`결제 금액: ${Number(
-          searchParams.get("amount")
-        ).toLocaleString()}원`}</p>
-        <p>{`paymentKey: ${searchParams.get("paymentKey")}`}</p>
-      </div>
+    <div >
     </div>
   );
 }

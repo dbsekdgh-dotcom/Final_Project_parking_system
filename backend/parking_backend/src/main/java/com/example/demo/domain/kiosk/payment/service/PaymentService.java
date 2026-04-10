@@ -44,6 +44,7 @@ public class PaymentService {
         PaymentStatus status = parkingLog.getPaymentStatus();
         LocalDateTime freeExitTime = parkingLog.getFreeExitUntil();
         String carNumber=parkingLog.getCarNumberSnapshot();
+        VehiclePaymentResponseDto responseDto=null;
 
         //주차 시간 계산(화면 표시용)
         LocalDateTime exitTime=LocalDateTime.now();
@@ -51,25 +52,25 @@ public class PaymentService {
 
         //1. [NONE 처리] 입주민 /정기권 차량인 경우
         if (PaymentStatus.NONE.equals(status)) {
-            return new PaymentEligibilityResult(parkingLog, VehiclePaymentResponseDto.builder().isFree(true).message("등록된 차량입니다.")
-                    .rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build());
+            responseDto= VehiclePaymentResponseDto.builder().isFree(true).message("등록된 차량입니다.")
+                    .rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build();
         }
 
         //2. [PAID/UNPAID 처리] 무료 출차시간 내인 경우
         if (freeExitTime != null && freeExitTime.isAfter(LocalDateTime.now())) {
             String msg = PaymentStatus.PAID.equals(status) ? "사전정산 완료된 차량입니다." : "무료 출차 대상 차량입니다.";
-            return new PaymentEligibilityResult(parkingLog, VehiclePaymentResponseDto.builder()
-                    .isFree(true).message(msg).rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build());
+            responseDto= VehiclePaymentResponseDto.builder()
+                    .isFree(true).message(msg).rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build();
         }
 
         //3. 방문예약 차량인 경우
         if (parkingLog.getParkingTypeSnapshot().equals(ParkingTypeSnapshot.RESERVATION)) {
             if (reservationRepository.getCountbyCarNumber(carNumber, Status.ENTERED, true)>0){
-                return new PaymentEligibilityResult(parkingLog, VehiclePaymentResponseDto.builder()
-                        .isFree(true).message("방문 차량입니다.").rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build());
+                responseDto= VehiclePaymentResponseDto.builder()
+                        .isFree(true).message("방문 차량입니다.").rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build();
             }
         }
-        return new PaymentEligibilityResult(parkingLog, null);
+        return new PaymentEligibilityResult(parkingLog, responseDto);
     }
 
     //요금 계산
@@ -135,6 +136,8 @@ public class PaymentService {
                 .totalDiscountAmount(totalDiscountAmount)
                 .amountToPay(amountToPay)
                 .paymentRequestedAt(now) //결제요청 시간
+                .parkingTime(parkingTime)
+                .vehicleNumber(request.getVehicleNumber())
                 .build();
     }
 
@@ -175,6 +178,7 @@ public class PaymentService {
                 .policy(parkingFeePolicy)
                 .prepaidFee(parkingLog.getFee())
                 .discountTicketRequestDtos(discountTicketRequestDtos)
+                .vehicleNumber(parkingLog.getCarNumberSnapshot())
                 .build();
 
         return calculateBaseFee(request);
@@ -207,7 +211,7 @@ public class PaymentService {
         // 기본 요금 계산
         FeeCalculationResponseDto feeCalculationResponseDto=settlementFee(parkingLog,parkingFeePolicyId,totalDurationForCalculation);
         if(feeCalculationResponseDto==null || feeCalculationResponseDto.getCalculatedFee()<=0)    {
-            return VehiclePaymentResponseDto.builder().isFree(true).rawFee(0).parkingLogId(parkingLogId).parkingTime(parkingTime).build();
+            return VehiclePaymentResponseDto.builder().isFree(true).rawFee(0).parkingLogId(parkingLogId).vehicleNumber(carNumber).parkingTime(parkingTime).build();
         }
         //db 업데이트FeeCalculationResponseDto
         parkingLog.requestPayment(feeCalculationResponseDto);

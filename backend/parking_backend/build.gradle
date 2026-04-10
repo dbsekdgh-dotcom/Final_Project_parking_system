@@ -83,9 +83,11 @@ dependencies {
     //test용
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-
     // ⭐ Mail (이메일 발송용)
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //toss
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 }
 //  QClass 생성 경로 설정
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile.absolutePath
