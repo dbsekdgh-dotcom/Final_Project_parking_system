@@ -1,6 +1,7 @@
 package com.example.demo.domain.admin.management.parking.controller;
 
 import com.example.demo.domain.admin.entity.Admin;
+import com.example.demo.domain.admin.management.parking.dtos.request.DiscountModifyRequest;
 import com.example.demo.domain.admin.management.parking.dtos.request.ForceExitRequest;
 import com.example.demo.domain.admin.management.parking.service.AdminParkingService;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogDetailResponse;
@@ -9,6 +10,7 @@ import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummary
 import com.example.demo.domain.shared.parkinglog.service.ParkingLogService;
 import com.example.demo.global.common.ApiResponse;
 import com.example.demo.global.security.admin.AdminAuthDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -64,5 +66,17 @@ public class AdminParkingLogController {
         adminParkingService.processForceExit(parkingLogId,currentAdmin,request.getReason());
 
         return ResponseEntity.ok(ApiResponse.success("강제 출차 처리가 완료되었습니다."));
+    }
+
+    //주차 로그 할인 수정 처리
+    @PatchMapping("/parking/logs/{parkingLogId}/discount")
+    public ResponseEntity<ApiResponse<Void>> modifyDiscount(
+            @PathVariable Long parkingLogId,
+            @Valid @RequestBody DiscountModifyRequest request,
+            @AuthenticationPrincipal AdminAuthDto currentAdmin
+            ) throws Exception{
+        log.info("관리자[{}]가 주차 로그[{}]의 할인 수정을 요청했습니다. 요청 금액: {}원",currentAdmin.getName(),parkingLogId,request.getNewAmount());
+        adminParkingService.modifyParkingDiscount(parkingLogId, request.getNewAmount(), request.getReason(),currentAdmin);
+        return ResponseEntity.ok(ApiResponse.success("할인 수정이 성공적으로 완료되었습니다."));
     }
 }
