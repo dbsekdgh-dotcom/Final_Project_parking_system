@@ -18,7 +18,7 @@ public class HouseholdFindService {
     private final HouseholdRepository householdRepository;
 
     @Transactional(readOnly = true)
-    public List<HouseholdListResponseDto> findAllActiveHouseholdes() {
+    public List<HouseholdListResponseDto> findAllActiveHousehold() {
         return householdRepository.findEmptyHouseholds().stream()
                 .map(HouseholdListResponseDto::new)
                 .collect(Collectors.toList());

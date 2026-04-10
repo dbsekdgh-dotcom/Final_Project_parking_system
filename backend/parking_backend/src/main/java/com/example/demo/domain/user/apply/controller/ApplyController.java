@@ -26,8 +26,9 @@ public class ApplyController {
     @GetMapping("/households")
     public ResponseEntity<List<HouseholdListResponseDto>> getEmptyHouseholds() {
 
-        return ResponseEntity.ok(householdFindService.findAllActiveHouseholdes());
+        return ResponseEntity.ok(householdFindService.findAllActiveHousehold());
     }
+
     @GetMapping("/available-units")
     public ResponseEntity<AvailableUnitResponseDto> getAvailableUnits() {
         return ResponseEntity.ok(householdFindService.getAvailableUnitNos());
