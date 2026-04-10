@@ -11,10 +11,12 @@ import com.example.demo.domain.kiosk.payment.service.PaymentService;
 import com.example.demo.domain.kiosk.payment.service.SettlementService;
 import com.example.demo.domain.shared.activityLog.enums.ActivityType;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
+import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.payment.Payment;
 import com.example.demo.domain.shared.payment.enums.PaymentStatus;
 import com.example.demo.domain.shared.payment.repository.PaymentRepository;
 import com.example.demo.domain.shared.user.User;
+import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class PaymentFacade {
     private final PaymentService paymentService;
     private final SettlementService settlementService;
     private final PaymentRepository paymentRepository;
+    private final ParkingLogRepository parkingLogRepository;
 
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {
         try {
@@ -76,8 +79,12 @@ public class PaymentFacade {
         if(payments.isEmpty()){
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
-        ParkingLog parkingLog=payments.getFirst().getParkingLog();
-        User user=parkingLog.getVehicle().getUser();
+        ParkingLog parkingLog=parkingLogRepository.findByParkingLogId(paymentConfirmRequestDto.getParkingLogId()).orElse(null);
+        if(parkingLog==null){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        Vehicle vehicle=(parkingLog.getVehicle()!=null)?parkingLog.getVehicle():null;
+        User user=(vehicle!=null)?vehicle.getUser():null;
         SettlementResponseDto settlementResponseDto=null;
         String carNumber=parkingLog.getCarNumberSnapshot();
         try {

@@ -18,9 +18,10 @@ export const requestPayment=async(selectedVehicle)=>{
         //스프링에서 보내준 에러가 있으면 에러 객체 꺼내기
         const resErr=error.response?.data;
 
-        //에러 메세지 추출(스프링에서 정의한 예외 외의 상황에는 기본 메세지)
-        const errMsg=resErr?.message || "결제 정보 조회 중 오류가 발생하였습니다."
-        throw new Error(errMsg)
+        const customError=new Error(resErr?.message ||"결제 정보 조회 중 오류가 발생하였습니다.")
+        customError.code=resErr?.code|| "UNKNOWN_ERROR"
+
+        throw customError
     }
 }
 
@@ -32,15 +33,23 @@ export const requestBeforePayment=async(settlementPayload)=>{
         return res.data;
     }catch(error){
         const resErr=error?.response?.data;
-        const errMsg=resErr?.message || "결제 요청 중 오류가 발생하였습니다."
-        throw new Error(errMsg)
+        const customError=new Error(resErr?.message ||"결제 요청 중 오류가 발생하였습니다.")
+        customError.code=resErr?.code|| "UNKNOWN_ERROR"
+        //const errMsg=resErr?.message || "결제 요청 중 오류가 발생하였습니다."
+        throw customError
     }
 }
 //결제 완료된 경우
-// export default requestAfterPayment=async()=>{
-//     try {
-//         const res=await axios.post(`${host}/request-after-payment`,)
-//     } catch (error) {
-        
-//     }
-// }
+export const requestAfterPayment=async(settlementConfirmPayload)=>{
+    try {
+        const res=await axios.post(`${host}/request-after-payment`,settlementConfirmPayload)
+        console.log("결제 후 후속처리 요청 정보==>"+res.data)
+        return res.data;
+    } catch (error) {
+        const resErr=error?.response?.data;
+        const customError=new Error(resErr?.message ||"결제 요청 중 오류가 발생하였습니다.")
+        customError.code=resErr?.code|| "UNKNOWN_ERROR"
+        //const errMsg=resErr?.message || "결제 요청 중 오류가 발생하였습니다."
+        throw customError
+    }
+}

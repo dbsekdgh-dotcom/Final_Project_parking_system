@@ -10,6 +10,9 @@ import VehicleDeparture from "./features/exit/pages/vehicledeparture/VehicleDepa
 import PaymentConfirm from "./features/exit/pages/paymentconfirm/PaymentConfirm";
 import DepartureComplete from "./features/exit/pages/departurecomplete/DepartureComplete";
 import PrepaymentSuccess from "./features/prepayment/pages/PrepaymentSuccess";
+import { PaymentPage } from "./shared/components/paymentPage/PaymentPage";
+import {PaymentSuccessPage} from "./shared/components/paymentPage/PaymentSuccessPage";
+import { PaymentFailPage } from "./shared/components/paymentPage/PaymentFailPage";
 
 
 
@@ -29,6 +32,11 @@ function App() {
       <Route path="/exit-departure" element={<VehicleDeparture/>}/>
       <Route path="/exit-paymentconfirm" element={<PaymentConfirm/>}/>
       <Route path="/prepaymentSuccess" element={<PrepaymentSuccess/>}></Route>
+      {/* 결제 페이지 이동 */}
+      <Route path="/payment" element={<PaymentPage/>}></Route>
+      {/* 결제 성공/실패 화면*/}
+      <Route path="/payment/success" element={<PaymentSuccessPage/>}></Route>
+      <Route path="/payment/fail" element={<PaymentFailPage/>}></Route>
       <Route path="/exit-complete" element={<DepartureComplete onHome={() => navigate("/")}/>}/>
       <Route path="/store" element={<div style={{ padding: 40 }}>상가 관리 준비 중</div>} />
       <Route path="/find-car" element={<div style={{ padding: 40 }}>내차 찾기 준비 중</div>} />

@@ -3,13 +3,16 @@ import VehicleInfo from '../../../shared/components/vehicleInfo/VehicleInfo'
 import useVehicleStore from '../../../store/useVehicleStore';
 import '../../../app.css'
 import PaymentMethod from '../../../shared/components/paymentMethod/PaymentMethod';
-import { useQuery } from '@tanstack/react-query';
+import {  useQuery } from '@tanstack/react-query';
 import { requestPayment } from '../../../shared/api/VehicleApi';
 import { useNavigate } from 'react-router-dom';
-import {requestBeforePayment} from '../../../shared/api/VehicleApi'
+import { usePayment } from '../../../shared/hooks/usePaymentMutation';
 
 const SelectedVehicleInfo = () => {
     const {selectedVehicle, resetSearchKeyword, resetSelectedVehicle}=useVehicleStore();
+    const {beforeMutation}=usePayment();
+
+    
     const navigate = useNavigate();
     console.log("스토어에 저장된 원본 차량 정보:", selectedVehicle);
 
@@ -30,10 +33,13 @@ const SelectedVehicleInfo = () => {
         navigate('/')
     }
 
+
+
     const paymentHandler=async(paymentData)=>{
         console.log("지금 결제",data)
 
         if(data.free){
+            //결제할 요금이 없는 경우 
             navigate("/prepaymentSuccess",{
             state:{
                 title : "정산이 완료 되었습니다. ",
@@ -46,10 +52,10 @@ const SelectedVehicleInfo = () => {
                 "vehicleNumber":data.vehicleNumber,
                 "usedPoint":paymentData.usedPoint,
                 "paidAmount":paymentData.paidAmount,
-                "settlementType":"prepay"
+                "settlementType":"PREPAYMENT"
             }
-            const res=await requestBeforePayment(settlementPayload);
-            console.log("결제 전 사전체크===>",res)
+            beforeMutation.mutate(settlementPayload)
+
         }
     }  
     
