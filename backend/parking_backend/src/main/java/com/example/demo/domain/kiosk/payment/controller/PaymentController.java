@@ -54,6 +54,8 @@ public class PaymentController {
     //결제 후
     @PostMapping("/request-after-payment")
     public SettlementResponseDto requestAfterPayment(@RequestBody PaymentConfirmRequestDto paymentConfirmRequestDto){
-        return paymentFacade.afterPayment(paymentConfirmRequestDto, ActivityType.PAYMENT_PRE);
+        SettlementResponseDto dto= paymentFacade.afterPayment(paymentConfirmRequestDto, ActivityType.PAYMENT_PRE);
+        log.info("결제 완료 후 응답 데이터==>{}",dto);
+        return dto;
     }
 }

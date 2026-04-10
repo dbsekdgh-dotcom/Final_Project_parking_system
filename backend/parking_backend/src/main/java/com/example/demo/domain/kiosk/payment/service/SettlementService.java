@@ -270,6 +270,7 @@ public class SettlementService {
                 .vehicleNumber(parkingLog.getCarNumberSnapshot())
                 .paidAmount((int)paidAmount)
                 .exitDeadline(freeExitUntil.format(formatter).formatted())
+                .message("정산이 완료되었습니다. " +freeExitUntil.format(formatter).formatted() +"까지 출차해 주세요.")
                 .build();
     }
 

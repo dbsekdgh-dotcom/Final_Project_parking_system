@@ -3,7 +3,6 @@ import './paymentMethod.css'
 
 const PaymentMethod = ({fee,userPoint,onConfirm,isLoading}) => {
     const [usePoint,setUsePoint]=useState(0)
-    const [payMethod, setPayMethod] = useState('');
 
     const pointUseHandler=(e)=>{
         const use=e.target.value==''?0:Math.min(e.target.value,userPoint,fee)
