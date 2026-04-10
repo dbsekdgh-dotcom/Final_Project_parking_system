@@ -42,8 +42,23 @@ public class ActivityLog {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public void entryActivity(){
-
+    public static ActivityLog ofEntry(ParkingLog parkingLog, Household household){
+        return ActivityLog.builder()
+                .activityType(ActivityType.ENTRY)
+                .parkingLog(parkingLog)
+                .carNumber(parkingLog.getCarNumberSnapshot())
+                .household(household)
+                .message("입차 완료")
+                .build();
+    }
+    public static ActivityLog ofExit(ParkingLog parkingLog, Household household){
+        return ActivityLog.builder()
+                .activityType(ActivityType.EXIT)
+                .parkingLog(parkingLog)
+                .carNumber(parkingLog.getCarNumberSnapshot())
+                .household(household)
+                .message("출차 완료")
+                .build();
     }
 
 }
