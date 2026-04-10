@@ -8,7 +8,7 @@ export function PaymentSuccessPage() {
   const {afterMutation}=usePayment();
   const navigate=useNavigate();
 
-  useEffect(() => {
+  useEffect(async() => {
     const paymentKey=searchParams.get("paymentKey")
     const orderId=searchParams.get("orderId")
     const amount=searchParams.get("amount")
@@ -28,7 +28,7 @@ export function PaymentSuccessPage() {
       "amount":amount,
       "parkingLogId":parkingLogId
       }
-      afterMutation.mutate(payload)
+      await afterMutation.mutateAsync(payload)
     }else{
       navigate("/PrepaymentResult",{
         state:{

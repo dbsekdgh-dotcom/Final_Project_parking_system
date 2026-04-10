@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import VehicleInfo from '../../../shared/components/vehicleInfo/VehicleInfo'
 import useVehicleStore from '../../../store/useVehicleStore';
 import '../../../app.css'
@@ -11,7 +11,7 @@ import { usePayment } from '../../../shared/hooks/usePaymentMutation';
 const SelectedVehicleInfo = () => {
     const {selectedVehicle, resetSearchKeyword, resetSelectedVehicle}=useVehicleStore();
     const {beforeMutation}=usePayment();
-
+    const [isPaymentLoading, setIsPaymentLoading]=useState(false)
     
     const navigate = useNavigate();
     console.log("스토어에 저장된 원본 차량 정보:", selectedVehicle);
@@ -37,6 +37,9 @@ const SelectedVehicleInfo = () => {
 
     const paymentHandler=async(paymentData)=>{
         console.log("지금 결제",data)
+        if(isPaymentLoading)return;
+
+        setIsPaymentLoading(true)
 
         if(data.free){
             //결제할 요금이 없는 경우 
@@ -55,9 +58,10 @@ const SelectedVehicleInfo = () => {
                 "paidAmount":paymentData.paidAmount,
                 "settlementType":"PREPAYMENT"
             }
-            beforeMutation.mutate(settlementPayload)
+            await beforeMutation.mutateAsync(settlementPayload)
 
         }
+        setIsPaymentLoading(false)
     }  
     
 
@@ -112,7 +116,7 @@ const SelectedVehicleInfo = () => {
                 <VehicleInfo vehicleNumber={data?.vehicleNumber} parkingTime={data?.parkingTime} fee={data?.amountToPay}/>
             </div>
             <div>
-                <PaymentMethod userPoint={selectedVehicle?.userPoint} fee={data?.amountToPay} onConfirm={paymentHandler}/> 
+                <PaymentMethod userPoint={selectedVehicle?.userPoint} fee={data?.amountToPay} onConfirm={paymentHandler} isLoading={isPaymentLoading}/> 
             </div>
         </div>
     </div>

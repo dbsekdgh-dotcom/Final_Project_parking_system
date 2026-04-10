@@ -21,16 +21,12 @@ import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
-import com.example.demo.global.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.List;
 
@@ -44,7 +40,6 @@ public class PaymentFacade {
     private final PaymentRepository paymentRepository;
     private final ParkingLogRepository parkingLogRepository;
     private final TossPaymentService tossPaymentService;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {
         try {
@@ -93,7 +88,6 @@ public class PaymentFacade {
         if(payments.isEmpty())throw new BusinessException(ErrorCode.INVALID_REQUEST);
         ParkingLog parkingLog=parkingLogRepository.findByParkingLogId(dto.getParkingLogId())
                 .orElseThrow(()-> new BusinessException(ErrorCode.INVALID_REQUEST));
-        long totalAmount=payments.stream().mapToLong(Payment::getAmount).sum();
         String carNumber=parkingLog.getCarNumberSnapshot();
         PaymentStatus paymentStatus=PaymentStatus.READY;
         String tossErrorMsg=null;
@@ -101,12 +95,12 @@ public class PaymentFacade {
         // 1. 락
         try {
             aiServerClient.requestPaymentLock(carNumber);
-            logger.info("락 완료 - carNumber: {}", carNumber);
+            log.info("락 완료 - carNumber: {}", carNumber);
 
             if(dto.getAmount()>0){
                 // 2. 토스 승인 요청
                 try{
-                    logger.info("결제 승인 요청 시작 - orderId: {}", dto.getOrderId());
+                    log.info("결제 승인 요청 시작 - orderId: {}", dto.getOrderId());
                     ResponseEntity<JSONObject> tossResponse= tossPaymentService.confirmPayment(dto);
                     if(tossResponse.getStatusCode().is2xxSuccessful()){
                         paymentStatus=PaymentStatus.SUCCESS;
@@ -114,7 +108,7 @@ public class PaymentFacade {
                         JSONObject body=tossResponse.getBody();
                         String code=(String) body.get("code");
                         if("ALREADY_PROCESSED_PAYMENT".equals(code)){
-                            logger.info("이미 처리된 결제건입니다. 성공으로 간주합니다.");
+                            log.info("이미 처리된 결제건입니다. 성공으로 간주합니다.");
                             paymentStatus=PaymentStatus.SUCCESS;
                         }else{
                             tossErrorMsg=(String) body.get("message");
@@ -122,7 +116,7 @@ public class PaymentFacade {
                         }
                     }
                 }catch (Exception e){
-                    logger.info("결제 통신 중 장애 발생 -  {}", e.getMessage());
+                    log.info("결제 통신 중 장애 발생 -  {}", e.getMessage());
                     paymentStatus=PaymentStatus.FAILED;
                     tossErrorMsg="결제 통신 중 장애가 발생하였습니다.";
                 }
@@ -131,8 +125,7 @@ public class PaymentFacade {
             }
 
             // 3. db상태 변경
-            Thread.sleep(500);
-            logger.info("DB 상태변경 시작  - parkingLogId: {}", dto.getParkingLogId());
+            log.info("DB 상태변경 시작  - parkingLogId: {}", dto.getParkingLogId());
             Vehicle vehicle=(parkingLog.getVehicle()!=null)?parkingLog.getVehicle():null;
             User user=(vehicle!=null)?vehicle.getUser():null;
             SettlementResponseDto settlementResponseDto=null;
@@ -144,6 +137,7 @@ public class PaymentFacade {
                 // 2. userPoint & PointLog update
                 settlementService.pointProcessOfPayment(user, parkingLog, payments, dto);
                 // 3. parking Log 업데이트
+                long totalAmount=payments.stream().mapToLong(Payment::getAmount).sum();
                 settlementResponseDto = settlementService.updateParkingLogFinal(parkingLog, totalAmount);
                 // 4. notification insert
                 settlementService.insertNotification(user, settlementResponseDto.getExitDeadline());
