@@ -14,6 +14,7 @@ public enum ActivityType {
     PAYMENT_CANCEL("결제취소"),
     RESERVATION_CREATED("방문예약 생성"),
     RESERVATION_CANCELLED("방문예약 취소"),
+    RESIDENT_REGISTERED("입주민 등록"),
     VEHICLE_REGISTERED("차량 등록"),
     PASS_PURCHASED("정기권 구매"),
     COUPON_PURCHASED("할인권 구매"),
