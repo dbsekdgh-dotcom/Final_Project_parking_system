@@ -135,7 +135,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = headerAuth.substring(7);
         try {
             Claims claims = adminJWTUtil.validateToken(accessToken);
-            // ... (기존 로직)
+            String loginId = (String) claims.get("loginId");
+            String name = (String) claims.get("name");
+            AdminAuthDto adminAuthDto = new AdminAuthDto(loginId, "pw_hidden", name);
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(adminAuthDto, null, adminAuthDto.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             sendUserErrorResponse(response, "ERROR_ACCESS_TOKEN");
