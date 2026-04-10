@@ -5,7 +5,10 @@ import com.example.demo.domain.kiosk.entry.dtos.response.EntryCheckResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingLogTypeResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingSpaceResponse;
 import com.example.demo.domain.kiosk.entry.repository.*;
+import com.example.demo.domain.shared.activityLog.ActivityLog;
+import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
 import com.example.demo.domain.shared.camera.enums.CameraType;
+import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy;
 import com.example.demo.domain.shared.parkingfeepolicy.enums.ParkingType;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
@@ -43,6 +46,7 @@ public class EntryService {
     private final EntryParkingSpaceRepository entryParkingSpaceRepository;
     private final EntrySubscriptionRepository entrySubscriptionRepository;
     private final EntrySystemSettingRepository entrySystemSettingRepository;
+    private final ActivityLogRepository activityLogRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -126,6 +130,7 @@ public class EntryService {
         ParkingLog saved= parkinglogRepository.save(log);
         return saved.getParkingLogId();
     }
+
     public List<CameraResponse> getEntryCameras() {
         return entryCameraRepository.findAllByCameraType(CameraType.ENTRY)
                 .stream()
@@ -140,6 +145,7 @@ public class EntryService {
                 .toList();
     }
 
+    //DETECTED -> ENTERED 확정 시점
     public void enterWithCamera(Long parkingLogId, Long spaceId) {
         //ENTRY_LOCK 행에 FOR UPDATE 이 시점부터 다른 입차 트랜잭션 대기
         entrySystemSettingRepository.findByIdWithLock("ENTRY_LOCK")
@@ -163,6 +169,9 @@ public class EntryService {
         LocalDateTime freeExitUntil = resolveFreeExitUntil(log);
         log.enter(freeExitUntil);
         parkinglogRepository.save(log);
+        Household household = (log.getVehicle()!=null && log.getVehicle().getUser()!=null)
+                ? log.getVehicle().getUser().getHousehold():null;
+        activityLogRepository.save(ActivityLog.ofEntry(log,household));
     }
 
     // 타입별 최초 회차 시간 계산

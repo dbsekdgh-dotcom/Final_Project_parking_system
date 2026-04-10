@@ -2,6 +2,9 @@ package com.example.demo.domain.kiosk.exit.service;
 
 import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
 import com.example.demo.domain.kiosk.payment.facade.PaymentFacade;
+import com.example.demo.domain.shared.activityLog.ActivityLog;
+import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
+import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ import java.util.List;
 public class ExitService {
     private final ParkingLogRepository parkingLogRepository;
     private final PaymentFacade paymentFacade;
+    private final ActivityLogRepository activityLogRepository;
 
     //출차 대기
     public VehiclePaymentResponseDto requestExit(Long parkingLogId,Long exitCameraId,String imagePath){
@@ -61,6 +64,9 @@ public class ExitService {
         parkingLog.setParkingStatus(ParkingStatus.EXITED);
         parkingLog.setExitedAt(LocalDateTime.now());
         parkingLogRepository.save(parkingLog);
+        Household household=(parkingLog.getVehicle()!=null&&parkingLog.getVehicle().getUser()!=null)
+                ? parkingLog.getVehicle().getUser().getHousehold() : null;
+        activityLogRepository.save(ActivityLog.ofExit(parkingLog,household));
     }
     // 출차 중 회차
     public void cancelExit(Long parkingLogId){
