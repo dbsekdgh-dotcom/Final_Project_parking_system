@@ -126,7 +126,7 @@ AdminSecurityConfig {
                 "http://localhost:5203"//윤진추가 삭제예정
         ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"));
         // 쿠키나 인증 정보를 포함한 요청을 허용할지 여부
         configuration.setAllowCredentials(true);
         // 브라우저가 Set-Cookie 헤더를 읽을 수 있도록 노출 설정
