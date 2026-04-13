@@ -22,6 +22,8 @@ const OAuthRedirectPage = () => {
             const rawName = searchParams.get("name");
             const name = rawName ? decodeURIComponent(rawName) : null;
             const email = searchParams.get("email");
+            const userStatus = searchParams.get("userStatus");
+            const unitNo = searchParams.get("unitNo");
 
 
             // 1. 에러 처리
@@ -60,6 +62,12 @@ const OAuthRedirectPage = () => {
                 }
                 if (email) {
                     localStorage.setItem("userEmail", email);
+                }
+                if (userStatus) {
+                    localStorage.setItem("userStatus", userStatus);
+                }
+                if (unitNo) {
+                    localStorage.setItem("unitNo", unitNo);
                 }
 
                 // 환영 메시지용 세션 정보 저장

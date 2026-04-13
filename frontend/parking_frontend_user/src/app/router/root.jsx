@@ -2,7 +2,8 @@ import React from 'react'
 import LoginPage from '../../features/auth/pages/LoginPage'
 import SignupPage from '../../features/auth/pages/SignupPage'
 import MainLayout from '../../shared/layouts/MainLayout'
-import DashBoard from '../../features/dash/DashBoard'
+import DashBoard from '../../features/dash/pages/DashBoard'
+import MyPage from '../../features/mypage/pages/MyPage'
 import { createBrowserRouter } from 'react-router-dom'
 
 const root = createBrowserRouter([
@@ -15,21 +16,18 @@ const root = createBrowserRouter([
         element: <SignupPage />,
     },
     {
-        path: "/main",
         element: <MainLayout />,
         children: [
             {
-                index: true,
+                path: "/dashboard",
                 element: <DashBoard />,
             },
             {
-                path: "dashboard",
-                element: <DashBoard />,
+                path: "/mypage",
+                element: <MyPage />,
             },
         ],
     },
 ])
-
-    
 
 export default root

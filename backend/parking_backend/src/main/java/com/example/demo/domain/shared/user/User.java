@@ -92,6 +92,16 @@ public class User {
         this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 
+    public void updatePhone(String phone) {
+        this.phone = phone;
+        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+    }
+
+    public void updateBirth(LocalDate birth) {
+        this.birth = birth;
+        this.updatedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+    }
+
     public void addLocalPassword(String encodedPassword) {
         this.password = encodedPassword;
     }

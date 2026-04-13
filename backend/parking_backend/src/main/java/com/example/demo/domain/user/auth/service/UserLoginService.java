@@ -1,5 +1,8 @@
 package com.example.demo.domain.user.auth.service;
 
+import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
+import com.example.demo.domain.shared.approval.enums.ApprovalType;
+import com.example.demo.domain.shared.approval.repository.ApprovalRepository;
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.user.auth.dtos.request.UserLoginRequestDto;
 import com.example.demo.domain.user.auth.dtos.response.UserLoginResponseDto;
@@ -28,6 +31,7 @@ public class UserLoginService {
     private final PasswordEncoder passwordEncoder;
     private final AdminJWTUtil adminJWTUtil;
     private final UserVerificationService userVerificationService; // ⭐ Redis 저장을 위한 주입 추가
+    private final ApprovalRepository approvalRepository;
 
     @Transactional // 로그인 성공 시 Redis 작업을 포함하므로 쓰기 트랜잭션 필요 시를 대비해 붙여줍니다.
     public UserLoginResponseDto userLogin(UserLoginRequestDto userLoginRequestDto) {
@@ -55,8 +59,12 @@ public class UserLoginService {
 
         // 3. 계정 상태 확인
         if (user.getStatus() == Status.DELETED) {
-            log.warn("탈퇴한 계정의 로그인 시도 차단: {}", user.getEmail());
-            throw new AuthException(ErrorCode.WITHDRAWN_ACCOUNT);
+            // 탈퇴 계정은 에러가 아닌 200 + 복구 안내 코드로 응답 (콘솔 에러 제거)
+            log.info("탈퇴한 계정의 로그인 시도 - 복구 안내 응답: {}", user.getEmail());
+            return UserLoginResponseDto.builder()
+                    .code("WITHDRAWN_ACCOUNT")
+                    .email(user.getEmail())
+                    .build();
         }
 
         if (user.getStatus() != Status.ACTIVE) {
@@ -103,11 +111,26 @@ public class UserLoginService {
 
             log.info("로그인 성공 및 Redis RT 저장 완료: {}", user.getEmail());
 
+            // 입주민 상태 및 호수 조회 (User 조인 + Approval 조회, 엔티티 컬럼 추가 없음)
+            String userStatus;
+            Integer unitNo = null;
+            if (user.getHousehold() != null) {
+                userStatus = "RESIDENT";
+                unitNo = user.getHousehold().getUnitNo();
+            } else {
+                boolean hasPending = approvalRepository.existsByRequestUserIdAndApprovalTypeAndStatus(
+                        user, ApprovalType.RESIDENT, ApprovalStatus.PENDING);
+                userStatus = hasPending ? "PENDING" : "NONE";
+            }
+
             return UserLoginResponseDto.builder()
+                    .userId(user.getUserId())
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .email(user.getEmail())
                     .name(user.getName())
+                    .userStatus(userStatus)
+                    .unitNo(unitNo)
                     .build();
 
         } catch (Exception e) {

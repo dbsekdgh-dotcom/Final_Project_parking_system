@@ -20,6 +20,8 @@ const useLogout = () => {
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("userName");
         localStorage.removeItem("userEmail");
+        localStorage.removeItem("userStatus");
+        localStorage.removeItem("unitNo");
 
         // 3. 임시 인증 쿠키 삭제
         document.cookie = "temp_jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";

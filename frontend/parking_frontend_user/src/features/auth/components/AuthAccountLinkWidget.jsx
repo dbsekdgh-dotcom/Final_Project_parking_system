@@ -11,7 +11,7 @@ const LocalIcon = () => <img className="aalw__icon" src={localIcon} alt="로컬"
 const KakaoIcon = () => <img className="aalw__icon" src={kakaoIcon} alt="카카오" />;
 const NaverIcon = () => <img className="aalw__icon" src={naverIcon} alt="네이버" />;
 
-export default function AuthAccountLinkWidget({ metaText }) {
+export default function AuthAccountLinkWidget({ metaText, badge }) {
   const [me, setMe] = useState({
     name: "", email: "", phone: "", 
     hasLocalPassword: false, hasKakao: false, hasNaver: false,
@@ -49,16 +49,19 @@ export default function AuthAccountLinkWidget({ metaText }) {
 
   return (
     <div className="aalw">
-      <div className="aalw__name-row">
-        <div className="sidebar__user-name">{isLoading ? "..." : userName}</div>
-        <div className="aalw__icons">
-          {me.hasLocalPassword && <LocalIcon />}
-          {me.hasKakao && <KakaoIcon />}
-          {me.hasNaver && <NaverIcon />}
-        </div>
+      <div className="sidebar__user-name">{isLoading ? "..." : userName}</div>
+
+      {badge && (
+        <span className={`sidebar__badge ${badge.cls}`}>{badge.label}</span>
+      )}
+
+      <div className="aalw__icons">
+        {me.hasLocalPassword && <LocalIcon />}
+        {me.hasKakao && <KakaoIcon />}
+        {me.hasNaver && <NaverIcon />}
       </div>
 
-      <div className="sidebar__user-meta">{metaText}</div>
+      {metaText && <div className="sidebar__user-meta">{metaText}</div>}
 
       <div className="aalw__btn-row">
         {!isLoading && !allLinked && (
