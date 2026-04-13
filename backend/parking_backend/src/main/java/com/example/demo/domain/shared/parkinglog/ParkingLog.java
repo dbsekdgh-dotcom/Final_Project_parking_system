@@ -200,13 +200,14 @@ public class ParkingLog {
         return true;
     }
 
-    //관리자 상세모달 - 할인수정
-    public void updateDiscountByAdmin(Integer newTotalDiscountAmount) {
+    //관리자 상세모달 - 할인권 기반 할인수정
+    public void updateDiscountByAdmin(Integer additionalDiscount) {
+        //수정 가능 여부 체크
         if(!isDiscountModifiable()){
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
-        //원금 초과 할인 방지
-        this.totalDiscountAmount = Math.min(newTotalDiscountAmount, this.rawFee);
+        //총 할인액 업데이트(기존 할인액 + 새로운 할인권 금액)
+        this.totalDiscountAmount = Math.min(this.totalDiscountAmount + additionalDiscount, (int)this.rawFee);
         // 최종 청구 금액 재계산 (원금 - 총 할인액)
         this.calculatedFee= (long)Math.max(0,this.rawFee-this.totalDiscountAmount);
         // 결제 요청 시점 초기화(금액이 바뀌었으므로 기존 요청 스냅샷 무효화) - 사용자가 이전 금액으로 결제 시도하는것을 막아줌

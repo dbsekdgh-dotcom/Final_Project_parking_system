@@ -46,11 +46,22 @@ export const processForceExit = async(id, reason) => {
     }
 }
 
+//관리자용 할인 정책 목록 조회
+export const getAdminTicketPolicies =async()=>{
+    try{
+        const response=await adminApi.get('/parking/ticket-policies/admin')
+        return response.data
+    }catch(error) {
+        console.log("할인 정책 로드 실패:",error)
+        throw error
+    }
+}
+
 //관리자 - 주차 로그 할인 수정 처리
-export const modifyDiscount = async(id,newAmount,reason)=>{
+export const modifyDiscount = async(id,ticketPolicyId,reason)=>{
     try{
         const response = await adminApi.patch(`/parking/logs/${id}/discount`,{
-            newAmount: Number(newAmount),
+            ticketPolicyId: Number(ticketPolicyId),
             reason
         })
         return response.data
