@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PointLogRepository extends JpaRepository<PointLog,Long> {
 
@@ -12,5 +13,7 @@ public interface PointLogRepository extends JpaRepository<PointLog,Long> {
     List<PointLog> findByUserUserIdOrderByCreatedAtDesc(Long userId);
 
     boolean existsByPaymentPaymentId(long paymentId);
+
+    Optional<PointLog> findByPaymentPaymentId(long paymentId);
 
 }

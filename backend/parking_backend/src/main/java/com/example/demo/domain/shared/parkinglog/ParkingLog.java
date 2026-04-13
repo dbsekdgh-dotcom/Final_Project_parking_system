@@ -1,5 +1,6 @@
 package com.example.demo.domain.shared.parkinglog;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.ParkingLogRefundDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.shared.camera.Camera; // Camera 엔티티 가정
 import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy; // Policy 엔티티 가정
@@ -218,5 +219,14 @@ public class ParkingLog {
         }else {
             this.paymentStatus=PaymentStatus.NONE;
         }
+    }
+
+    //환불 요청
+    public void parkingLogRefund(ParkingLogRefundDto dto){
+        this.paymentStatus=dto.getPaymentStatus();
+        this.fee=dto.getFee();
+        this.paidAt=dto.getPaidAt();
+        this.freeExitUntil=dto.getFreeExitUntil();
+        this.paymentRequestedAt=dto.getPaymentRequestedAt();
     }
 }

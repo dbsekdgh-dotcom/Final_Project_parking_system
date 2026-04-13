@@ -6,10 +6,7 @@ import com.example.demo.domain.kiosk.payment.dtos.request.SettlementRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.PaymentReadyResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.SettlementResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
-import com.example.demo.domain.kiosk.payment.service.AiServerClient;
-import com.example.demo.domain.kiosk.payment.service.PaymentService;
-import com.example.demo.domain.kiosk.payment.service.SettlementService;
-import com.example.demo.domain.kiosk.payment.service.TossPaymentService;
+import com.example.demo.domain.kiosk.payment.service.*;
 import com.example.demo.domain.shared.activityLog.enums.ActivityType;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
@@ -43,6 +40,7 @@ public class PaymentFacade {
     private final ParkingLogRepository parkingLogRepository;
     private final TossPaymentService tossPaymentService;
     private final EntityManager entityManager;
+    private final RefundService refundService;
 
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {
         try {
@@ -76,9 +74,14 @@ public class PaymentFacade {
     public PaymentReadyResponseDto beforePayment(SettlementRequestDto dto){
         // 1. 결제 가능한지 검증(ex.결제 요청 시간부터 경과 시간, 결제 금액 변동 여부 확인)
         ParkingLog parkingLog=settlementService.checkEligibility(dto);
-        // 2. 결제 전 Payment insert
+        // 2. 기존에 ready상태의 결제들이 있다면 취소 처리
+        List<Payment> payments=paymentRepository.findAllByParkingLogAndPaymentStatus(parkingLog,PaymentStatus.READY);
+        if(!payments.isEmpty()){
+            payments.forEach(p->p.setPaymentStatus(PaymentStatus.CANCELLED));
+        }
+        // 3. 결제 전 Payment insert
         PaymentReadyResponseDto paymentReadyResponseDto=settlementService.insertPayment(parkingLog,dto, PaymentStatus.READY);
-        // 3. 락 해제
+        // 4. 락 해제
         aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
         return paymentReadyResponseDto;
     }
@@ -121,11 +124,14 @@ public class PaymentFacade {
                     }
                     entityManager.refresh(parkingLog);
                     if(ParkingStatus.FORCE_EXITED.equals(parkingLog.getParkingStatus())){
-                        //토스 결제 후, 관리자 강제출차 내역이 있으면 결제 건 환불
-                        tossPaymentService.cancelPayment(dto.getPaymentKey(),"중복 결제로 인한 환불");
-                        //여기에  payment,activity_log, point등 db업데이트
-
-                        throw new BusinessException(ErrorCode.FORCE_EXITED);
+                        //토스 승인 후에 관리자 강제 출차 내역이 있다면 환불 처리
+                        refundService.refundByForceExit(String.valueOf(tossResponse.getBody().get("paymentKey")),payments);
+                        return SettlementResponseDto.builder()
+                                .paymentStatus(PaymentStatus.REFUNDED.toString())
+                                .vehicleNumber(carNumber)
+                                .paidAmount(0)
+                                .message("이미 관리자에 의해 강제 출차 처리되었습니다.")
+                                .build();
                     }
                     paymentStatus=PaymentStatus.SUCCESS;
                 }else{

@@ -15,6 +15,7 @@ import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository
 import com.example.demo.domain.shared.reservation.enums.Status;
 import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
 import com.example.demo.domain.shared.ticketPolicy.enums.DiscountType;
+import com.example.demo.domain.shared.ticketPolicy.enums.UseType;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +96,7 @@ public class PaymentService {
 
         // 2 시간 할인권 차감
         List<DiscountTicketRequestDto> discountTicketRequestDtos =request.getDiscountTicketRequestDtos();
-        int totalDiscountMinutes=calculateStackable(discountTicketRequestDtos,DiscountType.TIME);
+        int totalDiscountMinutes=calculateStackable(discountTicketRequestDtos,DiscountType.TIME,UseType.STORE);
         long discountedParkingTime=Math.max(0,billableTime-totalDiscountMinutes);
 
         // 3. 24시간 단위 요금 계산
@@ -121,12 +122,19 @@ public class PaymentService {
         int prepaid=(prepaidFee>0)?prepaidFee:0;
 
         // 8. 할인권 차감
-        int discountRate=calculateStackable(discountTicketRequestDtos,DiscountType.RATE);// - 퍼센트 할인
-        int discountAmount=calculateStackable(discountTicketRequestDtos,DiscountType.AMOUNT);// - 금액할인
-        int totalDiscountAmount=Math.max(0,(rawFee*discountRate/100)+discountAmount);
+        int discountRate=calculateStackable(discountTicketRequestDtos,DiscountType.RATE,UseType.STORE);// - 퍼센트 할인
+        int discountAmount=calculateStackable(discountTicketRequestDtos,DiscountType.AMOUNT,UseType.STORE);// - 금액할인
+        int totalStoreDiscount=Math.max(0,(rawFee*discountRate/100)+discountAmount);
 
-        // 9. 최종 요금 (사전정산 후 사후 정산 시 할인금액이 아무리 커도 결제 금액은 0원)
-        long calculatedFee=Math.max(0,rawFee-totalDiscountAmount);
+        // 9. 상가 할인 적용 후 잔액
+        int feeAfterStoreDiscount=Math.max(0,rawFee-totalStoreDiscount);
+
+        // 10. 관리자 할인 적용
+        int totalAdminDiscount=calculateStackable(discountTicketRequestDtos,DiscountType.AMOUNT,UseType.ADMIN);// - 금액할인
+        int totalDiscountAmount=totalStoreDiscount+Math.min(totalAdminDiscount,feeAfterStoreDiscount);
+
+        // 11. 최종 요금 (사전정산 후 사후 정산 시 할인금액이 아무리 커도 결제 금액은 0원)
+        long calculatedFee=Math.max(0,feeAfterStoreDiscount-totalAdminDiscount);
         long amountToPay=Math.max(0,calculatedFee-prepaid);
 
         return FeeCalculationResponseDto.builder()
@@ -141,16 +149,18 @@ public class PaymentService {
                 .build();
     }
 
-    public int calculateStackable(List<DiscountTicketRequestDto> discountTicketRequestDtos, DiscountType discountType){
+    public int calculateStackable(List<DiscountTicketRequestDto> discountTicketRequestDtos, DiscountType discountType, UseType useType){
         // 1. 중복 가능한  티켓 합계
         int stackableSum= discountTicketRequestDtos.stream()
                 .filter(l->l.getTicketPolicy().getDiscountType().equals(discountType))
                 .filter(l->l.getTicketPolicy().isStackable()==true)
+                .filter(l->l.getTicketPolicy().getUseType().equals(useType))
                 .mapToInt(l->l.getTicketPolicy().getDiscountValue()).sum();
         //2.중복 불가능한 할인 티켓 중 가장 큰 값
         int nonStackableMax= discountTicketRequestDtos.stream()
                 .filter(l->l.getTicketPolicy().getDiscountType().equals(discountType))
                 .filter(l->l.getTicketPolicy().isStackable()==false)
+                .filter(l->l.getTicketPolicy().getUseType().equals(useType))
                 .mapToInt(l->l.getTicketPolicy().getDiscountValue())
                 .max()
                 .orElse(0);

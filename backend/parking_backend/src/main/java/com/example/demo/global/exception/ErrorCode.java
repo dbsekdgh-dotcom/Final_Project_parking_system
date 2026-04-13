@@ -39,6 +39,7 @@ public enum ErrorCode {
     MINIMUM_POINT_NOT_ME(HttpStatus.BAD_REQUEST,"포인트는 100원부터 사용 가능합니다."),
     FORCE_EXITED(HttpStatus.BAD_REQUEST,"관리자에 의해 출차가 완료된 차량입니다."),
     PAYMENT_NETWORK_ERROR(HttpStatus.BAD_REQUEST,"결제 시스템 오류로 결제에 실패하였습니다."),
+    INVALID_REFUND_AMOUNT(HttpStatus.BAD_REQUEST, "환불 금액이 올바르지 않습니다."),
 
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
