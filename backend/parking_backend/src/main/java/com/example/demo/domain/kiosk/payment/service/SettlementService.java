@@ -13,6 +13,7 @@ import com.example.demo.domain.shared.activityLog.enums.ActivityType;
 import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
 import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
+import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.payment.Payment;
 import com.example.demo.domain.shared.payment.enums.PaymentMethod;
@@ -65,6 +66,10 @@ public class SettlementService {
         ParkingLog parkingLog=parkingLogRepository.findByParkingLogId(parkingLogId).orElse(null);
         if(com.example.demo.domain.shared.parkinglog.enums.PaymentStatus.NONE.equals(parkingLog.getPaymentStatus())){
             return parkingLog;
+        }
+        //관리자 강제 출자 확인
+        if(ParkingStatus.FORCE_EXITED.equals(parkingLog.getParkingStatus())){
+            throw new BusinessException(ErrorCode.ALREADY_EXITED);
         }
         //혹시 요금 무료 대상자가 넘어오는 경우 방지
         if(parkingLog==null){
