@@ -2,12 +2,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePayment } from "../../hooks/usePaymentMutation";
+import useVehicleStore from "../../../store/useVehicleStore";
+import { requestAfterPayment } from "../../api/VehicleApi";
 
 export function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const {afterMutation}=usePayment();
   const navigate=useNavigate();
   const hasCalled=useRef(false) //다시 랜더링되지 않도록
+  const { paymentInfo } = useVehicleStore(); // 일반 출차 정보 호출
+  const flowType=localStorage.getItem("paymentFlow") //로컬 스토리지에서 flowType 호출
 
   useEffect(() => {
     const processPayment= async()=>{
@@ -33,7 +37,21 @@ export function PaymentSuccessPage() {
         "parkingLogId":parkingLogId
         }
         hasCalled.current=true;
-        await afterMutation.mutateAsync(payload)
+
+        if(flowType === "EXIT_GATE"){
+          const afterResponse = await requestAfterPayment(payload);
+          localStorage.removeItem("paymentFlow")
+          navigate("/exit-departure",{
+            state:{
+              parkingLogId: Number(parkingLogId),
+              message: afterResponse.message
+            }
+          })
+        }else {
+          await afterMutation.mutateAsync(payload)
+        }
+
+        
       }else{
         navigate("/PrepaymentResult",{
           state:{

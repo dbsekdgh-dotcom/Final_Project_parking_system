@@ -157,6 +157,7 @@ export default function EntryExit() {
             vehicleNumber: data.vehicleNumber,
             parkingTime: data.parkingTime,
             amountToPay: data.amountToPay,
+            userPoint: data.userPoint ?? 0,
           }
         });
       }

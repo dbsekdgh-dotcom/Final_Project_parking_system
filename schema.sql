@@ -176,6 +176,7 @@ price INT DEFAULT 0 NOT NULL,
 discount_type ENUM('TIME', 'AMOUNT', 'FREE', 'RATE') NOT NULL,
 discount_value INT NOT NULL,
 max_discount_amount INT,
+use_type ENUM ('ADMIN','STORE') DEFAULT 'STORE' NOT NULL,
 valid_minutes INT,
 valid_days INT,
 stackable BOOLEAN DEFAULT TRUE NOT NULL,
@@ -234,12 +235,13 @@ vehicle_id BIGINT NULL COMMENT '정기권 결제 시 참조',
 amount BIGINT NOT NULL DEFAULT 0 COMMENT '실제로 사용자가 지불(승인)한 금액 (SUCCESS 시 snapshot과 일치해야 함)',
 price_snapshot BIGINT NOT NULL COMMENT '할인이 적용된 후 사용자가 최종적으로 내야 할 청구 금액',
 payment_method ENUM('PAY', 'POINT', 'FREE_POLICY') NOT NULL,
-payment_status ENUM('READY', 'SUCCESS', 'FAILED', 'CANCELLED') DEFAULT 'READY' NOT NULL,
+payment_status ENUM('READY', 'SUCCESS', 'FAILED', 'CANCELLED','REFUNDED') DEFAULT 'READY' NOT NULL,
 payment_type ENUM('PARKING', 'SUBSCRIPTION', 'TICKET') NOT NULL,
 ticket_quantity INT NULL COMMENT '할인권 구매 시 수량',
 external_payment_id VARCHAR(255) NULL COMMENT '결제 후 받는 고유 id',
 paid_at DATETIME NULL COMMENT '실제 결제가 성공한 시각',
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+refunded_amount INT NOT NULL DEFAULT 0 COMMENT '환불 처리된 누적 금액',
 CONSTRAINT fk_pay_log FOREIGN KEY (parking_log_id) REFERENCES parking_log(parking_log_id),
 CONSTRAINT fk_pay_store FOREIGN KEY (store_id) REFERENCES store(store_id),
 CONSTRAINT fk_pay_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicle(vehicle_id),
@@ -339,10 +341,10 @@ CONSTRAINT fk_aal_revert_admin FOREIGN KEY (reverted_by_admin_id) REFERENCES adm
 
 -- 25. 신고 누적 테이블 
 CREATE TABLE vehicle_report_stat (
-    car_number VARCHAR(25) PRIMARY KEY,
-    valid_report_count INT DEFAULT 0,
-    total_report_count INT DEFAULT 0,
-    last_reported_at DATETIME,
+    car_number VARCHAR(25) PRIMARY KEY, -- 차량번호
+    valid_report_count INT DEFAULT 0, -- 승인이 된 신고 내역
+    total_report_count INT DEFAULT 0, -- 총 신고 받은 내역
+    last_reported_at DATETIME, -- 마지막으로 신고 받은 날짜
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
@@ -424,9 +426,9 @@ activity_type ENUM(
 'PAYMENT_CANCEL',       -- 결제취소
 
 'RESERVATION_CREATED',  -- 방문예약 생성
-'RESERVATION_CANCELLED',-- 방문예약 취소
+'RESERVATION_CANCELLED',
+'RESIDENT_REGISTERED',
 
-'RESIDENT_REGISTERED',  -- 입주민 등록
 'VEHICLE_REGISTERED',   -- 차량 등록
 'PASS_PURCHASED',       -- 정기권 구매
 
