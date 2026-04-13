@@ -10,6 +10,10 @@ import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.parkingspace.enums.SpaceStatus;
+import com.example.demo.domain.shared.user.User;
+import com.example.demo.domain.shared.vehicle.Vehicle;
+import com.example.demo.domain.user.mypage.point.entity.UserPoint;
+import com.example.demo.domain.user.mypage.point.repository.UserPointRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ public class ExitService {
     private final ParkingLogRepository parkingLogRepository;
     private final PaymentFacade paymentFacade;
     private final ActivityLogRepository activityLogRepository;
+    private final UserPointRepository userPointRepository;
 
     //출차 대기
     public VehiclePaymentResponseDto requestExit(Long parkingLogId,Long exitCameraId,String imagePath){
@@ -46,6 +51,14 @@ public class ExitService {
         //요금 계산 및 차량 검증
         return paymentFacade.paymentProcess(parkingLogId);
 
+    }
+    public int getUserPoint(Long parkingLogId){
+        return parkingLogRepository.findById(parkingLogId)
+                .map(ParkingLog::getVehicle)
+                .map(Vehicle::getUser)
+                .flatMap(user->userPointRepository.findByUserUserId(user.getUserId()))
+                .map(UserPoint::getCurrentPoint)
+                .orElse(0);
     }
     // 출차 확정
     public void confirmExit(Long parkingLogId){

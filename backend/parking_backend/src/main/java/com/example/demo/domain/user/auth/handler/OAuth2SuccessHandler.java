@@ -1,5 +1,8 @@
 package com.example.demo.domain.user.auth.handler;
 
+import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
+import com.example.demo.domain.shared.approval.enums.ApprovalType;
+import com.example.demo.domain.shared.approval.repository.ApprovalRepository;
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.enums.Status;
 import com.example.demo.domain.user.auth.service.UserVerificationService; // ⭐ 추가
@@ -29,6 +32,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final AdminJWTUtil adminJWTUtil;
     private final UserAuthRepository userAuthRepository;
     private final UserVerificationService userVerificationService; // ⭐ Redis 저장을 위한 주입 추가
+    private final ApprovalRepository approvalRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -128,14 +132,30 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         userVerificationService.saveRefreshToken(email, refreshToken);
         log.info("### 소셜 로그인 성공 및 Redis RT 저장 완료: {}", email);
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
+        // 유저 상태 및 호수 조회 (로컬 로그인과 동일한 로직)
+        String userStatus;
+        Integer unitNo = null;
+        if (user.getHousehold() != null) {
+            userStatus = "RESIDENT";
+            unitNo = user.getHousehold().getUnitNo();
+        } else {
+            boolean hasPending = approvalRepository.existsByRequestUserIdAndApprovalTypeAndStatus(
+                    user, ApprovalType.RESIDENT, ApprovalStatus.PENDING);
+            userStatus = hasPending ? "PENDING" : "NONE";
+        }
+
+        UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("name", name)
                 .queryParam("email", email)
-                .build()
-                .encode()
-                .toUriString();
+                .queryParam("userStatus", userStatus);
+
+        if (unitNo != null) {
+            urlBuilder.queryParam("unitNo", unitNo);
+        }
+
+        String targetUrl = urlBuilder.build().encode().toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }

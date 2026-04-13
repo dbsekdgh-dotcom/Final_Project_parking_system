@@ -2,13 +2,59 @@ import { useState } from "react";
 import "./PaymentConfirm.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cancelExit } from "../../api/ExitApi";
+import { requestBeforePayment, requestAfterPayment, requestPayment } from "../../../../shared/api/VehicleApi";
+import useVehicleStore from "../../../../store/useVehicleStore";
+import PaymentMethod from "../../../../shared/components/paymentMethod/PaymentMethod";
 
 export default function PaymentConfirm() {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { setPaymentInfo } = useVehicleStore();
+
   const parkingLogId = state?.parkingLogId;
+  const vehicleNumber = state?.vehicleNumber;
+  const amountToPay = state?.amountToPay;
+  const userPoint = state?.userPoint ?? 0;
+
   const [loading, setLoading] = useState(false);
 
+  const handlePayment = async (paymentData)=>{
+    if(loading) return;
+    setLoading(true);
+    try{
+      const settlementPayload={
+        parkingLogId,
+        vehicleNumber,
+        usedPoint: paymentData.usedPoint,
+        paidAmount: paymentData.paidAmount,
+        settlementType: "EXIT_GATE"
+      };
+    const beforeResponse = await requestBeforePayment(settlementPayload);
+    if (beforeResponse.paymentRequired){
+      setPaymentInfo({...beforeResponse,flowType:"EXIT_GATE"});
+      localStorage.setItem("paymentFlow","EXIT_GATE");
+      navigate("/payment")
+    } else {
+      const afterPayload={
+        paymentKey:"POINT_FULL_PAYMENT",
+        orderId:beforeResponse.orderId,
+        amount:beforeResponse.amount,
+        parkingLogId,
+      };
+      const afterResponse = await requestAfterPayment(afterPayload);
+
+
+      navigate("/exit-departure",{
+        state:{parkingLogId, message: afterResponse.message},
+      });
+    }  
+    }catch(err){
+      alert(err?.message||"결제 처리 중 오류가 발생했습니다.");
+    } finally{
+      setLoading(false)
+    }
+    
+  }
   const handleCancel = async () => {
     if (!parkingLogId) {
       navigate("/entry-exit");
@@ -52,14 +98,16 @@ export default function PaymentConfirm() {
 
         <div className="pc-divider" />
 
-        <div className="pc-btn-group">
-          <button className="pc-btn pc-btn--primary">
-            결제 진행
-          </button>
+        <PaymentMethod
+        fee={amountToPay}
+        userPoint={userPoint}
+        onConfirm={handlePayment}
+        isLoading={loading}
+        />
           <button className="pc-btn pc-btn--secondary" onClick={handleCancel} disabled={loading}>
             {loading ? "처리 중..." : "취소"}
           </button>
-        </div>
+        
       </div>
     </div>
   );

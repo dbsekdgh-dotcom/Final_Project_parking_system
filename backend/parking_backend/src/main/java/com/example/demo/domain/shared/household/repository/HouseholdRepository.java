@@ -2,32 +2,51 @@ package com.example.demo.domain.shared.household.repository;
 
 import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.household.enums.IsActive;
-import com.example.demo.domain.shared.household.projections.HouseholdSummary;
+import com.example.demo.domain.shared.approval.enums.ApprovalStatus; // 추가
+import com.example.demo.domain.shared.approval.enums.ApprovalType;   // 추가
+import com.example.demo.domain.user.apply.dtos.projection.UnitStatusProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface HouseholdRepository extends JpaRepository<Household,Long> {
+public interface HouseholdRepository extends JpaRepository<Household, Long> {
 
     List<Household> findByIsActive(IsActive isActive);
 
-
-    // 서비스에서 findByIsActive(IsActive.INACTIVE)라고 부르는 것보다 실수를 방지해줍니다.
     default List<Household> findEmptyHouseholds() {
         return findByIsActive(IsActive.INACTIVE);
     }
 
     Household findByUnitNo(Integer unitNo);
 
+    // 1. 기존 쿼리 개선: 파라미터 바인딩 사용
     @Query("SELECT h.unitNo FROM Household h " +
             "WHERE h.householdId NOT IN (" +
             "    SELECT a.targetId FROM Approval a " +
-            "    WHERE a.approvalType = 'RESIDENT' " + // 입주 신청 타입만 필터링
-            "    AND a.status IN (com.example.demo.domain.shared.approval.enums.ApprovalStatus.PENDING, " +
-            "                     com.example.demo.domain.shared.approval.enums.ApprovalStatus.APPROVED)" +
+            "    WHERE a.approvalType = :type " +
+            "    AND a.status IN (:pending, :approved)" +
             ")")
-    List<Integer> findAvailableUnitNos();
+    List<Integer> findAvailableUnitNos(
+            @Param("type") ApprovalType type,
+            @Param("pending") ApprovalStatus pending,
+            @Param("approved") ApprovalStatus approved
+    );
+
+    // 2. 신규 쿼리 개선: 파라미터 바인딩 사용
+    @Query("SELECT h.householdId as householdId, h.unitNo as unitNo, " +
+            "CASE " +
+            "  WHEN h.isActive = :active THEN 'OCCUPIED' " +
+            "  WHEN (SELECT COUNT(a) FROM Approval a WHERE a.targetId = h.householdId " +
+            "        AND a.approvalType = :type " +
+            "        AND a.status = :pending) > 0 THEN 'PENDING' " +
+            "  ELSE 'AVAILABLE' " +
+            "END as status " +
+            "FROM Household h")
+    List<UnitStatusProjection> findAllUnitStatus(
+            @Param("active") IsActive active,
+            @Param("type") ApprovalType type,
+            @Param("pending") ApprovalStatus pending
+    );
 }

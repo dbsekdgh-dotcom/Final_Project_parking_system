@@ -1,0 +1,77 @@
+.status-card {
+    background: #fff;
+    border: 1px solid #e7e6f2;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(86, 95, 132, 0.07);
+}
+
+.status-card__title {
+    margin: 0 0 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #32324d;
+}
+
+.status-card__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.status-badge {
+    flex-shrink: 0;
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.badge--resident {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.badge--pending {
+    background: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffe082;
+}
+
+.badge--general {
+    background: #f0f0f5;
+    color: #6f708b;
+    border: 1px solid #d9ddef;
+}
+
+.status-card__desc {
+    margin: 6px 0 0;
+    font-size: 0.88rem;
+    color: #6f708b;
+    line-height: 1.5;
+}
+
+.status-card__actions {
+    align-self: flex-end;
+}
+
+.btn-cancel {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #fde8e8;
+    color: #9b2020;
+    transition: filter 120ms;
+    white-space: nowrap;
+}
+
+.btn-cancel:hover:not(:disabled) { filter: brightness(0.94); }
+.btn-cancel:disabled { opacity: 0.6; cursor: not-allowed; }

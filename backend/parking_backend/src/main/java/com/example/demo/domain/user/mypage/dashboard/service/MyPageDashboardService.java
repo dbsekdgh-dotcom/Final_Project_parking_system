@@ -1,5 +1,8 @@
 package com.example.demo.domain.user.mypage.dashboard.service;
 
+import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
+import com.example.demo.domain.shared.approval.enums.ApprovalType;
+import com.example.demo.domain.shared.approval.repository.ApprovalRepository;
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.enums.Status;
 import com.example.demo.domain.user.mypage.dashboard.dto.response.MyPageDashboardResponseDto;
@@ -16,47 +19,62 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional //DB 변경이 일어나면 트랜잭션 처리
+@Transactional
 public class MyPageDashboardService {
+
     private final UserDashboardRepository userDashboardRepository;
+    private final ApprovalRepository approvalRepository;
     private final PasswordEncoder passwordEncoder;
 
-    //1.회원정보 조회(Response DTO로 변경)
-    public MyPageDashboardResponseDto getMemberInfo(Long memberId){
-        //Member 엔티티에서 DTO로 변환,    탈퇴한 회원은 조회에서 제외
-        User user = userDashboardRepository.findById(memberId)
-                .filter(u -> u.getStatus()== Status.ACTIVE)//탈퇴회원 제외
-                .orElseThrow(()->new AuthException(ErrorCode.USER_NOT_FOUND));
+    // 1. 회원정보 조회
+    public MyPageDashboardResponseDto getUserInfo(Long userId) {
+        User user = userDashboardRepository.findById(userId)
+                .filter(u -> u.getStatus() == Status.ACTIVE)
+                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
+
+        // 유저 상태 판별
+        String userStatus;
+        if (user.getHousehold() != null) {
+            userStatus = "입주민";
+        } else if (approvalRepository.existsByRequestUserIdAndApprovalTypeAndStatus(
+                user, ApprovalType.RESIDENT, ApprovalStatus.PENDING)) {
+            userStatus = "입주민 신청 중";
+        } else {
+            userStatus = "일반 회원";
+        }
 
         return new MyPageDashboardResponseDto(
-                    user.getName(),
-                    user.getPhone(),
-                    user.getBirth()
+                user.getName(),
+                user.getPhone(),
+                user.getBirth(),
+                userStatus
         );
     }
 
-    //2.회원 정보 수정
-    public void updateProfile(Long memberId, MyPageDashboardUpdateRequestDto dto){
-        //DTO에서 넘어온 값으로 Member.updateProfile() 호출,  전화번호 중복 체크도 포함
+    // 2. 회원 정보 수정 (전화번호, 생일 각각 독립적으로 수정 가능)
+    public void updateProfile(Long memberId, MyPageDashboardUpdateRequestDto dto) {
         User user = userDashboardRepository.findById(memberId)
                 .filter(u -> u.getStatus() == Status.ACTIVE)
-                .orElseThrow(()-> new AuthException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
 
-        //전화번호 중복 체크
-        if (userDashboardRepository.existsByPhone(dto.getPhone()) && !user.getPhone().equals(dto.getPhone())) {
-            throw new AuthException(ErrorCode.PHONE_DUPLICATE);
+        if (dto.getPhone() != null && !dto.getPhone().isBlank()) {
+            if (userDashboardRepository.existsByPhone(dto.getPhone()) && !user.getPhone().equals(dto.getPhone())) {
+                throw new AuthException(ErrorCode.PHONE_DUPLICATE);
+            }
+            user.updatePhone(dto.getPhone());
         }
-        user.updateUserInfo(dto.getName(),dto.getPhone());
+
+        if (dto.getBirth() != null) {
+            user.updateBirth(dto.getBirth());
+        }
     }
 
-    //3. 회원탈퇴
-    public void withdraw(Long memberId){
-        //회원 탈퇴 시 상태를 DELETED로 변경하고 탈퇴 시간 기록
+    // 3. 회원탈퇴
+    public void withdraw(Long memberId) {
         User user = userDashboardRepository.findById(memberId)
                 .filter(m -> m.getStatus() == Status.ACTIVE)
-                .orElseThrow(()-> new AuthException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
         user.setStatus(Status.DELETED);
-
         user.setDeletedAt(LocalDateTime.now());
     }
 }
