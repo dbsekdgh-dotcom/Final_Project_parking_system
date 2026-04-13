@@ -17,4 +17,5 @@ public class ExitPaymentResponseDto {
     private Integer rawFee;
     private long calculatedFee;
     private long amountToPay;
+    private int userPoint;
 }

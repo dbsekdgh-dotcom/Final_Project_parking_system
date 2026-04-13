@@ -23,6 +23,7 @@ public class ExitController {
     ){
         log.info("출차 요청 - parkingLogId: {}, exitCameraId: {}",parkingLogId,exitCameraId);
        VehiclePaymentResponseDto result=exitService.requestExit(parkingLogId,exitCameraId,imagePath);
+       int userPoint= exitService.getUserPoint(parkingLogId);
        return ExitPaymentResponseDto.builder().
                parkingLogId(result.getParkingLogId()).
                isFree(result.isFree()).
@@ -32,6 +33,7 @@ public class ExitController {
                rawFee(result.getRawFee()).
                calculatedFee(result.getCalculatedFee()).
                amountToPay(result.getAmountToPay()).
+               userPoint(userPoint).
                build();
     }
     // 출차 확정 EXIT_REQUESTED -> EXITED
