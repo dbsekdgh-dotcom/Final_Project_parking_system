@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ApprovalRepository extends JpaRepository<Approval, Long> {
@@ -20,4 +21,12 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 
 
     boolean existsByRequestUserIdAndApprovalTypeAndStatus(User requestUserId, ApprovalType approvalType, ApprovalStatus status);
+
+    boolean existsByTargetIdAndApprovalTypeAndStatus(Long targetId, ApprovalType approvalType, ApprovalStatus status);
+
+    Optional<Approval> findByApprovalIdAndRequestUserId_UserId(Long approvalId, Long userId);
+
+    Optional<Approval> findTopByRequestUserIdAndApprovalTypeAndStatusOrderByCreatedAtDesc(
+            User requestUserId, ApprovalType approvalType, ApprovalStatus status);
+
 }

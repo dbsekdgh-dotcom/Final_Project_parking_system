@@ -75,9 +75,13 @@ public enum ErrorCode {
     INVALID_USER_DATA_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 데이터 형식이 올바르지 않아 처리가 불가능합니다. 관리자에게 문의하세요."),
 
     // APPLY (입주 신청 관련 추가)
+    HOUSEHOLD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 호수입니다."), // DB에 미리 넣었더라도 잘못된 ID/번호 요청 대응
     ALREADY_APPLIED_RESIDENT(HttpStatus.CONFLICT, "이미 대기 중인 입주 신청 내역이 있습니다."),
     HOUSEHOLD_ALREADY_ACTIVE(HttpStatus.CONFLICT, "해당 세대는 이미 입주가 완료되었습니다."),
-    NOT_AVAILABLE_HOUSEHOLD(HttpStatus.BAD_REQUEST, "신청 가능한 호수가 아닙니다."),
+    ALREADY_RESIDENT(HttpStatus.CONFLICT, "이미 다른 세대에 거주 중인 입주민입니다."), // 유저가 이미 집이 있는 경우
+    NOT_AVAILABLE_HOUSEHOLD(HttpStatus.BAD_REQUEST, "현재 신청 가능한 상태가 아닌 호수입니다."), // PENDING 상태인 호수 포함
+    APPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 신청 내역을 찾을 수 없거나 취소 권한이 없습니다."),
+    CANNOT_CANCEL_APPROVED(HttpStatus.BAD_REQUEST, "이미 승인 또는 거절된 신청은 취소할 수 없습니다."),
 
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),

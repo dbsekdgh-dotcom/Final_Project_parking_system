@@ -12,12 +12,16 @@ import com.example.demo.domain.shared.household.repository.HouseholdRepository;
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.UserRepository;
 import com.example.demo.domain.user.apply.dtos.request.ResidentApplyRequestDto;
+import com.example.demo.domain.user.apply.dtos.response.ResidentApplyCancelResponseDto;
 import com.example.demo.domain.user.apply.dtos.response.ResidentApplyResponseDto;
+import com.example.demo.domain.user.apply.dtos.response.UserStatusResponseDto;
 import com.example.demo.global.exception.CustomException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,29 +32,36 @@ public class ResidentApplyService {
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
 
+    /**
+     * 입주 신청 등록
+     */
     @Transactional
     public ResidentApplyResponseDto apply(Long userId, ResidentApplyRequestDto residentApplyRequestDto) {
-
-        // 1. 사용자 존재 여부 확인
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 2. 중복 신청 확인 (상태가 PENDING인 건이 있는지 체크)
-        // 만약 기존에 거절(REJECTED)된 적이 있다면 재신청이 가능해야 하므로 Status 조건을 추가했습니다.
+        if (user.getHousehold() != null) {
+            throw new CustomException(ErrorCode.ALREADY_RESIDENT);
+        }
+
         if (approvalRepository.existsByRequestUserIdAndApprovalTypeAndStatus(user, ApprovalType.RESIDENT, ApprovalStatus.PENDING)) {
             throw new CustomException(ErrorCode.ALREADY_APPLIED_RESIDENT);
         }
 
-        // 3. 세대(Household) 정보 확인
         var household = householdRepository.findById(residentApplyRequestDto.getHouseholdId())
-                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSEHOLD_NOT_FOUND));
 
-        // 4. 이미 활성화된 세대인지 확인 (이미 입주민이 등록된 경우 방지)
         if (household.getIsActive() == IsActive.ACTIVE) {
             throw new CustomException(ErrorCode.HOUSEHOLD_ALREADY_ACTIVE);
         }
 
-        // 5. 활동 로그 기록
+        boolean isUnitAlreadyPending = approvalRepository.existsByTargetIdAndApprovalTypeAndStatus(
+                household.getHouseholdId(), ApprovalType.RESIDENT, ApprovalStatus.PENDING);
+
+        if (isUnitAlreadyPending) {
+            throw new CustomException(ErrorCode.NOT_AVAILABLE_HOUSEHOLD);
+        }
+
         activityLogRepository.save(ActivityLog.builder()
                 .activityType(ActivityType.RESIDENT_REGISTERED)
                 .household(household)
@@ -58,15 +69,69 @@ public class ResidentApplyService {
                         household.getUnitNo(), user.getName()))
                 .build());
 
-        // 6. 승인 요청 데이터 생성 (Status는 엔티티 기본값인 PENDING으로 설정됨)
         Approval approval = Approval.builder()
                 .approvalType(ApprovalType.RESIDENT)
                 .targetId(household.getHouseholdId())
                 .requestUserId(user)
+                .status(ApprovalStatus.PENDING)
                 .build();
 
-        // 7. 저장 후 DTO 반환
         Approval savedApproval = approvalRepository.save(approval);
         return new ResidentApplyResponseDto(savedApproval);
+    }
+
+    /**
+     * 입주 신청 취소
+     */
+    @Transactional
+    public ResidentApplyCancelResponseDto cancel(Long userId, Long approvalId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Approval approval = approvalRepository.findByApprovalIdAndRequestUserId_UserId(approvalId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.APPLY_NOT_FOUND));
+
+        if (approval.getApprovalType() != ApprovalType.RESIDENT) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
+        // 💡 예외 처리 추가: PENDING 상태가 아닐 경우(이미 승인/거절/취소됨) 취소 불가
+        if (approval.getStatus() != ApprovalStatus.PENDING) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+            // 또는 상세하게 ErrorCode.ALREADY_PROCESSED 등을 사용 가능
+        }
+
+        approval.setStatus(ApprovalStatus.CANCELLED);
+        return new ResidentApplyCancelResponseDto(approval);
+    }
+
+    /**
+     * 마이페이지용 유저 상태 조회
+     */
+    @Transactional(readOnly = true)
+    public UserStatusResponseDto getUserStatus(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 대기 중인 신청 건 조회
+        Long activeId = approvalRepository.findTopByRequestUserIdAndApprovalTypeAndStatusOrderByCreatedAtDesc(
+                        user, ApprovalType.RESIDENT, ApprovalStatus.PENDING)
+                .map(Approval::getApprovalId)
+                .orElse(null);
+
+        // 상태 코드 결정 (리포지토리 스타일과 통일)
+        String statusCode;
+        if (user.getHousehold() != null) {
+            statusCode = "RESIDENT"; // 입주 완료 (OCCUPIED와 일맥상통)
+        } else if (activeId != null) {
+            statusCode = "PENDING";  // 신청 대기 중
+        } else {
+            statusCode = "NONE";     // 아무 상태 아님 (AVAILABLE 상태의 방을 신청할 수 있는 유저)
+        }
+
+        return UserStatusResponseDto.builder()
+                .userStatus(statusCode)
+                .activeApprovalId(activeId)
+                .build();
     }
 }

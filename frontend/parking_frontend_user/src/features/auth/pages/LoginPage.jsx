@@ -32,12 +32,20 @@ const LoginPage = () => {
         mutationFn: (loginData) => authService.login(loginData),
         
         onSuccess: (data) => {
-            
-            // 토큰 및 사용자 정보 저장
+            // 탈퇴 계정: 에러 대신 200으로 내려오므로 onSuccess에서 분기
+            if (data.code === 'WITHDRAWN_ACCOUNT') {
+                handleLocalRecover(data.email);
+                return;
+            }
+
+            // 정상 로그인: 토큰 및 사용자 정보 저장
             localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
+            localStorage.setItem("userId", data.userId);
             localStorage.setItem("userName", data.name);
             localStorage.setItem("userEmail", data.email);
+            localStorage.setItem("userStatus", data.userStatus ?? "NONE");
+            if (data.unitNo != null) localStorage.setItem("unitNo", String(data.unitNo));
             sessionStorage.setItem("loginSuccess", data.name);
 
             navigate("/dashboard");

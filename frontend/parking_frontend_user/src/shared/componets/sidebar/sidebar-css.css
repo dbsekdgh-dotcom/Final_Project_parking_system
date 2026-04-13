@@ -43,18 +43,19 @@
 
 .sidebar__user {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 0.75rem;
+  gap: 0.6rem;
+  padding: 1.5rem 1rem 1.25rem;
   background: rgba(255, 255, 255, 0.65);
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.2);
   margin-bottom: 1.25rem;
 }
 
 .sidebar__avatar {
-  width: 44px;
-  height: 44px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
   background: linear-gradient(145deg, #cbd5e1 0%, #94a3b8 100%);
   flex-shrink: 0;
@@ -63,8 +64,7 @@
 }
 
 .sidebar__user-text {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
 .sidebar__user-name {
@@ -89,6 +89,21 @@
   background: var(--sb-badge-bg);
   color: var(--sb-badge-text);
   letter-spacing: 0.02em;
+}
+
+.sidebar__badge--resident {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.sidebar__badge--pending {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.sidebar__badge--none {
+  background: #f0f0f5;
+  color: #6f708b;
 }
 
 .sidebar__divider {
