@@ -27,36 +27,6 @@
   margin: 0;
 }
 
-.search-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  background: none;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #333;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-.search-btn:hover {
-  background-color: #f0f0f0;
-}
-
-.search-icon {
-  margin-right: 4px;
-}
-
-.search-sub {
-  font-size: 11px;
-  color: #e53935;
-  font-weight: 500;
-}
-
 /* =====================
    탭
 ===================== */
@@ -86,12 +56,8 @@
   font-weight: 700;
 }
 
-.tab-btn:hover:not(.tab-btn--active) {
-  color: #555;
-}
-
 /* =====================
-   카드 목록
+   카드 목록 및 카드 스타일
 ===================== */
 .report-list {
   display: flex;
@@ -109,13 +75,21 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
   gap: 12px;
   position: relative;
+  transition: opacity 0.3s ease;
+}
+
+/* [중요] 취소된 카드 스타일 (중복 제거 및 합침) */
+.report-card--cancelled {
+  opacity: 0.65;
+  background-color: #fafafa !important;
+}
+
+.report-card--cancelled .icon-box {
+  background-color: #eee;
+  color: #bbb;
 }
 
 /* 아이콘 */
-.report-card__icon {
-  flex-shrink: 0;
-}
-
 .icon-box {
   width: 40px;
   height: 40px;
@@ -153,6 +127,13 @@
   margin-bottom: 2px;
 }
 
+.cancel-label {
+  font-size: 11px;
+  color: #888;
+  margin-left: 6px;
+  font-weight: normal;
+}
+
 .report-card__date {
   font-size: 12px;
   color: #999;
@@ -165,12 +146,6 @@
 }
 
 /* 취소 버튼 */
-.report-card__action {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 .cancel-btn {
   background: none;
   border: none;
@@ -182,8 +157,14 @@
   white-space: nowrap;
 }
 
-.cancel-btn:hover {
+.cancel-btn:hover:not(:disabled) {
   color: #e53935;
+}
+
+.cancel-btn:disabled {
+  color: #ddd;
+  cursor: wait;
+  text-decoration: none;
 }
 
 /* =====================
@@ -198,24 +179,15 @@
   white-space: nowrap;
 }
 
-.badge--approved {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
+.badge--approved { background-color: #e8f5e9; color: #2e7d32; }
+.badge--pending { background-color: #fff8e1; color: #f57f17; }
+.badge--rejected { background-color: #ffebee; color: #c62828; }
 
-.badge--pending {
-  background-color: #fff8e1;
-  color: #f57f17;
-}
-
+/* 취소 뱃지 (보강된 스타일) */
 .badge--cancelled {
-  background-color: #f5f5f5;
-  color: #757575;
-}
-
-.badge--rejected {
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: #eee !important;
+  color: #777 !important;
+  border: 1px solid #ddd;
 }
 
 /* =====================
@@ -237,15 +209,10 @@
   background: #fff;
   font-size: 13px;
   color: #555;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s;
-}
-
-.page-btn:hover:not(.page-btn--active) {
-  background: #f0f0f0;
+  cursor: pointer;
 }
 
 .page-btn--active {
@@ -253,12 +220,6 @@
   color: #fff;
   border-color: #1a73e8;
   font-weight: 700;
-}
-
-.page-btn--arrow {
-  font-size: 12px;
-  color: #999;
-  border-color: #eee;
 }
 
 /* =====================
@@ -276,7 +237,6 @@
 
 .report-submit-btn {
   width: 100%;
-  display: block;
   background-color: #1a73e8;
   color: #fff;
   border: none;
@@ -285,9 +245,4 @@
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
-}
-
-.report-submit-btn:hover {
-  background-color: #1558b0;
 }

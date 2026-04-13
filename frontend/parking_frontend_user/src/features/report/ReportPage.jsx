@@ -26,42 +26,54 @@ const STATUS_CLASS = {
   취소: "badge badge--cancelled",
 };
 
+//날짜 포맷 함수 (에어 방어막 강화)
 function formatDate(isoString) {
-  if (!isoString) return "";
-  const d = new Date(isoString);
-  const yy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${yy}.${mm}.${dd} ${hh}:${min}`;
+  try{
+    if (!isoString) return "날짜없음";
+    const d = new Date(isoString);
+
+    //날짜 형식이 이상할 경우 방어
+    if (isNaN(d.getTime())) return "유효하지 않은 날짜"; 
+
+    const yy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${yy}.${mm}.${dd} ${hh}:${min}`;
+  }catch(e){
+    //예상치 못할 에러가 발생해도 프로그램이 멈추지 않게 함
+    console.error("날짜 변환 에러:",  e);
+    return "날짜 오류";
+  }
 }
 
 export default function ReportPage() {
   const [activeTab, setActiveTab] = useState("sent"); // sent | received
   const [currentPage, setCurrentPage] = useState(0); // 0-based (Spring Pageable)
 
-  const {
-    data: sentPage,
-    isLoading: sentLoading,
-  } = useMyReports(currentPage);
+  const { data: sentPage, isLoading: sentLoading} = useMyReports(currentPage);
+  const { data: receivedPage, isLoading: receivedLoading} = useReceivedReports(currentPage);
 
-  const {
-    data: receivedPage,
-    isLoading: receivedLoading,
-  } = useReceivedReports(currentPage);
-
+  // 신고 취소 mutate(로딩 상태 추가 가능)
   const { mutate: cancelMutate } = useCancelReport();
 
   const isLoading = activeTab === "sent" ? sentLoading : receivedLoading;
   const pageData = activeTab === "sent" ? sentPage : receivedPage;
-  const listData = pageData?.content ?? [];
+  const listData = (pageData && Array.isArray(pageData.content))? pageData.content : [];
   const totalPages = pageData?.totalPages ?? 1;
 
   // 탭 전환 시 첫 페이지로 초기화
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setCurrentPage(0);
+  };
+
+  //취소 핸들러 (Confirm 추가)
+  const handleCancel = (reportId) => {
+    if(window.confirm("정말 신고를 취소하시겠습니까? 취소 후에는 되돌릴 수 없습니다.")){
+      cancelMutate(reportId);
+    }
   };
 
   return (
@@ -95,12 +107,28 @@ export default function ReportPage() {
           <div className="loading">내역이 없습니다.</div>
         ) : (
           listData.map((item) => {
-            const statusKo = STATUS_KO[item.status] ?? item.status;
-            const typeKo = REPORT_TYPE_KO[item.reportType] ?? item.reportType;
-            const canCancel = activeTab === "sent" && item.status === "PENDING";
+
+            // item이 null이거나 undefined면 에러 방지를 위해 통과
+            if (!item) return null;
+            console.log("신고 데이터 항목:",item)//디벙깅 후 삭제해야됨
+
+            //필드값이 없을 때를 대비해 기본값(||) 설정
+            const rawStatus = item.status || "PENDING";
+            const rawType = item.reportType || "OTHER";
+
+            const statusKo = STATUS_KO[rawStatus] ?? rawStatus;
+            const typeKo = REPORT_TYPE_KO[rawType] ?? rawType;
+
+            //취소된 항목인지 확인
+            const isCancelled = item.status ==="CANCELLED";
+
+            //uniqueKry 설정 (데이터에 따라 reportId 또는 id 사용)
+            const uniqueKey = item.reportId || item.id || `report-${Math.random()}`;
 
             return (
-              <div className="report-card" key={item.id}>
+              <div key={uniqueKey}
+                className={`report-card ${isCancelled ? "report-card--cancelled" : ""}`}
+              >
                 <div className="report-card__icon">
                   <div className="icon-box">🅿</div>
                 </div>
@@ -112,18 +140,22 @@ export default function ReportPage() {
                       {statusKo}
                     </span>
                   </div>
-                  <div className="report-card__category">{typeKo}</div>
+                  <div className="report-card__category">
+                    {typeKo} {isCancelled && <span className="cancel-label">(취소됨)</span>}
+                  </div>
                   <div className="report-card__date">{formatDate(item.createdAt)}</div>
                   <div className="report-card__location">{item.description}</div>
                 </div>
 
-                {canCancel && (
+                {/* 버튼 제어 : 취소되지 않은 '대기' 상태일 때만 취소버튼 보여주기 */}
+                {activeTab === "sent" && item.status ==="PENDING" && (
                   <div className="report-card__action">
                     <button
                       className="cancel-btn"
-                      onClick={() => cancelMutate(item.id)}
+                      onClick={() => handleCancel(uniqueKey)}
+                      disabled={isCancelled} //서버 통신 중 버튼 비활성화
                     >
-                      신고 취소하기
+                      {isCancelled ? "취소 중 ...." : "신고 취소하기"}
                     </button>
                   </div>
                 )}
