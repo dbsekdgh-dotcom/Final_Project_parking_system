@@ -50,8 +50,8 @@ export const processForceExit = async(id, reason) => {
 export const modifyDiscount = async(id,newAmount,reason)=>{
     try{
         const response = await adminApi.patch(`/parking/logs/${id}/discount`,{
-            newAmount: newAmount,
-            reason: reason
+            newAmount: Number(newAmount),
+            reason
         })
         return response.data
     }catch(error){

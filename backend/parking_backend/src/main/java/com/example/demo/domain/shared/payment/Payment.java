@@ -57,4 +57,8 @@ public class Payment {
     private LocalDateTime paidAt;
     @CreationTimestamp
     private LocalDateTime createdAt;
+    @Builder.Default
+    @Column(nullable = false)
+    @Comment("환불처리된 누적 금액")
+    private Long refundedAmount=0L;
 }
