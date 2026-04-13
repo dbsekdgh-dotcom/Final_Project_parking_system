@@ -1,19 +1,16 @@
 .aalw {
   width: 100%;
-}
-
-.aalw__name-row {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
+  align-items: center;
+  gap: 10px;
 }
 
 .aalw__icons {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  flex-shrink: 0;
   flex-wrap: wrap;
 }
 
@@ -31,12 +28,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  text-align: center;
+}
+
+.aalw .sidebar__user-meta {
+  text-align: center;
 }
 
 .aalw__btn-row {
   display: flex;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 22px;
   justify-content: center;
 }
 

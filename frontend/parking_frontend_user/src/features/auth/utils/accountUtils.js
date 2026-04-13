@@ -212,9 +212,11 @@ export const openFindPwModal = async (initialEmail = "") => {
  * 5. 비밀번호 변경/재설정/복구 공통 프로세스
  */
 const handlePasswordProcess = async (email, info = null, mode = 'FIND_PW') => {
+    // code를 try 블록 바깥에서 선언해야 5-4 preConfirm 클로저에서 접근 가능
+    let code;
     try {
         // 5-1. 인증번호 발송
-        Swal.fire({ title: '발송 중...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: '발송 중...', allowOutsideClick: false, showConfirmButton: false, willOpen: () => Swal.showLoading() });
         const sendEndpoint = mode === 'RECOVER'
             ? "/api/user/auth/local/send-recover-code"
             : "/api/user/auth/local/send-code";
@@ -222,7 +224,7 @@ const handlePasswordProcess = async (email, info = null, mode = 'FIND_PW') => {
 
         // 5-2. 인증번호 입력 모달 (타이머 포함)
         let timerInterval;
-        const { value: code } = await Swal.fire({
+        const { value: inputCode } = await Swal.fire({
             title: '인증번호 입력',
             html: `
                 <div style="margin-bottom: 10px;">이메일로 발송된 6자리 번호를 입력하세요.</div>
@@ -259,71 +261,108 @@ const handlePasswordProcess = async (email, info = null, mode = 'FIND_PW') => {
             }
         });
 
+        code = inputCode;
         if (!code) return;
 
         // 5-3. 인증코드 검증 (RECOVER 모드는 서버 통합 처리이므로 제외)
         if (mode !== 'RECOVER') {
             await api.post("/api/user/auth/local/verify-code", { email, code });
         }
-
-        // 5-4. 새 비밀번호 설정 입력
-        let resetTitle = '새 비밀번호 설정';
-        if(mode === 'VERIFY') resetTitle = '비밀번호 재설정';
-        if(mode === 'RECOVER') resetTitle = '계정 복구 비밀번호 설정';
-        
-        const { value: pwValues } = await Swal.fire({
-            title: resetTitle,
-            html: `
-                <div style="font-size: 0.85rem; color: #888; margin-bottom: 10px;">본인 확인이 완료되었습니다. 새 비밀번호를 설정해주세요.</div>
-                <input type="password" id="new-pw" class="swal2-input" placeholder="새 비밀번호(8자 이상)" style="width: 80%;">
-                <input type="password" id="confirm-pw" class="swal2-input" placeholder="비밀번호 확인" style="width: 80%;">
-            `,
-            showCancelButton: true,
-            confirmButtonText: mode === 'RECOVER' ? '복구 완료' : '변경하기',
-            cancelButtonText: '취소',
-            confirmButtonColor: '#3085d6',
-            preConfirm: () => {
-                const n = document.getElementById('new-pw').value;
-                const c = document.getElementById('confirm-pw').value;
-                if (n.length < 8) { Swal.showValidationMessage('8자 이상 입력해주세요.'); return false; }
-                if (n !== c) { Swal.showValidationMessage('비밀번호가 일치하지 않습니다.'); return false; }
-                return { newPassword: n, passwordConfirm: c };
-            }
+    } catch (error) {
+        Swal.hideLoading();
+        Swal.close();
+        await Swal.fire({
+            icon: 'error',
+            title: '에러',
+            text: error.response?.data?.message || '처리에 실패했습니다.',
+            confirmButtonText: '확인',
+            confirmButtonColor: '#d33'
         });
+        return;
+    }
 
-        if (pwValues) {
-            Swal.fire({ title: '처리 중...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
-            // 5-5. 최종 서버 전송 및 후속 처리
-            if (mode === 'RECOVER') {
-                // 계정 복구 처리
-                await api.post("/api/user/auth/local/recover", { email, authCode: code, ...pwValues });
-                
-                // 복구 성공 알림 후 메인 페이지로 이동
-                await Swal.fire({ 
-                    icon: 'success', 
-                    title: '성공', 
-                    text: '계정이 복구되었습니다. 다시 로그인해주세요.', 
-                    confirmButtonText: '확인', 
-                    confirmButtonColor: '#3085d6' 
-                });
-                
-                if (window.location.pathname !== '/') window.location.href = '/';
-                
-            } else {
-                // 일반 비밀번호 재설정 처리
-                await api.post("/api/user/auth/local/reset-password", { email, ...pwValues });
-                await Swal.fire({ 
-                    icon: 'success', 
-                    title: '성공', 
-                    text: '비밀번호가 성공적으로 변경되었습니다.', 
-                    confirmButtonText: '확인', 
-                    confirmButtonColor: '#3085d6' 
-                });
+    // 5-4 & 5-5. 비밀번호 입력 + 서버 전송 (preConfirm 내부에서 API 호출 — 별도 로딩 다이얼로그 없음)
+    const resetTitle = mode === 'VERIFY' ? '비밀번호 재설정'
+        : mode === 'RECOVER' ? '계정 복구 비밀번호 설정'
+        : '새 비밀번호 설정';
+
+    const { value: pwValues } = await Swal.fire({
+        title: resetTitle,
+        html: `
+            <div style="font-size: 0.85rem; color: #888; margin-bottom: 10px;">본인 확인이 완료되었습니다. 새 비밀번호를 설정해주세요.</div>
+            <input type="password" id="new-pw" class="swal2-input" placeholder="새 비밀번호(8자 이상)" style="width: 80%;">
+            <input type="password" id="confirm-pw" class="swal2-input" placeholder="비밀번호 확인" style="width: 80%;">
+        `,
+        showCancelButton: true,
+        confirmButtonText: mode === 'RECOVER' ? '복구 완료' : '변경하기',
+        cancelButtonText: '취소',
+        confirmButtonColor: '#3085d6',
+        showLoaderOnConfirm: true,
+        allowOutsideClick: () => !Swal.isLoading(),
+        preConfirm: async () => {
+            const n = document.getElementById('new-pw').value;
+            const c = document.getElementById('confirm-pw').value;
+
+            // 클라이언트 검증 — 실패 시 모달 유지
+            if (n.length < 8) { Swal.showValidationMessage('8자 이상 입력해주세요.'); return false; }
+            if (n !== c) { Swal.showValidationMessage('비밀번호가 일치하지 않습니다.'); return false; }
+
+            // 백엔드 DTO 필드명이 모드별로 다름
+            // RECOVER → UserRecoverRequestDto.passwordConfirm
+            // 그 외   → UserPasswordResetRequestDto.confirmPassword
+            const pwData = mode === 'RECOVER'
+                ? { newPassword: n, passwordConfirm: c }
+                : { newPassword: n, confirmPassword: c };
+
+            try {
+                // 5-5. 서버 전송
+                if (mode === 'RECOVER') {
+                    await api.post("/api/user/auth/local/recover", { email, authCode: code, ...pwData });
+                } else {
+                    await api.post("/api/user/auth/local/reset-password", { email, ...pwData });
+                }
+                return pwData; // 성공 → 모달 닫힘
+            } catch (error) {
+                const msg = error.response?.data?.message || '처리에 실패했습니다.';
+                const errorCode = error.response?.data?.code;
+                // 재시도 불가 에러: 인증번호 만료/불일치, 세션 만료, 복구 불가 상황
+                const NON_RETRYABLE = [
+                    'INVALID_AUTH_CODE',       // 인증번호 만료 or 불일치 → 처음부터 다시
+                    'VERIFICATION_CODE_EXPIRED', // 인증번호 유효시간 초과
+                    'UNAUTHORIZED_ACCESS',      // 이메일 인증 안 된 접근
+                    'PHONE_ALREADY_ACTIVE',     // 이미 활성 계정이 동일 번호 사용 중
+                ];
+                const shouldClose = error.response?.status === 401
+                    || error.response?.status === 404
+                    || NON_RETRYABLE.includes(errorCode)
+                    || msg.includes('만료') || msg.includes('expired') || msg.includes('초과');
+                Swal.showValidationMessage(msg);
+                // shouldClose면 undefined 반환(모달 닫힘), 그 외는 false(모달 유지 후 재시도)
+                return shouldClose ? undefined : false;
             }
         }
-    } catch (error) {
-        Swal.fire('에러', error.response?.data?.message || '처리에 실패했습니다.', 'error');
+    });
+
+    // 5-6. 성공 후처리
+    if (pwValues) {
+        if (mode === 'RECOVER') {
+            await Swal.fire({
+                icon: 'success',
+                title: '성공',
+                text: '계정이 복구되었습니다. 다시 로그인해주세요.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#3085d6'
+            });
+            if (window.location.pathname !== '/') window.location.href = '/';
+        } else {
+            await Swal.fire({
+                icon: 'success',
+                title: '성공',
+                text: '비밀번호가 성공적으로 변경되었습니다.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#3085d6'
+            });
+        }
     }
 };
 

@@ -1,0 +1,131 @@
+.apply-section {
+    background: #fff;
+    border: 1px solid #e7e6f2;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(86, 95, 132, 0.07);
+}
+
+.apply-section__title {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #32324d;
+}
+
+.apply-section__hint {
+    margin: 0 0 16px;
+    font-size: 0.83rem;
+    color: #9e9eb8;
+}
+
+.apply-section__notice {
+    margin: 0 0 16px;
+    font-size: 0.88rem;
+    color: #f57f17;
+    font-weight: 500;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+/* 호수 그리드 */
+.unit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.unit-cell {
+    border-radius: 10px;
+    padding: 12px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border: 1.5px solid rgba(0, 0, 0, 0.06);
+    transition: transform 100ms, box-shadow 100ms, border-color 100ms;
+    user-select: none;
+}
+
+.unit-cell--clickable {
+    cursor: pointer;
+}
+
+.unit-cell--clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(86, 95, 132, 0.15);
+    border-color: #90c0ff;
+}
+
+.unit-cell--selected {
+    border-color: #3b5bdb !important;
+    box-shadow: 0 0 0 2px rgba(59, 91, 219, 0.25);
+}
+
+.unit-no {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #32324d;
+}
+
+.unit-status {
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+/* 범례 */
+.unit-legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.legend-item {
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.apply-loading {
+    color: #9e9eb8;
+    font-size: 0.9rem;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* 신청 푸터 */
+.apply-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    border-top: 1px solid #f0f0f5;
+    padding-top: 16px;
+}
+
+.apply-selected-label {
+    font-size: 0.88rem;
+    color: #3b5bdb;
+    font-weight: 600;
+}
+
+.btn-apply {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #cfe0ff;
+    color: #233b6e;
+    transition: filter 120ms;
+}
+
+.btn-apply:hover { filter: brightness(0.94); }
+.btn-apply:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }

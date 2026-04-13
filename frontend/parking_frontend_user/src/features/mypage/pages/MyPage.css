@@ -1,0 +1,38 @@
+.mypage {
+    padding: 28px 32px;
+    max-width: 900px;
+}
+
+.mypage__title {
+    margin: 0 0 24px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #32324d;
+}
+
+.mypage__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* 회원 현황 + 입주민 신청 - 두 칸 전체 차지 */
+.mypage__grid > :nth-child(3),
+.mypage__grid > :nth-child(4) {
+    grid-column: 1 / -1;
+}
+
+.mypage-loading,
+.mypage-error {
+    padding: 40px;
+    text-align: center;
+    color: #9e9eb8;
+    font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+    .mypage { padding: 20px 16px; }
+    .mypage__grid { grid-template-columns: 1fr; }
+    .mypage__grid > :nth-child(3),
+    .mypage__grid > :nth-child(4) { grid-column: auto; }
+}

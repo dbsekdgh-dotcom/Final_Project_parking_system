@@ -1,38 +1,38 @@
 package com.example.demo.domain.user.mypage.dashboard.controller;
 
-import com.example.demo.domain.user.mypage.dashboard.dto.request.MyPageDashboardPasswordUpdateRequestDto;
 import com.example.demo.domain.user.mypage.dashboard.dto.response.MyPageDashboardResponseDto;
 import com.example.demo.domain.user.mypage.dashboard.dto.request.MyPageDashboardUpdateRequestDto;
 import com.example.demo.domain.user.mypage.dashboard.service.MyPageDashboardService;
+import com.example.demo.domain.user.auth.principal.PrincipalDetails;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@RestController//JSON 형태로 응답하는 컨트롤러
-@RequestMapping("/api/user/mypage/dashboard")
+@RestController
+@RequestMapping("/api/user/mypage")
 @RequiredArgsConstructor
 public class MyPageDashBoardController {
-     private final MyPageDashboardService mypageDashboardService;
 
-     //1.회원정보 조회
-    @GetMapping("/{memberId}")
-    public ResponseEntity<MyPageDashboardResponseDto> getMemberInfo(@PathVariable Long memberId){
-        MyPageDashboardResponseDto memberDto = mypageDashboardService.getMemberInfo(memberId);
-        return ResponseEntity.ok(memberDto);
+    private final MyPageDashboardService mypageDashboardService;
+
+    // 1. 회원정보 조회
+    @GetMapping
+    public ResponseEntity<MyPageDashboardResponseDto> getUserInfo(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long userId = principalDetails.getUserId();
+        return ResponseEntity.ok(mypageDashboardService.getUserInfo(userId));
     }
-    //2. 회원정보 수정
-    @PutMapping("/{memberId}")
-    public ResponseEntity<String> updateProfile(@PathVariable Long memberId,
-                                                @RequestBody MyPageDashboardUpdateRequestDto memberDto){
-        mypageDashboardService.updateProfile(memberId,memberDto);
+
+    // 2. 회원정보 수정 (전화번호 or 생일 - null이 아닌 필드만 수정)
+    @PutMapping
+    public ResponseEntity<String> updateProfile(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @Valid @RequestBody MyPageDashboardUpdateRequestDto memberDto) {
+        Long userId = principalDetails.getUserId();
+        mypageDashboardService.updateProfile(userId, memberDto);
         return ResponseEntity.ok("회원 정보 수정 완료!");
-    }
-
-    //4. 회원 탈퇴
-    @DeleteMapping("/{memberId}")
-    public ResponseEntity<String > withdraw(@PathVariable Long memberId){
-        mypageDashboardService.withdraw(memberId);
-        return ResponseEntity.ok("회원탈퇴 완료!");
     }
 }

@@ -1,9 +1,11 @@
 import { NavLink } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import './sidebar-css.css'
 import AuthAccountLinkWidget from '../../../features/auth/components/AuthAccountLinkWidget'
 import LogoutButton from '../../../features/auth/components/LogoutButton'
 // [추가] 회원 탈퇴 버튼 임포트 (auth/components 폴더 내 위치)
-import WithdrawButton from '../../../features/auth/components/WithdrawButton' 
+import WithdrawButton from '../../../features/auth/components/WithdrawButton'
+import { fetchUserStatus } from '../../../features/mypage/api/mypageApi'
 
 const navItems = [
   { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },
@@ -13,7 +15,25 @@ const navItems = [
   { to: '/complaints', label: '민원/신고', icon: AlertIcon },
 ]
 
+const BADGE_CONFIG = {
+  RESIDENT: { label: "입주민",   cls: "sidebar__badge--resident" },
+  PENDING:  { label: "신청 중",  cls: "sidebar__badge--pending" },
+  NONE:     { label: "일반 회원", cls: "sidebar__badge--none" },
+};
+
 export function Sidebar() {
+  const { data: statusData } = useQuery({
+    queryKey: ["userStatus"],
+    queryFn: fetchUserStatus,
+  });
+
+  // 쿼리 데이터 우선, 없으면 localStorage 폴백 (로그인 직후 캐시 없을 때)
+  const memberStatus = statusData?.userStatus ?? localStorage.getItem("userStatus") ?? "NONE";
+  const unitNo = localStorage.getItem("unitNo");
+
+  const badge = BADGE_CONFIG[memberStatus] ?? BADGE_CONFIG.NONE;
+  const metaText = memberStatus === "RESIDENT" && unitNo ? `${unitNo}호` : "";
+
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -22,11 +42,9 @@ export function Sidebar() {
       </div>
 
       <div className="sidebar__user">
-        <div className="sidebar__avatar" aria-hidden />
         <div className="sidebar__user-text">
-          <AuthAccountLinkWidget metaText="A동 1001호" />
+          <AuthAccountLinkWidget metaText={metaText} badge={badge} />
         </div>
-        <span className="sidebar__badge">입주민</span>
       </div>
 
       <div className="sidebar__divider" />

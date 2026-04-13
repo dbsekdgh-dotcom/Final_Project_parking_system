@@ -9,8 +9,12 @@ import lombok.Setter;
 @Builder
 public class UserLoginResponseDto {
 
+    private String code;         // null = 정상 로그인, "WITHDRAWN_ACCOUNT" = 탈퇴 계정
+    private Long userId;
     private String accessToken;
     private String refreshToken;
     private String email;
     private String name;
+    private String userStatus; // "NONE" | "PENDING" | "RESIDENT"
+    private Integer unitNo;      // RESIDENT인 경우 호수, 나머지는 null
 }
