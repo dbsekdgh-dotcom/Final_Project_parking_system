@@ -67,6 +67,9 @@ AdminSecurityConfig {
                 .requestMatchers(HttpMethod.POST,"/admin/logout").permitAll()
                 .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
 
+//                .requestMatchers("/admin/v1/reports/**").permitAll()   //윤진 추가 삭제예정
+
+
                 // 테스트하기위해 잠시 추가
 //                .requestMatchers("/admin/parking/summary").permitAll()
 
@@ -86,20 +89,19 @@ AdminSecurityConfig {
         //로그아웃 설정
         http.logout(logout->logout
                 .disable()
-//                .logoutUrl("/admin/logout")
-//                .addLogoutHandler((request, response, authentication) ->{
-//                    log.info("Security Logout Handler 동작");
-//                })
-//                .logoutSuccessHandler((request, response, authentication) -> {
-//                    //성공 시 다른 페이지로 리다이렉트 하지않고 200 OK만 응답
-//                    response.setStatus(HttpServletResponse.SC_OK);
-//                })
         );
 
         // 이 필터체인은 무조건 관리자 서비스만 쓰라는 의미 (UserUserSecurityConfig와 겹칠때를 대비)
         http.userDetailsService(adminUserDetailService);
         // 예외 처리 (권한 부족 시) -- 추후 확장성 고려해 작성함
-        http.exceptionHandling(ex->ex.accessDeniedHandler(adminAccessDeniedHandler));
+        http.exceptionHandling(ex->ex
+                .accessDeniedHandler(adminAccessDeniedHandler)
+                .authenticationEntryPoint((request, response, authException) -> {
+                    //리다이렉트 대신 401 JSON 응답 반환
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                }));
         // JWT 필터 추가
         http.addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), UsernamePasswordAuthenticationFilter.class);
 
@@ -118,7 +120,11 @@ AdminSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 오리진(리액트 주소 등) 설정
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5201"));
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:5201",
+                "http://localhost:5202", //윤진추가 삭제예정
+                "http://localhost:5203"//윤진추가 삭제예정
+        ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS"));
         // 쿠키나 인증 정보를 포함한 요청을 허용할지 여부

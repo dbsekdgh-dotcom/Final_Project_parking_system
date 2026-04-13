@@ -1,39 +1,55 @@
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import useVehicleStore from "../../../store/useVehicleStore";
 import { usePayment } from "../../hooks/usePaymentMutation";
 
 export function PaymentSuccessPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {paymentInfo}=useVehicleStore();
   const {afterMutation}=usePayment();
-  useEffect(() => {
-    //백엔드 승인 요청
+  const navigate=useNavigate();
+  const hasCalled=useRef(false) //다시 랜더링되지 않도록
 
-    // 결제 성공 시
-    const payload={
-    "paymentKey":searchParams.get("paymentKey"),
-    "orderId":searchParams.get("orderId"),
-    "amount":searchParams.get("amount"),
-    "parkingLogId":paymentInfo?.parkingLogId
+  useEffect(() => {
+    const processPayment= async()=>{
+      if (hasCalled.current)return;
+
+      const paymentKey=searchParams.get("paymentKey")
+      const orderId=searchParams.get("orderId")
+      const amount=searchParams.get("amount")
+      const parkingLogId=localStorage.getItem("pendingParkingLogId")
+      
+
+      console.log(paymentKey)
+      console.log(orderId)
+      console.log(amount)
+      console.log(parkingLogId)
+
+      // 결제 성공 시
+      if(paymentKey && orderId && amount && parkingLogId){
+        const payload={
+        "paymentKey":paymentKey,
+        "orderId":orderId,
+        "amount":amount,
+        "parkingLogId":parkingLogId
+        }
+        hasCalled.current=true;
+        await afterMutation.mutateAsync(payload)
+      }else{
+        navigate("/PrepaymentResult",{
+          state:{
+              title : "정산 중 오류가 발생하였습니다.",
+              subTitle : "결제 정보가 올바르지 않습니다. 다시 시도해주세요.",
+              type: "error"
+          }
+        }) 
+      }
+
     }
-    afterMutation.mutate(payload)
-    },[]);
+    processPayment()
+    },[searchParams,afterMutation]);
 
   return (
-    <div className="result wrapper">
-      <div className="box_section">
-        <h2>
-          결제 성공
-        </h2>
-        <p>{`주문번호: ${searchParams.get("orderId")}`}</p>
-        <p>{`결제 금액: ${Number(
-          searchParams.get("amount")
-        ).toLocaleString()}원`}</p>
-        <p>{`paymentKey: ${searchParams.get("paymentKey")}`}</p>
-      </div>
+    <div >
     </div>
   );
 }

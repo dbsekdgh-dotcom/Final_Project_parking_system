@@ -18,6 +18,7 @@ public class ReportResponseDto {
     private String description;
     private String reporterName;
     private LocalDateTime createdAt;
+    private String status;
 
     //dto 책임을 dto 가진다.   service코드가 깔끔해지기 위해 추가. service가 dto변환까지 하면 코드가 길어지고 지져분해짐
     public static ReportResponseDto from(Report report){
@@ -27,7 +28,8 @@ public class ReportResponseDto {
                 report.getReportType()!=null? report.getReportType().name():"미지정", //Enum널 체크
                 report.getDescription(),
                 report.getReporter()!=null? report.getReporter().getName():"탈퇴한 사용자", //핵심!!!!
-                report.getCreatedAt()
+                report.getCreatedAt(),
+                report.getStatus()!=null? report.getStatus().name(): "PENDING"
         );
     }
 }

@@ -24,8 +24,8 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "left join p.vehicle v " +
             "left join v.user u " +
             "left join UserPoint up on up.user = u " +
-            "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null")
-    List<ParkingLogSettlementDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber);
+            "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null and p.paymentStatus!=:paymentStatus")
+    List<ParkingLogSettlementDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber,@Param("paymentStatus") PaymentStatus paymentStatus);
 
     @Query("select p " +
             "from ParkingLog p " +
@@ -36,6 +36,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     Optional<ParkingLog> getDetailLogInfo(Long parkingLogId);
 
     Optional<ParkingLog> findByParkingLogId(Long parkingLogId);
+
 
     // 차번호 + 상태로 조회 (입차/출차 분기 판단용)
     Optional<ParkingLog> findFirstByCarNumberSnapshotAndParkingStatus(String carNumber, ParkingStatus status);

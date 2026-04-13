@@ -33,7 +33,7 @@ export const getParkingLogDetail = async(id)=>{
     return response.data
 }
 
-//관리자 - 강제 출차 처리
+//관리자 - 주차 로그 강제 출차 처리
 export const processForceExit = async(id, reason) => {
     try{
         const response = await adminApi.post(`/parking/logs/${id}/force-exit`,{
@@ -43,5 +43,19 @@ export const processForceExit = async(id, reason) => {
     }catch(error){
         console.error("강제 출차 처리 실패:",error)
         throw error;
+    }
+}
+
+//관리자 - 주차 로그 할인 수정 처리
+export const modifyDiscount = async(id,newAmount,reason)=>{
+    try{
+        const response = await adminApi.patch(`/parking/logs/${id}/discount`,{
+            newAmount: newAmount,
+            reason: reason
+        })
+        return response.data
+    }catch(error){
+        console.error("할인 수정 처리 실패:",error)
+        throw error
     }
 }

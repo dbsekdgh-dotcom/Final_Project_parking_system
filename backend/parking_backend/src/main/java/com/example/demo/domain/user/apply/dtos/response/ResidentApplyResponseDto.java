@@ -4,12 +4,12 @@ import com.example.demo.domain.shared.approval.Approval;
 import lombok.Getter;
 
 @Getter
-public class ApprovalResidentResponseDto {
+public class ResidentApplyResponseDto {
     private final Long approvalId;
     private final String status;
     private final String approvalType;
 
-    public ApprovalResidentResponseDto(Approval approval) {
+    public ResidentApplyResponseDto(Approval approval) {
         this.approvalId = approval.getApprovalId();
         this.status = approval.getStatus().name();
         this.approvalType = approval.getApprovalType().getDescription();

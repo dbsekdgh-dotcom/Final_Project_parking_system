@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import './paymentMethod.css'
 
-const PaymentMethod = ({fee,userPoint,onConfirm}) => {
+const PaymentMethod = ({fee,userPoint,onConfirm,isLoading}) => {
     const [usePoint,setUsePoint]=useState(0)
-    const [payMethod, setPayMethod] = useState('');
 
     const pointUseHandler=(e)=>{
         const use=e.target.value==''?0:Math.min(e.target.value,userPoint,fee)
@@ -13,13 +12,7 @@ const PaymentMethod = ({fee,userPoint,onConfirm}) => {
         const use=Math.min(userPoint,fee)
         setUsePoint(use)
     }
-    // const payMethodHandler=(e)=>{
-    //     if(payMethod=='CARD'){
-    //         setPayMethod('')
-    //     }else{
-    //         setPayMethod(e)
-    //     }
-    // }
+
     const payBtnHandler=()=>{
         const paymentData={
             "usedPoint":usePoint,
@@ -44,13 +37,8 @@ const PaymentMethod = ({fee,userPoint,onConfirm}) => {
                 
             </div>
             }
-            {/* 신용카드 선택 영역 */}
-            {/* <div className={`payment-box card-box ${payMethod=='CARD'?'active':''}`} onClick={()=>payMethodHandler('CARD')}>
-                <span>신용카드</span>
-                {payMethod=='CARD' && <span className='check-icon'>✔</span>}
-            </div> */}
         </div>
-        <button type='button' className='final-pay-btn' onClick={payBtnHandler}>
+        <button type='button' className='final-pay-btn' onClick={payBtnHandler} disabled={isLoading}>
             {fee-usePoint==0? '정산 완료하기': '결제하기'}
         </button>
     </div>
