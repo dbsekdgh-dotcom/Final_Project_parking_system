@@ -15,6 +15,3 @@
  boto3
  ultralytics
  easyocr
- boto3
- ultralytics
- easyocr
