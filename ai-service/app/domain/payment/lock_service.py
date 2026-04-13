@@ -1,10 +1,13 @@
 import redis;
+import os;
 from fastapi import HTTPException
 
 # 1. Redis 연결 (도커로 띄운 Redis 서버와 통신)
 # decode_responses=True: 데이터를 가져올 때 바이트가 아닌 '문자열'로 받기 위해 필수
-redis_client=redis.Redis(host='redis',port=6379,db=0,decode_responses=True)
-
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")                                                                                                                                                                                                                                                  
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))          
+                                                                                                                                                                                                                                        
+redis_client=redis.Redis(host=REDIS_HOST,port=REDIS_PORT,db=0,decode_responses=True) 
 class Lock_service:
     @staticmethod
     def aquire_lock(car_number: str):

@@ -298,7 +298,8 @@ CONSTRAINT fk_pl_payment FOREIGN KEY (payment_id) REFERENCES payment(payment_id)
 -- 22. 시스템 설정 (System_Setting)
 CREATE TABLE system_setting (
 setting_key VARCHAR(150) PRIMARY KEY NOT NULL,
-setting_value TEXT NOT NULL
+setting_value TEXT NOT NULL,
+description VARCHAR(255) NULL 
 );
 
 -- 23. 신고 (Report)
@@ -423,8 +424,9 @@ activity_type ENUM(
 'PAYMENT_CANCEL',       -- 결제취소
 
 'RESERVATION_CREATED',  -- 방문예약 생성
-'RESERVATION_CANCELLED',
+'RESERVATION_CANCELLED',-- 방문예약 취소
 
+'RESIDENT_REGISTERED',  -- 입주민 등록
 'VEHICLE_REGISTERED',   -- 차량 등록
 'PASS_PURCHASED',       -- 정기권 구매
 
