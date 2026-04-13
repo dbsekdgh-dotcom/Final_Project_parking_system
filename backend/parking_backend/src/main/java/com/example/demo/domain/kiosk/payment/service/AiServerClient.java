@@ -23,7 +23,7 @@ import java.util.Map;
 public class AiServerClient {
     private final RestTemplate restTemplate;
 
-    @Value("${ai.server.url}")
+    @Value("${AI_SERVER_URL}")
     private String aiServerUrl;
 
     //락

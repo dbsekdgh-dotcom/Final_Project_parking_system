@@ -12,6 +12,7 @@ import com.example.demo.domain.kiosk.payment.service.SettlementService;
 import com.example.demo.domain.kiosk.payment.service.TossPaymentService;
 import com.example.demo.domain.shared.activityLog.enums.ActivityType;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
+import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.payment.Payment;
 import com.example.demo.domain.shared.payment.enums.PaymentMethod;
@@ -21,6 +22,7 @@ import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -40,6 +42,7 @@ public class PaymentFacade {
     private final PaymentRepository paymentRepository;
     private final ParkingLogRepository parkingLogRepository;
     private final TossPaymentService tossPaymentService;
+    private final EntityManager entityManager;
 
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {
         try {
@@ -96,28 +99,45 @@ public class PaymentFacade {
             aiServerClient.requestPaymentLock(carNumber);
             log.info("락 완료 - carNumber: {}", carNumber);
 
+            //DB의 최신 상태로 데이터 재조회
+            if(!entityManager.contains(parkingLog)){
+                parkingLog=entityManager.merge(parkingLog);
+            }
+            entityManager.refresh(parkingLog);
+
+            //결제 승인 요청 전 관리자 강제 출차 여부 확인
+            if(ParkingStatus.FORCE_EXITED.equals(parkingLog.getParkingStatus())){
+                throw new BusinessException(ErrorCode.FORCE_EXITED);
+            }
+
             if(dto.getAmount()>0){
                 // 2. 토스 승인 요청
-                try{
-                    log.info("결제 승인 요청 시작 - orderId: {}", dto.getOrderId());
-                    ResponseEntity<JSONObject> tossResponse= tossPaymentService.confirmPayment(dto);
-                    if(tossResponse.getStatusCode().is2xxSuccessful()){
+                log.info("결제 승인 요청 시작 - orderId: {}", dto.getOrderId());
+                ResponseEntity<JSONObject> tossResponse= tossPaymentService.confirmPayment(dto);
+                if(tossResponse.getStatusCode().is2xxSuccessful()){
+                    //토스 승인 후 관리자 강제 출차 여부 재확인
+                    if(!entityManager.contains(parkingLog)){
+                        parkingLog=entityManager.merge(parkingLog);
+                    }
+                    entityManager.refresh(parkingLog);
+                    if(ParkingStatus.FORCE_EXITED.equals(parkingLog.getParkingStatus())){
+                        //토스 결제 후, 관리자 강제출차 내역이 있으면 결제 건 환불
+                        tossPaymentService.cancelPayment(dto.getPaymentKey(),"중복 결제로 인한 환불");
+                        //여기에  payment,activity_log, point등 db업데이트
+
+                        throw new BusinessException(ErrorCode.FORCE_EXITED);
+                    }
+                    paymentStatus=PaymentStatus.SUCCESS;
+                }else{
+                    JSONObject body=tossResponse.getBody();
+                    String code=(String) body.get("code");
+                    if("ALREADY_PROCESSED_PAYMENT".equals(code)){
+                        log.info("이미 처리된 결제건입니다. 성공으로 간주합니다.");
                         paymentStatus=PaymentStatus.SUCCESS;
                     }else{
-                        JSONObject body=tossResponse.getBody();
-                        String code=(String) body.get("code");
-                        if("ALREADY_PROCESSED_PAYMENT".equals(code)){
-                            log.info("이미 처리된 결제건입니다. 성공으로 간주합니다.");
-                            paymentStatus=PaymentStatus.SUCCESS;
-                        }else{
-                            tossErrorMsg=(String) body.get("message");
-                            paymentStatus=PaymentStatus.FAILED;
-                        }
+                        tossErrorMsg=(String) body.get("message");
+                        paymentStatus=PaymentStatus.FAILED;
                     }
-                }catch (Exception e){
-                    log.info("결제 통신 중 장애 발생 -  {}", e.getMessage());
-                    paymentStatus=PaymentStatus.FAILED;
-                    tossErrorMsg="결제 통신 중 장애가 발생하였습니다.";
                 }
             }else{
                 paymentStatus=PaymentStatus.SUCCESS;

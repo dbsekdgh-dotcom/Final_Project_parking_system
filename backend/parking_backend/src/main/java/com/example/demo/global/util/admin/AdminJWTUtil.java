@@ -27,7 +27,7 @@ public class AdminJWTUtil {
     private final SecretKey userKey;
 
     public AdminJWTUtil(@Value("${jwt.admin.secret}") String secretKey,
-                        @Value("${jwt.user.secret}") String userSecretKey) {
+                        @Value("${USER_JWT_SECRET}") String userSecretKey) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         if (userSecretKey == null || userSecretKey.length() < 32) {
             throw new IllegalArgumentException("User JWT Secret Key must be at least 32 characters long!");

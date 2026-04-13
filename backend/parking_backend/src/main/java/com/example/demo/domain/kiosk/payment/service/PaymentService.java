@@ -187,7 +187,6 @@ public class PaymentService {
     //EXIT_REQUESTED
     @Transactional
     public VehiclePaymentResponseDto requestPayment(ParkingLog parkingLog) {
-        LocalDateTime now=LocalDateTime.now();
         String carNumber = parkingLog.getCarNumberSnapshot();
         Long parkingFeePolicyId = parkingLog.getParkingFeePolicyId();
         ParkingTypeSnapshot parkingTypeSnapshot = parkingLog.getParkingTypeSnapshot();
@@ -229,6 +228,5 @@ public class PaymentService {
                 .message("결제가 필요합니다.")
                 .build();
     }
-
 }
 

@@ -2,6 +2,7 @@ package com.example.demo.domain.shared.ticketPolicy;
 
 import com.example.demo.domain.shared.ticketPolicy.enums.DiscountType;
 import com.example.demo.domain.shared.ticketPolicy.enums.Status;
+import com.example.demo.domain.shared.ticketPolicy.enums.UseType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,6 +32,9 @@ public class TicketPolicy {
     private DiscountType discountType;
     @Column(nullable = false)
     private Integer discountValue;
+    @Column(name = "use_type",nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UseType useType=UseType.STORE;
     private Integer maxDiscountAmount;
     private Integer validMinutes;
     private Integer validDays;
