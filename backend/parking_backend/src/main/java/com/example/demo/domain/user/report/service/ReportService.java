@@ -72,7 +72,7 @@ public class ReportService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
         Page<Report> reports = reportRepository
-                .findByReporter_UserIdAndStatusNot(user.getUserId(), ReportStatus.CANCELLED, pageable);
+                .findByReporter_UserId(user.getUserId(), pageable);
 
         return reports.map(ReportResponseDto::from);
     }
@@ -97,7 +97,7 @@ public class ReportService {
         if (carNumbers.isEmpty()) {
             return Page.empty();
         }
-        return reportRepository.findByCarNumberInAndStatusNot(carNumbers, ReportStatus.CANCELLED, pageable);
+        return reportRepository.findByCarNumberIn(carNumbers, pageable);
     }
 
     /**
@@ -118,6 +118,7 @@ public class ReportService {
             throw new CustomException(ErrorCode.REPORT_CANNOT_CANCEL);
         }
         report.cancel();
+        reportRepository.save(report);  //명시적으로 저장 호출
     }
 
     /**
@@ -129,23 +130,31 @@ public class ReportService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
-        return reportRepository.findByReporter_UserIdAndCreatedAtBetweenAndStatusNot(
-                user.getUserId(), start, end, ReportStatus.CANCELLED, pageable
+        return reportRepository.findByReporter_UserIdAndCreatedAtBetween(
+                user.getUserId(), start, end, pageable
         );
     }
 
     /**
      * 신고 상태 변경 (기존 유지)
      */
-    public void updateReportStatus(Long reportId, ReportStatus newStatus, Long adminId){
+    public void updateReportStatus(Long reportId, ReportStatus newStatus, Long adminId) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
 
-        switch (newStatus){
-            case APPROVED -> report.approve(adminId);
+        switch (newStatus) {
+            case APPROVED -> {
+                report.approve(adminId);
+                //관리자가 승인하면 유효 신고 통계(Valid) 1증가
+                VehicleReportStat stat = vehicleReportRepository.findById(report.getCarNumber())
+                        .orElseGet(() -> VehicleReportStat.create(report.getCarNumber()));
+                stat.increaseValid();
+                vehicleReportRepository.save(stat);
+            }
+
             case REJECTED -> report.reject(adminId);
             case CANCELLED -> report.cancel();
-            case PENDING -> { }
+            case PENDING -> {}
+            }
         }
     }
-}

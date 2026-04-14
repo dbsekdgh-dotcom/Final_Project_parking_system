@@ -13,25 +13,22 @@ import java.util.List;
 public interface ReportRepository extends JpaRepository<Report,Long> {
 
     //내가 신고한 내역
-    Page<Report> findByReporter_UserIdAndStatusNot(
+    Page<Report> findByReporter_UserId(
             Long userId,
-            ReportStatus status,
             Pageable pageable
     );
 
     //내가 받은 신고
-    Page<Report> findByCarNumberInAndStatusNot(
+    Page<Report> findByCarNumberIn(
             List<String> carNumbers,
-            ReportStatus status,
             Pageable pageable
     );
 
     //기간 검색
-    Page<Report> findByReporter_UserIdAndCreatedAtBetweenAndStatusNot(
+    Page<Report> findByReporter_UserIdAndCreatedAtBetween(
             Long userId,
             LocalDateTime start,
             LocalDateTime end,
-            ReportStatus status,
             Pageable pageable
     );
 
