@@ -30,6 +30,7 @@ public class ExitService {
     private final PaymentFacade paymentFacade;
     private final ActivityLogRepository activityLogRepository;
     private final UserPointRepository userPointRepository;
+    private final FreeExitExpirationService freeExitExpirationService;
 
     //출차 대기
     public VehiclePaymentResponseDto requestExit(Long parkingLogId,Long exitCameraId,String imagePath){
@@ -48,6 +49,7 @@ public class ExitService {
         parkingLog.exitRequested(exitCameraId,imagePath);
         parkingLogRepository.save(parkingLog);
 
+        freeExitExpirationService.syncFreeExitStatus(parkingLog);
         //요금 계산 및 차량 검증
         return paymentFacade.paymentProcess(parkingLogId);
 
