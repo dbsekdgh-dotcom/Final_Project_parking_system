@@ -84,7 +84,7 @@ public class AdminParkingService {
     private int calculateTotalDiscountByUseType(List<ParkingTicket> tickets, UseType useType, ParkingLog parkingLog){
         return tickets.stream()
                 .filter(t->t.getTicketPolicy().getUseType()==useType)
-                .mapToInt(t->calculatedDiscountByPolicy(t.getTicketPolicy(),parkingLog))
+                .mapToInt(t->calculatedDiscountByPolicy(t.getTicketPolicy(),parkingLog,0))
                 .sum();
     }
 
@@ -119,8 +119,15 @@ public class AdminParkingService {
                 .filter(t->t.getTicketPolicy().getUseType()==UseType.ADMIN)
                 .collect(Collectors.toList());
         parkingTicketRepository.deleteAll(oldAdminTickets);
+        //현재 시간 기준 체류 시간 계산
+        LocalDateTime now =LocalDateTime.now();
+        long parkingTime = Math.max(0,Duration.between(parkingLog.getEnteredAt(),now).toMinutes());
+        //PaymentService를 통해 현재 시점의 '원금(rawFee)'을 새로 받아옴
+        FeeCalculationResponseDto feeResult = paymentService.settlementFee(parkingLog,parkingLog.getParkingFeePolicyId(),parkingTime);
+        //엔티티의 rawFee를 먼저 최신화해줍니다.
+        parkingLog.setRawFee(feeResult.getRawFee());
         //새로운 관리자 할인 정책 금액 계산
-        int newAdminDiscountAmount = calculatedDiscountByPolicy(policy,parkingLog);
+        int newAdminDiscountAmount = calculatedDiscountByPolicy(policy,parkingLog,beforeStoreTotal);
         //새 관리자 금액과 기존 상가 합계 전달
         parkingLog.updateAdminDiscount(newAdminDiscountAmount,beforeStoreTotal);
         //새 관리자 ParkingTicket 기록 저장
@@ -146,10 +153,10 @@ public class AdminParkingService {
     }
 
     //정책 타입에 따른 할인 금액 계산 로직
-    public int calculatedDiscountByPolicy(TicketPolicy policy,ParkingLog parkingLog){
+    public int calculatedDiscountByPolicy(TicketPolicy policy,ParkingLog parkingLog, int storeTotal){
         //무료(FREE)타입일 경우: 현재 남은 금액(calculatedFee)만큼만 할인액으로 반환
         if(policy.getDiscountType()== DiscountType.FREE){
-            return parkingLog.getCalculatedFee().intValue();
+            return Math.max(0,parkingLog.getRawFee()-storeTotal);
         }
         //시간(TIME) 또는 금액(AMOUNT)타입일 경우
         switch (policy.getDiscountType()){
