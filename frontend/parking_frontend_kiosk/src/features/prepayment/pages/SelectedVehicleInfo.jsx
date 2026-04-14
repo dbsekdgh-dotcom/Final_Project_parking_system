@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import VehicleInfo from '../../../shared/components/vehicleInfo/VehicleInfo'
 import useVehicleStore from '../../../store/useVehicleStore';
 import '../../../app.css'
@@ -41,28 +41,17 @@ const SelectedVehicleInfo = () => {
 
         setIsPaymentLoading(true)
 
-        if(data.free){
-            //결제할 요금이 없는 경우 
-            navigate("/PrepaymentResult",{
-            state:{
-                title : "정산이 완료 되었습니다. ",
-                subTitle : `${paymentData.message}` || "안전하게 출차해주세요.",
-                type:"success"
-                }
-            })  
-        }else{
-            const settlementPayload={
-                "parkingLogId":data.parkingLogId,
-                "vehicleNumber":data.vehicleNumber,
-                "usedPoint":paymentData.usedPoint,
-                "paidAmount":paymentData.paidAmount,
-                "settlementType":"PREPAYMENT"
-            }
-            await beforeMutation.mutateAsync(settlementPayload)
-
+        const settlementPayload={
+            "parkingLogId":data.parkingLogId,
+            "vehicleNumber":data.vehicleNumber,
+            "usedPoint":paymentData.usedPoint || 0,
+            "paidAmount":paymentData.paidAmount ||0,
+            "settlementType":"PREPAYMENT",
+            "stackableTicketResult":data.stackableTicketResult,
         }
+        await beforeMutation.mutateAsync(settlementPayload)
         setIsPaymentLoading(false)
-    }  
+    }
     
 
     if (!selectedVehicle) {
@@ -79,7 +68,7 @@ const SelectedVehicleInfo = () => {
         )
     }
 
-    {/* 1. 로딩 상태 */}
+    // {/* 1. 로딩 상태 */}
     if (isLoading) {
         return (
             <div className='full-page-container'>
@@ -91,7 +80,7 @@ const SelectedVehicleInfo = () => {
         );
     }
 
-    {/* 2. 에러 상태 */}
+    // {/* 2. 에러 상태 */}
     if (isError) {
         return (
             <div className='full-page-container'>
@@ -106,7 +95,7 @@ const SelectedVehicleInfo = () => {
         );
     }
     
-    {/* 3. 성공 상태 */}
+    // {/* 3. 성공 상태 */}
   return (
     <div className='full-page-container'>
         <h2 className='page-title'>결제 확인</h2>

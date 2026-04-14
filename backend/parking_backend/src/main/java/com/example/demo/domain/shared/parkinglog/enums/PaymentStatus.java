@@ -3,7 +3,8 @@ package com.example.demo.domain.shared.parkinglog.enums;
 public enum PaymentStatus {
     NONE("결제 불필요"),
     UNPAID("미결제"),
-    PAID("결제완료");
+    PAID("결제완료"),
+    REFUNDED("환불완료");
 
     private final String description;
 

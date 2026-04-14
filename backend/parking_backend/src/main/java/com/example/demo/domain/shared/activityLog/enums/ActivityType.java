@@ -19,7 +19,8 @@ public enum ActivityType {
     PASS_PURCHASED("정기권 구매"),
     COUPON_PURCHASED("할인권 구매"),
     COUPON_USED("할인 적용"),
-    ADMIN_FORCE_EXIT("관리자 강제출차");
+    ADMIN_FORCE_EXIT("관리자 강제출차"),
+    REFUNDED("환불");
 
     private final String description;
 }

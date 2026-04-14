@@ -30,6 +30,7 @@ public enum ErrorCode {
     PAYMENT_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "결제가 완료되지 않았습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
     ALREADY_PROCESSING(HttpStatus.CONFLICT,"이미 결제가 진행 중인 차량입니다."),
+    PAYMENT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 결제건입니다."),
     PAYMENT_TIMEOUT(HttpStatus.BAD_REQUEST,"결제 제한 시간이 초과되었습니다."),
     ALREADY_PAID(HttpStatus.BAD_REQUEST,"이미 정산이 완료된 차량입니다."),
     ALREADY_EXITED(HttpStatus.GONE,"이미 출차가 완료된 차량입니다."),
@@ -39,6 +40,8 @@ public enum ErrorCode {
     MINIMUM_POINT_NOT_ME(HttpStatus.BAD_REQUEST,"포인트는 100원부터 사용 가능합니다."),
     FORCE_EXITED(HttpStatus.BAD_REQUEST,"관리자에 의해 출차가 완료된 차량입니다."),
     PAYMENT_NETWORK_ERROR(HttpStatus.BAD_REQUEST,"결제 시스템 오류로 결제에 실패하였습니다."),
+    INVALID_REFUND_AMOUNT(HttpStatus.BAD_REQUEST, "환불 금액이 올바르지 않습니다."),
+    LOCK_ACQUISITION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "현재 결제 요청이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해 주세요."),
 
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -87,8 +90,9 @@ public enum ErrorCode {
 
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),
-    PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY,"결제 서비스 호출에 실패하였습니다."),
     REDIS_CONNECTION_FAILURE(HttpStatus.SERVICE_UNAVAILABLE,"실시간 서비스 이용이 불가능합니다."),
+    EXTERNAL_API_ERROR(HttpStatus.BAD_GATEWAY, "외부 결제 시스템과의 통신 중 오류가 발생했습니다."),
+    PG_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY, "결제 서비스 호출에 실패하였습니다."),
 
     // POINT 관련
     POINT_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),

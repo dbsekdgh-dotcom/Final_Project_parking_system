@@ -1,5 +1,6 @@
 package com.example.demo.domain.shared.payment;
 
+import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.payment.enums.PaymentMethod;
 import com.example.demo.domain.shared.payment.enums.PaymentStatus;
@@ -61,4 +62,5 @@ public class Payment {
     @Column(nullable = false)
     @Comment("환불처리된 누적 금액")
     private Long refundedAmount=0L;
+
 }

@@ -18,7 +18,7 @@ class Lock_service:
             - ex=15: 15초 뒤에 자동으로 삭제 (락이 무한히 유지되는 것 방지)
         """
         lock_key=f"payment:lock:{car_number}"
-        is_success=redis_client.set(lock_key,"processing",nx=True,ex=60)
+        is_success=redis_client.set(lock_key,"processing",nx=True,ex=180)
         
         if not is_success:
             raise HTTPException(

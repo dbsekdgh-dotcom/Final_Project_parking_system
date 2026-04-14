@@ -26,4 +26,14 @@ public class ParkingTicket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_policy_id",nullable = false)
     private TicketPolicy ticketPolicy;
+    @Column(name = "status",nullable = false)
+    private Status status=Status.STORE;
+    @Column(name = "applied_amount",nullable = false)
+    private Integer appliedAmount = 0;
+
+
+    //요금 결제 시
+    public void updateAppliedAmount(int amount){
+        this.appliedAmount=amount;
+    }
 }

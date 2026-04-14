@@ -1,11 +1,14 @@
 package com.example.demo.domain.kiosk.payment.dtos.response;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.AppliedTicketResult;
+import com.example.demo.domain.kiosk.payment.dtos.internal.StackableTicketResult;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -20,4 +23,7 @@ public class VehiclePaymentResponseDto {
     private Integer rawFee;          // 10,000 (할인 전 원래 요금 - 화면엔 안 보이지만 로그용)
     private long calculatedFee;        // 5,000 (누적금액 )
     private long amountToPay;           //실제 결제 금액
+    private StackableTicketResult stackableTicketResult;
+    private int totalDiscountMinutes;
+    private int totalDiscountAmount;
 }
