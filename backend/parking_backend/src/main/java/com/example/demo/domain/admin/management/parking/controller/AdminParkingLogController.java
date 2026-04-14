@@ -78,6 +78,8 @@ public class AdminParkingLogController {
             @Valid @RequestBody DiscountModifyRequest request,
             @AuthenticationPrincipal AdminAuthDto currentAdmin
             ) throws Exception{
+        log.info("관리자[{}]가 주차로그[{}]의 할인을 수정을 시도합니다. 사유:{}"
+        ,currentAdmin.getName(), parkingLogId, request.getReason());
 
         adminParkingService.modifyParkingDiscount(parkingLogId, request.getTicketPolicyId(), request.getReason(),currentAdmin);
         return ResponseEntity.ok(ApiResponse.success("할인 수정이 성공적으로 완료되었습니다."));

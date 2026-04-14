@@ -1,10 +1,15 @@
 package com.example.demo.domain.user.mypage.point.repository;
 
 import com.example.demo.domain.user.mypage.point.entity.PointLog;
+import com.example.demo.domain.user.mypage.point.entity.UserPoint;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PointLogRepository extends JpaRepository<PointLog,Long> {
 
@@ -12,5 +17,8 @@ public interface PointLogRepository extends JpaRepository<PointLog,Long> {
     List<PointLog> findByUserUserIdOrderByCreatedAtDesc(Long userId);
 
     boolean existsByPaymentPaymentId(long paymentId);
+
+    Optional<PointLog> findByPaymentPaymentId(long paymentId);
+
 
 }

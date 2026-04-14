@@ -46,7 +46,8 @@ export const usePayment=()=>{
                 "paymentKey":"POINT_FULL_PAYMENT",
                 "orderId":beforeResponse.orderId,
                 "amount":beforeResponse.amount,
-                "parkingLogId":beforeResponse.parkingLogId
+                "parkingLogId":beforeResponse.parkingLogId,
+                "stackableTicketResult":beforeResponse.stackableTicketResult
                 }
                 afterMutation.mutate(payload)
             }

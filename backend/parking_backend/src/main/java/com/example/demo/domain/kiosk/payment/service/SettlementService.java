@@ -1,9 +1,12 @@
 package com.example.demo.domain.kiosk.payment.service;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.AppliedTicketResult;
 import com.example.demo.domain.kiosk.payment.dtos.request.PaymentConfirmRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.request.SettlementRequestDto;
+import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.PaymentReadyResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.SettlementResponseDto;
+import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
 import com.example.demo.domain.shared.Notification.Notification;
 import com.example.demo.domain.shared.Notification.enums.Status;
 import com.example.demo.domain.shared.Notification.enums.Type;
@@ -12,6 +15,8 @@ import com.example.demo.domain.shared.activityLog.ActivityLog;
 import com.example.demo.domain.shared.activityLog.enums.ActivityType;
 import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
 import com.example.demo.domain.shared.household.Household;
+import com.example.demo.domain.shared.parkingTicket.ParkingTicket;
+import com.example.demo.domain.shared.parkingTicket.repository.ParkingTicketRepository;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
@@ -32,6 +37,7 @@ import com.example.demo.domain.user.mypage.point.repository.PointLogRepository;
 import com.example.demo.domain.user.mypage.point.repository.UserPointRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,50 +60,68 @@ public class SettlementService {
     private final PointLogRepository pointLogRepository;
     private final NotificationRepository notificationRepository;
     private final ActivityLogRepository activityLogRepository;
-
+    private final EntityManager entityManager;
+    private final ParkingTicketRepository parkingTicketRepository;
 
     //결제 전 검증
-    public ParkingLog checkEligibility(SettlementRequestDto settlementRequestDto){
-        long parkingLogId=settlementRequestDto.getParkingLogId();
-        int usedPoint=settlementRequestDto.getUsedPoint();
-        int paidAmount= settlementRequestDto.getPaidAmount();
+    public ParkingLog validateVehicleStatus(long parkingLogId) {
+        ParkingLog parkingLog = parkingLogRepository.getDetailLogInfo(parkingLogId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED));
 
-        //결제 금액 검증
-        ParkingLog parkingLog=parkingLogRepository.findByParkingLogId(parkingLogId).orElse(null);
+        //parkinglog null
+        if(parkingLog==null) {
+            throw new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
+        }
+        //결제 대상자가 아닌 경우
         if(com.example.demo.domain.shared.parkinglog.enums.PaymentStatus.NONE.equals(parkingLog.getPaymentStatus())){
             return parkingLog;
         }
-        //관리자 강제 출자 확인
-        if(ParkingStatus.FORCE_EXITED.equals(parkingLog.getParkingStatus())){
+        // 관리자 강제 출차 확인
+        if (ParkingStatus.FORCE_EXITED.equals(parkingLog.getParkingStatus())) {
             throw new BusinessException(ErrorCode.ALREADY_EXITED);
         }
-        //혹시 요금 무료 대상자가 넘어오는 경우 방지
-        if(parkingLog==null){
-            throw new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
-        }
-        int prepaid=parkingLog.getFee()!=0?parkingLog.getFee():0;
-        boolean amountCheck=parkingLog.getCalculatedFee()==prepaid+ usedPoint+ paidAmount;
+
+        return parkingLog;
+    }
+
+    //결제 전 검증
+    public void checkEligibility(SettlementRequestDto settlementRequestDto,ParkingLog parkingLog){
+        long parkingLogId=settlementRequestDto.getParkingLogId();
+        int usedPoint=settlementRequestDto.getUsedPoint();
+        int paidAmount= settlementRequestDto.getPaidAmount();
+        long remainingFee = parkingLog.getCalculatedFee() - parkingLog.getFee(); // 전체 - 이미 낸 돈
+        log.info("검증 실패 상세 - DB저장금액: {}, 프론트전달(카드+포인트): {}",
+                remainingFee, (settlementRequestDto.getUsedPoint() + settlementRequestDto.getPaidAmount()));
+        log.info("금액 검증 상세 분석 -> 전체목표: {}, 기존결제(prepaid): {}, 이번포인트: {}, 이번카드: {}",
+                remainingFee, usedPoint, paidAmount);
+        //int prepaid=parkingLog.getFee()!=0?parkingLog.getFee():0;
+        boolean amountCheck=remainingFee==(long)( usedPoint+ paidAmount);
         if(!amountCheck){
-            throw new BusinessException(ErrorCode.PAYMENT_TIMEOUT);
+            throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
         //결제 요청 시간 검증
         String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
                 .map(t->t.getSettingValue())
                 .orElse("5");
+        if(parkingLog.getPaymentRequestedAt()==null){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
         boolean timeCheck=parkingLog.getPaymentRequestedAt().plusMinutes(Integer.parseInt(paymentValidMinutes)).isAfter(LocalDateTime.now());
         if(!timeCheck){
             throw new BusinessException(ErrorCode.PAYMENT_TIMEOUT);
         }
         //유저 포인트 검증
         User user=parkingLogRepository.getDetailLogInfo(parkingLogId).map(ParkingLog::getVehicle).map(Vehicle::getUser).orElse(null);
-        int userCurrentPoint=user!=null?userPointRepository.findByUserUserId(user.getUserId()).get().getCurrentPoint() : 0;
+        int userCurrentPoint=user!=null?userPointRepository.findByUserUserIdWithLock(user.getUserId()).get().getCurrentPoint() : 0;
         if(userCurrentPoint<usedPoint){
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
-        return  parkingLog;
     }
-    //결제 전 payment insert
-    public PaymentReadyResponseDto insertPayment(ParkingLog parkingLog, SettlementRequestDto settlementRequestDto, PaymentStatus paymentStatus){
+
+    //결제 전 payment insert/parkinglog update
+    public PaymentReadyResponseDto insertPayment(ParkingLog parkingLog, SettlementRequestDto settlementRequestDto, PaymentStatus paymentStatus, VehiclePaymentResponseDto vehiclePaymentResponseDto){
+        boolean isFree = (settlementRequestDto.getPaidAmount() + settlementRequestDto.getUsedPoint() == 0);
+
         Vehicle vehicle=parkingLog.getVehicle();
         User user=(vehicle!=null)?vehicle.getUser():null;
         String userEmail=(user!=null)? user.getEmail() : null;
@@ -105,23 +129,57 @@ public class SettlementService {
         boolean isPaymentRequired=false;
         int paymentAmount=0;
 
-        //포인트 결제금액이 있는 경우
+        int alreadyPaidFee = parkingLog.getFee();
+
+        //1.이미 진행 중인 결제가 있는지 확인
+        String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
+                .map(t->t.getSettingValue())
+                .orElse("5");
+
+        if(isFree && parkingLog.getPaymentRequestedAt()!=null && com.example.demo.domain.shared.parkinglog.enums.PaymentStatus.PAID.equals(parkingLog.getPaymentStatus())){
+                throw new BusinessException(ErrorCode.ALREADY_PAID);
+        }else if(!isFree && parkingLog.getPaymentRequestedAt()!=null){
+            throw new BusinessException(ErrorCode.ALREADY_PROCESSING);
+        }
+
+        //2.parkinglog update
+        FeeCalculationResponseDto FeeCalculationResponseDto= com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto.builder()
+                .rawFee(vehiclePaymentResponseDto.getRawFee())
+                .calculatedFee(vehiclePaymentResponseDto.getCalculatedFee())
+                .totalDiscountAmount(vehiclePaymentResponseDto.getTotalDiscountAmount())
+                .totalDiscountMinutes(vehiclePaymentResponseDto.getTotalDiscountMinutes())
+                .paymentRequestedAt(LocalDateTime.now())
+                .build();
+        parkingLog.requestPayment(FeeCalculationResponseDto);
+        parkingLogRepository.saveAndFlush(parkingLog);
+        entityManager.clear();
+
+        // 4. 깨끗해진 상태에서 DB의 진짜 최종본 읽어오기
+        parkingLog = parkingLogRepository.getDetailLogInfo(parkingLog.getParkingLogId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED));
+        
+        //3.리액트에서 보내온 요청정보와 금액 확인
+        checkEligibility(settlementRequestDto,parkingLog);
+
+
+        //3.payment insert
+        //- 포인트 결제금액이 있는 경우
         if(settlementRequestDto.getUsedPoint()>0){
             savePayment(parkingLog,vehicle,settlementRequestDto.getUsedPoint(),PaymentMethod.POINT,paymentStatus,tempPaymentId);
         }
-        //신용카드 결제금액이 있는 경우
+        //- 신용카드 결제금액이 있는 경우
         if(settlementRequestDto.getPaidAmount()>0){
             savePayment(parkingLog,vehicle,settlementRequestDto.getPaidAmount(),PaymentMethod.PAY,paymentStatus,tempPaymentId);
             paymentAmount=settlementRequestDto.getPaidAmount();
             isPaymentRequired=true;
 
         }
-        //무료
+        //- 무료
         if(settlementRequestDto.getPaidAmount()+ settlementRequestDto.getUsedPoint()==0){
             savePayment(parkingLog,vehicle,0L,PaymentMethod.FREE_POLICY,paymentStatus,tempPaymentId);
         }
 
-        //리턴
+        //4.리턴
         return PaymentReadyResponseDto.builder()
                 .orderId(tempPaymentId)
                 .orderName(String.format("[%s] 주차 요금 정산",parkingLog.getCarNumberSnapshot()))
@@ -130,6 +188,7 @@ public class SettlementService {
                 .vehicleNumber(parkingLog.getCarNumberSnapshot())
                 .userEmail(userEmail)
                 .amount(paymentAmount)
+                .stackableTicketResult(settlementRequestDto.getStackableTicketResult())
                 .build();
     }
 
@@ -172,9 +231,17 @@ public class SettlementService {
         if(user==null){
             return;
         }
+        //결제금액이 0원이면 종료
+        long totalPaidAmount = payments.stream()
+                .mapToLong(Payment::getPriceSnapshot)
+                .sum();
+        if (totalPaidAmount == 0) {
+            log.info("결제 금액이 0원이므로 포인트 로직을 건너뜁니다.");
+            return;
+        }
         //이미 처리된 요청이 있으면 종료
-        Payment payment=payments.stream()
-                .filter(p->p.getPaymentMethod().equals(PaymentMethod.POINT)).findFirst().orElse(null);
+        Payment payment = payments.stream()
+                .filter(p -> p.getPaymentMethod().equals(PaymentMethod.POINT)).findFirst().orElse(null);
 
         if(payment !=null){
             if(pointLogRepository.existsByPaymentPaymentId(payment.getPaymentId()))return;
@@ -195,11 +262,13 @@ public class SettlementService {
             throw new BusinessException(ErrorCode.MINIMUM_POINT_NOT_ME);
         }
 
+        String msg=null;
         //결제 시 포인트 사용 :  userPoint update& PointLog insert
         int changeAmount=usedPoint;
         PointReason pointReason=null;
         if(usedPoint>0){
             pointReason=PointReason.PAYMENT_USE;
+            msg="결제 시 포인트 사용";
         }
         // 회원 && 결제 시 미사용 && 첫 적립
         String pointEarnRate=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_POINT_EARN_RATE.getKey())
@@ -209,17 +278,19 @@ public class SettlementService {
             pointReason=PointReason.PAYMENT_EARN;
             changeAmount=(int)Math.round(paidAmount*(Integer.parseInt(pointEarnRate)/100.0));
             payment=payments.stream().filter(p->p.getPaymentMethod().equals((PaymentMethod.PAY))).findFirst().orElse(null);
+            msg="결제 포인트 적립";
+
         }
         if(payment==null){
             payment=payments.get(0);
         }
 
-        updatePointOfPayment(user,changeAmount,payment,pointReason);
+        updatePointOfPayment(user,changeAmount,payment,pointReason,msg);
     }
 
-    public void updatePointOfPayment(User user,int changeAmount,Payment payment,PointReason pointReason){
+    public void updatePointOfPayment(User user,int changeAmount,Payment payment,PointReason pointReason,String msg){
 
-        UserPoint userPoint=userPointRepository.findByUserUserId(user.getUserId()).orElse(null);
+        UserPoint userPoint=userPointRepository.findByUserUserIdWithLock(user.getUserId()).orElse(null);
 
         int currentPoint=0;
         if(userPoint!=null){
@@ -251,6 +322,7 @@ public class SettlementService {
                 .beforePoint(currentPoint)
                 .afterPoint(afterPoint)
                 .reason(pointReason)
+                .description(msg)
                 .build();
         pointLogRepository.save(pointLog);
     }
@@ -260,22 +332,17 @@ public class SettlementService {
         String postPaymentGraceMinutes=systemSettingRepository.findBySettingKey(SettingKey.POST_PAYMENT_GRACE_MINUTES.getKey())
                 .map(SystemSetting::getSettingValue)
                 .orElse("5");
-        LocalDateTime nowtime=LocalDateTime.now();
-        LocalDateTime freeExitUntil=nowtime.plusMinutes(Integer.parseInt(postPaymentGraceMinutes));
-        int finalPaidAmount= parkingLog.getFee()+(int)paidAmount;
-        com.example.demo.domain.shared.parkinglog.enums.PaymentStatus paymentStatus= com.example.demo.domain.shared.parkinglog.enums.PaymentStatus.PAID;
-        parkingLog.setFee(finalPaidAmount);
-        parkingLog.setPaidAt(nowtime);
-        parkingLog.setFreeExitUntil(freeExitUntil);
-        parkingLog.setPaymentStatus(paymentStatus);
 
+        parkingLog.completePayment((int)paidAmount,Integer.parseInt(postPaymentGraceMinutes));
         DateTimeFormatter formatter=DateTimeFormatter.ofPattern("HH:mm");
+        String deadlineStr=parkingLog.getFreeExitUntil().format(formatter);
+
         return SettlementResponseDto.builder()
-                .paymentStatus(paymentStatus.name())
+                .paymentStatus(parkingLog.getPaymentStatus().name())
                 .vehicleNumber(parkingLog.getCarNumberSnapshot())
                 .paidAmount((int)paidAmount)
-                .exitDeadline(freeExitUntil.format(formatter).formatted())
-                .message("정산이 완료되었습니다. " +freeExitUntil.format(formatter).formatted() +"까지 출차해 주세요.")
+                .exitDeadline(deadlineStr)
+                .message(String.format("정산이 완료되었습니다. %s까지 출차해 주세요.",deadlineStr))
                 .build();
     }
 
@@ -304,4 +371,76 @@ public class SettlementService {
             activityLogRepository.save(activityLog);
         });
     }
+
+    //할인권 사용 업데이트
+    public void updateUsedParkingTicket(List<ParkingTicket> tickets, List<AppliedTicketResult> resultList){
+        resultList.forEach(l->{
+            tickets.stream().filter(t->t.getParkingTicketId()==l.getTicketId()).findFirst()
+                    .ifPresent(parkingTicket1 ->{
+                        parkingTicket1.setAppliedAmount(l.getAppliedValue());
+                    });
+        });
+    }
+
+    public SettlementResponseDto processSettlementResult(ParkingLog parkingLog,List<Payment> payments,PaymentConfirmRequestDto dto,PaymentStatus status,ActivityType activityType,String tossErrorMsg){
+        SettlementResponseDto settlementResponseDto=null;
+
+        // 결제 성공 시
+        if (PaymentStatus.SUCCESS.equals(status)) {
+            settlementResponseDto=handleSuccessSettlement(parkingLog,payments,dto,status,activityType);
+        //결제 실패 시
+        } else if (PaymentStatus.FAILED.equals(status)) {
+            // - Payment insert
+            savePaymentReceipt(payments, dto, status);
+            // - 결제 요청 시간 삭제
+            parkingLog.setPaymentRequestedAt(null);
+            // - return
+            settlementResponseDto=SettlementResponseDto.builder().paymentStatus(status.name()).vehicleNumber(parkingLog.getCarNumberSnapshot()).message(tossErrorMsg).build();
+        //결제 취소 시
+        } else if (PaymentStatus.CANCELLED.equals(status)) {
+            // - Payment insert
+            savePaymentReceipt(payments, dto, status);
+            // - 결제 요청 시간 삭제
+            parkingLog.setPaymentRequestedAt(null);
+            // - return
+            settlementResponseDto = SettlementResponseDto.builder().paymentStatus(status.name()).vehicleNumber(parkingLog.getCarNumberSnapshot()).build();
+        }
+        return settlementResponseDto;
+    }
+
+    public SettlementResponseDto handleSuccessSettlement(ParkingLog parkingLog,List<Payment> payments,PaymentConfirmRequestDto dto,PaymentStatus status,ActivityType activityType){
+        SettlementResponseDto settlementResponseDto=null;
+        User user=(parkingLog.getVehicle()!=null)? parkingLog.getVehicle().getUser():null;
+
+        //DB의 최신 상태로 데이터 재조회
+        entityManager.refresh(parkingLog);
+        //토스 승인 후 관리자 강제 출차 여부 재확인
+        if(ParkingStatus.FORCE_EXITED.equals(parkingLog.getParkingStatus())) {
+            throw new BusinessException(ErrorCode.FORCE_EXITED);
+        }
+        // 1. Payment insert
+        savePaymentReceipt(payments, dto, status);
+        // 2. userPoint & PointLog update
+        pointProcessOfPayment(user, parkingLog, payments, dto);
+        // 3. parking Log 업데이트
+        long totalAmount=payments.stream().mapToLong(Payment::getAmount).sum();
+        settlementResponseDto = updateParkingLogFinal(parkingLog, totalAmount);
+        // 4. notification insert
+        insertNotification(user, settlementResponseDto.getExitDeadline());
+        // 5. active log insert(포인트+카드 결제면 두줄?)// 사전정산인지, 출차 정산인지 여부는 컨트롤러에서
+        insertActivityLog(parkingLog, user, payments, activityType);
+        // 6. 할인권 사용 금액 업데이트
+        if(dto.getStackableTicketResult()!=null){
+            updateUsedParkingTicket(parkingTicketRepository.getValidTickets(parkingLog.getParkingLogId(), com.example.demo.domain.shared.ticketPolicy.enums.Status.ACTIVE),dto.getStackableTicketResult().getDetails());
+        }
+          return  settlementResponseDto;
+    }
+
+    //락 해제
+    public void restPaymentLock(List<Payment> payments,ParkingLog parkingLog){
+        payments.forEach(l->l.setPaymentStatus(PaymentStatus.FAILED));
+        parkingLog.setPaymentRequestedAt(null);
+        parkingLogRepository.saveAndFlush(parkingLog);
+    }
+
 }

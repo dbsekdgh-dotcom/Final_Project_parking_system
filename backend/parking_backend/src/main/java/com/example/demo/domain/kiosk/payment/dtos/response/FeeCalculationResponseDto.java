@@ -1,8 +1,11 @@
 package com.example.demo.domain.kiosk.payment.dtos.response;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.AppliedTicketResult;
+import com.example.demo.domain.kiosk.payment.dtos.internal.StackableTicketResult;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +21,5 @@ public class FeeCalculationResponseDto {
     private long amountToPay;
     private LocalDateTime paymentRequestedAt;
     private String vehicleNumber;
+    private StackableTicketResult stackableTicketResult;
 }
