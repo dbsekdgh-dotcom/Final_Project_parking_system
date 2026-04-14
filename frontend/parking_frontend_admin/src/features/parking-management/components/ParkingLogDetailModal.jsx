@@ -37,8 +37,12 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
     // 이미 출차완료(EXITED), 강제출차(FORCE_EXITED)가 아닌 경우만 활성화
     const isForceExitDisabled = ['EXITED', 'FORCE_EXITED', 'ENTRY_CANCELLED'].includes(data.parkingStatus)
     const isDiscountEditDisabled =
+        //이미 출차했거나 취소된 상태일 때
         ['EXITED', 'ENTRY_CANCELLED', 'FORCE_EXITED'].includes(data.parkingStatus) ||
-        ['SUCCESS', 'FAILED', 'CANCELLED','REFUNDED'].includes(data.paymentStatus);
+        //결제가 완료되었거나 프로세스가 종료된 상태일 때
+        ['SUCCESS', 'FAILED', 'CANCELLED','REFUNDED'].includes(data.paymentStatus) ||
+        //입주민(RESIDENT) 또는 정기권(SUBSCRIPTION) 차량인 경우
+        ['RESIDENT','SUBSCRIPTION'].includes(data.userType);
 
     // 강제 출차 핸들러
     const handleForceExitClick = async () => {
@@ -298,9 +302,9 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                                         {PAYMENT_STATUS_LABELS[data.paymentStatus] || data.paymentStatus}
                                     </span>
                                     {/* 미납(UNPAID), 차량이 주차장 안에 있는 상태일때만 결제처리 버튼 활성화 */}
-                                    <button className={`action-btn-primary ${data.paymentStatus !== 'UNPAID' ? 'disabled' : ''}`}>
+                                    {/* <button className={`action-btn-primary ${data.paymentStatus !== 'UNPAID' ? 'disabled' : ''}`}>
                                         결제처리
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         </section>
