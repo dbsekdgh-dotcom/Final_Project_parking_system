@@ -47,7 +47,7 @@ public class PaymentFacade {
             }
             //3. 락 걸기
             aiServerClient.requestPaymentLock(parkingLog.getCarNumberSnapshot());
-            //4. 실제 요금정산 및 DB 작업 수행
+            //4. 요금계산
             VehiclePaymentResponseDto responseDto= paymentService.requestPayment(parkingLog);
             if(responseDto.isFree()){
                 //계산시 할인 등으로 인해 무료인 경우
@@ -66,16 +66,18 @@ public class PaymentFacade {
 
     //결제 요청 시 사전 검증
     public PaymentReadyResponseDto beforePayment(SettlementRequestDto dto){
-        // 1. 결제 가능한지 검증(ex.결제 요청 시간부터 경과 시간, 결제 금액 변동 여부 확인)
-        ParkingLog parkingLog=settlementService.checkEligibility(dto);
+        // 1. 결제 대상자 확인
+        ParkingLog parkingLog=settlementService.validateVehicleStatus(dto.getParkingLogId());
         // 2. 기존에 ready상태의 결제들이 있다면 취소 처리
         List<Payment> payments=paymentRepository.findAllByParkingLogAndPaymentStatus(parkingLog,PaymentStatus.READY);
         if(!payments.isEmpty()){
             payments.forEach(p->p.setPaymentStatus(PaymentStatus.CANCELLED));
         }
-        // 3. 결제 전 Payment insert
-        PaymentReadyResponseDto paymentReadyResponseDto=settlementService.insertPayment(parkingLog,dto, PaymentStatus.READY);
-        // 4. 락 해제
+        // 3. 결제 금액 계산
+        VehiclePaymentResponseDto vehiclePaymentResponseDto=paymentService.requestPayment(parkingLog);
+        // 4. 결제 전 Payment insert
+        PaymentReadyResponseDto paymentReadyResponseDto=settlementService.insertPayment(parkingLog,dto, PaymentStatus.READY,vehiclePaymentResponseDto);
+        // 5. 락 해제
         aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
         return paymentReadyResponseDto;
     }
@@ -98,7 +100,8 @@ public class PaymentFacade {
             aiServerClient.requestPaymentLock(carNumber);
 
             //결제 승인 요청 전 관리자 강제 출차 여부 확인
-            settlementService.verifyBeforeTossConfirm(parkingLog);
+            SettlementRequestDto settlementRequestDto=SettlementRequestDto.builder().parkingLogId(parkingLog.getParkingLogId()).usedPoint((int)(parkingLog.getCalculatedFee()-dto.getAmount())).paidAmount((int)dto.getAmount()).build();
+            settlementService.checkEligibility(settlementRequestDto,parkingLog);
 
             if (dto.getAmount() > 0) {
                 // 2. 토스 승인 요청

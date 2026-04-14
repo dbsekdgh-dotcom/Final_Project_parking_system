@@ -56,7 +56,8 @@ const SelectedVehicleInfo = () => {
                 "vehicleNumber":data.vehicleNumber,
                 "usedPoint":paymentData.usedPoint,
                 "paidAmount":paymentData.paidAmount,
-                "settlementType":"PREPAYMENT"
+                "settlementType":"PREPAYMENT",
+                "stackableTicketResult":data.stackableTicketResult
             }
             await beforeMutation.mutateAsync(settlementPayload)
 

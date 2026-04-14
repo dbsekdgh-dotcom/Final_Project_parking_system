@@ -10,8 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ParkingTicketRepository extends JpaRepository<ParkingTicket,Long> {
-    @Query("select new com.example.demo.domain.kiosk.payment.dtos.request.DiscountTicketRequestDto(" +
-            " t.parkingTicketId, t.parkingLog.parkingLogId, t.ticketPolicy) from ParkingTicket t " +
-            "join t.ticketPolicy where t.parkingLog.parkingLogId=:parkingLogId and t.ticketPolicy.status=:status")
-    List<DiscountTicketRequestDto> getValidTickets(@Param("parkingLogId") Long parkingLogId, @Param("status") Status status);
+    @Query("select t from ParkingTicket t " +
+            "left join fetch t.ticketPolicy where t.parkingLog.parkingLogId=:parkingLogId and t.ticketPolicy.status=:status")
+    List<ParkingTicket> getValidTickets(@Param("parkingLogId") Long parkingLogId, @Param("status") Status status);
 }
