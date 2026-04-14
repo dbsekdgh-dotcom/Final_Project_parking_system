@@ -229,4 +229,20 @@ public class ParkingLog {
         this.freeExitUntil=dto.getFreeExitUntil();
         this.paymentRequestedAt=dto.getPaymentRequestedAt();
     }
+
+    //강제출차 조회
+    public void verifyForceExit(){
+        if(this.parkingStatus==ParkingStatus.FORCE_EXITED){
+            throw new BusinessException(ErrorCode.FORCE_EXITED);
+        }
+    }
+    //결제 완료에 따른 주차 로그 업데이트
+    public void completePayment(int additionalFee,int graceMinutes){
+        this.fee+=additionalFee;
+        this.paidAt=LocalDateTime.now();
+        this.freeExitUntil=paidAt.plusMinutes(graceMinutes);
+        this.paymentStatus=PaymentStatus.PAID;
+    }
+
+
 }

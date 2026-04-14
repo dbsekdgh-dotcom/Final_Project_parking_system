@@ -34,10 +34,12 @@ public class PaymentService {
     private final ReservationRepository reservationRepository;
     private final ParkingFeePolicyRepository parkingFeePolicyRepository;
     private final ParkingTicketRepository parkingTicketRepository;
+    private static final int MINUTES_PER_DAY = 1440;
 
 
     //무료 요금 대상자인지 확인
     public PaymentEligibilityResult checkFreeExitEligibility(Long parkingLogId) {
+        LocalDateTime now = LocalDateTime.now();
         ParkingLog parkingLog = (ParkingLog) parkinglogRepository.findById(parkingLogId).orElseThrow(() -> {
             throw new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
         });
@@ -48,7 +50,7 @@ public class PaymentService {
         VehiclePaymentResponseDto responseDto=null;
 
         //주차 시간 계산(화면 표시용)
-        LocalDateTime exitTime=LocalDateTime.now();
+        LocalDateTime exitTime=now;
         long parkingTime=Duration.between(parkingLog.getEnteredAt(),exitTime).toMinutes();
 
         //1. [NONE 처리] 입주민 /정기권 차량인 경우
@@ -58,7 +60,7 @@ public class PaymentService {
         }
 
         //2. [PAID/UNPAID 처리] 무료 출차시간 내인 경우
-        if (freeExitTime != null && freeExitTime.isAfter(LocalDateTime.now())) {
+        if (freeExitTime != null && freeExitTime.isAfter(now)) {
             String msg = PaymentStatus.PAID.equals(status) ? "사전정산 완료된 차량입니다." : "무료 출차 대상 차량입니다.";
             responseDto= VehiclePaymentResponseDto.builder()
                     .isFree(true).message(msg).rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build();
@@ -76,7 +78,6 @@ public class PaymentService {
 
     //요금 계산
     public FeeCalculationResponseDto calculateBaseFee(FeeCalculationRequestDto request){
-        LocalDateTime now=LocalDateTime.now();
         // 1. 무료 주차 시간을 넘지 않은 경우 0
         long parkingTime=request.getParkingTime();
         int entryGraceTime=request.getPolicy().getGraceMinutes();
@@ -85,6 +86,7 @@ public class PaymentService {
         int unitFee=request.getPolicy().getUnitFee();
         int baseFee=request.getPolicy().getBaseFee();
         int prepaidFee=request.getPrepaidFee();
+        LocalDateTime now = LocalDateTime.now();
 
         // 0. 주차시간에서 무료 출자 시간 차감
         long billableTime=Math.max(0,parkingTime-entryGraceTime);
@@ -100,11 +102,11 @@ public class PaymentService {
         long discountedParkingTime=Math.max(0,billableTime-totalDiscountMinutes);
 
         // 3. 24시간 단위 요금 계산
-        long fullDays=discountedParkingTime/1440;
+        long fullDays=discountedParkingTime/MINUTES_PER_DAY;
         int fullDaysFee=(int)(fullDays*dailyMaxFee);
 
         // 4. 24시간을 채우지 못한 나머지 시간 계산
-        long remainingMinutes=discountedParkingTime%1440;
+        long remainingMinutes=discountedParkingTime%MINUTES_PER_DAY;
         int remainingFee=0;
         if(remainingMinutes>0){
             int extraUnit=(int)Math.ceil(remainingMinutes/(double)unitMinutes);
@@ -168,7 +170,6 @@ public class PaymentService {
     }
 
     public FeeCalculationResponseDto settlementFee(ParkingLog parkingLog,Long parkingFeePolicyId,Long parkingTime){
-
         //요금 정책이 없는 경우 오류 처리
         ParkingFeePolicy parkingFeePolicy=parkingFeePolicyRepository.findById(parkingFeePolicyId).orElse(null);
         if(parkingFeePolicy==null)throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -176,7 +177,7 @@ public class PaymentService {
         //할인권 조회(status=='ACTIVE' & 유효기간이 지나지 않은 것)
         List<DiscountTicketRequestDto> list=parkingTicketRepository.getValidTickets(parkingLog.getParkingLogId(), com.example.demo.domain.shared.ticketPolicy.enums.Status.ACTIVE);
         List<DiscountTicketRequestDto> discountTicketRequestDtos =list.stream().filter(l->{
-            Long totalMinutes=l.getTicketPolicy().getValidDays()*1440L +l.getTicketPolicy().getValidMinutes();
+            Long totalMinutes=l.getTicketPolicy().getValidDays()*(long)MINUTES_PER_DAY +l.getTicketPolicy().getValidMinutes();
             LocalDateTime expiryDate=l.getTicketPolicy().getCreatedAt().plusMinutes(totalMinutes);
             return expiryDate.isAfter(LocalDateTime.now());
         }).toList();
@@ -203,7 +204,7 @@ public class PaymentService {
         LocalDateTime calculationStartTime=parkingLog.getEnteredAt();
         long parkingLogId=parkingLog.getParkingLogId();
         //주차 시간 계산(화면 표시용)
-        LocalDateTime exitTime=LocalDateTime.now();
+        LocalDateTime exitTime=LocalDateTime.now();;
         long parkingTime=Duration.between(parkingLog.getEnteredAt(),exitTime).toMinutes();
 
         //타입이 방문인 경우 입차확인&무료요금&방문예약일이 경과했는지 체크
@@ -224,7 +225,6 @@ public class PaymentService {
         }
         //db 업데이트FeeCalculationResponseDto
         parkingLog.requestPayment(feeCalculationResponseDto);
-        parkinglogRepository.save(parkingLog);
 
         // 반환
         return VehiclePaymentResponseDto.builder()
