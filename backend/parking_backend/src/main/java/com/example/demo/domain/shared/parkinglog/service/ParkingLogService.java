@@ -1,5 +1,8 @@
 package com.example.demo.domain.shared.parkinglog.service;
 
+import com.example.demo.domain.admin.management.parking.service.AdminParkingService;
+import com.example.demo.domain.shared.parkingTicket.ParkingTicket;
+import com.example.demo.domain.shared.parkingTicket.repository.ParkingTicketRepository;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogDetailResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
@@ -8,6 +11,7 @@ import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummary
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
+import com.example.demo.domain.shared.ticketPolicy.enums.UseType;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +30,8 @@ import java.util.List;
 @Transactional(readOnly = true) // 기본을 읽기전용으로 설정 - 추후 db 저장/수정 하는 메서드에만 일반 @Transactional을 붙여주면 됨
 public class ParkingLogService {
     private final ParkingLogRepository parkinglogRepository;
+    private final ParkingTicketRepository parkingTicketRepository;
+    private final AdminParkingService adminParkingService;
 
     //차량번호 4자리 입력 후 차량 조회 시 조회될 차량번호 목록
     public List<ParkingLogSettlementDto> getActiveVehicleList(String vehicleNumber){
@@ -70,7 +76,21 @@ public class ParkingLogService {
     public ParkingLogDetailResponse getParkingLogDetail(Long parkingLogId){
         ParkingLog log = parkinglogRepository.findById(parkingLogId)
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_LOG_NOT_FOUND));
+        //해당 로그에 쌓인 티켓들 전부 조회
+        List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
+
+        int storeSum=0;
+        int adminSum=0;
+
+        for (ParkingTicket ticket : tickets){
+            int amount = adminParkingService.calculatedDiscountByPolicy(ticket.getTicketPolicy(),log);
+            if(ticket.getTicketPolicy().getUseType() == UseType.STORE){
+                storeSum +=amount;
+            } else if (ticket.getTicketPolicy().getUseType()==UseType.ADMIN) {
+                adminSum +=amount;
+            }
+        }
         //BusinessException : 내가 의도적으로 낸 에러 / RuntimeException : 시스템이 낸 에러
-        return ParkingLogDetailResponse.toDetailDto(log); // 찾은 엔티티를 응답용 DTO로 반환
+        return ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum); // 찾은 엔티티를 응답용 DTO로 반환
     }
 }

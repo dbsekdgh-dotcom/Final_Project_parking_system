@@ -53,12 +53,15 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
     private Integer totalDiscountAmount; //총 할인 금액
     private Integer rawFee; //할인 전 원래 요금
 
+    private Integer storeDiscountTotal; //상가 할인 합계
+    private Integer adminDiscountTotal; //관리자 할인 합계
+
     //위치 정보
     private String spaceCode; //주차 공간 번호
     private String floor;
 
     //상세조회 변환 메서드
-    public static ParkingLogDetailResponse toDetailDto(ParkingLog entity){
+    public static ParkingLogDetailResponse toDetailDto(ParkingLog entity, Integer storeSum, Integer adminSum){
         String duration = "-";
         if(entity.getEnteredAt() != null){
             LocalDateTime end = (entity.getExitedAt() != null) ? entity.getExitedAt():LocalDateTime.now();
@@ -89,6 +92,8 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
                 .freeExitUntil(entity.getFreeExitUntil())
                 .totalDiscountAmount(entity.getTotalDiscountAmount())
                 .rawFee(entity.getRawFee())
+                .storeDiscountTotal(storeSum)
+                .adminDiscountTotal(adminSum)
                 .fee(entity.getFee())
                 .calculatedFee(entity.getCalculatedFee())
                 .parkingDuration(duration)
