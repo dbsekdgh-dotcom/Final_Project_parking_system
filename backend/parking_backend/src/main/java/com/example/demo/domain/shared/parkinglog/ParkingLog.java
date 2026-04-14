@@ -219,4 +219,16 @@ public class ParkingLog {
             this.paymentStatus=PaymentStatus.NONE;
         }
     }
+    // 무료 시간이 만료 됐을때 요금 상태 업데이트
+    public void expireFreeExit(int rawFee){
+        this.paymentStatus = PaymentStatus.UNPAID;
+        this.rawFee = rawFee;
+    }
+    // EXIT_REQUESTED에서 방치된 차량 ENTERED로 되돌리기
+    public void revertToEntered(){
+        this.parkingStatus = ParkingStatus.ENTERED;
+        this.exitCameraId=null;
+        this.exitPlateImage=null;
+        this.exitTime=null;
+    }
 }
