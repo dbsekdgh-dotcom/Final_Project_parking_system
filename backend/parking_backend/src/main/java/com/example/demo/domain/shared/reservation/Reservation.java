@@ -3,6 +3,7 @@ package com.example.demo.domain.shared.reservation;
 import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.reservation.enums.Purpose;
 import com.example.demo.domain.shared.reservation.enums.Status;
+import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,8 +24,8 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "host_user_id")
-    private Household household;
+    @JoinColumn(name = "user_id")
+    private User user;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
@@ -33,7 +34,7 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private Status status =Status.RESERVED;
+    private Status status =Status.PENDING;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Purpose purpose;
@@ -41,6 +42,7 @@ public class Reservation {
     private LocalDateTime visitStartAt;
     @Column(nullable = false)
     private LocalDateTime visitEndAt;
+    private LocalDateTime actual_entry_at;
     @CreationTimestamp
     private LocalDateTime createdAt;
     private LocalDateTime cancelledAt;
