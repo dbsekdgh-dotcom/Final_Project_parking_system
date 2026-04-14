@@ -142,11 +142,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Claims claims = adminJWTUtil.validateToken(accessToken);
             String loginId = (String) claims.get("loginId");
             String name = (String) claims.get("name");
-            AdminAuthDto adminAuthDto = new AdminAuthDto(loginId, "pw_hidden", name);
+            AdminAuthDto adminAuthDto = new AdminAuthDto(loginId,"pw_hidden",name);
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(adminAuthDto, null, adminAuthDto.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(adminAuthDto,null,adminAuthDto.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             sendUserErrorResponse(response, "ERROR_ACCESS_TOKEN");

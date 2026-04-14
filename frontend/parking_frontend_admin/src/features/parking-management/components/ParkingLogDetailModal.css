@@ -5,12 +5,12 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.75); /* 배경을 좀 더 어둡게 */
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(4px); /* 배경 흐림 효과로 모달 집중도 상승 */
+    backdrop-filter: blur(4px);
 }
 
 /* 모달 컨텐츠 박스 */
@@ -20,9 +20,10 @@
     width: 880px;
     max-height: 90vh;
     border-radius: 12px;
-    overflow-y: auto;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     border: 1px solid #444;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 헤더 섹션 */
@@ -63,18 +64,18 @@
     font-size: 2rem;
     cursor: pointer;
     transition: color 0.2s;
+    line-height: 1;
 }
 
-.close-x-btn:hover {
-    color: #fff;
-}
+.close-x-btn:hover { color: #fff; }
 
-/* 바디 레이아웃: 좌측 이미지 / 우측 정보 */
+/* 바디 레이아웃 */
 .parking-modal-body {
     padding: 25px;
     display: flex;
     gap: 30px;
     align-items: flex-start;
+    overflow-y: auto;
 }
 
 .modal-left-section {
@@ -82,7 +83,6 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    /* 우측 정보 섹션과 높이를 맞추기 위해 추가 */
     align-self: stretch;
 }
 
@@ -95,7 +95,6 @@
 
 /* 이미지 컨테이너 */
 .image-container {
-    flex: 1;
     background: #1a1a1a;
     padding: 12px;
     border-radius: 8px;
@@ -115,28 +114,18 @@
 .img-box {
     flex: 1;
     width: 100%;
-    /* min-height: 180px; */
     background: #000;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    position: relative;
 }
 
 .img-box img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-}
-
-.no-image {
-    color: #555;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 /* 정보 그룹 및 행 */
@@ -161,74 +150,165 @@
     font-weight: 500;
 }
 
+/* 할인 상세 하위 행 (상가/관리자 할인 분리 표시용) */
+.discount-detail-rows {
+    margin-top: -5px;
+    padding-left: 8px;
+}
+
+.sub-row {
+    margin-bottom: 8px !important;
+}
+
+.sub-row label {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.discount-val-sub {
+    color: #f87171 !important;
+    font-size: 0.85rem;
+}
+
+/* 할인 수정 폼 (수정 버튼 클릭 시 나타나는 영역) */
+.discount-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    background: #252525;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+
+.input-group.column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.edit-input {
+    background: #1a1a1a;
+    border: 1px solid #444;
+    color: #efefef;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.edit-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.save-btn {
+    background: #22c55e;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cancel-btn {
+    background: #64748b;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* 버튼 및 강조 텍스트 */
 .value-with-btn {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* 강조 텍스트 */
 .duration-text { color: #4ade80; font-weight: bold; }
 .deadline-text { color: #fbbf24; }
 .discount-val { color: #f87171; font-weight: 600; }
-.final-price { font-size: 1.2rem; color: #3b82f6; font-weight: bold; }
+.total-highlight { color: #f87171; font-size: 1.05rem; }
+.final-price { font-size: 1.25rem; color: #60a5fa; font-weight: bold; }
 
 .highlight-row {
     border-top: 1px solid #444;
-    padding-top: 10px;
+    padding-top: 12px;
     margin-top: 5px;
 }
 
-/* 버튼 스타일 */
+/* 액션 버튼 */
 .action-btn-small {
-    padding: 4px 8px;
+    padding: 4px 10px;
     font-size: 0.75rem;
     border-radius: 4px;
     border: 1px solid #555;
     background: #444;
     color: #ccc;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
-.action-btn-small.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.action-btn-small:hover:not(.disabled) {
+    background: #555;
+    color: #fff;
+}
+
+.danger-btn {
+    border-color: #7f1d1d;
+    color: #f87171;
+}
+
+.danger-btn:hover:not(.disabled) {
+    background: #7f1d1d;
+    color: #fff;
 }
 
 .action-btn-primary {
-    padding: 6px 12px;
+    padding: 6px 14px;
     background: #3b82f6;
     color: white;
     border: none;
     border-radius: 4px;
     font-weight: 600;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
-.action-btn-primary.disabled {
-    background: #555;
-    cursor: not-allowed;
+.action-btn-primary:hover:not(.disabled) { background: #2563eb; }
+
+.disabled {
+    opacity: 0.4;
+    cursor: not-allowed !important;
 }
 
-/* 상태별 색상 (공통) */
+/* 상태 및 배지 */
 .status-val.ENTERED { color: #4ade80; }
 .status-val.EXITED { color: #94a3b8; }
 .payment-val.UNPAID { color: #f87171; }
 .payment-val.PAID { color: #4ade80; }
 
-/* 유형 배지 */
 .type-badge {
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: bold;
-    text-transform: uppercase;
 }
 .type-badge.RESIDENT { background: #1e3a8a; color: #bfdbfe; }
-.type-badge.VISIT { background: #374151; color: #d1d5db; }
+.type-badge.VISITOR { background: #374151; color: #d1d5db; }
 
 .cancel-text {
-    color: #ff4d4f; /* 흐린 빨강 또는 주황 */
+    color: #f87171;
     font-size: 0.85rem;
     font-weight: bold;
+    margin-left: 5px;
 }
