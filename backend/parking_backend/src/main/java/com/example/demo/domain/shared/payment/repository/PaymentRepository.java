@@ -15,4 +15,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findAllByParkingLogAndPaymentStatusIn(ParkingLog parkingLog, Collection<PaymentStatus> paymentStatus);
     //반대로 SUCCESS, CANCELLED, REFUNDED가 아닌것만 조회
     List<Payment> findAllByParkingLogAndPaymentStatusNotIn(ParkingLog parkingLog, Collection<PaymentStatus> statuses);
+    //ParkingLog 엔티티과 결제 상태를 조건으로 리스트 조회
+    List<Payment> findAllByParkingLogAndPaymentStatus(ParkingLog parkingLog,PaymentStatus paymentStatus);
 }

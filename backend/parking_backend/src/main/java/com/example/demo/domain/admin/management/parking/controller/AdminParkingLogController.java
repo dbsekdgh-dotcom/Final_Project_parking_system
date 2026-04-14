@@ -72,16 +72,18 @@ public class AdminParkingLogController {
     }
 
     //주차 로그 할인 수정 처리
-//    @PatchMapping("/parking/logs/{parkingLogId}/discount")
-//    public ResponseEntity<ApiResponse<Void>> modifyDiscount(
-//            @PathVariable Long parkingLogId,
-//            @Valid @RequestBody DiscountModifyRequest request,
-//            @AuthenticationPrincipal AdminAuthDto currentAdmin
-//            ) throws Exception{
-//
-//        adminParkingService.modifyParkingDiscount(parkingLogId, request.getTicketPolicyId(), request.getReason(),currentAdmin);
-//        return ResponseEntity.ok(ApiResponse.success("할인 수정이 성공적으로 완료되었습니다."));
-//    }
+    @PatchMapping("/parking/logs/{parkingLogId}/discount")
+    public ResponseEntity<ApiResponse<Void>> modifyDiscount(
+            @PathVariable Long parkingLogId,
+            @Valid @RequestBody DiscountModifyRequest request,
+            @AuthenticationPrincipal AdminAuthDto currentAdmin
+            ) throws Exception{
+        log.info("관리자[{}]가 주차로그[{}]의 할인을 수정을 시도합니다. 사유:{}"
+        ,currentAdmin.getName(), parkingLogId, request.getReason());
+
+        adminParkingService.modifyParkingDiscount(parkingLogId, request.getTicketPolicyId(), request.getReason(),currentAdmin);
+        return ResponseEntity.ok(ApiResponse.success("할인 수정이 성공적으로 완료되었습니다."));
+    }
 
     @GetMapping("/parking/ticket-policies/admin")
     public ResponseEntity<ApiResponse<List<AdminTicketPolicyResponse>>> getAdminPolicies(){

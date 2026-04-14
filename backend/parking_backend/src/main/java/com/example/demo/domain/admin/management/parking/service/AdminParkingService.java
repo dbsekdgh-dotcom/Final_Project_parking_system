@@ -80,47 +80,70 @@ public class AdminParkingService {
                 .collect(Collectors.toList());
     }
 
+    // 상가/관리자 타입별 할인 합계 계산
+    private int calculateTotalDiscountByUseType(List<ParkingTicket> tickets, UseType useType, ParkingLog parkingLog){
+        return tickets.stream()
+                .filter(t->t.getTicketPolicy().getUseType()==useType)
+                .mapToInt(t->calculatedDiscountByPolicy(t.getTicketPolicy(),parkingLog))
+                .sum();
+    }
+
     // 관리자 - 입출차 상세정보 - 할인수정 기능 (할인권 기반)
-//    public void modifyParkingDiscount(Long parkingLogId, Long ticketPolicyId, String reason, AdminAuthDto adminAuthDto) throws Exception{
-//        // 관리자,주차로그,할인정책 조회
-//        Admin currentAdmin = adminRepository.findByLoginId(adminAuthDto.getUsername())
-//                .orElseThrow(()->new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
-//        ParkingLog parkingLog = parkingLogRepository.findById(parkingLogId)
-//                .orElseThrow(()->new BusinessException(ErrorCode.PARKING_LOG_NOT_FOUND));
-//        TicketPolicy policy = ticketPolicyRepository.findById(ticketPolicyId)
-//                .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
-//        //관리자용 가상 상점 조회
-//        Store adminStore = storeRepository.findById(1L)
-//                .orElseThrow(()->new EntityNotFoundException("관리자 전용 상점 정보가 없습니다. DB를 확인해주세요."));
-//        //관리자용 정책인지 검증(보안)
-//        if(policy.getUseType()!= UseType.ADMIN){
-//            throw new BusinessException("관리자 전용 할인권만 적용 가능합니다.",ErrorCode.INVALID_REQUEST);
-//        }
-//        // 감사로그에 기록할 Before 스냅샷 생성
-//        ParkingLogDetailResponse response = ParkingLogDetailResponse.toDetailDto(parkingLog);
-//        String beforeData = objectMapper.writeValueAsString(response);
-//        //할인 정책에 따른 실제 할인 금액 계산
-//        int calculatedDiscount = calculatedDiscountByPolicy(policy,parkingLog);
-//        //엔티티 메서드 호출(누적 할인 적용)
-//        parkingLog.updateDiscountByAdmin(calculatedDiscount);
-//        //ParkingTicket 매핑 테이블에 기록 생성
-//        ParkingTicket adminTicket = ParkingTicket.builder()
-//                .parkingLog(parkingLog)
-//                .ticketPolicy(policy)
-//                .store(adminStore)
-//                .build();
-//        parkingTicketRepository.save(adminTicket);
-//
-//        // 기존 READY상태 결제 요청 무효화 처리
-//        paymentRepository.findAllByParkingLogAndPaymentStatus(parkingLog, com.example.demo.domain.shared.payment.enums.PaymentStatus.READY)
-//                .forEach(payment -> {
-//                    payment.setPaymentStatus(com.example.demo.domain.shared.payment.enums.PaymentStatus.CANCELLED);
-//                });
-//        // 감사로그에 기록할 After 스냅샷 생성
-//        saveAdminActionLog(currentAdmin,parkingLogId,beforeData,reason,policy,calculatedDiscount,parkingLog);
-//        log.info("관리자[{}]가 차량[{}]에 할인권[{}] 적용 완료. 추가 할인액: {}원",currentAdmin.getLoginId(),parkingLog.getCarNumberSnapshot(),policy.getName(),calculatedDiscount);
-//
-//    }
+    public void modifyParkingDiscount(Long parkingLogId, Long ticketPolicyId, String reason, AdminAuthDto adminAuthDto) throws Exception{
+        // 관리자,주차로그,할인정책 조회
+        Admin currentAdmin = adminRepository.findByLoginId(adminAuthDto.getUsername())
+                .orElseThrow(()->new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
+        ParkingLog parkingLog = parkingLogRepository.findById(parkingLogId)
+                .orElseThrow(()->new BusinessException(ErrorCode.PARKING_LOG_NOT_FOUND));
+        TicketPolicy policy = ticketPolicyRepository.findById(ticketPolicyId)
+                .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
+        //관리자용 가상 상점 조회
+        Store adminStore = storeRepository.findAdminStoreByKeyword("관리", com.example.demo.domain.shared.store.enums.Status.ACTIVE)
+                .stream()
+                .findFirst()
+                .orElseThrow(()->new EntityNotFoundException("'관리'키워드가 포함된 활성 관리자 상점이 존재하지 않습니다."));
+        //관리자용 정책인지 검증(보안)
+        if(policy.getUseType()!= UseType.ADMIN){
+            throw new BusinessException("관리자 전용 할인권만 적용 가능합니다.",ErrorCode.INVALID_REQUEST);
+        }
+        // 감사로그에 기록할 Before 스냅샷 생성
+        List<ParkingTicket> allTickets = parkingTicketRepository.findAllByParkingLog(parkingLog);
+        //상가 할인 합계 계산 [Before]
+        int beforeStoreTotal = calculateTotalDiscountByUseType(allTickets,UseType.STORE,parkingLog);
+        //관리자 할인 합계 계산 [Before]
+        int beforeAdminTotal = calculateTotalDiscountByUseType(allTickets,UseType.ADMIN,parkingLog);
+        ParkingLogDetailResponse response = ParkingLogDetailResponse.toDetailDto(parkingLog,beforeStoreTotal,beforeAdminTotal);
+        String beforeData = objectMapper.writeValueAsString(response);
+        // 기존 관리자 할인 티켓(ADMIN타입) 삭제
+        List<ParkingTicket> oldAdminTickets = allTickets.stream()
+                .filter(t->t.getTicketPolicy().getUseType()==UseType.ADMIN)
+                .collect(Collectors.toList());
+        parkingTicketRepository.deleteAll(oldAdminTickets);
+        //새로운 관리자 할인 정책 금액 계산
+        int newAdminDiscountAmount = calculatedDiscountByPolicy(policy,parkingLog);
+        //새 관리자 금액과 기존 상가 합계 전달
+        parkingLog.updateAdminDiscount(newAdminDiscountAmount,beforeStoreTotal);
+        //새 관리자 ParkingTicket 기록 저장
+        ParkingTicket adminTicket = ParkingTicket.builder()
+                .parkingLog(parkingLog)
+                .ticketPolicy(policy)
+                .store(adminStore)
+                .status(com.example.demo.domain.shared.parkingTicket.Status.ADMIN)
+                .appliedAmount(newAdminDiscountAmount)
+                .build();
+        parkingTicketRepository.save(adminTicket);
+
+        // 기존 READY상태 결제 요청 무효화 처리
+        paymentRepository.findAllByParkingLogAndPaymentStatus(parkingLog, com.example.demo.domain.shared.payment.enums.PaymentStatus.READY)
+                .forEach(payment -> {
+                    payment.setPaymentStatus(com.example.demo.domain.shared.payment.enums.PaymentStatus.CANCELLED);
+                });
+        // 감사로그에 기록할 After 스냅샷 생성
+        saveAdminActionLog(currentAdmin,parkingLogId,beforeData,reason,policy,newAdminDiscountAmount,parkingLog,beforeStoreTotal);
+        log.info("관리자[{}] 할인 수정 완료: 차량={}, 상가할인={}원, 기존관리자할인={}원 -> 새관리자할인={}원"
+                ,currentAdmin.getLoginId(),parkingLog.getCarNumberSnapshot(),beforeStoreTotal,beforeAdminTotal,newAdminDiscountAmount);
+
+    }
 
     //정책 타입에 따른 할인 금액 계산 로직
     public int calculatedDiscountByPolicy(TicketPolicy policy,ParkingLog parkingLog){
@@ -148,26 +171,26 @@ public class AdminParkingService {
     }
 
     //관리자 작업 감사로그 저장
-//    private void saveAdminActionLog(Admin admin,Long targetId,String beforeData, String reason,
-//                                    TicketPolicy policy,int calculatedDiscount, ParkingLog parkingLog) throws Exception{
-//        String afterData=objectMapper.writeValueAsString(ParkingLogDetailResponse.toDetailDto(parkingLog));
-//        Map<String, Object> diff=new HashMap<>();
-//        diff.put("reason",reason);
-//        diff.put("appliedPolicyName",policy.getName());
-//        diff.put("additionalDiscount",calculatedDiscount);
-//        diff.put("totalDiscount",parkingLog.getTotalDiscountAmount());
-//        diff.put("finalCalculatedFee",parkingLog.getCalculatedFee());
-//
-//        adminActionLogRepository.save(AdminActionLog.builder()
-//                .admin(admin)
-//                .targetType(TargetType.PARKING_LOG)
-//                .targetId(targetId)
-//                .actionType(ActionType.UPDATE)
-//                .beforeData(beforeData)
-//                .afterData(afterData)
-//                .changedFields(objectMapper.writeValueAsString(diff))
-//                .build());
-//    }
+    private void saveAdminActionLog(Admin admin,Long targetId,String beforeData, String reason,
+                                    TicketPolicy policy,int newAdminDiscount, ParkingLog parkingLog, int storeTotal) throws Exception{
+        String afterData=objectMapper.writeValueAsString(ParkingLogDetailResponse.toDetailDto(parkingLog,storeTotal,newAdminDiscount));
+        Map<String, Object> diff=new HashMap<>();
+        diff.put("reason",reason);
+        diff.put("appliedPolicyName",policy.getName());
+        diff.put("adminDiscountAmount",newAdminDiscount);
+        diff.put("totalDiscount",parkingLog.getTotalDiscountAmount());
+        diff.put("finalCalculatedFee",parkingLog.getCalculatedFee());
+
+        adminActionLogRepository.save(AdminActionLog.builder()
+                .admin(admin)
+                .targetType(TargetType.PARKING_LOG)
+                .targetId(targetId)
+                .actionType(ActionType.UPDATE)
+                .beforeData(beforeData)
+                .afterData(afterData)
+                .changedFields(objectMapper.writeValueAsString(diff))
+                .build());
+    }
 
     // 관리자 - 입출차 상세정보 - 강제출차 기능(상태변경)
     public void processForceExit(Long parkingLogId, AdminAuthDto adminAuthDto, String reason) throws Exception{
@@ -184,15 +207,9 @@ public class AdminParkingService {
         //해당 주차기록에 연결된 모든 할인권 조회
         List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
         //상가 할인 합계 계산
-        int storeSum = tickets.stream()
-                .filter(t->t.getTicketPolicy().getUseType() == UseType.STORE)
-                .mapToInt(t->t.getAppliedAmount() != null ? t.getAppliedAmount() : 0)
-                .sum();
+        int storeSum = calculateTotalDiscountByUseType(tickets,UseType.STORE,log);
         //관리자 할인 합계 계산
-        int adminSum = tickets.stream()
-                .filter(t->t.getTicketPolicy().getUseType() == UseType.ADMIN)
-                .mapToInt(t->t.getAppliedAmount() != null ? t.getAppliedAmount() : 0)
-                .sum();
+        int adminSum = calculateTotalDiscountByUseType(tickets,UseType.ADMIN,log);
 
         //AdminActionLog를 위한 Before스냅샷: 변경 전 정보를 DTO로 변환 후 JSON 문자열로 저장
         ParkingLogDetailResponse beforeDto = ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum);
@@ -228,10 +245,7 @@ public class AdminParkingService {
         }
 
         //관리자 할인 합계 재계산
-        int finalAdminSum = tickets.stream()
-                .filter(t->t.getTicketPolicy().getUseType() == UseType.ADMIN)
-                .mapToInt(t->t.getAppliedAmount() != null ? t.getAppliedAmount() : 0)
-                .sum();
+        int finalAdminSum = calculateTotalDiscountByUseType(tickets,UseType.ADMIN,log);
 
         //AdminActionLog를 위한 After스냅샷
         String afterData = objectMapper.writeValueAsString(ParkingLogDetailResponse.toDetailDto(log,storeSum,finalAdminSum));
