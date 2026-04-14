@@ -23,6 +23,7 @@ import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.parkingspace.enums.SpaceStatus;
+import com.example.demo.domain.shared.payment.Payment;
 import com.example.demo.domain.shared.payment.repository.PaymentRepository;
 import com.example.demo.domain.shared.store.Store;
 import com.example.demo.domain.shared.store.repository.StoreRepository;
@@ -144,7 +145,7 @@ public class AdminParkingService {
                 return units * feePolicy.getUnitFee();
             default:return 0;
         }
-    }}
+    }
 
     //관리자 작업 감사로그 저장
 //    private void saveAdminActionLog(Admin admin,Long targetId,String beforeData, String reason,
@@ -169,73 +170,95 @@ public class AdminParkingService {
 //    }
 
     // 관리자 - 입출차 상세정보 - 강제출차 기능(상태변경)
-//    public void processForceExit(Long parkingLogId, AdminAuthDto adminAuthDto, String reason) throws Exception{
-//
-//        Admin currentAdmin = adminRepository.findByLoginId(adminAuthDto.getUsername())
-//                .orElseThrow(()->new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
-//
-//        //주차 로그 조회
-//        ParkingLog log = parkingLogRepository.findById(parkingLogId)
-//                .orElseThrow(()->new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED));
-//
-//        //상태 검증 : 이미 나간 차량은 안됨
-//        if (log.getParkingStatus() == ParkingStatus.EXITED || log.getParkingStatus() == ParkingStatus.FORCE_EXITED){
-//            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-//        }
-//
-//        //AdminActionLog를 위한 Before스냅샷: 변경 전 정보를 DTO로 변환 후 JSON 문자열로 저장
-//        ParkingLogDetailResponse beforeDto = ParkingLogDetailResponse.toDetailDto(log);
-//        String beforeData= objectMapper.writeValueAsString(beforeDto); //objectMapper: 객체(DTO,Mapper)를 문자열 형태로 변환
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        // 시나리오별 처리 (A:사전정산 완료 차량, B:미결제 차량)
-//        if(log.getPaymentStatus()==PaymentStatus.PAID){
-//            //case A: 사전정산 완료 차량
-//            log.updateStatusToForceExit(now);
-//        }else {
-//            //case B: 미결제 차량
-//            long parkingTime = Math.max(0, Duration.between(log.getEnteredAt(),now).toMinutes());
-//            FeeCalculationResponseDto feeResult = paymentService.settlementFee(log,log.getParkingFeePolicyId(),parkingTime);
-//
-//            log.updateForFreeForceExit(feeResult.getRawFee(),now);
-//        }
-//
-//        //연관 데이터 정리: 주차 공간 해제
-//        if (log.getParkingSpace()!=null){
-//            log.getParkingSpace().setStatus(SpaceStatus.AVAILABLE);
-//            log.getParkingSpace().setLastStatusChangedAt(now);
-//        }
-//
-//        //AdminActionLog를 위한 After스냅샷
-//        String afterData = objectMapper.writeValueAsString(ParkingLogDetailResponse.toDetailDto(log));
-//
-//        //바뀐값 요약 (Changed Fields)
-//        Map<String,Object> diff = new HashMap<>();
-//        diff.put("parkingStatus",log.getParkingStatus());
-//        diff.put("paymentStatus",log.getPaymentStatus());
-//        diff.put("reason",reason);
-//
-//        if(currentAdmin==null){
-//            System.out.println("현재 관리자 정보가 없어 로그의 admin_id가 null로 세팅될 수 있습니다.");
-//        }
-//
-//        //관리자 감사 로그 기록 (AdminActionLog)
-//        adminActionLogRepository.save(AdminActionLog.builder()
-//                .admin(currentAdmin)
-//                .targetType(TargetType.PARKING_LOG)
-//                .targetId(parkingLogId)
-//                .actionType(ActionType.UPDATE)
-//                .beforeData(beforeData)
-//                .afterData(afterData)
-//                .changedFields(objectMapper.writeValueAsString(diff))
-//                .build());
-//
-//        //차량 활동 로그 기록 (ActivityLog)
-//        activityLogRepository.save(ActivityLog.builder()
-//                .parkingLog(log)
-//                .activityType(ActivityType.ADMIN_FORCE_EXIT)
-//                .carNumber(log.getCarNumberSnapshot())
-//                .message("관리자 강제출차:"+reason)
-//                .build());
-//    }
-//}
+    public void processForceExit(Long parkingLogId, AdminAuthDto adminAuthDto, String reason) throws Exception{
+        //관리자, 주차 로그 조회
+        Admin currentAdmin = adminRepository.findByLoginId(adminAuthDto.getUsername())
+                .orElseThrow(()->new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
+        ParkingLog log = parkingLogRepository.findById(parkingLogId)
+                .orElseThrow(()->new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED));
+        //상태 검증 : 이미 나간 차량은 안됨
+        if (log.getParkingStatus() == ParkingStatus.EXITED || log.getParkingStatus() == ParkingStatus.FORCE_EXITED){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        //해당 주차기록에 연결된 모든 할인권 조회
+        List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
+        //상가 할인 합계 계산
+        int storeSum = tickets.stream()
+                .filter(t->t.getTicketPolicy().getUseType() == UseType.STORE)
+                .mapToInt(t->t.getAppliedAmount() != null ? t.getAppliedAmount() : 0)
+                .sum();
+        //관리자 할인 합계 계산
+        int adminSum = tickets.stream()
+                .filter(t->t.getTicketPolicy().getUseType() == UseType.ADMIN)
+                .mapToInt(t->t.getAppliedAmount() != null ? t.getAppliedAmount() : 0)
+                .sum();
+
+        //AdminActionLog를 위한 Before스냅샷: 변경 전 정보를 DTO로 변환 후 JSON 문자열로 저장
+        ParkingLogDetailResponse beforeDto = ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum);
+        String beforeData= objectMapper.writeValueAsString(beforeDto); //objectMapper: 객체(DTO,Mapper)를 문자열 형태로 변환
+        LocalDateTime now = LocalDateTime.now();
+
+        // 시나리오별 처리 (A:사전정산 완료 차량, B:미결제 차량)
+        if(log.getPaymentStatus()==PaymentStatus.PAID){
+            //case A: 사전정산 완료 차량
+            log.updateStatusToForceExit(now);
+        }else {
+            //case B: 미결제 차량
+            //취소해야 할 대상 상태 정의(READY,FAILED)
+            List<com.example.demo.domain.shared.payment.enums.PaymentStatus> targetStatuses = List.of(
+                    com.example.demo.domain.shared.payment.enums.PaymentStatus.READY,
+                    com.example.demo.domain.shared.payment.enums.PaymentStatus.FAILED);
+            //한번에 조회해서 모두 CANCELLED로 변경
+            paymentRepository.findAllByParkingLogAndPaymentStatusIn(log,targetStatuses)
+                    .forEach(p-> {
+                        p.setPaymentStatus(com.example.demo.domain.shared.payment.enums.PaymentStatus.CANCELLED);
+                    });
+
+            long parkingTime = Math.max(0, Duration.between(log.getEnteredAt(),now).toMinutes());
+            FeeCalculationResponseDto feeResult = paymentService.settlementFee(log,log.getParkingFeePolicyId(),parkingTime);
+
+            log.updateForFreeForceExit(feeResult.getRawFee(),now);
+        }
+
+        //연관 데이터 정리: 주차 공간 해제
+        if (log.getParkingSpace()!=null){
+            log.getParkingSpace().setStatus(SpaceStatus.AVAILABLE);
+            log.getParkingSpace().setLastStatusChangedAt(now);
+        }
+
+        //관리자 할인 합계 재계산
+        int finalAdminSum = tickets.stream()
+                .filter(t->t.getTicketPolicy().getUseType() == UseType.ADMIN)
+                .mapToInt(t->t.getAppliedAmount() != null ? t.getAppliedAmount() : 0)
+                .sum();
+
+        //AdminActionLog를 위한 After스냅샷
+        String afterData = objectMapper.writeValueAsString(ParkingLogDetailResponse.toDetailDto(log,storeSum,finalAdminSum));
+
+        //바뀐값 요약 (Changed Fields)
+        Map<String,Object> diff = new HashMap<>();
+        diff.put("parkingStatus",log.getParkingStatus());
+        diff.put("paymentStatus",log.getPaymentStatus());
+        diff.put("reason",reason);
+
+        //관리자 감사 로그 기록 (AdminActionLog)
+        adminActionLogRepository.save(AdminActionLog.builder()
+                .admin(currentAdmin)
+                .targetType(TargetType.PARKING_LOG)
+                .targetId(parkingLogId)
+                .actionType(ActionType.UPDATE)
+                .beforeData(beforeData)
+                .afterData(afterData)
+                .changedFields(objectMapper.writeValueAsString(diff))
+                .build());
+
+        //차량 활동 로그 기록 (ActivityLog)
+        activityLogRepository.save(ActivityLog.builder()
+                .parkingLog(log)
+                .activityType(ActivityType.ADMIN_FORCE_EXIT)
+                .carNumber(log.getCarNumberSnapshot())
+                .message("관리자 강제출차:"+reason)
+                .build());
+    }
+}

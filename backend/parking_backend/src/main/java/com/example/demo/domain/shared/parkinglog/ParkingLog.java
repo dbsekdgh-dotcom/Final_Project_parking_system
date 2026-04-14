@@ -168,7 +168,10 @@ public class ParkingLog {
     //관리자 상세모달 - 강제출차 case A: 단순 상태 변경 (ex. 사전정산 완료인 경우)
     public void updateStatusToForceExit(LocalDateTime now){
         this.parkingStatus=ParkingStatus.FORCE_EXITED; //상태변경
-        this.exitedAt=now; //실제 출차완료시점 기록
+        //실제 출차 완료 시점(없을때만 기록)
+        if(this.exitedAt == null ){ this.exitedAt =now; }
+        //출차 시도 시간 (없을때만 기록)
+        if(this.exitTime ==null){ this.exitTime = now; }
         //exit_time, exit_camera_id는 기존값 유지
     }
 

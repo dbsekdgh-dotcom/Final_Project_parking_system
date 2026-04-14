@@ -59,17 +59,17 @@ public class AdminParkingLogController {
     }
 
     //주차 로그 강제 출차 처리
-//    @PostMapping("/parking/logs/{parkingLogId}/force-exit")
-//    public ResponseEntity<ApiResponse<Void>> forceExit(
-//            @PathVariable Long parkingLogId,
-//            @RequestBody ForceExitRequest request,
-//            @AuthenticationPrincipal AdminAuthDto currentAdmin
-//            ) throws Exception{
-//        log.info("컨트롤러에 들어온 관리자 정보: "+currentAdmin);
-//        adminParkingService.processForceExit(parkingLogId,currentAdmin,request.getReason());
-//
-//        return ResponseEntity.ok(ApiResponse.success("강제 출차 처리가 완료되었습니다."));
-//    }
+    @PostMapping("/parking/logs/{parkingLogId}/force-exit")
+    public ResponseEntity<ApiResponse<Void>> forceExit(
+            @PathVariable Long parkingLogId,
+            @RequestBody ForceExitRequest request,
+            @AuthenticationPrincipal AdminAuthDto currentAdmin
+            ) throws Exception{
+        log.info("컨트롤러에 들어온 관리자 정보: "+currentAdmin);
+        adminParkingService.processForceExit(parkingLogId,currentAdmin,request.getReason());
+
+        return ResponseEntity.ok(ApiResponse.success("강제 출차 처리가 완료되었습니다."));
+    }
 
     //주차 로그 할인 수정 처리
 //    @PatchMapping("/parking/logs/{parkingLogId}/discount")

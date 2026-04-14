@@ -2,6 +2,7 @@ package com.example.demo.domain.shared.parkinglog.service;
 
 import com.example.demo.domain.admin.management.parking.service.AdminParkingService;
 import com.example.demo.domain.shared.parkingTicket.ParkingTicket;
+import com.example.demo.domain.shared.parkingTicket.Status;
 import com.example.demo.domain.shared.parkingTicket.repository.ParkingTicketRepository;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogDetailResponse;
@@ -82,15 +83,16 @@ public class ParkingLogService {
         int storeSum=0;
         int adminSum=0;
 
-        for (ParkingTicket ticket : tickets){
-            int amount = adminParkingService.calculatedDiscountByPolicy(ticket.getTicketPolicy(),log);
-            if(ticket.getTicketPolicy().getUseType() == UseType.STORE){
-                storeSum +=amount;
-            } else if (ticket.getTicketPolicy().getUseType()==UseType.ADMIN) {
-                adminSum +=amount;
+        //티켓 리스트 돌며 status에 따라 금액 분류 합산
+        if(tickets != null && !tickets.isEmpty()){
+            for (ParkingTicket ticket:tickets) {
+                if(ticket.getStatus() == Status.STORE){
+                    storeSum += ticket.getAppliedAmount();
+                } else if (ticket.getStatus() == Status.ADMIN) {
+                    adminSum += ticket.getAppliedAmount();
+                }
             }
         }
-        //BusinessException : 내가 의도적으로 낸 에러 / RuntimeException : 시스템이 낸 에러
         return ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum); // 찾은 엔티티를 응답용 DTO로 반환
     }
 }

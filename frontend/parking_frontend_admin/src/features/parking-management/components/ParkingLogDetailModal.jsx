@@ -55,8 +55,8 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
         if (window.confirm(`${data.carNumber} 차량을 강제 출차 처리하시겠습니까?`)) {
             try {
                 setIsSubmitting(true);
-                await processForceExit(data.parkingLogId, reason);
-                alert("강제 출차 처리가 완료되었습니다.");
+                const res = await processForceExit(data.parkingLogId, reason);
+                alert(res.message || "강제 출차 처리가 완료되었습니다.");
                 if (onRefresh) onRefresh(); //부모 컴포넌트 새로고침 함수 호출
                 onClose(); //모달 닫기
             } catch (error) {
@@ -203,8 +203,26 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                                 <label>원래 요금 (원금)</label>
                                 <span>{data.rawFee?.toLocaleString() || 0}원</span>
                             </div>
+                            {/* 상세 할인 내역 표시(상가/관리자 분리) */}
+                            {(data.storeDiscountTotal > 0 || data.adminDiscountTotal > 0 ) && (
+                                <div className='discount-detail-rows'>
+                                    {data.storeDiscountTotal > 0 && (
+                                        <div className='info-row sub-row'>
+                                            <label>└ 상가 할인권</label>
+                                            <span className='discount-val-sub'>-{data.storeDiscountTotal?.toLocaleString()}원</span>
+                                        </div>
+                                    )}
+                                    {data.adminDiscountTotal > 0 && (
+                                        <div className='info-row sub-row'>
+                                            <label>└ 관리자 직권 할인</label>
+                                            <span className='discount-val-sub'>-{data.adminDiscountTotal?.toLocaleString()}원</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className='info-row'>
-                                <label>총 할인 금액</label>
+                                <label>총 할인 금액 합계</label>
                                 <div className='value-with-btn'>
                                     {isEditingDiscount ? (
                                         <div className='discount-edit-form'>
@@ -221,7 +239,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                                                         ))}
                                                 </select>
                                                 <input type='text' value={editReason} onChange={(e)=>setEditReason(e.target.value)}
-                                                placeholder='사유 입력' className='edit-input reason'/>
+                                                placeholder='수정 사유 입력' className='edit-input reason'/>
                                             </div>
                                             <div className='edit-btns'>
                                                 <button className='save-btn' onClick={handleSaveDiscount} disabled={isSubmitting}>
@@ -234,7 +252,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                                         </div>
                                     ) : (
                                         <>
-                                            <span className='discount-val'>
+                                            <span className='discount-val total-highlight'>
                                                 {data.totalDiscountAmount > 0 ? `-${data.totalDiscountAmount?.toLocaleString()}원` : '0원'}
                                             </span>
                                             {/* 입차취소나 출차완료나 강제출차가 아닐때만 할인 수정 가능하도록 처리 */}
