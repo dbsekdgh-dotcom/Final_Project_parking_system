@@ -130,6 +130,11 @@ public class ParkingLog {
     @Comment("요금 조회 및 결제 요청 시점 검증")
     private LocalDateTime paymentRequestedAt;
 
+    //오버라이드
+    public Integer getGraceMinutesSnapshot(){
+        return graceMinutesSnapshot !=null ? graceMinutesSnapshot : 0 ;
+    }
+
     public void requestPayment(FeeCalculationResponseDto feeCalculationResponseDto){
         this.rawFee=feeCalculationResponseDto.getRawFee();
         this.totalDiscountMinutes=feeCalculationResponseDto.getTotalDiscountMinutes();
@@ -220,9 +225,10 @@ public class ParkingLog {
         }
     }
     // 무료 시간이 만료 됐을때 요금 상태 업데이트
-    public void expireFreeExit(int rawFee){
+    public void expireFreeExit(int rawFee, long calculatedFee){
         this.paymentStatus = PaymentStatus.UNPAID;
         this.rawFee = rawFee;
+        this.calculatedFee = calculatedFee;
     }
     // EXIT_REQUESTED에서 방치된 차량 ENTERED로 되돌리기
     public void revertToEntered(){

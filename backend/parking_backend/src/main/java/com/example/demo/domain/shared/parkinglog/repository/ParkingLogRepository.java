@@ -63,8 +63,8 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     int cancelExpiredDetected(@Param("cutoff") LocalDateTime cutoff);
 
     // freeExitUntil 만료 차량 조회
-    @Query("SELECT p FROM ParkingLog p WHERE p.parkingStatus='ENTERED' AND p.freeExitUntil<CURRENT_TIMESTAMP ")
-    List<ParkingLog> findExpiredFreeExitLogs();
+    @Query("SELECT p FROM ParkingLog p WHERE p.parkingStatus='ENTERED' AND p.freeExitUntil<:now ")
+    List<ParkingLog> findExpiredFreeExitLogs(@Param("now")LocalDateTime now);
 
     // 방치된 EXIT_REQUESTED 차량 조회
     @Query("SELECT p FROM ParkingLog  p WHERE p.parkingStatus='EXIT_REQUESTED' AND p.exitTime<:cutoff")
