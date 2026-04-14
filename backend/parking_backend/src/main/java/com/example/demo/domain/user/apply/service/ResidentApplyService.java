@@ -110,6 +110,15 @@ public class ResidentApplyService {
      */
     @Transactional(readOnly = true)
     public UserStatusResponseDto getUserStatus(Long userId) {
+
+        // 윤진추가: userId가 null이면 바로 "NONE"상태로 돌려보내기
+        if(userId ==null){
+            return UserStatusResponseDto.builder()
+                    .userStatus("NONE")
+                    .activeApprovalId(null)
+                    .build();
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 

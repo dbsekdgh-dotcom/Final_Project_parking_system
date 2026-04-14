@@ -38,17 +38,18 @@ public class ReportService {
      * 신고 생성 + 통계 증가
      * 파라미터 Long userId -> String email 변경
      */
-    public void createReport(String email, String carNumber, ReportType type, String description){
+    public void createReport(String email, String carNumber, ReportType type, String description, String report_s3path){
 
         // 이메일로 유저 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
-        Report report = Report.builder()
+            Report report = Report.builder()
                 .reporter(user)
                 .carNumber(carNumber)
                 .reportType(type)
                 .description(description)
+                .imageUrl(report_s3path)
                 .build();
 
         reportRepository.save(report);
