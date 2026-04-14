@@ -37,10 +37,10 @@ public class PaymentFacade {
     private final RefundService refundService;
 
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {
+        //1. 무료 대상인지 확인
+        PaymentEligibilityResult result = paymentService.checkFreeExitEligibility(parkingLogID);
+        ParkingLog parkingLog=result.getParkingLog();
         try {
-            //1. 무료 대상인지 확인
-            PaymentEligibilityResult result = paymentService.checkFreeExitEligibility(parkingLogID);
-            ParkingLog parkingLog=result.getParkingLog();
             //2. 무료 대상이라면 리턴
             if (result.isFree()) {
                 return result.getVehiclePaymentResponseDto();
@@ -56,10 +56,12 @@ public class PaymentFacade {
             }
             return responseDto;
         }catch (BusinessException e){
+            aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
             e.printStackTrace();
             throw e;
         }catch (Exception e){
             log.error("정산 초기화 중 예상치 못한 에러: {}",e.getMessage());
+            aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
@@ -68,17 +70,12 @@ public class PaymentFacade {
     public PaymentReadyResponseDto beforePayment(SettlementRequestDto dto){
         // 1. 결제 대상자 확인
         ParkingLog parkingLog=settlementService.validateVehicleStatus(dto.getParkingLogId());
-        // 2. 기존에 ready상태의 결제들이 있다면 취소 처리
-        List<Payment> payments=paymentRepository.findAllByParkingLogAndPaymentStatus(parkingLog,PaymentStatus.READY);
-        if(!payments.isEmpty()){
-            payments.forEach(p->p.setPaymentStatus(PaymentStatus.CANCELLED));
-        }
-        // 3. 결제 금액 계산
+        // 2. 결제 금액 계산
         VehiclePaymentResponseDto vehiclePaymentResponseDto=paymentService.requestPayment(parkingLog);
-        // 4. 결제 전 Payment insert
+        // 3. 결제 전 Payment insert/parkinglog update
         PaymentReadyResponseDto paymentReadyResponseDto=settlementService.insertPayment(parkingLog,dto, PaymentStatus.READY,vehiclePaymentResponseDto);
-        // 5. 락 해제
-        aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
+        // 4. 락 해제
+        //aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
         return paymentReadyResponseDto;
     }
 
@@ -97,7 +94,7 @@ public class PaymentFacade {
 
         // 1. 락
         try {
-            aiServerClient.requestPaymentLock(carNumber);
+//            aiServerClient.requestPaymentLock(carNumber);
 
             //결제 승인 요청 전 관리자 강제 출차 여부 확인
             SettlementRequestDto settlementRequestDto=SettlementRequestDto.builder().parkingLogId(parkingLog.getParkingLogId()).usedPoint((int)(parkingLog.getCalculatedFee()-dto.getAmount())).paidAmount((int)dto.getAmount()).build();
@@ -110,6 +107,7 @@ public class PaymentFacade {
                     paymentStatus = PaymentStatus.SUCCESS;
                 } else {
                     paymentStatus = PaymentStatus.FAILED;
+                    parkingLog.setPaymentRequestedAt(null);
                     errorMessage = tossApprovalResult.getErrorMessage();
                 }
             } else {
@@ -128,8 +126,10 @@ public class PaymentFacade {
                         .message("이미 관리자에 의해 강제 출차 처리되었습니다.")
                         .build();
             }
+            settlementService.restPaymentLock(payments,parkingLog);
             throw e;
         }catch(Exception e ){
+            settlementService.restPaymentLock(payments,parkingLog);
             log.error("결제정보 처리 중 에러 :{}",e.getMessage());
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }finally {

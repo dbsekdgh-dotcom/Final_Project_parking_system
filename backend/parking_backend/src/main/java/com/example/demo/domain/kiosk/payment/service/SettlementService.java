@@ -89,16 +89,23 @@ public class SettlementService {
         long parkingLogId=settlementRequestDto.getParkingLogId();
         int usedPoint=settlementRequestDto.getUsedPoint();
         int paidAmount= settlementRequestDto.getPaidAmount();
-
-        int prepaid=parkingLog.getFee()!=0?parkingLog.getFee():0;
-        boolean amountCheck=parkingLog.getCalculatedFee()==prepaid+ usedPoint+ paidAmount;
+        long remainingFee = parkingLog.getCalculatedFee() - parkingLog.getFee(); // 전체 - 이미 낸 돈
+        log.info("검증 실패 상세 - DB저장금액: {}, 프론트전달(카드+포인트): {}",
+                remainingFee, (settlementRequestDto.getUsedPoint() + settlementRequestDto.getPaidAmount()));
+        log.info("금액 검증 상세 분석 -> 전체목표: {}, 기존결제(prepaid): {}, 이번포인트: {}, 이번카드: {}",
+                remainingFee, usedPoint, paidAmount);
+        //int prepaid=parkingLog.getFee()!=0?parkingLog.getFee():0;
+        boolean amountCheck=remainingFee==(long)( usedPoint+ paidAmount);
         if(!amountCheck){
-            throw new BusinessException(ErrorCode.PAYMENT_TIMEOUT);
+            throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
         //결제 요청 시간 검증
         String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
                 .map(t->t.getSettingValue())
                 .orElse("5");
+        if(parkingLog.getPaymentRequestedAt()==null){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
         boolean timeCheck=parkingLog.getPaymentRequestedAt().plusMinutes(Integer.parseInt(paymentValidMinutes)).isAfter(LocalDateTime.now());
         if(!timeCheck){
             throw new BusinessException(ErrorCode.PAYMENT_TIMEOUT);
@@ -113,7 +120,8 @@ public class SettlementService {
 
     //결제 전 payment insert/parkinglog update
     public PaymentReadyResponseDto insertPayment(ParkingLog parkingLog, SettlementRequestDto settlementRequestDto, PaymentStatus paymentStatus, VehiclePaymentResponseDto vehiclePaymentResponseDto){
-        entityManager.refresh(parkingLog);
+        boolean isFree = (settlementRequestDto.getPaidAmount() + settlementRequestDto.getUsedPoint() == 0);
+
         Vehicle vehicle=parkingLog.getVehicle();
         User user=(vehicle!=null)?vehicle.getUser():null;
         String userEmail=(user!=null)? user.getEmail() : null;
@@ -121,12 +129,18 @@ public class SettlementService {
         boolean isPaymentRequired=false;
         int paymentAmount=0;
 
+        int alreadyPaidFee = parkingLog.getFee();
+
         //1.이미 진행 중인 결제가 있는지 확인
         String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
                 .map(t->t.getSettingValue())
                 .orElse("5");
-        if(parkingLog.getPaymentRequestedAt()!=null && parkingLog.getPaymentRequestedAt().plusMinutes(Integer.parseInt(paymentValidMinutes)).isAfter(LocalDateTime.now()))
+
+        if(isFree && parkingLog.getPaymentRequestedAt()!=null && com.example.demo.domain.shared.parkinglog.enums.PaymentStatus.PAID.equals(parkingLog.getPaymentStatus())){
+                throw new BusinessException(ErrorCode.ALREADY_PAID);
+        }else if(!isFree && parkingLog.getPaymentRequestedAt()!=null){
             throw new BusinessException(ErrorCode.ALREADY_PROCESSING);
+        }
 
         //2.parkinglog update
         FeeCalculationResponseDto FeeCalculationResponseDto= com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto.builder()
@@ -137,8 +151,16 @@ public class SettlementService {
                 .paymentRequestedAt(LocalDateTime.now())
                 .build();
         parkingLog.requestPayment(FeeCalculationResponseDto);
+        parkingLogRepository.saveAndFlush(parkingLog);
+        entityManager.clear();
+
+        // 4. 깨끗해진 상태에서 DB의 진짜 최종본 읽어오기
+        parkingLog = parkingLogRepository.getDetailLogInfo(parkingLog.getParkingLogId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED));
+        
         //3.리액트에서 보내온 요청정보와 금액 확인
         checkEligibility(settlementRequestDto,parkingLog);
+
 
         //3.payment insert
         //- 포인트 결제금액이 있는 경우
@@ -207,6 +229,14 @@ public class SettlementService {
     public void pointProcessOfPayment(User user,ParkingLog parkingLog,List<Payment> payments,PaymentConfirmRequestDto paymentConfirmRequestDto){
         //회원인지 아닌지 구분
         if(user==null){
+            return;
+        }
+        //결제금액이 0원이면 종료
+        long totalPaidAmount = payments.stream()
+                .mapToLong(Payment::getPriceSnapshot)
+                .sum();
+        if (totalPaidAmount == 0) {
+            log.info("결제 금액이 0원이므로 포인트 로직을 건너뜁니다.");
             return;
         }
         //이미 처리된 요청이 있으면 종료
@@ -404,6 +434,13 @@ public class SettlementService {
             updateUsedParkingTicket(parkingTicketRepository.getValidTickets(parkingLog.getParkingLogId(), com.example.demo.domain.shared.ticketPolicy.enums.Status.ACTIVE),dto.getStackableTicketResult().getDetails());
         }
           return  settlementResponseDto;
+    }
+
+    //락 해제
+    public void restPaymentLock(List<Payment> payments,ParkingLog parkingLog){
+        payments.forEach(l->l.setPaymentStatus(PaymentStatus.FAILED));
+        parkingLog.setPaymentRequestedAt(null);
+        parkingLogRepository.saveAndFlush(parkingLog);
     }
 
 }

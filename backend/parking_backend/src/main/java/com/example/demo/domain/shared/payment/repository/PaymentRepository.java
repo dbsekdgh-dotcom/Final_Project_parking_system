@@ -11,4 +11,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByExternalPaymentId (String externalPaymentId);
 
     List<Payment> findAllByParkingLogAndPaymentStatus(ParkingLog parkingLog, PaymentStatus paymentStatus);
+
+
 }
