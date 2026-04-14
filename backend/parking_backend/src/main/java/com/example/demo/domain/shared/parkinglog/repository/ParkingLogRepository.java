@@ -61,4 +61,11 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     @Query("UPDATE ParkingLog p SET p.parkingStatus = 'ENTRY_CANCELLED' " +
            "WHERE p.parkingStatus = 'DETECTED' AND p.entryTime < :cutoff")
     int cancelExpiredDetected(@Param("cutoff") LocalDateTime cutoff);
+
+    @Query("SELECT COUNT(p) > 0 FROM ParkingLog p " +
+            "WHERE p.carNumberSnapshot = :carNumber " +
+            "AND p.parkingStatus IN (com.example.demo.domain.shared.parkinglog.enums.ParkingStatus.DETECTED, " +
+            "                        com.example.demo.domain.shared.parkinglog.enums.ParkingStatus.ENTERED, " +
+            "                        com.example.demo.domain.shared.parkinglog.enums.ParkingStatus.EXIT_REQUESTED)")
+    boolean isAlreadyInParkingLot(@Param("carNumber") String carNumber);
 }

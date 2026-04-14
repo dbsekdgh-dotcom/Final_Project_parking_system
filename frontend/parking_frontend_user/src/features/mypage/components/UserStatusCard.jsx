@@ -1,6 +1,6 @@
 import React from "react";
 import "./UserStatusCard.css";
-import ResidentCancelButton from "./ResidentCancelButton";
+import ResidentCancelButton from "../../apply/components/ResidentCancelButton";
 
 /**
  * 백엔드 statusCode에 따른 UI 설정

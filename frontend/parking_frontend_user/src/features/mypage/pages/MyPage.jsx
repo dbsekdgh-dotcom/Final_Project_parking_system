@@ -1,10 +1,11 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMyInfo, fetchUserStatus } from "../api/mypageApi";
+import { fetchMyInfo } from "../api/mypageApi";
+import { fetchUserStatus } from "../../apply/api/applyApi";
 import UserInfoCard from "../components/UserInfoCard";
 import SecuritySection from "../components/SecuritySection";
 import UserStatusCard from "../components/UserStatusCard";
-import ResidentApplySection from "../components/ResidentApplySection";
+import ResidentApplySection from "../../apply/components/ResidentApplySection";
 import "./MyPage.css";
 
 const MyPage = () => {

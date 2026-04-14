@@ -1,0 +1,170 @@
+.reservation-card {
+    background: #fff;
+    border: 1px solid #e7e6f2;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(86, 95, 132, 0.07);
+}
+
+.reservation-card__title {
+    margin: 0 0 18px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #32324d;
+}
+
+/* 테이블 */
+.reservation-table-wrap {
+    overflow-x: auto;
+}
+
+.reservation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.reservation-table thead tr {
+    background: #f7f7fb;
+}
+
+.reservation-table th {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #6f708b;
+    border-bottom: 1px solid #e7e6f2;
+    white-space: nowrap;
+}
+
+.reservation-table th.center,
+.reservation-table td.center {
+    text-align: center;
+}
+
+.reservation-table th.left,
+.reservation-table td.left {
+    text-align: left;
+}
+
+.reservation-table tbody tr {
+    border-bottom: 1px solid #f0f0f5;
+    transition: background 80ms;
+}
+
+.reservation-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.reservation-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.reservation-table td {
+    padding: 14px;
+    color: #32324d;
+    vertical-align: middle;
+}
+
+.res-car-number {
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+}
+
+.res-purpose {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #32324d;
+}
+
+.res-time {
+    font-size: 0.78rem;
+    color: #9e9eb8;
+    margin-top: 3px;
+}
+
+/* 상태 뱃지 */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-badge--pending {
+    background: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffe082;
+}
+
+.status-badge--reserved {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+}
+
+.status-badge--rejected {
+    background: #fde8e8;
+    color: #9b2020;
+    border: 1px solid #f5c6c6;
+}
+
+.status-badge--entered {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.status-badge--cancelled {
+    background: #f0f0f5;
+    color: #9e9eb8;
+    border: 1px solid #d9ddef;
+}
+
+.status-badge--completed {
+    background: #f0f0f5;
+    color: #6f708b;
+    border: 1px solid #d9ddef;
+}
+
+/* 취소 버튼 */
+.btn-cancel-res {
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #fde8e8;
+    color: #9b2020;
+    transition: filter 120ms;
+    white-space: nowrap;
+}
+
+.btn-cancel-res:hover {
+    filter: brightness(0.94);
+}
+
+/* 빈 목록 */
+.reservation-empty {
+    padding: 48px 0;
+    text-align: center;
+    color: #9e9eb8;
+    font-size: 0.92rem;
+}
+
+/* 로딩 / 에러 */
+.reservation-loading,
+.reservation-error {
+    padding: 40px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #9e9eb8;
+}
+
+.reservation-error {
+    color: #c0392b;
+}

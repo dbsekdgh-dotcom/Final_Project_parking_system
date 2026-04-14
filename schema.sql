@@ -389,6 +389,7 @@ end_date DATETIME NULL COMMENT '정책 종료 일시 (NULL이면 무기한 적�
 daily_limit_per_household INT COMMENT '세대별 일일 예약 가능 횟수 (NULL이면 무제한)',
 monthly_limit_per_household INT COMMENT '세대별 월간 총 예약 가능 횟수 (NULL이면 무제한)',
 max_active_reservations INT DEFAULT 1 NOT NULL COMMENT '동시에 보유 가능한 활성 예약 수',
+permitted_minutes INT DEFAULT 60 NOT NULL COMMENT '방문 예약 시 부여되는 주차 허용 시간(분 단위)',
 no_show_penalty_enabled BOOLEAN DEFAULT FALSE NOT NULL COMMENT '노쇼 발생 시 주유량 감점 여부',
 CONSTRAINT fk_rep_admin_link FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
 );
