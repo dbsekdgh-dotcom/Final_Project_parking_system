@@ -23,21 +23,23 @@ import java.util.Map;
 @Component
 @Log4j2
 public class AdminJWTUtil {
+
     private final SecretKey key;
     private final SecretKey userKey;
 
     public AdminJWTUtil(@Value("${jwt.admin.secret}") String secretKey,
                         @Value("${USER_JWT_SECRET}") String userSecretKey) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
         if (userSecretKey == null || userSecretKey.length() < 32) {
             throw new IllegalArgumentException("User JWT Secret Key must be at least 32 characters long!");
         }
         this.userKey = Keys.hmacShaKeyFor(userSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    // ==================== 관리자 JWT 메서드 (기존 유지) ====================
+    // ==================== 관리자 JWT 메서드 ====================
 
-    public String generateToken(Map<String,Object> valueMap, int min){
+    public String generateToken(Map<String, Object> valueMap, int min) {
         return Jwts.builder()
                 .header().type("JWT").and()
                 .subject(String.valueOf(valueMap.get("loginId")))
@@ -48,29 +50,29 @@ public class AdminJWTUtil {
                 .compact();
     }
 
-    public Claims validateToken(String token){
-        Claims claim=null;
+    public Claims validateToken(String token) {
+        Claims claim = null;
         try {
             claim = Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseClaimsJws(token)
                     .getPayload();
-        }catch (MalformedJwtException e){
+        } catch (MalformedJwtException e) {
             throw new AdminJWTException("MalFormed");
-        }catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             throw new AdminJWTException("Expired");
-        }catch (InvalidClaimException e){
+        } catch (InvalidClaimException e) {
             throw new AdminJWTException("Invalid");
-        }catch (JwtException e){
+        } catch (JwtException e) {
             throw new AdminJWTException("JWTError");
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new AdminJWTException("Error");
         }
         return claim;
     }
 
-    public String getAdminLoginIdWithoutValidation(String token){
+    public String getAdminLoginIdWithoutValidation(String token) {
         try {
             return (String) Jwts.parser()
                     .verifyWith(key)
@@ -78,9 +80,9 @@ public class AdminJWTUtil {
                     .parseClaimsJws(token)
                     .getPayload()
                     .get("loginId");
-        }catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             return (String) e.getClaims().get("loginId");
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
@@ -128,7 +130,9 @@ public class AdminJWTUtil {
         }
     }
 
-    // 사용자 토큰에서 인증 정보 추출 (PrincipalDetails에 userId 포함)
+    /**
+     * 사용자 토큰에서 인증 정보 추출 (PrincipalDetails에 userId 포함)
+     */
     public Authentication getUserAuthentication(String token) {
         Claims claims = validateUserToken(token);
         String email = claims.getSubject();
@@ -141,10 +145,13 @@ public class AdminJWTUtil {
             userId = ((Number) userIdObj).longValue();
         }
 
-        if (role == null) role = "ROLE_USER";
+        if (role == null) {
+            role = "ROLE_USER";
+        }
+
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
-        // ⭐ 이제 엔티티 빌더에서 .userId(userId)를 사용하여 PK를 주입합니다.
+        // ⭐ 임시 엔티티를 생성하여 PrincipalDetails에 주입
         User userEntity = User.builder()
                 .userId(userId)
                 .email(email)
@@ -154,6 +161,7 @@ public class AdminJWTUtil {
                 .build();
 
         PrincipalDetails principalDetails = new PrincipalDetails(userEntity);
+
         return new UsernamePasswordAuthenticationToken(principalDetails, token, authorities);
     }
 }
