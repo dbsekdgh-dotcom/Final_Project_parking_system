@@ -1,20 +1,34 @@
 import React, { useEffect, useState } from 'react'
 import './ParkingLogDetailModal.css'
 import { PARKING_STATUS_LABELS, PARKING_TYPE_LABELS, PAYMENT_STATUS_LABELS } from '../../../shared/constants/parkingLabel'
-import { processForceExit, modifyDiscount as modifyDiscountApi } from '../api/parkingLogApi'
+import { processForceExit, modifyDiscount as modifyDiscountApi, getAdminTicketPolicies } from '../api/parkingLogApi'
 
 const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
     const [isSubmitting, setIsSubmitting] = useState(false); //버튼을 여러번 클릭시 에러 방지용
     const [isEditingDiscount, setIsEditingDiscount] = useState(false); //할인수정 버튼 클릭 시 실행용
-    const [editAmount, setEditAmount] = useState(data?.totalDiscountAmount || 0);
     const [editReason, setEditReason] = useState("");
+    const [policies,setPolicies]=useState([])
+    const [selectedPolicyId,setSelectedPolicyId] = useState("")
 
-    //모달이 닫힐 때 편집 모드 초기화
-    useEffect(() => {
-        if (!isOpen) {
+    //모달이 열릴때 관리자용 할인 정책 목록 로드
+    useEffect(()=>{
+        if(isOpen){
+            const fetchPolicies = async()=>{
+                try{
+                    const res= await getAdminTicketPolicies()
+                    setPolicies(res.data || [])
+                }catch(err){
+                    console.error("할인 정책 로드 실패:",err)
+                }
+            }
+            fetchPolicies();
+        } else {
+            //모달 닫힐때 초기화
             setIsEditingDiscount(false)
+            setSelectedPolicyId("")
+            setEditReason("")
         }
-    }, [isOpen])
+    },[isOpen])
 
     // 모달이 닫혀있거나 데이터가 없으면 아무것도 렌더링하지 않음
     if (!isOpen || !data) return null;
@@ -22,6 +36,9 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
     // 상태변경 버튼 활성화 조건: 입차 완료 상태(ENTERED) 또는 입차 기록이 있는 경우 중,
     // 이미 출차완료(EXITED), 강제출차(FORCE_EXITED)가 아닌 경우만 활성화
     const isForceExitDisabled = ['EXITED', 'FORCE_EXITED', 'ENTRY_CANCELLED'].includes(data.parkingStatus)
+    const isDiscountEditDisabled =
+        ['EXITED', 'ENTRY_CANCELLED', 'FORCE_EXITED'].includes(data.parkingStatus) ||
+        ['SUCCESS', 'FAILED', 'CANCELLED'].includes(data.paymentStatus);
 
     // 강제 출차 핸들러
     const handleForceExitClick = async () => {
@@ -50,32 +67,26 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
         }
     }
 
-    const isDiscountEditDisabled =
-        ['EXITED', 'ENTRY_CANCELLED', 'FORCE_EXITED'].includes(data.parkingStatus) ||
-        ['SUCCESS', 'FAILED', 'CANCELLED'].includes(data.paymentStatus);
-
     //할인 수정 시작 버튼 클릭 시 
     const handleStartEdit = () => {
         if (isDiscountEditDisabled) return
 
-        setEditAmount(data.totalDiscountAmount || 0);
         setEditReason("사유: 관리자가 직접 수정");
         setIsEditingDiscount(true);
     }
 
     //할인 수정 저장
     const handleSaveDiscount = async () => {
-        if (editAmount < 0 || editAmount > data.rawFee) {
-            alert("할인 금액은 0원보다 크고 원금보다 작아야 합니다.")
-            return;
+        if (!selectedPolicyId) {
+            return alert("적용할 할인 정책을 선택해주세요.")
         }
         if (!editReason.trim()) {
-            alert("수정 사유를 입력해주세요.")
-            return;
+            return alert("수정 사유를 입력해주세요.")
         }
         try {
             setIsSubmitting(true)
-            await modifyDiscountApi(data.parkingLogId, editAmount, editReason)
+            await modifyDiscountApi(data.parkingLogId, selectedPolicyId, editReason)
+            alert("할인권이 성공적으로 적용되었습니다.")
             setIsEditingDiscount(false)
             if (onRefresh) onRefresh()
         } catch (error) {
@@ -197,11 +208,20 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                                 <div className='value-with-btn'>
                                     {isEditingDiscount ? (
                                         <div className='discount-edit-form'>
-                                            <div className='input-group'>
-                                                <input type='number' value={editAmount} onChange={(e) => setEditAmount(Number(e.target.value))}
-                                                    placeholder='금액' className='edit-input amount' />
-                                                <input type='text' value={editReason} onChange={(e) => setEditReason(e.target.value)}
-                                                    placeholder='사유 입력' className='edit-input reason' />
+                                            <div className='input-group column'>
+                                                <select value={selectedPolicyId} onChange={(e)=>setSelectedPolicyId(e.target.value)}
+                                                    className='edit-input policy-select'>
+                                                        <option value="">할인 정책 선택</option>
+                                                        {policies.map(p=>(
+                                                            <option key={p.id} value={p.id}>
+                                                                {p.name} ({p.discountType === 'FREE'?'전액무료' :
+                                                                p.discountType === 'TIME' ? `${p.discountValue}분` :
+                                                                `${p.discountValue.toLocaleString()}원`})
+                                                            </option>
+                                                        ))}
+                                                </select>
+                                                <input type='text' value={editReason} onChange={(e)=>setEditReason(e.target.value)}
+                                                placeholder='사유 입력' className='edit-input reason'/>
                                             </div>
                                             <div className='edit-btns'>
                                                 <button className='save-btn' onClick={handleSaveDiscount} disabled={isSubmitting}>
@@ -229,8 +249,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                             <div className='info-row highlight-row'>
                                 <label>최종 청구 금액</label>
                                 <span className='final-price'>
-                                    {/* 수정 중일때는 (원금-수정할 할인액), 아닐때는 기존 calculatedFee 표시 */}
-                                    {(isEditingDiscount ? Math.max(0, data.rawFee - editAmount) : (data.calculatedFee || 0)).toLocaleString()}원
+                                    {(data.calculatedFee || 0).toLocaleString()}원
                                 </span>
                             </div>
                             <div className='info-row'>

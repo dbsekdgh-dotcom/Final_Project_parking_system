@@ -3,6 +3,7 @@ package com.example.demo.domain.admin.management.parking.controller;
 import com.example.demo.domain.admin.entity.Admin;
 import com.example.demo.domain.admin.management.parking.dtos.request.DiscountModifyRequest;
 import com.example.demo.domain.admin.management.parking.dtos.request.ForceExitRequest;
+import com.example.demo.domain.admin.management.parking.dtos.response.AdminTicketPolicyResponse;
 import com.example.demo.domain.admin.management.parking.service.AdminParkingService;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogDetailResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
@@ -20,6 +21,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -75,8 +78,15 @@ public class AdminParkingLogController {
             @Valid @RequestBody DiscountModifyRequest request,
             @AuthenticationPrincipal AdminAuthDto currentAdmin
             ) throws Exception{
-        log.info("관리자[{}]가 주차 로그[{}]의 할인 수정을 요청했습니다. 요청 금액: {}원",currentAdmin.getName(),parkingLogId,request.getNewAmount());
-        adminParkingService.modifyParkingDiscount(parkingLogId, request.getNewAmount(), request.getReason(),currentAdmin);
+
+        adminParkingService.modifyParkingDiscount(parkingLogId, request.getTicketPolicyId(), request.getReason(),currentAdmin);
         return ResponseEntity.ok(ApiResponse.success("할인 수정이 성공적으로 완료되었습니다."));
+    }
+
+    @GetMapping("/parking/ticket-policies/admin")
+    public ResponseEntity<ApiResponse<List<AdminTicketPolicyResponse>>> getAdminPolicies(){
+        log.info("관리자가 적용 가능한 할인 정책 목록을 조회합니다.");
+        List<AdminTicketPolicyResponse> policies = adminParkingService.getAdminTicketPolicies();
+        return ResponseEntity.ok(ApiResponse.success(policies));
     }
 }

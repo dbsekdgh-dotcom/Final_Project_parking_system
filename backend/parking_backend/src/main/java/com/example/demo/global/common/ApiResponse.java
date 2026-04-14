@@ -16,6 +16,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true,message,null);
     }
 
+    public static <T> ApiResponse<T> success(T data){
+        return new ApiResponse<>(true,"성공",data);
+    }
+
     // 성공 메시지와 함께 실제 데이터(결과값)을 같이 보낼때 사용
     public static <T> ApiResponse<T> success(String message,T data){
         return new ApiResponse<>(true,message,data);
