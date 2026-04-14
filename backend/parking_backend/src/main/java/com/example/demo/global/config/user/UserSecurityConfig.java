@@ -35,39 +35,48 @@ public class UserSecurityConfig {
     @Bean
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 이 보안 필터 체인이 관리할 요청 경로 매처
                 .securityMatcher("/api/user/**", "/api/report/**", "/login/**", "/oauth2/**", "/", "/oauth-redirect/**")
 
                 .csrf(csrf -> csrf.disable())
+
                 .cors(cors -> cors.configurationSource(userCorsConfigurationSource()))
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .logout(logout -> logout.disable())
 
-                // JWT 필터 설정
-                .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), org.springframework.security.web.authentication.logout.LogoutFilter.class)
-                .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil), UsernamePasswordAuthenticationFilter.class)
+                // JWT 필터 설정: 필터 체인 순서 조정
+                .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil),
+                        org.springframework.security.web.authentication.logout.LogoutFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(adminJWTUtil),
+                        UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
+                        // 0. CORS 프리플라이트 요청 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 1. 인증 없이 접근 가능한 경로 (로그인, 회원가입 등)
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/oauth-redirect/**", "/api/user/auth/refresh",
                                 "/api/user/auth/local/signup", "/api/user/auth/local/check-email", "/api/user/auth/local/login",
-                                "/api/user/auth/local/find-email","/api/user/auth/local/send-code", "/api/user/auth/local/verify-code",
+                                "/api/user/auth/local/find-email", "/api/user/auth/local/send-code", "/api/user/auth/local/verify-code",
                                 "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
-                                "/api/user/auth/local/verify-recover-code","/api/user/auth/local/recover", "/api/user/auth/social-recover").permitAll()
+                                "/api/user/auth/local/verify-recover-code", "/api/user/auth/local/recover",
+                                "/api/user/auth/social-recover").permitAll()
 
-                        // 2. 입주민 신청 관련 경로: 인증된 사용자만 접근 가능
+                        // 2. 입주민 신청 관련 경로: 인증 필요
                         .requestMatchers("/api/user/apply/**").authenticated()
 
-                        // 신고 관련 경로: 인증된 사용자만 접근 가능
+                        // 3. 신고 관련 경로: 인증 필요
                         .requestMatchers("/api/report/**").authenticated()
 
-                        // 3. 기타 인증이 필요한 경로들
+                        // 4. 기타 회원 인증 관련 경로
                         .requestMatchers("/api/user/auth/local/logout").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
 
-                        // 4. 나머지 모든 요청도 인증 필요
-                        .anyRequest().authenticated())
+                        // 5. 나머지 모든 요청도 인증 필요
+                        .anyRequest().authenticated()
+                )
 
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))

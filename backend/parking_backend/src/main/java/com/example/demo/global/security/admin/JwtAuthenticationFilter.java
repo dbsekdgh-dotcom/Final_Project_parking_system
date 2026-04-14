@@ -21,6 +21,7 @@ import java.util.Arrays;
 @Log4j2
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final AdminJWTUtil adminJWTUtil;
 
     @Override
@@ -31,13 +32,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // [로그 추가] 요청이 서버 입구에 도착했는지 확인
         System.out.println(">>> [입구 감지] Path: " + path + " | Method: " + method);
 
-        // 1. OPTIONS 메서드는 필터를 타게 해서 직접 응답 처리할 것이므로 여기서 true 주지 않음
-        // (CORS 해결을 위해 doFilterInternal에서 처리)
+        // 1. OPTIONS 메서드는 CORS 처리를 위해 doFilterInternal에서 처리하도록 필터를 통과시킴
         if (method.equals("OPTIONS")) {
             return false;
         }
 
-        // 2. 관리자/사용자 인증 불필요 경로 (여기 포함되면 handleUserJwt 로직을 안 탐)
+        // 2. 인증 불필요 경로 정의
         if (path.startsWith("/admin/login")
                 || path.startsWith("/admin/refresh")
                 || path.startsWith("/admin/logout")
@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
-        // [CORS 강제 해결] 브라우저가 보낸 OPTIONS 요청에 직접 응답
+        // [CORS 강제 해결] 브라우저 프리플라이트 요청 응답
         if ("OPTIONS".equalsIgnoreCase(method)) {
             System.out.println(">>> [OPTIONS 응답] CORS 헤더 강제 주입 중...");
             response.setHeader("Access-Control-Allow-Origin", "http://localhost:5202");
@@ -78,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setHeader("Access-Control-Allow-Headers", "*");
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setStatus(HttpServletResponse.SC_OK);
-            return; // 여기서 끝냄 (컨트롤러까지 안 보냄)
+            return;
         }
 
         System.out.println(">>> [필터 내부] 로직 실행 시작: " + path);
@@ -96,9 +96,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println(">>> [헤더 확인] Authorization: " + authHeader);
 
         String token = null;
+
+        // 1. Authorization 헤더 확인
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-        } else if (request.getCookies() != null) {
+        }
+        // 2. 쿠키 확인 (헤더에 없을 경우)
+        else if (request.getCookies() != null) {
             token = Arrays.stream(request.getCookies())
                     .filter(cookie -> "temp_jwt".equals(cookie.getName()))
                     .map(Cookie::getValue)
@@ -124,24 +128,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    // 관리자 JWT 처리 (handleAdminJwt)는 기존과 동일하게 유지하되 내부에 println 추가 가능
     private void handleAdminJwt(HttpServletRequest request, HttpServletResponse response,
                                 FilterChain filterChain) throws ServletException, IOException {
         String headerAuth = request.getHeader("Authorization");
+
         if (headerAuth == null || !headerAuth.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
+
         String accessToken = headerAuth.substring(7);
         try {
             Claims claims = adminJWTUtil.validateToken(accessToken);
-            String loginId = (String) claims.get("loginId");
-            String name = (String) claims.get("name");
-            AdminAuthDto adminAuthDto = new AdminAuthDto(loginId, "pw_hidden", name);
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(adminAuthDto, null, adminAuthDto.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
+            // 관리자 인증 관련 추가 로직이 필요한 경우 여기에 구현
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             sendUserErrorResponse(response, "ERROR_ACCESS_TOKEN");
@@ -151,6 +150,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void sendUserErrorResponse(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=utf-8");
+
         PrintWriter printWriter = response.getWriter();
         printWriter.println("{\"error\": \"" + message + "\"}");
         printWriter.close();

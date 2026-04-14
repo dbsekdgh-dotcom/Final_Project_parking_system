@@ -13,10 +13,10 @@ const parkingData = {
     dDay: "D-18",
   },
   recentLogs: [
-    { number: "59허 3724", type: "입차", time: "1분전" },
-    { number: "59허 3724", type: "출차", time: "1분전" },
-    { number: "34나 9012", type: "예약", time: "15분전" },
-    { number: "59허 3724", type: "입차", time: "1시간전" },
+    { number: "59허 3724", type: "입차", time : "1분전" },
+    { number: "59허 3724", type: "출차", time : "1분전" },
+    { number: "34나 9012", type: "예약", time : "15분전" },
+    { number: "59허 3724", type: "입차", time : "1시간전" },
   ],
 };
 
@@ -95,11 +95,16 @@ const DashBoard = () => {
             <div className="car-number">{log.number}</div>
             <div
               className="log-type"
-              style={{ backgroundColor: typeColor[log.type] }}
+              style={{ backgroundColor: typeColor[log.type] || '#ccc',
+              color: '#fff', 
+              padding: '2px 8px', 
+              borderRadius: '4px'
+                }}
+                
             >
               {log.type}
             </div>
-            <div className="log-time">{log.time}</div>
+            <div className="log-">{log.time}</div>
           </div>
         ))}
       </div>
