@@ -222,6 +222,8 @@ public class ParkingLog {
     public void expireFreeExit(int rawFee){
         this.paymentStatus = PaymentStatus.UNPAID;
         this.rawFee = rawFee;
+        this.calculatedFee = calculatedFee;
+        this.paymentRequestedAt = null;
     }
     // EXIT_REQUESTED에서 방치된 차량 ENTERED로 되돌리기
     public void revertToEntered(){
