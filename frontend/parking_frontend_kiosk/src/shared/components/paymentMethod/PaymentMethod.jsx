@@ -16,8 +16,9 @@ const PaymentMethod = ({fee,userPoint,onConfirm,isLoading}) => {
     const payBtnHandler=()=>{
         const paymentData={
             "usedPoint":usePoint,
-            "paidAmount":fee-usePoint,
+            "paidAmount":fee-usePoint
         }
+        console.log("usedPoint===>",usePoint,"paidAmount===>",fee-usePoint)
         onConfirm(paymentData)
     }
 

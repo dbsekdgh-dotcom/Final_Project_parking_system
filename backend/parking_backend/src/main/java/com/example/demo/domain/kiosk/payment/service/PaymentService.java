@@ -44,7 +44,7 @@ public class PaymentService {
     //무료 요금 대상자인지 확인
     public PaymentEligibilityResult checkFreeExitEligibility(Long parkingLogId) {
         LocalDateTime now = LocalDateTime.now();
-        ParkingLog parkingLog = (ParkingLog) parkinglogRepository.findById(parkingLogId).orElseThrow(() -> {
+        ParkingLog parkingLog = (ParkingLog) parkinglogRepository.getDetailLogInfo(parkingLogId).orElseThrow(() -> {
             throw new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
         });
 
@@ -82,7 +82,6 @@ public class PaymentService {
 
     //요금 계산
     public FeeCalculationResponseDto calculateBaseFee(FeeCalculationRequestDto request){
-        // 1. 무료 주차 시간을 넘지 않은 경우 0
         long parkingTime=request.getParkingTime();
         int entryGraceTime=request.getPolicy().getGraceMinutes();
         int dailyMaxFee=request.getPolicy().getDailyMaxFee();
@@ -91,20 +90,23 @@ public class PaymentService {
         int baseFee=request.getPolicy().getBaseFee();
         int prepaidFee=request.getPrepaidFee();
         LocalDateTime now = LocalDateTime.now();
+        List<AppliedTicketResult> ticketList=new ArrayList<>();
 
-        List<AppliedTicketResult> appliedTicketResults=new ArrayList<>();
-
-        // 0. 주차시간에서 무료 출자 시간 차감
+        // 1. 주차시간에서 무료 출자 시간 차감
         long billableTime=Math.max(0,parkingTime-entryGraceTime);
 
-        // 1. 주차시간이 무료 주차 가능시간보다 적으면 요금 0
+        // 2. 주차시간이 무료 주차 가능시간보다 적으면 요금 0
         if(billableTime==0) {
             return FeeCalculationResponseDto.builder().rawFee(0).calculatedFee(0).paymentRequestedAt(now).parkingTime(parkingTime).build();
         }
 
-        // 2 시간 할인권 차감
+        // 3. rawFee
+        int rawFee=calculatedrawFee(billableTime,dailyMaxFee,unitMinutes,unitFee,baseFee);
+
+
+        // 4. 시간 할인권 차감
         List<ParkingTicket> discountTicketRequestDtos =request.getDiscountTicketRequestDtos();
-        StackableTicketResult timeDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.TIME, com.example.demo.domain.shared.parkingTicket.Status.STORE);
+        StackableTicketResult timeDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.TIME, UseType.STORE);
         int totalDiscountMinutes=(int)Math.min(billableTime,timeDiscountResult.getTotalAmount());
         long discountedParkingTime=Math.max(0,billableTime-totalDiscountMinutes);
 
@@ -113,7 +115,7 @@ public class PaymentService {
             for (AppliedTicketResult detail : timeDiscountResult.getDetails()){
                 if(remainingBillableTime<=0)break; //더이상 깎을 시간이 없으면 종료
                 int actualTimeEffect=(int)Math.min(remainingBillableTime,detail.getAppliedValue());
-                appliedTicketResults.add(new AppliedTicketResult(
+                ticketList.add(new AppliedTicketResult(
                         detail.getTicketId(),
                         detail.getPolicyId(),
                         detail.getStoreId(),
@@ -123,31 +125,19 @@ public class PaymentService {
             }
         }
 
-         //3. 24시간 단위 요금 계산
-        long fullDays=discountedParkingTime/MINUTES_PER_DAY;
-        int fullDaysFee=(int)(fullDays*dailyMaxFee);
-
-         //4. 24시간을 채우지 못한 나머지 시간 계산
-        long remainingMinutes=discountedParkingTime%MINUTES_PER_DAY;
-        int remainingFee=0;
-        if(remainingMinutes>0){
-            int extraUnit=(int)Math.ceil(remainingMinutes/(double)unitMinutes);
-            remainingFee=Math.min(dailyMaxFee,(extraUnit*unitFee+baseFee));
-        }
-
-        // 5. 총 주차요금
-        int rawFee=fullDaysFee+remainingFee;
+        // 5. 할인 후 주차요금
+        int timeDiscountedRawFee=(totalDiscountMinutes==0)?rawFee:calculatedrawFee(discountedParkingTime,dailyMaxFee,unitMinutes,unitFee,baseFee);
 
         // 6. 사전정산 금액
         int prepaid=(prepaidFee>0)?prepaidFee:0;
 
         // 7. 할인 가능한 금액
-        int currentBalance=rawFee-prepaid;
+        int currentBalance=timeDiscountedRawFee-prepaid;
 
-        // 7. 할인권 (discount_type==free 인 경우)
+        // 8. 할인권 (discount_type==free 인 경우)
         Optional<ParkingTicket> freeTicketOpt= discountTicketRequestDtos.stream().filter(l->l.getTicketPolicy().getDiscountType().equals(DiscountType.FREE)).findFirst();
         if(freeTicketOpt.isPresent()) {
-            appliedTicketResults.add(new AppliedTicketResult(
+            ticketList.add(new AppliedTicketResult(
                     freeTicketOpt.get().getParkingTicketId(),
                     freeTicketOpt.get().getTicketPolicy().getTicketPolicyId(),
                     freeTicketOpt.get().getStore().getStoreId(),
@@ -155,7 +145,7 @@ public class PaymentService {
             ));
             //무료 할인권 포함
             return FeeCalculationResponseDto.builder()
-                    .rawFee(rawFee)
+                    .rawFee(timeDiscountedRawFee)
                     .calculatedFee(prepaid)
                     .totalDiscountMinutes(totalDiscountMinutes)
                     .totalDiscountAmount(currentBalance)
@@ -163,50 +153,49 @@ public class PaymentService {
                     .paymentRequestedAt(now)
                     .parkingTime(parkingTime)
                     .vehicleNumber(request.getVehicleNumber())
-                    .stackableTicketResult(new StackableTicketResult(currentBalance,appliedTicketResults))
+                    .stackableTicketResult(new StackableTicketResult(currentBalance,ticketList))
                     .build();
         }
 
-        // 8. 할인권 차감
-        StackableTicketResult rateDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.RATE, com.example.demo.domain.shared.parkingTicket.Status.STORE);// - 퍼센트 할인
-        StackableTicketResult amountDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.AMOUNT,com.example.demo.domain.shared.parkingTicket.Status.STORE);// - 금액할인
-        int totalStoreDiscountAmount=Math.min(currentBalance,(currentBalance*rateDiscountResult.getTotalAmount()/100)+amountDiscountResult.getTotalAmount());
+        // 9. 할인권 차감
+        StackableTicketResult rateDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.RATE, UseType.STORE);// - 퍼센트 할인
+        StackableTicketResult amountDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.AMOUNT,UseType.STORE);// - 금액할인
 
         // - rate 할인의 경우 퍼센트가 아닌 실제 감면 금액으로 변환
-        currentBalance=applyDiscount(currentBalance,rateDiscountResult,rawFee,appliedTicketResults,DiscountType.RATE);
+        currentBalance=applyDiscount(currentBalance,rateDiscountResult,timeDiscountedRawFee,ticketList,DiscountType.RATE);
 
         // - amaount 할인
-        currentBalance=applyDiscount(currentBalance,amountDiscountResult,rawFee,appliedTicketResults,DiscountType.AMOUNT);
+        currentBalance=applyDiscount(currentBalance,amountDiscountResult,timeDiscountedRawFee,ticketList,DiscountType.AMOUNT);
 
-        // 9. 관리자 할인 적용
-        StackableTicketResult adminDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.AMOUNT, com.example.demo.domain.shared.parkingTicket.Status.ADMIN);// - 금액할인
-        currentBalance=applyDiscount(currentBalance,adminDiscountResult,rawFee,appliedTicketResults,DiscountType.AMOUNT);
+        // 10. 관리자 할인 적용
+        StackableTicketResult adminDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.AMOUNT, UseType.ADMIN);// - 금액할인
+        currentBalance=applyDiscount(currentBalance,adminDiscountResult,timeDiscountedRawFee,ticketList,DiscountType.AMOUNT);
 
-        // 10. 최종 요금 (사전정산 후 사후 정산 시 할인금액이 아무리 커도 결제 금액은 0원)
+        // 11. 최종 요금 (사전정산 후 사후 정산 시 할인금액이 아무리 커도 결제 금액은 0원)
         long calculatedFee=Math.max(0,currentBalance+prepaid);
-        long amountToPay=currentBalance;
+        long amountToPay=Math.max(0,currentBalance);
 
 
         return FeeCalculationResponseDto.builder()
-                .rawFee(rawFee)
+                .rawFee(timeDiscountedRawFee)
                 .calculatedFee(calculatedFee)
                 .totalDiscountMinutes(totalDiscountMinutes)
-                .totalDiscountAmount((int)(rawFee-amountToPay-prepaid))
+                .totalDiscountAmount((int)(timeDiscountedRawFee-calculatedFee))
                 .amountToPay(amountToPay)
                 .paymentRequestedAt(now) //결제요청 시간
                 .parkingTime(parkingTime)
                 .vehicleNumber(request.getVehicleNumber())
-                .stackableTicketResult(new StackableTicketResult((int)(rawFee-amountToPay-prepaid),appliedTicketResults))
+                .stackableTicketResult(new StackableTicketResult((int)(timeDiscountedRawFee-amountToPay-prepaid),ticketList))
                 .build();
     }
 
-    public int applyDiscount(int currentBalance, StackableTicketResult discountResult, int rawFee, List<AppliedTicketResult> resultList, DiscountType type){
+    public int applyDiscount(int currentBalance, StackableTicketResult discountResult, int timeDiscountedRawFee, List<AppliedTicketResult> resultList, DiscountType type){
         if(discountResult.getTotalAmount()>0){
             for (AppliedTicketResult detail : discountResult.getDetails()){
                 if(currentBalance<=0)break; //더이상 깎을 시간이 없으면 종료
 
                 int effect=(type==DiscountType.RATE)?
-                        (int)(detail.getAppliedValue()*rawFee/100):detail.getAppliedValue();
+                        (int)(detail.getAppliedValue()*timeDiscountedRawFee/100):detail.getAppliedValue();
 
                 int actualEffect=Math.min(currentBalance,effect);
                 resultList.add(new AppliedTicketResult(
@@ -221,7 +210,22 @@ public class PaymentService {
         return currentBalance;
     }
 
-    public StackableTicketResult calculateStackable(List<ParkingTicket> discountTicketRequestDtos, DiscountType discountType, com.example.demo.domain.shared.parkingTicket.Status status){
+    public int calculatedrawFee(long discountedParkingTime,int dailyMaxFee,int unitMinutes,int unitFee,int baseFee){
+        //3. 24시간 단위 요금 계산
+        long fullDays=discountedParkingTime/MINUTES_PER_DAY;
+        int fullDaysFee=(int)(fullDays*dailyMaxFee);
+
+        //4. 24시간을 채우지 못한 나머지 시간 계산
+        long remainingMinutes=discountedParkingTime%MINUTES_PER_DAY;
+        int remainingFee=0;
+        if(remainingMinutes>0){
+            int extraUnit=(int)Math.ceil(remainingMinutes/(double)unitMinutes);
+            remainingFee=Math.min(dailyMaxFee,(extraUnit*unitFee+baseFee));
+        }
+        return  remainingFee+fullDaysFee;
+    }
+
+    public StackableTicketResult calculateStackable(List<ParkingTicket> discountTicketRequestDtos, DiscountType discountType, UseType useType){
         List<AppliedTicketResult> resultList=new ArrayList<>();
         int max=0;
 
@@ -229,7 +233,7 @@ public class PaymentService {
        List<ParkingTicket> stackable= discountTicketRequestDtos.stream()
                 .filter(l->l.getTicketPolicy().getDiscountType().equals(discountType))
                 .filter(l->l.getTicketPolicy().isStackable()==true)
-                .filter(l->status.equals(l.getStatus())).toList();
+               .filter(l->useType.equals(l.getTicketPolicy().getUseType())).toList();
        int stackableSum=(!stackable.isEmpty())?
            stackable.stream().mapToInt(l->l.getTicketPolicy().getDiscountValue()).sum():0;
 
@@ -237,7 +241,7 @@ public class PaymentService {
         ParkingTicket nonStackableMax= discountTicketRequestDtos.stream()
                 .filter(l->l.getTicketPolicy().getDiscountType().equals(discountType))
                 .filter(l->l.getTicketPolicy().isStackable()==false)
-                .filter(l->status.equals(l.getStatus()))
+                .filter(l->useType.equals(l.getTicketPolicy().getUseType()))
                 .max(Comparator.comparingInt(l->l.getTicketPolicy().getDiscountValue())).orElse(null);
         int nonStackableMaxValue=(nonStackableMax!=null)?nonStackableMax.getTicketPolicy().getDiscountValue():0;
 
@@ -256,13 +260,8 @@ public class PaymentService {
         ParkingFeePolicy parkingFeePolicy=parkingFeePolicyRepository.findById(parkingFeePolicyId).orElse(null);
         if(parkingFeePolicy==null)throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
 
-        //할인권 조회(status=='ACTIVE' & 유효기간이 지나지 않은 것)
-        List<ParkingTicket> list=parkingTicketRepository.getValidTickets(parkingLog.getParkingLogId(), com.example.demo.domain.shared.ticketPolicy.enums.Status.ACTIVE);
-        List<ParkingTicket> discountTicketRequestDtos =list.stream().filter(l->{
-            Long totalMinutes=l.getTicketPolicy().getValidDays()*(long)MINUTES_PER_DAY +l.getTicketPolicy().getValidMinutes();
-            LocalDateTime expiryDate=l.getTicketPolicy().getCreatedAt().plusMinutes(totalMinutes);
-            return expiryDate.isAfter(LocalDateTime.now());
-        }).toList();
+        //할인권 조회(status=='ACTIVE')
+        List<ParkingTicket> discountTicketRequestDtos=parkingTicketRepository.getValidTickets(parkingLog.getParkingLogId(), com.example.demo.domain.shared.ticketPolicy.enums.Status.ACTIVE);
 
         //요금 계산
         FeeCalculationRequestDto request=FeeCalculationRequestDto.builder()
