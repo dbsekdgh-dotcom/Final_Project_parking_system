@@ -6,6 +6,7 @@ const ReportModal = ({ onClose }) => {
   const [carNumber, setCarNumber] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
+  const [reportType, setReportType] = useState("ILLEGAL_PARKING");
 
   // 2. 접수 버튼 클릭 시 실행될 함수
   const handleSubmit = async () => {
@@ -38,7 +39,7 @@ const ReportModal = ({ onClose }) => {
      const params = new URLSearchParams();
      params.append("carNumber", carNumber);
      params.append("description", description);
-     params.append("reportType", "ILLEGAL_PARKING"); 
+     params.append("reportType", reportType); 
      params.append("report_s3path",s3Path); //파이썬이 준 주소를 자바에 전달
 
      await axios.post(`${baseUrl}/api/report`, params, {
@@ -83,7 +84,26 @@ const ReportModal = ({ onClose }) => {
             value={carNumber} onChange={(e) => setCarNumber(e.target.value)}
             style={{ width: "100%", padding: "10px", border: "1px solid #ddd", borderRadius: "8px" }}
           />
-          <textarea 
+
+        <select value={reportType} onChange={(e) => setReportType(e.target.value)}
+        style={{
+          width:"100%",
+          padding: "10px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          backgroundColor: "white",
+          fontSize: "14px",
+          color: "#333",
+          cursor: "pointer"
+        }}>
+          <option value="ILLEGAL_PARKING">🚨 일반 불법 주차</option>
+          <option value="BLOCKING">🚧 통로 막음 (이동 불가)</option>
+          <option value="DOUBLE_PARK">🅿️ 이중 주차</option>
+          <option value="NOISE">🔊 소음 공해</option>
+          <option value="OTHER">📝 기타 (상세내용 작성)</option>
+        </select>
+
+        <textarea 
             placeholder="신고 내용" 
             value={description} onChange={(e) => setDescription(e.target.value)}
             style={{ width: "100%", padding: "10px", border: "1px solid #ddd", borderRadius: "8px", height: "100px" }}
