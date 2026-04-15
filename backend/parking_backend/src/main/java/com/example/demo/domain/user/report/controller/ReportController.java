@@ -25,13 +25,21 @@ public class ReportController {
 
     //신고 생성
     @PostMapping
-    public void create(
+    public ResponseEntity<String> create(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestParam String carNumber,
             @RequestParam ReportType reportType,
-            @RequestParam(required = false) String description
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String report_s3path
     ){
-        reportService.createReport(principalDetails.getUsername(), carNumber, reportType, description);
+       //로그인 체크
+        if(principalDetails ==null){
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+        //서비스 호출
+        reportService.createReport(principalDetails.getUsername(),carNumber,reportType,description, report_s3path);
+
+        return ResponseEntity.ok("신고 접수 완료!");
     }
 
     //내가 신고한 내역
@@ -49,8 +57,8 @@ public class ReportController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             Pageable pageable
     ){
-        return reportService.getReceivedReports(principalDetails.getUsername(), pageable)
-                .map(ReportResponseDto::from);
+        return reportService.getReceivedReports(principalDetails.getUsername(), pageable);
+
     }
 
     //신고 취소
@@ -64,7 +72,7 @@ public class ReportController {
 
     //기간 검색
     @GetMapping("/search")
-    public Page<Report> search(
+    public Page<ReportResponseDto> search(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,

@@ -92,6 +92,23 @@
     border-color: #90c0ff;
 }
 
+/* 날짜 + 시간 가로 배치 */
+.modal-datetime-row {
+    display: flex;
+    gap: 8px;
+}
+
+.modal-datetime-row .modal-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-hour-select {
+    flex-shrink: 0;
+    width: 82px;
+}
+
+
 /* 하단 버튼 영역 */
 .modal-footer {
     display: flex;
@@ -139,3 +156,16 @@
     cursor: not-allowed;
     transform: none;
 }
+
+/* 정책 정보 박스 */
+.policy-info-box {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid #e9ecef;
+}
+.policy-row { margin-bottom: 4px; }
+.policy-date { color: #6f708b; margin-left: 2px; }
+.policy-warning { color: #ff4d4f; margin-top: 8px; font-weight: 500; }
+.text-red { color: #ff4d4f; }

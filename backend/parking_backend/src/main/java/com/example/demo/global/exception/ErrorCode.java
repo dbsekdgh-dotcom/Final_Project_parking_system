@@ -70,7 +70,7 @@ public enum ErrorCode {
     INVALID_CONFIRM_TEXT(HttpStatus.BAD_REQUEST, "탈퇴 확인 문구가 일치하지 않습니다."),
     WITHDRAW_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
     RESTORE_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "복구 인증 세션이 만료되었습니다."), // 복구 진행 중 단계가 끊겼을 때
-
+    USER_SUSPENDED(HttpStatus.FORBIDDEN, "제재된 사용자입니다. 관리자에게 문의하세요."),
     // AUTH (계정 복구 관련 추가)
     RECOVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "복구 가능한 탈퇴 기록이 없습니다."),
     INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."), // 기존 VERIFICATION_CODE_MISMATCH와 통합 가능하지만 명확히 분리 시 사용
@@ -113,6 +113,15 @@ public enum ErrorCode {
     RESERVATION_STATUS_MISMATCH(HttpStatus.BAD_REQUEST, "취소 가능한 상태의 예약이 아닙니다."),
     RESERVATION_CANNOT_CANCEL_STATUS(HttpStatus.BAD_REQUEST, "이미 사용 중이거나 완료된 예약은 취소할 수 없습니다."), // STATUS_MISMATCH보다 구체적
     RESERVATION_POLICY_EXPIRED(HttpStatus.GONE, "해당 예약 정책이 더 이상 유효하지 않습니다."),
+    SYSTEM_TOTAL_DAILY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "오늘 아파트 전체 방문 예약 허용 횟수가 초과되었습니다."),
+    SYSTEM_TOTAL_MONTHLY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "이번 달 아파트 전체 방문 예약 허용 횟수가 초과되었습니다."),
+    SYSTEM_RESERVATION_DISABLED(HttpStatus.FORBIDDEN, "현재 시스템 설정에 의해 방문 예약 서비스가 중단되었습니다."),
+    RESERVATION_NOT_TODAY(HttpStatus.BAD_REQUEST, "방문 예약은 최소 방문일 하루 전까지 신청 가능합니다."),
+    CANCEL_NOT_TODAY(HttpStatus.BAD_REQUEST, "방문 당일에는 예약을 취소할 수 없습니다."),
+    CANNOT_EDIT_RESERVATION(HttpStatus.BAD_REQUEST, "이미 승인되었거나 처리 중인 예약은 수정할 수 없습니다."),
+    RESERVATION_CANNOT_EDIT_STATUS(HttpStatus.BAD_REQUEST, "대기(PENDING) 상태인 예약만 수정이 가능합니다."),
+    RESERVATION_NOT_OWNER_EDIT(HttpStatus.FORBIDDEN, "본인의 예약만 수정할 수 있습니다."),
+
 
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),

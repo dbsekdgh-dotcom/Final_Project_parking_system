@@ -1,0 +1,53 @@
+[33mcommit b7fd3939942a7f26fe56bf353a9adb624a658080[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 1813033 793185d
+Author: dbsekdgh <dbsekdgh09@gmail.com>
+Date:   Mon Apr 13 18:23:49 2026 +0900
+
+    Merge branch 'develop' of https://github.com/dbsekdgh-dotcom/Final_Project_parking_system into develop
+
+ .../approval/repository/ApprovalRepository.java    |   9 [32m+[m
+ .../household/repository/HouseholdRepository.java  |  39 [32m+++[m[31m--[m
+ .../com/example/demo/domain/shared/user/User.java  |  10 [32m++[m
+ .../user/apply/controller/ApplyController.java     |  39 [32m++++[m[31m-[m
+ .../dtos/projection/UnitStatusProjection.java      |   7 [32m+[m
+ .../response/ResidentApplyCancelResponseDto.java   |  26 [32m+++[m
+ .../apply/dtos/response/UnitStatusResponseDto.java |  15 [32m++[m
+ .../apply/dtos/response/UserStatusResponseDto.java |  17 [32m++[m
+ .../user/apply/service/HouseholdFindService.java   |  29 [32m++[m[31m-[m
+ .../user/apply/service/ResidentApplyService.java   |  85 [32m+++++++[m[31m--[m
+ .../auth/dtos/response/UserLoginResponseDto.java   |   4 [32m+[m
+ .../user/auth/handler/OAuth2SuccessHandler.java    |  28 [32m++[m[31m-[m
+ .../domain/user/auth/service/UserEmailService.java |   3 [32m+[m[31m-[m
+ .../domain/user/auth/service/UserLoginService.java |  27 [32m++[m[31m-[m
+ .../controller/MyPageDashBoardController.java      |  42 [32m++[m[31m---[m
+ .../request/MyPageDashboardUpdateRequestDto.java   |  10 [32m+[m[31m-[m
+ .../dto/response/MyPageDashboardResponseDto.java   |   3 [32m+[m[31m-[m
+ .../dashboard/service/MyPageDashboardService.java  |  64 [32m++++[m[31m---[m
+ .../example/demo/global/config/user/WebConfig.java |   2 [32m+[m[31m-[m
+ .../example/demo/global/exception/ErrorCode.java   |   6 [32m+[m[31m-[m
+ frontend/parking_frontend_user/src/App.jsx         |   3 [32m+[m[31m-[m
+ .../parking_frontend_user/src/app/router/root.jsx  |  14 [32m+[m[31m-[m
+ .../src/features/apply/api/applyApi.js             |  20 [32m+++[m
+ .../auth/components/AuthAccountLinkWidget.css      |  16 [32m+[m[31m-[m
+ .../auth/components/AuthAccountLinkWidget.jsx      |  21 [32m++[m[31m-[m
+ .../src/features/auth/hooks/useLogout.js           |   2 [32m+[m
+ .../src/features/auth/pages/LoginPage.jsx          |  12 [32m+[m[31m-[m
+ .../src/features/auth/pages/OAuthRedirectPage.jsx  |   8 [32m+[m
+ .../src/features/auth/utils/accountUtils.js        | 153 [32m++++++++++[m[31m------[m
+ .../src/features/mypage/api/mypageApi.js           |  30 [32m++++[m
+ .../mypage/components/PhoneChangeSection.css       |  55 [32m++++++[m
+ .../mypage/components/PhoneChangeSection.jsx       | 153 [32m++++++++++++++++[m
+ .../mypage/components/ResidentApplySection.css     | 131 [32m++++++++++++++[m
+ .../mypage/components/ResidentApplySection.jsx     | 157 [32m+++++++++++++++++[m
+ .../mypage/components/ResidentCancelButton.jsx     |  61 [32m+++++++[m
+ .../features/mypage/components/SecuritySection.css |  74 [32m++++++++[m
+ .../features/mypage/components/SecuritySection.jsx | 194 [32m+++++++++++++++++++++[m
+ .../features/mypage/components/UserInfoCard.css    |  39 [32m+++++[m
+ .../features/mypage/components/UserInfoCard.jsx    |  32 [32m++++[m
+ .../features/mypage/components/UserStatusCard.css  |  77 [32m++++++++[m
+ .../features/mypage/components/UserStatusCard.jsx  |  65 [32m+++++++[m
+ .../src/features/mypage/pages/MyPage.css           |  38 [32m++++[m
+ .../src/features/mypage/pages/MyPage.jsx           |  50 [32m++++++[m
+ .../src/shared/componets/sidebar/Sidebar.jsx       |  26 [32m++[m[31m-[m
+ .../src/shared/componets/sidebar/sidebar-css.css   |  29 [32m++[m[31m-[m
+ 45 files changed, 1744 insertions(+), 181 deletions(-)

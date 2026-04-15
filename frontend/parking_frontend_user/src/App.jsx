@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 
 // 인증 라우트 컴포넌트
@@ -22,19 +22,7 @@ const PlaceholderPage = ({ title }) => (
 );
 
 function App() {
-  // [전역 청소 로직] 앱 진입 시 토큰 상태 점검
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    // 토큰이 불완전하면 로그아웃 상태로 간주하고 정리
-    if (!accessToken || !refreshToken) {
-      if (localStorage.length > 0) {
-        localStorage.clear();
-        console.log("세션 정보가 불완전하여 스토리지를 정리했습니다.");
-      }
-    }
-  }, []);
+  // 토큰은 HttpOnly 쿠키로 관리되므로 JS에서 직접 확인 불가
 
   return (
     <BrowserRouter>
@@ -73,7 +61,8 @@ function App() {
           {/* 로그인 후 첫 화면은 대시보드 */}
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/season-pass" element={<PlaceholderPage title="정기권" />} />
-          <Route path="/visit" element={<ReservationPage />} />          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/visit" element={<ReservationPage />} />          
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/complaints" element={<ReportPage title="민원/신고" />} />
         </Route>
 
