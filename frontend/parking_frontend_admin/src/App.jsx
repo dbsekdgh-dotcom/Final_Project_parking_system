@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import Mainlayout from "./shared/layouts/Mainlayout"
 import DashBoard from "./features/dashboard/pages/DashBoard"
-import ParkingSpace from "./features/parkingspace/pages/ParkingSpace"
+import ParkingSpace from "./features/parkingspace/pages/ParkingSpacePage"
 import LoginPage from "./features/auth/pages/LoginPage"
 import ParkingLogPage from "./features/parking-management/pages/ParkingLogPage"
 

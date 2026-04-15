@@ -14,6 +14,9 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Long
     //상태별 주차공간 수 카운트 (전체/점유/가용 요약용)
     long countByStatus(SpaceStatus status);
 
+    //특정 층 주차공간 수 카운트
+    long countByFloor(Floor floor);
+
     //특정 층의 상태별 카운트 (구역별 현황 UI용)
     long countByFloorAndStatus(Floor floor, SpaceStatus status);
 }
