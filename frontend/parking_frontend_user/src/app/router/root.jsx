@@ -4,6 +4,7 @@ import SignupPage from '../../features/auth/pages/SignupPage'
 import MainLayout from '../../shared/layouts/MainLayout'
 import DashBoard from '../../features/dash/pages/DashBoard'
 import MyPage from '../../features/mypage/pages/MyPage'
+import ReservationPage from '../../features/reservation/pages/ReservationPage'
 import { createBrowserRouter } from 'react-router-dom'
 
 const root = createBrowserRouter([
@@ -25,6 +26,10 @@ const root = createBrowserRouter([
             {
                 path: "/mypage",
                 element: <MyPage />,
+            },
+            {
+                path: "/visit",
+                element: <ReservationPage />,
             },
         ],
     },

@@ -22,8 +22,10 @@ public enum SettingKey {
     MIN_USAGE_POINT("MIN_USAGE_POINT","100"),
 
     // 적립율 설정
-    PAYMENT_POINT_EARN_RATE("PAYMENT_POINT_EARN_RATE","5");
+    PAYMENT_POINT_EARN_RATE("PAYMENT_POINT_EARN_RATE","5"),
 
+    // 주차장 전체 세대 일일 총 방문 예약 가능 횟수 - 기본값 10회
+    TOTAL_DAILY_RESERVATION_LIMIT("TOTAL_DAILY_RESERVATION_LIMIT", "10");
     private final String key;
     private final String defaultValue;
 

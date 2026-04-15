@@ -9,6 +9,7 @@ import com.example.demo.domain.user.auth.repository.UserAuthRepository;
 import com.example.demo.domain.user.auth.service.*;
 import com.example.demo.global.exception.AuthException;
 import com.example.demo.global.exception.ErrorCode;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +43,17 @@ public class UserAuthLocalController {
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 성공적으로 완료되었습니다.");
     }
 
+    /**
+     * 로그인 (수정됨)
+     * HttpServletResponse를 파라미터로 받아 서비스에 넘겨줍니다.
+     */
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponseDto> userLogin(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) {
-        UserLoginResponseDto userLoginResponseDto = userLoginService.userLogin(userLoginRequestDto);
+    public ResponseEntity<UserLoginResponseDto> userLogin(
+            @Valid @RequestBody UserLoginRequestDto userLoginRequestDto,
+            HttpServletResponse response) { // ⭐ response 추가
+
+        // 이제 서비스에서 쿠키를 구워서 response에 담아줍니다.
+        UserLoginResponseDto userLoginResponseDto = userLoginService.userLogin(userLoginRequestDto, response);
         return ResponseEntity.ok(userLoginResponseDto);
     }
 
@@ -128,11 +137,19 @@ public class UserAuthLocalController {
         return ResponseEntity.ok(Map.of("message", "계정이 성공적으로 복구되었습니다. 다시 로그인해 주세요."));
     }
 
+    /**
+     * 로그아웃 (수정됨)
+     * 쿠키 삭제를 위해 HttpServletResponse를 서비스에 전달합니다.
+     */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ResponseEntity<?> logout(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            HttpServletResponse response) { // ⭐ response 추가
+
         if (principalDetails != null) {
             String email = principalDetails.getUser().getEmail();
-            userLoginService.logout(email);
+            // Redis 삭제 + 브라우저 쿠키 삭제 명령 진행
+            userLoginService.logout(email, response);
         }
         return ResponseEntity.ok(Map.of("message", "로그아웃이 성공적으로 처리되었습니다."));
     }

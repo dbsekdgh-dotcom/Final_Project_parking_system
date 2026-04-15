@@ -20,7 +20,7 @@ public class ReservationApplyRequestDto {
     private Purpose purpose;
 
     @NotNull(message = "방문 시작 시간은 필수입니다.")
-    @Future(message = "방문 시작 시간은 현재보다 미래여야 합니다.")
+    @Future(message = "방문 예약은 미래 시간만 가능합니다.")
     private LocalDateTime visitStartAt;
 
 }

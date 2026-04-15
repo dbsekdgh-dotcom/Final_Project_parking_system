@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 const OAuthRedirectPage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    
+
     // ⭐ 중복 실행 방지를 위한 flag (React StrictMode 대응)
     const isprocessed = useRef(false);
 
@@ -15,16 +15,13 @@ const OAuthRedirectPage = () => {
 
         const run = async () => {
             const error = searchParams.get("error");
-            const accessToken = searchParams.get("accessToken");
-            const refreshToken = searchParams.get("refreshToken");
-            
+
             // 한글 이름 깨짐 방지 및 데이터 추출
             const rawName = searchParams.get("name");
             const name = rawName ? decodeURIComponent(rawName) : null;
             const email = searchParams.get("email");
             const userStatus = searchParams.get("userStatus");
             const unitNo = searchParams.get("unitNo");
-
 
             // 1. 에러 처리
             if (error) {
@@ -49,14 +46,11 @@ const OAuthRedirectPage = () => {
                 return;
             }
 
-            // 2. 성공 처리
-            if (accessToken && refreshToken) {
+            // 2. 성공 처리 (토큰은 HttpOnly 쿠키로 자동 저장됨)
+            if (name || email) {
                 isprocessed.current = true;
 
-                // 로컬 스토리지 저장 (프로젝트 공통 키 이름인 userName, userEmail 사용)
-                localStorage.setItem("accessToken", accessToken);
-                localStorage.setItem("refreshToken", refreshToken);
-                
+                // UI용 사용자 정보만 localStorage에 저장 (토큰 제외)
                 if (name) {
                     localStorage.setItem("userName", name);
                 }
@@ -71,13 +65,12 @@ const OAuthRedirectPage = () => {
                 }
 
                 // 환영 메시지용 세션 정보 저장
+                sessionStorage.setItem("sessionActive", "true");
                 sessionStorage.setItem("loginSuccess", name || "사용자");
 
-                // 저장 완료 후 대시보드로 이동
-                // (데이터 반영을 확실히 하기 위해 가끔 window.location.href="/dashboard"를 쓰기도 합니다)
                 navigate("/dashboard", { replace: true });
             } else {
-                // 토큰이 없는 비정상적인 접근 처리
+                // 정보가 없는 비정상적인 접근 처리
                 navigate("/", { replace: true });
             }
         };
@@ -86,8 +79,8 @@ const OAuthRedirectPage = () => {
     }, [searchParams, navigate]);
 
     return (
-        <div style={{ 
-            textAlign: 'center', 
+        <div style={{
+            textAlign: 'center',
             marginTop: '100px',
             fontFamily: 'Arial, sans-serif'
         }}>
