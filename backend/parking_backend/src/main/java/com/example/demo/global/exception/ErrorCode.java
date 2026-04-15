@@ -118,6 +118,10 @@ public enum ErrorCode {
     SYSTEM_RESERVATION_DISABLED(HttpStatus.FORBIDDEN, "현재 시스템 설정에 의해 방문 예약 서비스가 중단되었습니다."),
     RESERVATION_NOT_TODAY(HttpStatus.BAD_REQUEST, "방문 예약은 최소 방문일 하루 전까지 신청 가능합니다."),
     CANCEL_NOT_TODAY(HttpStatus.BAD_REQUEST, "방문 당일에는 예약을 취소할 수 없습니다."),
+    CANNOT_EDIT_RESERVATION(HttpStatus.BAD_REQUEST, "이미 승인되었거나 처리 중인 예약은 수정할 수 없습니다."),
+    RESERVATION_CANNOT_EDIT_STATUS(HttpStatus.BAD_REQUEST, "대기(PENDING) 상태인 예약만 수정이 가능합니다."),
+    RESERVATION_NOT_OWNER_EDIT(HttpStatus.FORBIDDEN, "본인의 예약만 수정할 수 있습니다."),
+
 
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),

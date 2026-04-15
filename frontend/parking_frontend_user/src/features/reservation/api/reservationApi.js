@@ -25,8 +25,16 @@ export const applyReservation = async (reservationData) => {
     return response.data;
 };
 
+// 예약 수정
+export const updateReservation = async (reservationId, reservationData) => {
+    const response = await api.put(`/api/user/reservations/${reservationId}`, reservationData);
+    return response.data
+}
+
+
 // 예약 취소
 export const cancelReservation = async (reservationId) => {
     const response = await api.patch(`/api/user/reservations/${reservationId}/cancel`);
     return response.data;
 };
+

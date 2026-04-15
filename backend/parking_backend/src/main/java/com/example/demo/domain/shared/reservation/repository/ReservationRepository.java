@@ -75,4 +75,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "                     com.example.demo.domain.shared.reservation.enums.Status.REJECTED)")
     long countAllDailyReservations(@Param("startOfDay") LocalDateTime startOfDay,
                                    @Param("endOfDay") LocalDateTime endOfDay);
+
+
+
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r " +
+            "WHERE r.carNumber = :carNumber " +
+            "AND r.reservationId != :currentResId " +
+            "AND r.status IN :statuses")
+    boolean existsByCarNumberAndStatusInAndReservationIdNot(
+            @Param("carNumber") String carNumber,
+            @Param("statuses") List<Status> statuses,
+            @Param("currentResId") Long currentResId
+    );
 }

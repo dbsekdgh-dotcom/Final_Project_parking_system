@@ -96,8 +96,8 @@
 
 .status-badge--pending {
     background: #fff8e1;
-    color: #f57f17;
-    border: 1px solid #ffe082;
+    color: #e65100;
+    border: 1px solid #ffcc80;
 }
 
 .status-badge--reserved {
@@ -125,9 +125,42 @@
 }
 
 .status-badge--completed {
-    background: #f0f0f5;
-    color: #6f708b;
-    border: 1px solid #d9ddef;
+    background: #ede7f6;
+    color: #4527a0;
+    border: 1px solid #b39ddb;
+}
+
+.status-badge--noshow {
+    background: #fce4ec;
+    color: #880e4f;
+    border: 1px solid #f48fb1;
+}
+
+/* 관리 버튼 묶음 */
+.res-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+/* 수정 버튼 */
+.btn-edit-res {
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #e3f2fd;
+    color: #1565c0;
+    transition: filter 120ms;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.btn-edit-res:hover {
+    filter: brightness(0.94);
 }
 
 /* 취소 버튼 */
@@ -142,6 +175,7 @@
     color: #9b2020;
     transition: filter 120ms;
     white-space: nowrap;
+    width: 100%;
 }
 
 .btn-cancel-res:hover {

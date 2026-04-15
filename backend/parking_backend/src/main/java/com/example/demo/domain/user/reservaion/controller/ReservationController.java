@@ -81,4 +81,19 @@ public class ReservationController {
             @RequestParam("targetDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate targetDate) {
         return ResponseEntity.ok(reservationService.getReservationPolicyInfo(principalDetails, targetDate));
     }
+
+    /**
+     * [방문 예약 수정]
+     * PUT /api/user/reservations/{reservationId}
+     * 본인의 예약 중 '대기' 상태인 건에 한해 정보를 수정합니다.
+     */
+    @PutMapping("/{reservationId}")
+    public ResponseEntity<ReservationDetailResponseDto> updateReservation(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable Long reservationId,
+            @Valid @RequestBody ReservationApplyRequestDto reservationApplyRequestDto) {
+
+        return ResponseEntity.ok(reservationService.updateReservation(principalDetails, reservationId, reservationApplyRequestDto));
+    }
+
 }

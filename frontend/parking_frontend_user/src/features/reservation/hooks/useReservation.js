@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getMyReservations, cancelReservation, applyReservation, getReservationPolicy } from '../api/reservationApi'
+import { getMyReservations, cancelReservation, applyReservation, getReservationPolicy, updateReservation } from '../api/reservationApi'
 import Swal from 'sweetalert2' // Swal 임포트
 
 /**
@@ -87,6 +87,39 @@ export const useCreateReservation = () => {
                 icon: 'error',
                 title: '신청 실패',
                 text: error.response?.data?.message || '입력 정보를 다시 확인해주세요.',
+                confirmButtonColor: '#d33',
+            });
+        }
+    });
+};
+
+/**
+ * 5. 방문 예약 수정 훅
+ * 기존 예약 내용을 변경하고 성공 시 캐시를 최신화합니다.
+ */
+export const useUdateReservation = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ reservationId, reservationDate }) =>
+            updateReservation(reservationId, reservationDate),
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['myReservations'] });
+            queryClient.invalidateQueries({ queryKey: ['reservationPolicy'] });
+
+            Swal.fire({
+                icon: 'success',
+                title: '수정 완료',
+                text: '예약 정보가 성공적으로 변경되었습니다.',
+                confirmButtonColor: '#3085d6',
+            });
+        },
+        onError: (error) => {
+            Swal.fire({
+                icon: 'error',
+                titile: '수정 실패',
+                text: error.response?.data?.message || '예약 수정 중 오류가 발생했습니다.',
                 confirmButtonColor: '#d33',
             });
         }
