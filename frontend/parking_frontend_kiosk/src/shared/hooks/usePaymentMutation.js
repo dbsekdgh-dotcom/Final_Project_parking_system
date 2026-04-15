@@ -9,7 +9,10 @@ export const usePayment=()=>{
 
     const afterMutation=useMutation({
         mutationFn:async(payload)=>{
-            return await requestAfterPayment(payload);
+            console.log(" [After-Payment 진입] 서버로 보내는 최종 데이터:", payload);
+            const response= await requestAfterPayment(payload);
+            console.log("[After-Payment 성공]:", response);
+            return response;
         },
         onSuccess:(afterResponse)=>{
             navigate("/PrepaymentResult",{
@@ -32,6 +35,7 @@ export const usePayment=()=>{
     })
     const beforeMutation=useMutation({
         mutationFn:async(payload)=>{
+            console.log("before==>",payload)
             return await requestBeforePayment(payload);
         },
         onSuccess:(beforeResponse)=>{
@@ -47,8 +51,8 @@ export const usePayment=()=>{
                 "orderId":beforeResponse.orderId,
                 "amount":beforeResponse.amount,
                 "parkingLogId":beforeResponse.parkingLogId,
-                "stackableTicketResult":beforeResponse.stackableTicketResult
                 }
+                console.log("after==>",payload)
                 afterMutation.mutate(payload)
             }
         },
