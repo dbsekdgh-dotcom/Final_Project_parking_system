@@ -57,8 +57,8 @@ public class ReportController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             Pageable pageable
     ){
-        return reportService.getReceivedReports(principalDetails.getUsername(), pageable)
-                .map(ReportResponseDto::from);
+        return reportService.getReceivedReports(principalDetails.getUsername(), pageable);
+
     }
 
     //신고 취소
@@ -72,7 +72,7 @@ public class ReportController {
 
     //기간 검색
     @GetMapping("/search")
-    public Page<Report> search(
+    public Page<ReportResponseDto> search(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,

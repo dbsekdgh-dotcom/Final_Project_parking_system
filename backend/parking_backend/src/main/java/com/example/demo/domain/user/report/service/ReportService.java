@@ -73,7 +73,7 @@ public class ReportService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
         Page<Report> reports = reportRepository
-                .findByReporter_UserId(user.getUserId(), pageable);
+                .findMyReports(user.getUserId(), pageable);
 
         return reports.map(ReportResponseDto::from);
     }
@@ -83,7 +83,7 @@ public class ReportService {
      * 파라미터 Long userId -> String email 변경
      */
     @Transactional(readOnly = true)
-    public Page<Report> getReceivedReports(String email, Pageable pageable) {
+    public Page<ReportResponseDto> getReceivedReports(String email, Pageable pageable) {
         // 이메일로 유저 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
@@ -98,7 +98,8 @@ public class ReportService {
         if (carNumbers.isEmpty()) {
             return Page.empty();
         }
-        return reportRepository.findByCarNumberIn(carNumbers, pageable);
+        return reportRepository.findReceivedReports(carNumbers, pageable)
+                .map(ReportResponseDto::from);
     }
 
     /**
@@ -127,13 +128,12 @@ public class ReportService {
      * 파라미터 Long userId -> String email 변경
      */
     @Transactional(readOnly = true)
-    public Page<Report> searchReports(String email, LocalDateTime start, LocalDateTime end, Pageable pageable){
+    public Page<ReportResponseDto> searchReports(String email, LocalDateTime start, LocalDateTime end, Pageable pageable){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND_REPORT));
 
-        return reportRepository.findByReporter_UserIdAndCreatedAtBetween(
-                user.getUserId(), start, end, pageable
-        );
+        return reportRepository.findByPeriod(user.getUserId(), start, end, pageable)
+                .map(ReportResponseDto::from);
     }
 
     /**
