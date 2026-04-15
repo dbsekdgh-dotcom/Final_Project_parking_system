@@ -12,13 +12,14 @@
 
 .payment-box{
     border: 2px solid #000000; 
-    padding: 0px 30px; 
-    width: 80%;
-    height: 70px;
+    padding: 15px 20px;     /* 상하 15px, 좌우 20px로 균형 조정 */
+    width: 100%;            /* 80% 대신 100%로 변경 (부모 패딩에 의존) */
+    box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin-top: 10px;
+    text-align: left;
 }
 .final-pay-btn:active{
     background-color: #4e4e4e;
@@ -51,9 +52,12 @@
   background-color: #333;
   color: #fff;
   border: none;
-  padding: 8px 2px;
+  padding: 8px 10px;
   cursor: pointer;
   font-size: 0.8rem;
+  white-space: nowrap;    /* 글자가 절대 줄바꿈되지 않음 */
+  min-width: fit-content; /* 내용물에 맞게 너비 보장 */
+  flex-shrink: 0;         /* flex 환경에서 버튼이 찌그러지지 않게 함 */
 }
 
 .final-pay-btn {

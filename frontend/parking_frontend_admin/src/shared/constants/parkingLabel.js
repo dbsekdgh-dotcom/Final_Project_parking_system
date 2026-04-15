@@ -21,3 +21,9 @@ export const PAYMENT_STATUS_LABELS = Object.freeze({
     UNPAID: '미납',
     PAID: '납부완료'
 });
+
+export const TICKET_POLICY_STATUS_LABELS = Object.freeze({
+    ACTIVE: '활성',
+    INACTIVE: '비활성',
+    DELETED: '삭제'
+});
