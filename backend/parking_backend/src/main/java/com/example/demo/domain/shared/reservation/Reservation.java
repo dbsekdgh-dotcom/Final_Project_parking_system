@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString(exclude = {"household","vehicle"})
+@ToString(exclude = {"user","vehicle"})
 @Builder
 @Table(name = "reservation")
 public class Reservation {
@@ -49,4 +49,19 @@ public class Reservation {
     @Builder.Default
     @Column(name = "is_free", nullable = false)
     private boolean isFree=true;
+
+    /**
+     * 상태 변경 메서드 (일반적인 상태 변경 시 사용)
+     */
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
+
+    /**
+     * 예약 취소 처리 (상태 변경 + 취소 시간 기록)
+     */
+    public void cancel(Status cancelledStatus) {
+        this.status = cancelledStatus;
+        this.cancelledAt = LocalDateTime.now();
+    }
 }

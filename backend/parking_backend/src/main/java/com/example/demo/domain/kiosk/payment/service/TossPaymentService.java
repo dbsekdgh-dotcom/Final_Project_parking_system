@@ -1,5 +1,6 @@
 package com.example.demo.domain.kiosk.payment.service;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.TossApprovalResult;
 import com.example.demo.domain.kiosk.payment.dtos.request.PaymentConfirmRequestDto;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -24,6 +25,8 @@ import java.util.Base64;
 public class TossPaymentService {
     @Value("${TOSS_SECRET_KEY}")
     private String toss;
+    public static final String CODE_ALREADY_PROCESSED = "ALREADY_PROCESSED_PAYMENT";
+    public static final String STATUS_DONE = "DONE";
 
     //toss secret key 변환
     private String authorization(){
@@ -49,15 +52,15 @@ public class TossPaymentService {
             try {
                 String urlStr = "https://api.tosspayments.com/v1/payments/orders/" + dto.getOrderId();
                 ResponseEntity<JSONObject> response= sendRequest(urlStr, "GET", null);
-                if(response.getBody()!=null && "DONE".equals(response.getBody().get("status"))){
+                if(response.getBody()!=null && STATUS_DONE.equals(response.getBody().get("status"))){
                     return response;
                 }
             }catch (Exception ex){
                 log.error("최종 조회마저 실패 :{}",dto.getOrderId());
-                throw new BusinessException(ErrorCode.PAYMENT_NETWORK_ERROR);
+                throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
             }
         }catch (ParseException e){
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
         }
         throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
@@ -98,10 +101,36 @@ public class TossPaymentService {
             body.put("cancelReason", cancelReason);
             return sendRequest(urlStr, "POST", body);
         }catch (IOException e){
-            throw new BusinessException(ErrorCode.PAYMENT_NETWORK_ERROR);
+            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
         }catch (ParseException e){
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
         }
+    }
+
+    public TossApprovalResult confirmAndAnalyze(PaymentConfirmRequestDto dto){
+        try {
+            ResponseEntity<JSONObject> tossResponse = confirmPayment(dto);
+            JSONObject body = tossResponse.getBody();
+            if (tossResponse.getStatusCode().is2xxSuccessful()) {
+                return TossApprovalResult.success(String.valueOf(body.get("paymentKey")));
+            } else {
+                if (body != null) {
+                    String code = String.valueOf(body.get("code"));
+                    String errorMessage = String.valueOf(body.get("message"));
+                    //이미 처리된 결제는 성공으로 간주
+                    if (CODE_ALREADY_PROCESSED.equals(code)) {
+                        log.info("이미 처리된 결제건입니다. 성공으로 간주합니다.");
+                        return TossApprovalResult.success(String.valueOf(body.get("paymentKey")));
+                    }
+                    return TossApprovalResult.fail(errorMessage);
+                }
+            }
+        }catch (BusinessException e){
+            return TossApprovalResult.fail(e.getMessage());
+        }catch (Exception e){
+            log.error("결제 분석 중 예상치 못한 에러: {}", e.getMessage());
+        }
+        return TossApprovalResult.fail("결제 시스템과의 통신이 원활하지 않습니다.");
     }
 
 }
