@@ -51,7 +51,7 @@ public class TicketPolicy {
     private LocalDateTime createdAt;
 
     public Integer getValidDays() {
-        return this.validDays == null ? 0 : this.validDays;
+        return this.validDays == null ? 36500 : this.validDays;
     }
 
     public Integer getValidMinutes(){

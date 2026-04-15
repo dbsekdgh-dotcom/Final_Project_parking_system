@@ -5,7 +5,7 @@ import AuthAccountLinkWidget from '../../../features/auth/components/AuthAccount
 import LogoutButton from '../../../features/auth/components/LogoutButton'
 // [추가] 회원 탈퇴 버튼 임포트 (auth/components 폴더 내 위치)
 import WithdrawButton from '../../../features/auth/components/WithdrawButton'
-import { fetchUserStatus } from '../../../features/mypage/api/mypageApi'
+import { fetchUserStatus } from '../../../features/apply/api/applyApi'
 
 const navItems = [
   { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },

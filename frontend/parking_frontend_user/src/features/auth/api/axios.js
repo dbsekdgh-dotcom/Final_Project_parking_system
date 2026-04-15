@@ -7,6 +7,19 @@ const api = axios.create({
     timeout: 5000,
 });
 
+// 토큰 갱신 중 여부 플래그 & 대기 큐
+let isRefreshing = false;
+let failedQueue = [];
+
+// 대기 중인 요청들을 일괄 처리
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(({ resolve, reject }) => {
+        if (error) reject(error);
+        else resolve(token);
+    });
+    failedQueue = [];
+};
+
 // [요청 인터셉터] 모든 API 호출 시 헤더에 AccessToken 첨부
 api.interceptors.request.use(
     (config) => {
@@ -35,40 +48,52 @@ api.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        // 401 Unauthorized 발생 시 (토큰 만료)
         if (error.response?.status === 401 && !originalRequest._retry) {
+
+            // 이미 갱신 중이면 큐에 넣고 대기
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return api(originalRequest);
+                }).catch(err => Promise.reject(err));
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             try {
                 const refreshToken = localStorage.getItem("refreshToken");
                 if (!refreshToken) throw new Error("No refresh token found");
 
-                // ⭐ 백엔드 규격에 맞춰 Header에 Bearer 토큰으로 Refresh 요청
                 const res = await axios.post(`${BASE_URL}/api/user/auth/refresh`, {}, {
-                    headers: {
-                        Authorization: `Bearer ${refreshToken}`
-                    }
+                    headers: { Authorization: `Bearer ${refreshToken}` }
                 });
 
-                if (res.status === 200) {
-                    const { accessToken, refreshToken: newRefreshToken } = res.data;
+                const { accessToken, refreshToken: newRefreshToken } = res.data;
 
-                    // ⭐ RTR: 새로운 Access와 Refresh 토큰을 모두 저장
-                    localStorage.setItem("accessToken", accessToken);
-                    if (newRefreshToken) {
-                        localStorage.setItem("refreshToken", newRefreshToken);
-                    }
-
-                    // 새 토큰으로 실패했던 기존 요청 재시도
-                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                    return api(originalRequest);
+                localStorage.setItem("accessToken", accessToken);
+                if (newRefreshToken) {
+                    localStorage.setItem("refreshToken", newRefreshToken);
                 }
+
+                // 대기 중이던 요청들 새 토큰으로 일괄 재시도
+                processQueue(null, accessToken);
+
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                return api(originalRequest);
+
             } catch (refreshError) {
+                processQueue(refreshError, null);
                 localStorage.clear();
-                window.location.href = "/"; // 메인/로그인 페이지로 이동
+                window.location.href = "/";
                 return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
             }
         }
+
         return Promise.reject(error);
     }
 );
