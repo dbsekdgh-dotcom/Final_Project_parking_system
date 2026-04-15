@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useCreateReservation, useReservationPolicy } from '../hooks/useReservation';
+import { useUdateReservation, useReservationPolicy } from '../hooks/useReservation';
 import ReservationPolicyBox from './ReservationPolicyBox';
 import './ReservationModal.css';
 
@@ -25,7 +25,15 @@ const getTomorrow = () => {
     return `${yyyy}-${mm}-${dd}`;
 };
 
-const ReservationModal = ({ isOpen, onClose }) => {
+// "2026-04-16T14:00:00" → { date: "2026-04-16", hour: "14:00" }
+const parseVisitStartAt = (visitStartAt) => {
+    if (!visitStartAt) return { date: getTomorrow(), hour: '00:00' };
+    const [datePart, timePart] = visitStartAt.split('T');
+    const hour = timePart ? timePart.slice(0, 5).slice(0, 2) + ':00' : '00:00';
+    return { date: datePart, hour };
+};
+
+const ReservationEditModal = ({ isOpen, onClose, reservation }) => {
     const tomorrow = getTomorrow();
 
     const [carNumber, setCarNumber] = useState('');
@@ -34,30 +42,33 @@ const ReservationModal = ({ isOpen, onClose }) => {
     const [hourVal, setHourVal]     = useState('00:00');
 
     const { data: policy, isLoading: isPolicyLoading } = useReservationPolicy(dateVal);
-    const { mutate: createReservation, isPending } = useCreateReservation();
+    const { mutate: updateReservation, isPending } = useUdateReservation();
 
+    // 모달 열릴 때 기존 데이터로 초기화
     useEffect(() => {
-        if (isOpen) {
-            const t = getTomorrow();
-            setCarNumber('');
-            setPurpose('FAMILY');
-            setDateVal(t);
-            setHourVal('00:00');
+        if (isOpen && reservation) {
+            const { date, hour } = parseVisitStartAt(reservation.visitStartAt);
+            setCarNumber(reservation.carNumber ?? '');
+            setPurpose(reservation.purpose ?? 'FAMILY');
+            setDateVal(date);
+            setHourVal(hour);
         }
-    }, [isOpen]);
+    }, [isOpen, reservation]);
 
     if (!isOpen) return null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (policy && policy.targetDateUserCount >= policy.dailyLimitPerHousehold) {
-            alert('일일 예약 가능 횟수를 초과했습니다.');
-            return;
-        }
-
-        createReservation(
-            { carNumber, purpose, visitStartAt: `${dateVal}T${hourVal}:00` },
+        updateReservation(
+            {
+                reservationId: reservation.reservationId,
+                reservationDate: {
+                    carNumber,
+                    purpose,
+                    visitStartAt: `${dateVal}T${hourVal}:00`,
+                },
+            },
             { onSuccess: () => onClose() }
         );
     };
@@ -66,7 +77,7 @@ const ReservationModal = ({ isOpen, onClose }) => {
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2 className="modal-header__title">방문 예약 신청</h2>
+                    <h2 className="modal-header__title">방문 예약 수정</h2>
                 </div>
 
                 <div className="modal-body">
@@ -133,9 +144,9 @@ const ReservationModal = ({ isOpen, onClose }) => {
                             <button
                                 type="submit"
                                 className="btn-modal-submit"
-                                disabled={isPending || (policy && policy.targetDateTotalCount >= policy.totalDailyLimit)}
+                                disabled={isPending}
                             >
-                                {isPending ? '신청 중...' : '신청하기'}
+                                {isPending ? '수정 중...' : '수정하기'}
                             </button>
                         </div>
                     </form>
@@ -145,4 +156,4 @@ const ReservationModal = ({ isOpen, onClose }) => {
     );
 };
 
-export default ReservationModal;
+export default ReservationEditModal;

@@ -38,14 +38,13 @@ const LoginPage = () => {
                 return;
             }
 
-            // 정상 로그인: 토큰 및 사용자 정보 저장
-            localStorage.setItem("accessToken", data.accessToken);
-            localStorage.setItem("refreshToken", data.refreshToken);
+            // 정상 로그인: UI용 사용자 정보 저장 (토큰은 HttpOnly 쿠키로 관리)
             localStorage.setItem("userId", data.userId);
             localStorage.setItem("userName", data.name);
             localStorage.setItem("userEmail", data.email);
             localStorage.setItem("userStatus", data.userStatus ?? "NONE");
             if (data.unitNo != null) localStorage.setItem("unitNo", String(data.unitNo));
+            sessionStorage.setItem("sessionActive", "true");
             sessionStorage.setItem("loginSuccess", data.name);
 
             navigate("/dashboard");
