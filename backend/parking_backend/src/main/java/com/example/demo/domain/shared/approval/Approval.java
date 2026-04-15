@@ -62,4 +62,11 @@ public class Approval {
     public void onPrePersist() {
         this.createdAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
+
+    /**
+     * 🚩 결재 상태 변경을 위해 이 메서드를 추가해야 합니다!
+     */
+    public void updateStatus(ApprovalStatus status) {
+        this.status = status;
+    }
 }

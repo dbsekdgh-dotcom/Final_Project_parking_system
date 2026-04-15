@@ -1,0 +1,141 @@
+/* 오버레이 */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 30, 50, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 24px;
+}
+
+/* 카드 */
+.modal-card {
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    border: 1px solid #e7e6f2;
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(86, 95, 132, 0.15);
+    overflow: hidden;
+}
+
+/* 헤더 */
+.modal-header {
+    background: #cfe0ff;
+    padding: 18px 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-header::after {
+    content: "";
+    position: absolute;
+    top: -40px;
+    right: -60px;
+    width: 220px;
+    height: 160px;
+    background: radial-gradient(
+        circle at top right,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(255, 255, 255, 0.35) 35%,
+        rgba(255, 255, 255, 0) 70%
+    );
+    pointer-events: none;
+}
+
+.modal-header__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #233b6e;
+    position: relative;
+    z-index: 1;
+}
+
+/* 본문 */
+.modal-body {
+    padding: 24px;
+    display: grid;
+    gap: 14px;
+}
+
+/* 필드 */
+.modal-field {
+    display: grid;
+    gap: 5px;
+}
+
+.modal-label {
+    font-size: 0.84rem;
+    color: #6f708b;
+    font-weight: 500;
+}
+
+.modal-input,
+.modal-select {
+    width: 100%;
+    border: 1px solid #d9ddef;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 0.92rem;
+    outline: none;
+    background-color: #fcfcff;
+    color: #32324d;
+    box-sizing: border-box;
+    transition: border-color 120ms;
+}
+
+.modal-input:focus,
+.modal-select:focus {
+    border-color: #90c0ff;
+}
+
+/* 하단 버튼 영역 */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 6px;
+}
+
+.btn-modal-cancel {
+    border: 1px solid #d9ddef;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #f7f7fb;
+    color: #6f708b;
+    transition: filter 120ms;
+}
+
+.btn-modal-cancel:hover {
+    filter: brightness(0.96);
+}
+
+.btn-modal-submit {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #cfe0ff;
+    color: #233b6e;
+    box-shadow: 0 4px 12px rgba(86, 95, 132, 0.12);
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+.btn-modal-submit:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.97);
+}
+
+.btn-modal-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}

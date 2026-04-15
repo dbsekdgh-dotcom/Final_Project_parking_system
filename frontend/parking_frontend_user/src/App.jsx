@@ -12,6 +12,7 @@ import SignupPage from './features/auth/pages/SignupPage.jsx';
 import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
 import ReportPage from './features/report/ReportPage.jsx';
 import MyPage from './features/mypage/pages/MyPage.jsx';
+import ReservationPage from './features/reservation/pages/ReservationPage.jsx';
 
 const PlaceholderPage = ({ title }) => (
   <div style={{ padding: '2rem' }}>
@@ -72,8 +73,7 @@ function App() {
           {/* 로그인 후 첫 화면은 대시보드 */}
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/season-pass" element={<PlaceholderPage title="정기권" />} />
-          <Route path="/visit" element={<PlaceholderPage title="방문 예약" />} />
-          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/visit" element={<ReservationPage />} />          <Route path="/mypage" element={<MyPage />} />
           <Route path="/complaints" element={<ReportPage title="민원/신고" />} />
         </Route>
 
