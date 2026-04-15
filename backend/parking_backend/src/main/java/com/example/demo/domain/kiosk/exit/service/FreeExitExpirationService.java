@@ -1,7 +1,6 @@
 package com.example.demo.domain.kiosk.exit.service;
 
 import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
-import com.example.demo.domain.kiosk.payment.service.PaymentService;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
@@ -30,7 +29,7 @@ public class FreeExitExpirationService {
 
         //계산된 시간으로 요금 정해서 저장 fee가 없거나 0이하면 리턴
         long parkingTime= Duration.between(parkingLog.getFreeExitUntil(),LocalDateTime.now()).toMinutes();
-        FeeCalculationResponseDto fee = exitFeeCalculationService.settlemnetFee(parkingLog, parkingLog.getParkingFeePolicyId(),parkingTime);
+        FeeCalculationResponseDto fee = exitFeeCalculationService.settlementFee(parkingLog, parkingLog.getParkingFeePolicyId(),parkingTime);
 
         if (fee==null || fee.getRawFee() <=0) return;
 

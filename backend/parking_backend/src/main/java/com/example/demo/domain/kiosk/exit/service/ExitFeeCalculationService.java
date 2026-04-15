@@ -24,15 +24,15 @@ public class ExitFeeCalculationService {
     private final ParkingTicketRepository parkingTicketRepository;
     private final PaymentService paymentService;
 
-    private static final int MINUTRES_PER_DAY = 1440;
+    private static final int MINUTES_PER_DAY = 1440;
 
-    public FeeCalculationResponseDto settlemnetFee(ParkingLog parkingLog, Long parkingFeePolicyId, Long parkingTime){
+    public FeeCalculationResponseDto settlementFee(ParkingLog parkingLog, Long parkingFeePolicyId, Long parkingTime){
         ParkingFeePolicy parkingFeePolicy = parkingFeePolicyRepository.findById(parkingFeePolicyId).orElse(null);
         if (parkingFeePolicy == null) throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
 
         List<ParkingTicket> list = parkingTicketRepository.getValidTickets(parkingLog.getParkingLogId(), Status.ACTIVE);
         List<ParkingTicket> discountTickets = list.stream().filter(l->{
-            Long totalMinutes = l.getTicketPolicy().getValidDays() * (long) MINUTRES_PER_DAY + l.getTicketPolicy().getValidMinutes();
+            Long totalMinutes = l.getTicketPolicy().getValidDays() * (long) MINUTES_PER_DAY + l.getTicketPolicy().getValidMinutes();
             LocalDateTime expiryDate = l.getTicketPolicy().getCreatedAt().plusMinutes(totalMinutes);
             return expiryDate.isAfter(LocalDateTime.now());
         }).toList();
@@ -42,6 +42,7 @@ public class ExitFeeCalculationService {
                 .policy(parkingFeePolicy)
                 .discountTicketRequestDtos(discountTickets)
                 .vehicleNumber(parkingLog.getCarNumberSnapshot())
+                .prepaidFee(0)
                 .build();
         return paymentService.calculateBaseFee(request);
     }
