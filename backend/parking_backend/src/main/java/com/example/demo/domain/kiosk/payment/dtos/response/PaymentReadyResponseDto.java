@@ -18,5 +18,4 @@ public class PaymentReadyResponseDto {
     private long parkingLogId;
     private String vehicleNumber;
     private String userEmail;
-    private StackableTicketResult stackableTicketResult;
 }

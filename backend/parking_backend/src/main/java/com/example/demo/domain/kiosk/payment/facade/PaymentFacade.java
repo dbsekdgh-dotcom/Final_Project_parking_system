@@ -68,15 +68,39 @@ public class PaymentFacade {
 
     //결제 요청 시 사전 검증
     public PaymentReadyResponseDto beforePayment(SettlementRequestDto dto){
-        // 1. 결제 대상자 확인
-        ParkingLog parkingLog=settlementService.validateVehicleStatus(dto.getParkingLogId());
-        // 2. 결제 금액 계산
-        VehiclePaymentResponseDto vehiclePaymentResponseDto=paymentService.requestPayment(parkingLog);
-        // 3. 결제 전 Payment insert/parkinglog update
-        PaymentReadyResponseDto paymentReadyResponseDto=settlementService.insertPayment(parkingLog,dto, PaymentStatus.READY,vehiclePaymentResponseDto);
-        // 4. 락 해제
-        //aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
-        return paymentReadyResponseDto;
+        ParkingLog parkingLog=null;
+        try {
+            // 1. 결제 대상자 확인
+            parkingLog = settlementService.validateVehicleStatus(dto.getParkingLogId());
+            // 2. 결제 금액 계산
+            VehiclePaymentResponseDto vehiclePaymentResponseDto = paymentService.requestPayment(parkingLog);
+            // 3. 이미 결제 진행 중인지 확인
+            settlementService.checkIfAlreadyProcessing(parkingLog,dto);
+            // 4. parkinglog upadte
+            parkingLog=settlementService.updateParkingLogRequestedAt(parkingLog,vehiclePaymentResponseDto);
+            // 5. 요청정보 검증
+            settlementService.checkEligibility(dto,parkingLog);
+            // 6. 결제 전 Payment insert
+            PaymentReadyResponseDto paymentReadyResponseDto = settlementService.insertPayment(parkingLog, dto, PaymentStatus.READY, vehiclePaymentResponseDto);
+            // 7. 락 해제
+            //aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
+            return paymentReadyResponseDto;
+        }catch (BusinessException e){
+            log.error("사전 검증 중 비즈니스 예외 발생: {}", e.getMessage());
+            if(parkingLog!=null){
+                settlementService.releasePaymentLock(parkingLog.getParkingLogId());
+                aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
+            }
+            throw e;
+        }catch (Exception e){
+            log.error("사전 검증 중 예상치 못한 에러: {}", e.getMessage());
+            if (parkingLog != null) {
+                settlementService.releasePaymentLock(parkingLog.getParkingLogId());
+                aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
+            }
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     //결제 성공/실패/취소 시
@@ -92,13 +116,16 @@ public class PaymentFacade {
         TossApprovalResult tossApprovalResult=null;
         String errorMessage=null;
 
-        // 1. 락
-        try {
-//            aiServerClient.requestPaymentLock(carNumber);
 
-            //결제 승인 요청 전 관리자 강제 출차 여부 확인
-            SettlementRequestDto settlementRequestDto=SettlementRequestDto.builder().parkingLogId(parkingLog.getParkingLogId()).usedPoint((int)(parkingLog.getCalculatedFee()-dto.getAmount())).paidAmount((int)dto.getAmount()).build();
+        try {
+            // 1. 사전 검증
+            // - 결제 승인 요청 전 관리자 강제 출차 여부 확인
+            parkingLog=settlementService.validateVehicleStatus(parkingLog.getParkingLogId());
+            // - 금액 검증
+            SettlementRequestDto settlementRequestDto=SettlementRequestDto.builder().parkingLogId(parkingLog.getParkingLogId()).usedPoint((int)(parkingLog.getCalculatedFee()-parkingLog.getFee()-dto.getAmount())).paidAmount((int)dto.getAmount()).build();
             settlementService.checkEligibility(settlementRequestDto,parkingLog);
+            // - 결제 유효시간 초과 여부 확인
+            settlementService.checkPaymentTimeout(parkingLog);
 
             if (dto.getAmount() > 0) {
                 // 2. 토스 승인 요청
