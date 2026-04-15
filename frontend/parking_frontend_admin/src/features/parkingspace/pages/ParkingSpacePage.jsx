@@ -9,30 +9,30 @@ const ParkingSpacePage = () => {
   const [spaces,setSpaces]=useState([])
   const [currentFloor,setCurrentFloor]=useState('B1')
 
-  const fetchData = useCallback(async()=>{
-    try{
-      const [summaryRes, spacesRes]=await Promise.all([
-        getParkingSpaceSummary(),
-        getParkingSpace(currentFloor)
-      ])
-      console.log(summaryRes)
-      setSummary(summaryRes.data)
-      setSpaces(spacesRes.data)
-    }catch(error){
-      console.error("실시간 데이터 갱신 실패:",error)
-    }
-  },[currentFloor])
+  // const fetchData = useCallback(async()=>{
+  //   try{
+  //     const [summaryRes, spacesRes]=await Promise.all([
+  //       getParkingSpaceSummary(),
+  //       getParkingSpace(currentFloor)
+  //     ])
+  //     console.log(summaryRes)
+  //     setSummary(summaryRes.data)
+  //     setSpaces(spacesRes.data)
+  //   }catch(error){
+  //     console.error("실시간 데이터 갱신 실패:",error)
+  //   }
+  // },[currentFloor])
 
-  useEffect(()=>{
-    //처음 진입 시 호출
-    fetchData()
-    //30초마다 폴링 시작
-    const intervalId = setInterval(()=>{
-      fetchData()
-    },30000)
-    //컴포넌트 언마운트 시 인터벌 해제
-    return ()=>clearInterval(intervalId)
-  },[fetchData])
+  // useEffect(()=>{
+  //   //처음 진입 시 호출
+  //   fetchData()
+  //   //30초마다 폴링 시작
+  //   const intervalId = setInterval(()=>{
+  //     fetchData()
+  //   },30000)
+  //   //컴포넌트 언마운트 시 인터벌 해제
+  //   return ()=>clearInterval(intervalId)
+  // },[currentFloor])
 
   return (
     <div className='parking-space-page'>
