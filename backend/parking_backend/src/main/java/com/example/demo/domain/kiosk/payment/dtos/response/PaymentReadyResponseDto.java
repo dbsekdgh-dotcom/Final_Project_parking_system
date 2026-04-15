@@ -1,5 +1,6 @@
 package com.example.demo.domain.kiosk.payment.dtos.response;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.StackableTicketResult;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +18,5 @@ public class PaymentReadyResponseDto {
     private long parkingLogId;
     private String vehicleNumber;
     private String userEmail;
-
+    private StackableTicketResult stackableTicketResult;
 }

@@ -50,5 +50,7 @@ public class TicketPolicy {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-
+    public Integer getValidDays() {
+        return this.validDays == null ? 0 : this.validDays;
+    }
 }

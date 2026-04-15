@@ -1,5 +1,6 @@
 package com.example.demo.domain.shared.parkinglog;
 
+import com.example.demo.domain.kiosk.payment.dtos.internal.ParkingLogRefundDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.shared.camera.Camera; // Camera 엔티티 가정
 import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy; // Policy 엔티티 가정
@@ -136,7 +137,6 @@ public class ParkingLog {
         this.totalDiscountAmount=feeCalculationResponseDto.getTotalDiscountAmount();
         this.calculatedFee=feeCalculationResponseDto.getCalculatedFee();
         this.paymentRequestedAt=feeCalculationResponseDto.getPaymentRequestedAt();
-        this.paymentRequestedAt=feeCalculationResponseDto.getPaymentRequestedAt();
     }
     public void enter(LocalDateTime freeExitUntil){
         if (!this.parkingStatus.canTransitTo(ParkingStatus.ENTERED)) {
@@ -168,7 +168,10 @@ public class ParkingLog {
     //관리자 상세모달 - 강제출차 case A: 단순 상태 변경 (ex. 사전정산 완료인 경우)
     public void updateStatusToForceExit(LocalDateTime now){
         this.parkingStatus=ParkingStatus.FORCE_EXITED; //상태변경
-        this.exitedAt=now; //실제 출차완료시점 기록
+        //실제 출차 완료 시점(없을때만 기록)
+        if(this.exitedAt == null ){ this.exitedAt =now; }
+        //출차 시도 시간 (없을때만 기록)
+        if(this.exitTime ==null){ this.exitTime = now; }
         //exit_time, exit_camera_id는 기존값 유지
     }
 
@@ -200,23 +203,56 @@ public class ParkingLog {
         return true;
     }
 
-    //관리자 상세모달 - 할인권 기반 할인수정
-    public void updateDiscountByAdmin(Integer additionalDiscount) {
-        //수정 가능 여부 체크
-        if(!isDiscountModifiable()){
+    //관리자용 할인 수정 메서드
+    public void updateAdminDiscount(Integer newAdminsDiscount,Integer currentStoreTotal){
+        if(!isDiscountModifiable()) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
-        //총 할인액 업데이트(기존 할인액 + 새로운 할인권 금액)
-        this.totalDiscountAmount = Math.min(this.totalDiscountAmount + additionalDiscount, (int)this.rawFee);
-        // 최종 청구 금액 재계산 (원금 - 총 할인액)
-        this.calculatedFee= (long)Math.max(0,this.rawFee-this.totalDiscountAmount);
-        // 결제 요청 시점 초기화(금액이 바뀌었으므로 기존 요청 스냅샷 무효화) - 사용자가 이전 금액으로 결제 시도하는것을 막아줌
-        this.paymentRequestedAt =null;
-        // 결제 상태 상태값 조정
-        if(this.calculatedFee>0){
-            this.paymentStatus=PaymentStatus.UNPAID;
-        }else {
-            this.paymentStatus=PaymentStatus.NONE;
+        // 전달받은 상가 할인합계와 새 관리자 할인을 더함
+        int nextTotalDiscount = currentStoreTotal + newAdminsDiscount;
+        //원금 초과방지
+        this.totalDiscountAmount = Math.min(nextTotalDiscount,this.rawFee);
+        //최종 금액 재계산
+        this.calculatedFee =(long) Math.max(0, this.rawFee - this.totalDiscountAmount);
+        //상태값 초기화
+        this.paymentRequestedAt = null;
+        this.paymentStatus = (this.calculatedFee > 0) ? PaymentStatus.UNPAID : PaymentStatus.NONE;
+    }
+    // 무료 시간이 만료 됐을때 요금 상태 업데이트
+    public void expireFreeExit(int rawFee){
+        this.paymentStatus = PaymentStatus.UNPAID;
+        this.rawFee = rawFee;
+    }
+    // EXIT_REQUESTED에서 방치된 차량 ENTERED로 되돌리기
+    public void revertToEntered(){
+        this.parkingStatus = ParkingStatus.ENTERED;
+        this.exitCameraId=null;
+        this.exitPlateImage=null;
+        this.exitTime=null;
+    }
+
+    //환불 요청
+    public void parkingLogRefund(ParkingLogRefundDto dto){
+        this.paymentStatus=dto.getPaymentStatus();
+        this.fee=dto.getFee();
+        this.paidAt=dto.getPaidAt();
+        this.freeExitUntil=dto.getFreeExitUntil();
+        this.paymentRequestedAt=dto.getPaymentRequestedAt();
+    }
+
+    //강제출차 조회
+    public void verifyForceExit(){
+        if(this.parkingStatus==ParkingStatus.FORCE_EXITED){
+            throw new BusinessException(ErrorCode.FORCE_EXITED);
         }
     }
+    //결제 완료에 따른 주차 로그 업데이트
+    public void completePayment(int additionalFee,int graceMinutes){
+        this.fee+=additionalFee;
+        this.paidAt=LocalDateTime.now();
+        this.freeExitUntil=paidAt.plusMinutes(graceMinutes);
+        this.paymentStatus=PaymentStatus.PAID;
+    }
+
+
 }

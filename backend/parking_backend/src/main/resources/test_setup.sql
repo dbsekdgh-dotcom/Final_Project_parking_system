@@ -1,19 +1,26 @@
--- 1. 65라4088과 관련된 모든 '흔적' 지우기 (자식부터 부모 순으로)
-DELETE FROM activity_log WHERE parking_log_id IN (SELECT parking_log_id FROM parking_log WHERE car_number_snapshot = '65라4088');
+-- 1. 가장 하위 데이터들 (참조하는 놈들) 먼저 삭제
 DELETE FROM point_log WHERE user_id = 73;
-DELETE FROM payment WHERE parking_log_id IN (SELECT parking_log_id FROM parking_log WHERE car_number_snapshot = '65라4088');
+
+-- 2. 그다음 parking_ticket 삭제 (아까 에러 났던 부분)
+DELETE FROM parking_ticket
+WHERE parking_log_id IN (SELECT parking_log_id FROM parking_log WHERE car_number_snapshot = '65라4088');
+
+-- 3. 그다음 activity_log 삭제
+DELETE FROM activity_log
+WHERE parking_log_id IN (SELECT parking_log_id FROM parking_log WHERE car_number_snapshot = '65라4088');
+
+-- 4. 그다음 payment 삭제 (이제 point_log가 없어서 지워질 겁니다!)
+DELETE FROM payment
+WHERE parking_log_id IN (SELECT parking_log_id FROM parking_log WHERE car_number_snapshot = '65라4088');
+
+-- 5. 이제 드디어 부모인 parking_log 삭제
 DELETE FROM parking_log WHERE car_number_snapshot = '65라4088';
 
--- 2. 깨끗한 상태에서 포인트 다시 충전
+-- 6. 포인트 초기화 및 데이터 재생성 (parking_status는 'IN_USE'나 'PARKED' 확인!)
 INSERT INTO user_point (user_id, current_point)
 VALUES (73, 5000)
 ON DUPLICATE KEY UPDATE current_point = 5000;
 
--- 3. 포인트 로그 생성 (히스토리용)
-INSERT INTO point_log (user_id, change_amount, before_point, after_point, reason, created_at, description)
-VALUES (73, 5000, 0, 5000, 'ADMIN_GRANT', NOW(), '초기화 후 재충전');
-
--- 4. 65라4088 차량 '입차' 상태로 새로 만들기
 INSERT INTO parking_log (
     vehicle_id, car_number_snapshot, entry_time, entered_at,
     entry_plate_image, parking_type_snapshot, payment_status,
@@ -23,7 +30,3 @@ INSERT INTO parking_log (
              'https://parking-storage.com/entry/2026/04/10/car_65la4088_entry.jpg',
              'USER', 'UNPAID', 1, 0, 'ENTERED'
          );
-
--- 5. 결과 확인 (제대로 들어갔는지 한눈에 보기)
-SELECT * FROM parking_log WHERE car_number_snapshot = '65라4088';
-SELECT * FROM user_point WHERE user_id = 73;

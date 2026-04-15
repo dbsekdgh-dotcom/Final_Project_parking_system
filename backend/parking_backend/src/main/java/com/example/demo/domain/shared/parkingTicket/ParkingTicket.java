@@ -30,4 +30,10 @@ public class ParkingTicket {
     private Status status=Status.STORE;
     @Column(name = "applied_amount",nullable = false)
     private Integer appliedAmount = 0;
+
+
+    //요금 결제 시
+    public void updateAppliedAmount(int amount){
+        this.appliedAmount=amount;
+    }
 }
