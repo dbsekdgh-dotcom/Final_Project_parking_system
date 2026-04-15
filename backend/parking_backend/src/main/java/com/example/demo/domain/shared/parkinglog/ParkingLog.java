@@ -228,7 +228,7 @@ public class ParkingLog {
         this.paymentStatus = PaymentStatus.UNPAID;
         this.rawFee = rawFee;
         this.calculatedFee = calculatedFee;
-//        this.paymentRequestedAt
+        this.paymentRequestedAt = null;
     }
     // EXIT_REQUESTED에서 방치된 차량 ENTERED로 되돌리기
     public void revertToEntered(){

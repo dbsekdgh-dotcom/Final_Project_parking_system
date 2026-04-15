@@ -1,6 +1,7 @@
 package com.example.demo.domain.shared.parkinglog.repository;
 
-import com.example.demo.domain.shared.parkinglog.QParkingLog;
+import com.example.demo.domain.shared.parkinglog
+        .QParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummaryResponse;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
