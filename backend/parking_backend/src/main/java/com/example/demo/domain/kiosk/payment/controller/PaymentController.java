@@ -47,7 +47,6 @@ public class PaymentController {
     public PaymentReadyResponseDto requestReadyPayment(@RequestBody SettlementRequestDto settlementRequestDto){
         log.info("받은 정보 ==-==>{}",settlementRequestDto);
         PaymentReadyResponseDto paymentReadyResponseDto= paymentFacade.beforePayment(settlementRequestDto);
-        log.info("결제 전 사전확인 요청 응답 ==>{}",paymentReadyResponseDto);
         return paymentReadyResponseDto;
     }
 

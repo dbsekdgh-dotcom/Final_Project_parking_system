@@ -12,5 +12,4 @@ public class PaymentConfirmRequestDto {
     private String orderId;  //만든 uuid
     private long amount;  //실제 결제 금액
     private long parkingLogId;
-    private StackableTicketResult stackableTicketResult;
 }

@@ -47,7 +47,6 @@ const SelectedVehicleInfo = () => {
             "usedPoint":paymentData.usedPoint || 0,
             "paidAmount":paymentData.paidAmount ||0,
             "settlementType":"PREPAYMENT",
-            "stackableTicketResult":data.stackableTicketResult,
         }
         await beforeMutation.mutateAsync(settlementPayload)
         setIsPaymentLoading(false)
