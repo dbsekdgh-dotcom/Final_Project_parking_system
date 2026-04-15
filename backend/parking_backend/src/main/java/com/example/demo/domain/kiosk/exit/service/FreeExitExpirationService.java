@@ -20,7 +20,7 @@ import java.util.List;
 public class FreeExitExpirationService {
     private final ParkingLogRepository parkingLogRepository;
     private final ReservationRepository reservationRepository;
-    private final PaymentService paymentService;
+    private final ExitFeeCalculationService exitFeeCalculationService;
 
     //무료시간 이후 요금 정산 업데이트
     @Transactional
@@ -30,7 +30,7 @@ public class FreeExitExpirationService {
 
         //계산된 시간으로 요금 정해서 저장 fee가 없거나 0이하면 리턴
         long parkingTime= Duration.between(parkingLog.getFreeExitUntil(),LocalDateTime.now()).toMinutes();
-        FeeCalculationResponseDto fee = paymentService.settlementFee(parkingLog, parkingLog.getParkingFeePolicyId(),parkingTime);
+        FeeCalculationResponseDto fee = exitFeeCalculationService.settlemnetFee(parkingLog, parkingLog.getParkingFeePolicyId(),parkingTime);
 
         if (fee==null || fee.getRawFee() <=0) return;;
 
