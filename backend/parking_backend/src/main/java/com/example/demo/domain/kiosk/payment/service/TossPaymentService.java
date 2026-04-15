@@ -93,12 +93,26 @@ public class TossPaymentService {
             }
     }
 
-
+    //전액환불
     public ResponseEntity<JSONObject> cancelPayment(String paymentKey,String cancelReason){
         try {
             String urlStr = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
             JSONObject body = new JSONObject();
             body.put("cancelReason", cancelReason);
+            return sendRequest(urlStr, "POST", body);
+        }catch (IOException e){
+            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
+        }catch (ParseException e){
+            throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
+        }
+    }
+    //부분환불 // 테스트 안해봤습니다..
+    public ResponseEntity<JSONObject> refundPayment(String paymentKey,String cancelReason,int amount){
+        try{
+            String urlStr="https://api.tosspayments.com/v1/payments/"+paymentKey+"/cancel";
+            JSONObject body=new JSONObject();
+            body.put("cancelReason", cancelReason);
+            body.put("cancelAmount",amount);
             return sendRequest(urlStr, "POST", body);
         }catch (IOException e){
             throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
