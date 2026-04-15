@@ -12,7 +12,7 @@
 
 .page-title {
     margin: 0;
-    font-size: 30px;
+    font-size: 40px;
     font-weight: bold;
 }
 
@@ -159,18 +159,19 @@ button:disabled {
 /* 1. 레이아웃 추가 (상단 헤더용) */
 .page-header-container {
     display: flex;
-    justify-content: center; /* 제목을 가운데 정렬 */
+    justify-content: center; /* 제목은 무조건 가운데 */
     align-items: center;
-    position: relative;     /* 버튼을 absolute로 배치하기 위한 기준 */
-    width: 100%;            /* 전체 너비 사용 */
-    max-width: 500px;       /* 키패드보다 조금 넓게 설정 (적절히 조절 가능) */
-    margin: 0 auto 10px auto;
+    width: 100%;
+    margin: 0 auto 30px auto;
+    padding: 20px 0; /* 위아래 여백 */
+    position: relative;
 }
 .header-back-button {
-    position: absolute;
-    right: 0;               /* 컨테이너의 맨 오른쪽 끝으로 */
-    top: 50%;               /* 세로 중앙 정렬 시작 */
-    transform: translateY(-50%); /* 세로 중앙 정렬 완성 */
+    position: fixed;    /* absolute 대신 fixed를 사용하면 화면 전체 */
+    top: 20px;          /* 상단 여백 */
+    right: 20px;        /* 오른쪽 여백 */
+    z-index: 100;       /* 다른 요소보다 위에 보이도록 */
+    
     padding: 8px 16px;
     background-color: #000;
     color: #fff;
@@ -178,7 +179,8 @@ button:disabled {
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    white-space: nowrap;    /* 글자가 줄바꿈되지 않게 */
+    white-space: nowrap;
+    transition: all 0.2s ease;
 }
 
 .header-back-button:active {

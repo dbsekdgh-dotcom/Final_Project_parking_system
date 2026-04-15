@@ -24,7 +24,7 @@ const VehicleSearchResult = () => {
 
   return (
 <div className='full-page-container'>
-            <div className='page-header'>
+            <div className='page-header-container'>
                 <h2 className='page-title'>검색결과</h2>
             </div>
             
