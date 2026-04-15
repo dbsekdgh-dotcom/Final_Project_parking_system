@@ -1,0 +1,56 @@
+/* 요약 바 */
+.reservation-summary-bar {
+    display: flex;
+    align-items: center;
+    background: #f7f9ff;
+    border: 1px solid #d9ddef;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    gap: 0;
+}
+
+.summary-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.summary-label {
+    font-size: 0.78rem;
+    color: #6f708b;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.summary-value {
+    font-size: 0.9rem;
+    color: #32324d;
+}
+
+.summary-value strong {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #233b6e;
+}
+
+.summary-divider {
+    width: 1px;
+    height: 32px;
+    background: #d9ddef;
+    flex-shrink: 0;
+}
+
+/* 로딩 */
+.summary-loading {
+    padding: 14px 20px;
+    font-size: 0.85rem;
+    color: #9e9eb8;
+    text-align: center;
+    background: #f7f9ff;
+    border: 1px solid #d9ddef;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}

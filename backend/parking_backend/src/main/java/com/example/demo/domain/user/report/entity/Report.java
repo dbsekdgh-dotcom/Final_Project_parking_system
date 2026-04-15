@@ -3,6 +3,9 @@ package com.example.demo.domain.user.report.entity;
 import com.example.demo.domain.shared.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Report {
 
     @Id
@@ -56,6 +60,7 @@ public class Report {
     private Long adminId;
 
     //생성일
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -65,7 +70,6 @@ public class Report {
 
     @PrePersist
     protected void onCreate(){
-        this.createdAt = LocalDateTime.now();
         if(this.status == null){
             this.status = ReportStatus.PENDING;
         }

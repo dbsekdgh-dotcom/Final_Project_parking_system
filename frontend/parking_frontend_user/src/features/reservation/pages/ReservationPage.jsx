@@ -15,11 +15,11 @@ const ReservationPage = () => {
 
             <div className="reservation-page__footer">
                 {/* 4. 버튼 클릭 시 모달 열기 */}
-                <button 
+                <button
                     className="btn-new-reservation"
                     onClick={() => setIsModalOpen(true)}
                 >
-                    신규 예약 신청
+                    방문 예약 신청
                 </button>
             </div>
 

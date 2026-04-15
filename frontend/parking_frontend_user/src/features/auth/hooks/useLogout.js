@@ -15,13 +15,15 @@ const useLogout = () => {
         } catch (error) {
         }
 
-        // 2. 로컬 스토리지 삭제
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        // 2. 세션 마커 삭제 (브라우저 내 인증 상태 초기화)
+        sessionStorage.removeItem("sessionActive");
+
+        // 3. 로컬 스토리지 삭제 (UI 데이터만, 토큰은 서버 로그아웃 시 쿠키 삭제됨)
         localStorage.removeItem("userName");
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userStatus");
         localStorage.removeItem("unitNo");
+        localStorage.removeItem("userId");
 
         // 3. 임시 인증 쿠키 삭제
         document.cookie = "temp_jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";

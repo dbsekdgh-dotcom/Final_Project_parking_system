@@ -90,40 +90,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * 사용자용 JWT 인증 처리 (HttpOnly 쿠키 기반으로 수정)
+     */
     private void handleUserJwt(HttpServletRequest request, HttpServletResponse response,
                                FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        System.out.println(">>> [헤더 확인] Authorization: " + authHeader);
 
         String token = null;
 
-        // 1. Authorization 헤더 확인
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
-        // 2. 쿠키 확인 (헤더에 없을 경우)
-        else if (request.getCookies() != null) {
+        // 1. [우선순위 1] 쿠키 확인 (HttpOnly 쿠키 방식)
+        if (request.getCookies() != null) {
             token = Arrays.stream(request.getCookies())
-                    .filter(cookie -> "temp_jwt".equals(cookie.getName()))
+                    .filter(cookie -> "accessToken".equals(cookie.getName())) // 우리가 서비스에서 정한 이름
                     .map(Cookie::getValue)
                     .findFirst()
                     .orElse(null);
         }
 
+        // 2. [우선순위 2] 헤더 확인 (기존 방식 호환용 - 필요 없다면 삭제 가능)
         if (token == null) {
-            System.out.println(">>> [토큰 없음] 필터 통과 (SecurityConfig에서 차단될 예정)");
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            }
+        }
+
+        // 토큰이 아예 없는 경우
+        if (token == null) {
+            log.info(">>> [인증 토큰 없음] 경로: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            System.out.println(">>> [토큰 검증] 토큰 존재, 유저 정보 추출 중...");
+            // 토큰 검증 및 Authentication 객체 생성
             Authentication authentication = adminJWTUtil.getUserAuthentication(token);
+
+            // 시큐리티 컨텍스트에 인증 정보 저장 (이후 컨트롤러에서 Principal 사용 가능)
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println(">>> [인증 성공] Principal: " + authentication.getName());
+
+            log.info(">>> [인증 성공] 유저: {}", authentication.getName());
             filterChain.doFilter(request, response);
+
         } catch (Exception e) {
-            System.out.println(">>> [인증 실패] 원인: " + e.getMessage());
+            log.error(">>> [인증 실패] 토큰 무효: {}", e.getMessage());
             sendUserErrorResponse(response, "INVALID_TOKEN");
         }
     }

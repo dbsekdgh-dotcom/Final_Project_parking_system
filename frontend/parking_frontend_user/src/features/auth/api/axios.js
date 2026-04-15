@@ -5,6 +5,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const api = axios.create({
     baseURL: BASE_URL,
     timeout: 5000,
+    withCredentials: true, // HttpOnly 쿠키 자동 전송
 });
 
 // 토큰 갱신 중 여부 플래그 & 대기 큐
@@ -12,25 +13,13 @@ let isRefreshing = false;
 let failedQueue = [];
 
 // 대기 중인 요청들을 일괄 처리
-const processQueue = (error, token = null) => {
+const processQueue = (error) => {
     failedQueue.forEach(({ resolve, reject }) => {
         if (error) reject(error);
-        else resolve(token);
+        else resolve();
     });
     failedQueue = [];
 };
-
-// [요청 인터셉터] 모든 API 호출 시 헤더에 AccessToken 첨부
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
 
 // [응답 인터셉터] 401 에러 발생 시 토큰 갱신 로직 실행
 api.interceptors.response.use(
@@ -54,9 +43,8 @@ api.interceptors.response.use(
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
-                }).then(token => {
-                    originalRequest.headers.Authorization = `Bearer ${token}`;
-                    return api(originalRequest);
+                }).then(() => {
+                    return api(originalRequest); // 쿠키가 자동으로 전송됨
                 }).catch(err => Promise.reject(err));
             }
 
@@ -64,29 +52,23 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const refreshToken = localStorage.getItem("refreshToken");
-                if (!refreshToken) throw new Error("No refresh token found");
+                // refreshToken 쿠키가 자동으로 전송됨 (withCredentials: true)
+                // 서버에서 새 accessToken/refreshToken 쿠키를 Set-Cookie로 내려줌
+                await api.post(`/api/user/auth/refresh`);
 
-                const res = await axios.post(`${BASE_URL}/api/user/auth/refresh`, {}, {
-                    headers: { Authorization: `Bearer ${refreshToken}` }
-                });
+                processQueue(null);
 
-                const { accessToken, refreshToken: newRefreshToken } = res.data;
-
-                localStorage.setItem("accessToken", accessToken);
-                if (newRefreshToken) {
-                    localStorage.setItem("refreshToken", newRefreshToken);
-                }
-
-                // 대기 중이던 요청들 새 토큰으로 일괄 재시도
-                processQueue(null, accessToken);
-
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                // 원래 요청 재시도 (새 accessToken 쿠키 자동 전송)
                 return api(originalRequest);
 
             } catch (refreshError) {
-                processQueue(refreshError, null);
-                localStorage.clear();
+                processQueue(refreshError);
+                // 리프레시 실패 시 UI 데이터 정리 후 로그인 페이지로
+                localStorage.removeItem("userName");
+                localStorage.removeItem("userEmail");
+                localStorage.removeItem("userStatus");
+                localStorage.removeItem("unitNo");
+                localStorage.removeItem("userId");
                 window.location.href = "/";
                 return Promise.reject(refreshError);
             } finally {

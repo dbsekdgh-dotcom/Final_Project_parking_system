@@ -78,4 +78,27 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "                     com.example.demo.domain.shared.reservation.enums.Status.REJECTED)")
     long countMonthlyReservations(@Param("householdId") Long householdId,
                                   @Param("startOfMonth") LocalDateTime startOfMonth);
+
+    /**
+     * 5. 아파트 전체 세대 일일 총 예약 횟수 체크
+     * 오늘 신청된 모든 예약(취소/거절 제외)의 총합을 구합니다.
+     */
+    @Query("SELECT COUNT(r) FROM Reservation r " +
+            "WHERE r.createdAt >= :startOfDay AND r.createdAt <= :endOfDay " +
+            "AND r.status NOT IN (com.example.demo.domain.shared.reservation.enums.Status.CANCELLED, " +
+            "                     com.example.demo.domain.shared.reservation.enums.Status.REJECTED)")
+    long countAllDailyReservations(@Param("startOfDay") LocalDateTime startOfDay,
+                                   @Param("endOfDay") LocalDateTime endOfDay);
+
+
+
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r " +
+            "WHERE r.carNumber = :carNumber " +
+            "AND r.reservationId != :currentResId " +
+            "AND r.status IN :statuses")
+    boolean existsByCarNumberAndStatusInAndReservationIdNot(
+            @Param("carNumber") String carNumber,
+            @Param("statuses") List<Status> statuses,
+            @Param("currentResId") Long currentResId
+    );
 }

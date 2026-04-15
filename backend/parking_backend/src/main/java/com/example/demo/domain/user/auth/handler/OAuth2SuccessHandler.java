@@ -18,6 +18,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -146,9 +148,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             userStatus = hasPending ? "PENDING" : "NONE";
         }
 
+        // 토큰을 HttpOnly 쿠키로 설정 (URL에서 제거)
+        // maxAge 미설정 → 세션 쿠키 (브라우저 종료 시 자동 삭제)
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                .path("/").httpOnly(true).secure(false).sameSite("Lax").build();
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .path("/").httpOnly(true).secure(false).sameSite("Lax").build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        // 리다이렉트 URL에는 UI용 정보만 포함 (토큰 제외)
         UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
-                .queryParam("accessToken", accessToken)
-                .queryParam("refreshToken", refreshToken)
                 .queryParam("name", name)
                 .queryParam("email", email)
                 .queryParam("userStatus", userStatus);

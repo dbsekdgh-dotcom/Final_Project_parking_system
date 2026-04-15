@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.domain.entryexitocr.router import entryexit_router
 from app.domain.payment.router import payment_router
+from app.domain.report.router import report_router
 
 app = FastAPI()
 
@@ -35,6 +36,11 @@ app.include_router(
     prefix="/api/v1/parking/payment"
 )
 
+app.include_router(
+    report_router,
+    prefix="/api/v1/parking/report",
+    tags=["Report"]
+)
 
 if __name__ == "__main__":
     import uvicorn
