@@ -70,6 +70,9 @@ public class UserSecurityConfig {
                         // 3. 신고 관련 경로: 인증 필요
                         .requestMatchers("/api/report/**").authenticated()
 
+                        // 4. 방문 예약 관련 경로: 인증 필요 (명시적 선언)
+                        .requestMatchers("/api/user/reservations/**").authenticated()
+
                         // 4. 기타 회원 인증 관련 경로
                         .requestMatchers("/api/user/auth/local/logout").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()

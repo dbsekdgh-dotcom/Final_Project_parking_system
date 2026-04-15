@@ -80,13 +80,39 @@ public enum ErrorCode {
     INVALID_USER_DATA_FORMAT(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 데이터 형식이 올바르지 않아 처리가 불가능합니다. 관리자에게 문의하세요."),
 
     // APPLY (입주 신청 관련 추가)
-    HOUSEHOLD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 호수입니다."), // DB에 미리 넣었더라도 잘못된 ID/번호 요청 대응
     ALREADY_APPLIED_RESIDENT(HttpStatus.CONFLICT, "이미 대기 중인 입주 신청 내역이 있습니다."),
-    HOUSEHOLD_ALREADY_ACTIVE(HttpStatus.CONFLICT, "해당 세대는 이미 입주가 완료되었습니다."),
     ALREADY_RESIDENT(HttpStatus.CONFLICT, "이미 다른 세대에 거주 중인 입주민입니다."), // 유저가 이미 집이 있는 경우
     NOT_AVAILABLE_HOUSEHOLD(HttpStatus.BAD_REQUEST, "현재 신청 가능한 상태가 아닌 호수입니다."), // PENDING 상태인 호수 포함
     APPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 신청 내역을 찾을 수 없거나 취소 권한이 없습니다."),
     CANNOT_CANCEL_APPROVED(HttpStatus.BAD_REQUEST, "이미 승인 또는 거절된 신청은 취소할 수 없습니다."),
+    NOT_RESIDENT_USER(HttpStatus.FORBIDDEN, "입주민 승인 후 이용 가능한 서비스입니다."),
+
+    // HOUSEHOLD 섹션
+    HOUSEHOLD_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "세대별 예약 카운트 처리에 오류가 발생했습니다."),
+    HOUSEHOLD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 호수입니다."), // DB에 미리 넣었더라도 잘못된 ID/번호 요청 대응
+    HOUSEHOLD_ALREADY_ACTIVE(HttpStatus.CONFLICT, "해당 세대는 이미 입주가 완료되었습니다."),
+
+
+    // APPROVAL 섹션 (승인/거절 시 필요)
+    APPROVAL_NOT_FOUND(HttpStatus.NOT_FOUND, "결재 정보를 찾을 수 없습니다."),
+    ALREADY_PROCESSED_APPROVAL(HttpStatus.CONFLICT, "이미 처리된 결재 건입니다."),
+    NOT_AUTHORIZED_APPROVER(HttpStatus.FORBIDDEN, "해당 결재를 처리할 권한이 없습니다."),
+
+    // RESERVATION (방문 예약 관련 추가)
+    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "예약 내역을 찾을 수 없습니다."),
+    ALREADY_RESERVED_VEHICLE(HttpStatus.CONFLICT, "해당 차량은 이미 예약이 진행 중입니다."),
+    ACTIVE_SUBSCRIPTION_EXISTS(HttpStatus.CONFLICT, "이미 정기권이 등록된 차량입니다. 별도의 방문 예약이 필요하지 않습니다."),
+    MAX_RESERVATION_EXCEEDED(HttpStatus.CONFLICT, "동시에 보유 가능한 활성 예약 수를 초과했습니다."),
+    DAILY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "일일 예약 가능 횟수를 초과했습니다."),
+    MONTHLY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "월간 예약 가능 횟수를 초과했습니다."),
+    INVALID_RESERVATION_TIME(HttpStatus.BAD_REQUEST, "예약 시간 설정이 올바르지 않습니다."),
+    CANNOT_CANCEL_RESERVATION(HttpStatus.BAD_REQUEST, "현재 상태에서는 예약을 취소할 수 없습니다."),
+    RESERVATION_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 예약입니다."),
+    RESERVATION_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 입차된 예약은 취소할 수 없습니다."),
+    RESERVATION_NOT_OWNER(HttpStatus.FORBIDDEN, "본인의 예약만 취소할 수 있습니다."),
+    RESERVATION_STATUS_MISMATCH(HttpStatus.BAD_REQUEST, "취소 가능한 상태의 예약이 아닙니다."),
+    RESERVATION_CANNOT_CANCEL_STATUS(HttpStatus.BAD_REQUEST, "이미 사용 중이거나 완료된 예약은 취소할 수 없습니다."), // STATUS_MISMATCH보다 구체적
+    RESERVATION_POLICY_EXPIRED(HttpStatus.GONE, "해당 예약 정책이 더 이상 유효하지 않습니다."),
 
     //AI
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서비스 호출에 실패하였습니다."),

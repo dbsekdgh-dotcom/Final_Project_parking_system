@@ -29,4 +29,6 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
     Optional<Approval> findTopByRequestUserIdAndApprovalTypeAndStatusOrderByCreatedAtDesc(
             User requestUserId, ApprovalType approvalType, ApprovalStatus status);
 
+    Optional<Approval> findByTargetIdAndApprovalType(Long targetId, ApprovalType approvalType);
+
 }

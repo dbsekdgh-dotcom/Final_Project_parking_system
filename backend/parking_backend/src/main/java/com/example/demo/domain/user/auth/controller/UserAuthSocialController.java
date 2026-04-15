@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -49,8 +50,16 @@ public class UserAuthSocialController {
                 return ResponseEntity.status(401).body(Map.of("error", "INVALID_REFRESH_TOKEN"));
             }
 
-            // 3. 새로운 토큰 쌍 생성
-            Map<String, Object> newClaims = Map.of("email", email, "role", role);
+            // 3. 새로운 토큰 쌍 생성 (userId 포함 - 리프레시 토큰에서 추출)
+            Object userIdObj = claims.get("userId");
+            Long userId = (userIdObj instanceof Number) ? ((Number) userIdObj).longValue() : null;
+
+            Map<String, Object> newClaims = new HashMap<>();
+            newClaims.put("email", email);
+            newClaims.put("role", role);
+            if (userId != null) {
+                newClaims.put("userId", userId);
+            }
             String newAccessToken = adminJWTUtil.generateUserAccessToken(newClaims);
             String newRefreshToken = adminJWTUtil.generateUserRefreshToken(newClaims);
 
@@ -73,7 +82,7 @@ public class UserAuthSocialController {
     public ResponseEntity<?> socialRecover(@Valid @RequestBody UserSocialRecoverRequestDto dto) {
         User user = userSocialRecoverService.socialRecover(dto);
 
-        Map<String, Object> claims = Map.of("email", user.getEmail(), "role", "USER");
+        Map<String, Object> claims = Map.of("email", user.getEmail(), "role", "USER", "userId", user.getUserId());
         String accessToken = adminJWTUtil.generateUserAccessToken(claims);
         String refreshToken = adminJWTUtil.generateUserRefreshToken(claims);
 

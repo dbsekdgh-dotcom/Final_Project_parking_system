@@ -75,9 +75,18 @@
 }
 
 .sidebar__user-meta {
-  font-size: 0.8rem;
-  color: var(--sb-text-soft);
-  margin-top: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #5a6a9a;
+  background: #e8edf8;
+  border: 1px solid #c5cfe8;
+  border-radius: 999px;
+  padding: 4px 12px;
+  margin-top: 0.1rem;
+  letter-spacing: 0.02em;
 }
 
 .sidebar__badge {
