@@ -168,3 +168,41 @@
 .reservation-error {
     color: #c0392b;
 }
+
+/* 페이지네이션 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+}
+
+.pagination__btn {
+    border: 1px solid #d9ddef;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #f7f7fb;
+    color: #6f708b;
+    transition: background 120ms, color 120ms, border-color 120ms;
+}
+
+.pagination__btn:hover:not(:disabled) {
+    background: #e8f2ff;
+    border-color: #90c0ff;
+    color: #233b6e;
+}
+
+.pagination__btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination__num.active {
+    background: #cfe0ff;
+    border-color: #90c0ff;
+    color: #233b6e;
+}

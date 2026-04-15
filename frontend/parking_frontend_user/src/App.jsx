@@ -73,7 +73,8 @@ function App() {
           {/* 로그인 후 첫 화면은 대시보드 */}
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/season-pass" element={<PlaceholderPage title="정기권" />} />
-          <Route path="/visit" element={<ReservationPage />} />          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/visit" element={<ReservationPage />} />          
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/complaints" element={<ReportPage title="민원/신고" />} />
         </Route>
 

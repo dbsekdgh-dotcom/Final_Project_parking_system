@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCancelReservation, useMyReservation } from '../hooks/useReservation';
 import Swal from 'sweetalert2';
 import './ReservationList.css';
+import ReservationSummary from './ReservationSummary';
 
 const STATUS_CONFIG = {
     PENDING:   { text: '승인대기', cls: 'status-badge--pending' },
@@ -20,9 +21,12 @@ const PURPOSE_MAP = {
     OTHER:    '기타',
 };
 
+const PAGE_SIZE = 5;
+
 const ReservationList = () => {
     const { data: reservations, isLoading, isError } = useMyReservation();
     const { mutate: cancel } = useCancelReservation();
+    const [currentPage, setCurrentPage] = useState(1);
 
     const formatDateTime = (dateStr) => {
         if (!dateStr) return '-';
@@ -49,8 +53,22 @@ const ReservationList = () => {
     if (isLoading) return <div className="reservation-loading">데이터를 불러오는 중...</div>;
     if (isError)   return <div className="reservation-error">데이터 로드에 실패했습니다.</div>;
 
+    const total      = reservations?.length ?? 0;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const safePage   = Math.min(currentPage, totalPages);
+    const paged      = (reservations ?? []).slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+    // 최대 5개 페이지 번호 계산
+    const pageGroupStart = Math.floor((safePage - 1) / 5) * 5 + 1;
+    const pageGroupEnd   = Math.min(pageGroupStart + 4, totalPages);
+    const pageNumbers    = Array.from(
+        { length: pageGroupEnd - pageGroupStart + 1 },
+        (_, i) => pageGroupStart + i
+    );
+
     return (
         <div className="reservation-card">
+            <ReservationSummary />
             <h3 className="reservation-card__title">방문 예약 내역</h3>
 
             <div className="reservation-table-wrap">
@@ -64,8 +82,8 @@ const ReservationList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {reservations && reservations.length > 0 ? (
-                            reservations.map((res) => {
+                        {paged.length > 0 ? (
+                            paged.map((res) => {
                                 const status = STATUS_CONFIG[res.status] ?? { text: res.status, cls: 'status-badge--cancelled' };
                                 return (
                                     <tr key={res.reservationId}>
@@ -108,6 +126,37 @@ const ReservationList = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* 페이지네이션 */}
+            {totalPages > 1 && (
+                <div className="pagination">
+                    <button
+                        className="pagination__btn"
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={safePage === 1}
+                    >
+                        이전
+                    </button>
+
+                    {pageNumbers.map((n) => (
+                        <button
+                            key={n}
+                            className={`pagination__btn pagination__num${n === safePage ? ' active' : ''}`}
+                            onClick={() => setCurrentPage(n)}
+                        >
+                            {n}
+                        </button>
+                    ))}
+
+                    <button
+                        className="pagination__btn"
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={safePage === totalPages}
+                    >
+                        다음
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

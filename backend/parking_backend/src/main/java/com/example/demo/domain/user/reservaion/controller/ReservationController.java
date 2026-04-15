@@ -4,13 +4,17 @@ import com.example.demo.domain.user.auth.principal.PrincipalDetails;
 import com.example.demo.domain.user.reservaion.dtos.request.ReservationApplyRequestDto;
 import com.example.demo.domain.user.reservaion.dtos.response.ReservationCancelResponseDto;
 import com.example.demo.domain.user.reservaion.dtos.response.ReservationDetailResponseDto;
+import com.example.demo.domain.user.reservaion.dtos.response.ReservationEventPolicyResponseDto;
 import com.example.demo.domain.user.reservaion.dtos.response.ReservationListResponseDto;
 import com.example.demo.domain.user.reservaion.service.ReservationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -32,7 +36,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationDetailResponseDto> applyReservation(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @RequestBody ReservationApplyRequestDto requestDto) {
+            @Valid @RequestBody ReservationApplyRequestDto requestDto) {
 
         // 서비스의 신청 로직 호출 후 결과 반환
         return ResponseEntity.ok(reservationService.applyReservation(principalDetails, requestDto));
@@ -65,5 +69,16 @@ public class ReservationController {
 
         // 서비스의 취소 비즈니스 로직(검증, 상태 변경, 로그 등) 실행
         return ResponseEntity.ok(reservationService.cancelReservation(principalDetails, reservationId));
+    }
+
+    /**
+     * [방문 예약 정책 및 특정 날짜의 잔여 현황 조회]
+     * 사용자가 달력에서 날짜를 선택했을 때, 해당 날짜의 예약 가능 여부와 단지 정책을 반환합니다.
+     */
+    @GetMapping("/policy")
+    public ResponseEntity<ReservationEventPolicyResponseDto> getReservationPolicy(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestParam("targetDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate targetDate) {
+        return ResponseEntity.ok(reservationService.getReservationPolicyInfo(principalDetails, targetDate));
     }
 }

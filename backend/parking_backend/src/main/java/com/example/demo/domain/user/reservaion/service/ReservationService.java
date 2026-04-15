@@ -16,6 +16,8 @@ import com.example.demo.domain.shared.reservation.repository.ReservationReposito
 import com.example.demo.domain.shared.reservationEventPolicy.ReservationEventPolicy;
 import com.example.demo.domain.shared.reservationEventPolicy.repository.ReservationEventPolicyRepository;
 import com.example.demo.domain.shared.subscription.repository.SubscriptionRepository;
+import com.example.demo.domain.shared.systemSetting.SettingKey;
+import com.example.demo.domain.shared.systemSetting.repository.SystemSettingRepository;
 import com.example.demo.domain.shared.user.User;
 import com.example.demo.domain.shared.user.UserRepository;
 import com.example.demo.domain.shared.user.enums.Status;
@@ -24,6 +26,7 @@ import com.example.demo.domain.user.auth.principal.PrincipalDetails;
 import com.example.demo.domain.user.reservaion.dtos.request.ReservationApplyRequestDto;
 import com.example.demo.domain.user.reservaion.dtos.response.ReservationCancelResponseDto;
 import com.example.demo.domain.user.reservaion.dtos.response.ReservationDetailResponseDto;
+import com.example.demo.domain.user.reservaion.dtos.response.ReservationEventPolicyResponseDto;
 import com.example.demo.domain.user.reservaion.dtos.response.ReservationListResponseDto;
 import com.example.demo.global.exception.CustomException;
 import com.example.demo.global.exception.ErrorCode;
@@ -36,9 +39,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-/**
- * 입주민용 방문 예약 관련 비즈니스 로직을 처리하는 서비스입니다.
- */
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -52,113 +52,156 @@ public class ReservationService {
     private final HouseholdRepository householdRepository;
     private final ActivityLogRepository activityLogRepository;
     private final UserRepository userRepository;
+    private final SystemSettingRepository systemSettingRepository;
 
+    // --- [시간 계산 공통 헬퍼 메서드] ---
+    private LocalDateTime getStartOfDay() { return LocalDate.now().atStartOfDay(); }
+    private LocalDateTime getEndOfDay() { return LocalDate.now().atTime(LocalTime.MAX); }
+    private LocalDateTime getStartOfMonth() { return LocalDate.now().withDayOfMonth(1).atStartOfDay(); }
+
+    private LocalDateTime getStartOfDate(LocalDate date) { return date.atStartOfDay(); }
+    private LocalDateTime getEndOfDate(LocalDate date) { return date.atTime(LocalTime.MAX); }
     /**
      * [방문 예약 신청]
-     * 차량 번호, 방문 시간 등을 입력받아 예약을 생성하고 관리자 결재를 요청합니다.
      */
     @Transactional
     public ReservationDetailResponseDto applyReservation(PrincipalDetails principalDetails, ReservationApplyRequestDto reservationApplyRequestDto) {
 
-        // 1. 유저 정보 조회 및 활성화 상태 검증
-        User user = userRepository.findById(principalDetails.getUser().getUserId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        if(user.getStatus() != Status.ACTIVE) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-
-        // 2. 세대 소속 여부 및 세대 활성화 상태 확인
+        // [검증 1] 신청 유저 및 해당 세대 활성화 상태 확인
+        User user = getValidatedUserAndHousehold(principalDetails.getUser().getUserId());
         Household household = user.getHousehold();
-        if(household == null || household.getIsActive() != IsActive.ACTIVE) {
-            throw new CustomException(ErrorCode.NOT_AVAILABLE_HOUSEHOLD);
+
+        LocalDate visitDate = reservationApplyRequestDto.getVisitStartAt().toLocalDate();
+
+        // [검증 2] 당일 예약 신청 방지 및 방문 날짜 추출
+        LocalDate today = LocalDate.now();
+        if (!visitDate.isAfter(today)) {
+            throw new CustomException(ErrorCode.RESERVATION_NOT_TODAY);
         }
+
+        // [검증 3] 시스템 전체 일일 예약 제한 확인 (선택한 방문 날짜 기준!!)
+        validateSystemTotalLimit(visitDate);
 
         String carNumber = reservationApplyRequestDto.getCarNumber();
         LocalDateTime now = LocalDateTime.now();
 
-        // 3. 블랙리스트 차량 여부 확인
+        // [검증 4] 블랙리스트 차량 여부 확인
         if(vehicleBlacklistRepository.isCurrentlyBlacklisted(carNumber, now)) {
             throw new CustomException(ErrorCode.BLACKLIST_VEHICLE);
         }
 
-        // 4. 이미 정기권이 등록된 차량인지 확인
+        // [검증 5] 해당 차량의 활성화된 정기권 존재 여부 확인
         if(subscriptionRepository.hasActiveSubscription(carNumber, now)) {
             throw new CustomException(ErrorCode.ACTIVE_SUBSCRIPTION_EXISTS);
         }
 
-        // 5. 현재 주차장에 이미 입차되어 있는 차량인지 확인
+        // [검증 6] 해당 차량이 현재 단지 내에 이미 입차해 있는지 확인
         if(parkingLogRepository.isAlreadyInParkingLot(carNumber)) {
             throw new CustomException(ErrorCode.VEHICLE_ALREADY_ENTERED);
         }
 
-        // 6. 중복 예약 확인 (PENDING 또는 RESERVED 상태의 예약이 있는지)
+        // [검증 7] 해당 차량 번호로 이미 신청된 '대기' 또는 '승인' 상태의 예약 존재 여부 확인
         var PENDING = com.example.demo.domain.shared.reservation.enums.Status.PENDING;
         var RESERVED = com.example.demo.domain.shared.reservation.enums.Status.RESERVED;
-
         if(reservationRepository.existsByCarNumberAndStatusIn(carNumber, List.of(PENDING, RESERVED))) {
             throw new CustomException(ErrorCode.ALREADY_RESERVED_VEHICLE);
         }
 
-        // 7. 주차 정책 및 세대별 예약 제한 확인
+        // [검증 8] 현재 주차 관리 정책(Policy) 조회 및 위반 확인
         ReservationEventPolicy policy = reservationEventPolicyRepository.findActivePolicy(now)
                 .orElseThrow(() -> new CustomException(ErrorCode.PARKING_POLICY_NOT_FOUND));
 
-        // 세대별 동시 활성 예약 수 제한 체크
+        // (8-1) 세대별 동시 보유 가능한 활성 예약증 수 제한 확인
         if(household.getActiveReservationCount() >= policy.getMaxActiveReservations()) {
             throw new CustomException(ErrorCode.MAX_RESERVATION_EXCEEDED);
         }
 
-        // 세대별 일일 예약 횟수 제한 체크
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
-        long todayCount = reservationRepository.countDailyReservations(household.getHouseholdId(), startOfDay, endOfDay);
-
-        if(policy.getDailyLimitPerHousehold() != null && todayCount >= policy.getDailyLimitPerHousehold()) {
+        // (8-2) 세대별 방문 예정일의 예약 신청 횟수 제한 확인 (방문일 기준!!)
+        long visitDateCount = reservationRepository.countDailyReservations(household.getHouseholdId(), getStartOfDate(visitDate), getEndOfDate(visitDate));
+        if(policy.getDailyLimitPerHousehold() != null && visitDateCount >= policy.getDailyLimitPerHousehold()) {
             throw new CustomException(ErrorCode.DAILY_LIMIT_EXCEEDED);
         }
 
-        // 8. 정책에 따른 방문 종료 시간 자동 계산
+        // 예약 생성 및 저장
         LocalDateTime visitStartAt = reservationApplyRequestDto.getVisitStartAt();
         int minutesToAdd = (policy.getPermittedMinutes() != null) ? policy.getPermittedMinutes() : 60;
         LocalDateTime visitEndAt = visitStartAt.plusMinutes(minutesToAdd);
 
-        // 9. 예약(Reservation) 엔티티 생성 및 저장
         Reservation reservation = Reservation.builder()
-                .user(user)
-                .carNumber(carNumber)
-                .purpose(reservationApplyRequestDto.getPurpose())
-                .visitStartAt(visitStartAt)
-                .visitEndAt(visitEndAt)
-                .status(PENDING)
-                .isFree(true)
-                .build();
+                .user(user).carNumber(carNumber).purpose(reservationApplyRequestDto.getPurpose())
+                .visitStartAt(visitStartAt).visitEndAt(visitEndAt).status(PENDING).isFree(true).build();
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        // 10. 관리자 승인을 위한 결재 데이터 생성
-        Approval approval = Approval.builder()
-                .approvalType(ApprovalType.RESERVATION)
-                .targetId(savedReservation.getReservationId())
-                .requestUserId(user)
-                .status(ApprovalStatus.PENDING)
-                .build();
+        // 관리자 결재 요청 및 활동 로그 생성
+        approvalRepository.save(Approval.builder()
+                .approvalType(ApprovalType.RESERVATION).targetId(savedReservation.getReservationId())
+                .requestUserId(user).status(ApprovalStatus.PENDING).build());
 
-        approvalRepository.save(approval);
-
-        // 11. 활동 로그 기록
         activityLogRepository.save(ActivityLog.builder()
-                .activityType(ActivityType.RESERVATION_CREATED)
-                .reservation(savedReservation)
-                .carNumber(carNumber)
-                .household(household)
-                .message(String.format("[%s] 차량 방문 예약 신청 (세대: %s)", carNumber, household.getUnitNo()))
-                .build());
+                .activityType(ActivityType.RESERVATION_CREATED).reservation(savedReservation).carNumber(carNumber)
+                .household(household).message(String.format("[%s] 차량 방문 예약 신청", carNumber)).build());
 
-        // 12. 세대 활성 예약 카운트 증가
+        // 세대 활성 예약 카운트 증가
         householdRepository.incrementActiveReservationCount(household.getHouseholdId());
 
         return ReservationDetailResponseDto.fromEntity(savedReservation);
+    }
+
+    /**
+     * [방문 예약 정책 및 특정 날짜의 잔여 현황 조회]
+     * @param targetDate 사용자가 달력에서 클릭한 미래의 날짜
+     */
+    @Transactional(readOnly = true)
+    public ReservationEventPolicyResponseDto getReservationPolicyInfo(PrincipalDetails principalDetails, LocalDate targetDate) {
+
+        User user = getValidatedUserAndHousehold(principalDetails.getUser().getUserId());
+        Household household = user.getHousehold();
+
+        // 1. 시스템 공통 설정 조회 (전체 제한)
+        int totalDailyLimit = systemSettingRepository.findBySettingKey(SettingKey.TOTAL_DAILY_RESERVATION_LIMIT.getKey())
+                .map(s -> Integer.parseInt(s.getSettingValue()))
+                .orElse(SettingKey.TOTAL_DAILY_RESERVATION_LIMIT.getDefaultIntValue());
+
+        // 2. 선택한 날짜(Target Date)의 실시간 현황 집계
+        long targetDateTotalCount = reservationRepository.countAllDailyReservations(getStartOfDate(targetDate), getEndOfDate(targetDate));
+        long targetDateUserCount = reservationRepository.countDailyReservations(household.getHouseholdId(), getStartOfDate(targetDate), getEndOfDate(targetDate));
+
+        // 3. 정책 정보 및 사용자 누적 상태 조회
+        ReservationEventPolicy policy = reservationEventPolicyRepository.findActivePolicy(LocalDateTime.now())
+                .orElseThrow(() -> new CustomException(ErrorCode.PARKING_POLICY_NOT_FOUND));
+
+        long monthUsedCount = reservationRepository.countMonthlyReservations(household.getHouseholdId(), getStartOfMonth());
+
+        var ACTIVE_STATUSES = List.of(com.example.demo.domain.shared.reservation.enums.Status.PENDING,
+                com.example.demo.domain.shared.reservation.enums.Status.RESERVED);
+        int currentActiveCount = (int) reservationRepository.countByHouseholdIdAndStatusIn(household.getHouseholdId(), ACTIVE_STATUSES);
+
+        // 4. 메시지 동적 생성
+        String systemMessage = (targetDateTotalCount >= totalDailyLimit)
+                ? targetDate + "일은 이미 모든 예약이 마감되었습니다."
+                : null;
+
+        String warningMessage = "본 예약은 주차 공간을 확정적으로 보장하지 않으며, 현장 만차 시 입차가 제한될 수 있습니다.";
+        if (targetDateTotalCount >= (totalDailyLimit * 0.8) && systemMessage == null) {
+            warningMessage = "현재 해당 날짜의 예약량이 많아 주차가 혼잡할 수 있습니다. " + warningMessage;
+        }
+
+        return new ReservationEventPolicyResponseDto(
+                policy.getEventName(),
+                policy.getPermittedMinutes() != null ? policy.getPermittedMinutes() : 60,
+                policy.getDailyLimitPerHousehold() != null ? policy.getDailyLimitPerHousehold() : 0,
+                policy.getMonthlyLimitPerHousehold() != null ? policy.getMonthlyLimitPerHousehold() : 0,
+                policy.getMaxActiveReservations(),
+                totalDailyLimit,
+                monthUsedCount,
+                currentActiveCount,
+                targetDateTotalCount,
+                targetDateUserCount,
+                policy.isNoShowPenaltyEnabled(),
+                systemMessage,
+                warningMessage
+        );
     }
 
     /**
@@ -167,90 +210,97 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationListResponseDto> getMyReservations(PrincipalDetails principalDetails) {
 
-        User user = userRepository.findById(principalDetails.getUser().getUserId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.getHousehold() == null) {
-            throw new CustomException(ErrorCode.NOT_RESIDENT_USER);
-        }
+        // [검증] 유저 및 세대 활성 상태 확인 (유저 객체만 필요)
+        User user = getValidatedUserAndHousehold(principalDetails.getUser().getUserId());
 
         return reservationRepository.findByUserOrderByCreatedAtDesc(user)
-                .stream()
-                .map(ReservationListResponseDto::new)
-                .toList();
+                .stream().map(ReservationListResponseDto::new).toList();
     }
 
     /**
      * [방문 예약 취소]
-     * 입차 여부 및 예약 상태를 확인하여 취소 처리를 수행합니다.
      */
     @Transactional
     public ReservationCancelResponseDto cancelReservation(PrincipalDetails principalDetails, Long reservationId) {
-
-        // 상태값 상수화
         var PENDING = com.example.demo.domain.shared.reservation.enums.Status.PENDING;
         var RESERVED = com.example.demo.domain.shared.reservation.enums.Status.RESERVED;
         var CANCELLED = com.example.demo.domain.shared.reservation.enums.Status.CANCELLED;
 
-        var APP_PENDING = ApprovalStatus.PENDING;
-        var APP_CANCELLED = ApprovalStatus.CANCELLED;
-
-        // 1. 데이터 조회
-        User user = userRepository.findById(principalDetails.getUser().getUserId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        // [검증 1] 유저 및 세대 활성 상태 확인
+        User user = getValidatedUserAndHousehold(principalDetails.getUser().getUserId());
 
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        // 2. 권한 검증
+        // [검증 2] 당일/과거 예약 취소 금지 (예약 시작일이 내일 이후여야 함)
+        LocalDate today = LocalDate.now();
+        if (!reservation.getVisitStartAt().toLocalDate().isAfter(today)) {
+            throw new CustomException(ErrorCode.CANCEL_NOT_TODAY);
+        }
+
+        // [검증 3] 본인의 예약인지 확인
         if (!reservation.getUser().getUserId().equals(user.getUserId())) {
             throw new CustomException(ErrorCode.RESERVATION_NOT_OWNER);
         }
 
-        // 3. 상태 검증
-        var currentStatus = reservation.getStatus();
-
-        // (1) 이미 취소된 경우
-        if (currentStatus == CANCELLED) {
+        // [검증 4] 이미 취소된 상태인지 확인
+        if (reservation.getStatus() == CANCELLED) {
             throw new CustomException(ErrorCode.RESERVATION_ALREADY_CANCELLED);
         }
 
-        // (2) PENDING/RESERVED 외 상태(완료 등) 체크
-        if (currentStatus != PENDING && currentStatus != RESERVED) {
+        // [검증 5] 취소 가능한 상태(PENDING, RESERVED)인지 확인
+        if (reservation.getStatus() != PENDING && reservation.getStatus() != RESERVED) {
             throw new CustomException(ErrorCode.RESERVATION_CANNOT_CANCEL_STATUS);
         }
 
-        // (3) 🚩 [추가 검증] 실제 주차장에 이미 입차했는지 확인 (실물 입차 시 취소 불가)
+        // [검증 6] 예약 차량이 이미 단지에 들어와 있는지 확인
         if (parkingLogRepository.isAlreadyInParkingLot(reservation.getCarNumber())) {
             throw new CustomException(ErrorCode.RESERVATION_ALREADY_USED);
         }
 
-        // 4. 취소 로직 실행
-        // (1) 엔티티 취소 처리
+        // 취소 처리 및 세대 활성 예약 카운트 차감
         reservation.cancel(CANCELLED);
+        householdRepository.decrementActiveReservationCount(user.getHousehold().getHouseholdId());
 
-        // (2) 세대 활성 카운트 차감
-        if (user.getHousehold() != null) {
-            householdRepository.decrementActiveReservationCount(user.getHousehold().getHouseholdId());
-        }
-
-        // (3) 결재 대기 건 자동 취소
+        // 결재 요청이 대기 중일 경우 자동 취소 처리
         approvalRepository.findByTargetIdAndApprovalType(reservationId, ApprovalType.RESERVATION)
-                .ifPresent(approval -> {
-                    if (approval.getStatus() == APP_PENDING) {
-                        approval.updateStatus(APP_CANCELLED);
-                    }
-                });
-
-        // (4) 활동 로그 저장
-        activityLogRepository.save(ActivityLog.builder()
-                .activityType(ActivityType.RESERVATION_CANCELLED)
-                .reservation(reservation)
-                .carNumber(reservation.getCarNumber())
-                .household(user.getHousehold())
-                .message(String.format("[%s] 방문 예약 취소 (사용자 직접 취소)", reservation.getCarNumber()))
-                .build());
+                .ifPresent(approval -> { if (approval.getStatus() == ApprovalStatus.PENDING) approval.updateStatus(ApprovalStatus.CANCELLED); });
 
         return new ReservationCancelResponseDto(reservation);
+    }
+
+    /**
+     * [공통 헬퍼] 아파트 전체 일일 예약 제한 검증
+     */
+    private void validateSystemTotalLimit(LocalDate targetDate) {
+        int totalLimit = systemSettingRepository.findBySettingKey(SettingKey.TOTAL_DAILY_RESERVATION_LIMIT.getKey())
+                .map(s -> Integer.parseInt(s.getSettingValue()))
+                .orElse(SettingKey.TOTAL_DAILY_RESERVATION_LIMIT.getDefaultIntValue());
+
+        long count = reservationRepository.countAllDailyReservations(getStartOfDate(targetDate), getEndOfDate(targetDate));
+
+        if (count >= totalLimit) {
+            throw new CustomException(ErrorCode.SYSTEM_TOTAL_DAILY_LIMIT_EXCEEDED);
+        }
+    }
+    /**
+     * [공통 헬퍼] 유저와 세대의 활성 상태를 모두 검증합니다.
+     */
+    private User getValidatedUserAndHousehold(Long userId) {
+        // 유저 존재 및 상태 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getStatus() != Status.ACTIVE) {
+            throw new CustomException(ErrorCode.USER_SUSPENDED);
+        }
+
+        // 세대 존재 및 상태 확인 (비거주자 또는 비활성 세대 차단)
+        Household household = user.getHousehold();
+        if (household == null || household.getIsActive() != IsActive.ACTIVE) {
+            throw new CustomException(ErrorCode.NOT_AVAILABLE_HOUSEHOLD);
+        }
+
+        return user;
     }
 }
