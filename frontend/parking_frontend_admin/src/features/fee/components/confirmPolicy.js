@@ -1,5 +1,5 @@
 import Swal from 'sweetalert2';
-import {changeFeePolicyHook} from './../hooks/usePolicyMutation'
+//import {changeFeePolicyHook} from './../hooks/usePolicyMutation'
 export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mutateFn,updatePolicy})=>{
 
     const result=await Swal.fire({
@@ -26,7 +26,7 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
     })
 
     if(result.isConfirmed){
-        const res=await changeFeePolicyHook(updatePolicy)
+        //const res=await changeFeePolicyHook(updatePolicy)
         //if문달기
         await Swal.fire({
             title:`${resultTitle}`,
