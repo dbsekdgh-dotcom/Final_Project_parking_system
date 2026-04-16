@@ -18,6 +18,7 @@ public class FreeExitRedisService {
         if (freeExitUntil == null) return;
         Duration ttl = Duration.between(LocalDateTime.now(),freeExitUntil);
         if (ttl.isNegative() || ttl.isZero()) return;
+        if (ttl.toDays() > 365) return;
         redisTemplate.opsForValue().set(KET_PREFIX + parkingLogId, String.valueOf(parkingLogId), ttl);
     }
 

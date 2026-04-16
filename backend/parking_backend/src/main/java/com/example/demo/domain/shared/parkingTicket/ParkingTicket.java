@@ -28,7 +28,6 @@ public class ParkingTicket {
     private TicketPolicy ticketPolicy;
     @Enumerated(EnumType.STRING)
     @Column(name = "status",nullable = false)
-    @Enumerated(EnumType.STRING)
     private Status status=Status.STORE;
     @Column(name = "applied_amount",nullable = false)
     private Integer appliedAmount = 0;

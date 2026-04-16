@@ -5,6 +5,7 @@ import com.example.demo.domain.kiosk.entry.dtos.response.EntryCheckResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingLogTypeResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingSpaceResponse;
 import com.example.demo.domain.kiosk.entry.repository.*;
+import com.example.demo.domain.kiosk.exit.service.FreeExitRedisService;
 import com.example.demo.domain.shared.activityLog.ActivityLog;
 import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
 import com.example.demo.domain.shared.camera.enums.CameraType;
@@ -49,6 +50,7 @@ public class EntryService {
     private final EntrySystemSettingRepository entrySystemSettingRepository;
     private final ActivityLogRepository activityLogRepository;
     private final ReservationRepository reservationRepository;
+    private final FreeExitRedisService freeExitRedisService;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -171,6 +173,7 @@ public class EntryService {
         LocalDateTime freeExitUntil = resolveFreeExitUntil(log);
         log.enter(freeExitUntil);
         parkinglogRepository.save(log);
+        freeExitRedisService.register(log.getParkingLogId(),freeExitUntil);
         if (log.getParkingTypeSnapshot()==ParkingTypeSnapshot.RESERVATION){
             reservationRepository.updateStatusToEntered(log.getCarNumberSnapshot());
         }

@@ -101,4 +101,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("statuses") List<Status> statuses,
             @Param("currentResId") Long currentResId
     );
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Reservation r SET r.status = :status WHERE r.carNumber = :carNumber AND r.status =:currentStatus")
+    void updateStatusToCompleated(@Param("carNumber") String carNumber,
+                                  @Param("status") Status status,
+                                  @Param("currentStatus") Status currentStatus
+    );
 }
