@@ -7,12 +7,14 @@ import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@Log4j2
 public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량 상세보기 Dto
     private Long parkingLogId;
     private String carNumber;
@@ -75,6 +77,8 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
                 duration = mins + "분";
             }
         }
+
+        log.info("엔티티 시간: {}", entity.getEnteredAt());
 
         return ParkingLogDetailResponse.builder()
                 .parkingLogId(entity.getParkingLogId())

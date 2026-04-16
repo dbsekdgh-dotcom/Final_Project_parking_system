@@ -112,6 +112,7 @@ public class ParkingLogService {
         }
         //최종 결제 예정 금액 계산 (0원 이하 방지)
         Long finalPrice = Math.max(0L, realTimeRawFee - (storeSum+adminSum));
+
         //DTO 변환 및 반환
         return ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum,realTimeRawFee,finalPrice);
     }

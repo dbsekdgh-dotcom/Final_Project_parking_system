@@ -3,7 +3,7 @@ import './ParkingLogDetailModal.css'
 import { PARKING_STATUS_LABELS, PARKING_TYPE_LABELS, PAYMENT_STATUS_LABELS } from '../../../shared/constants/parkingLabel'
 import { processForceExit, modifyDiscount as modifyDiscountApi, getAdminTicketPolicies } from '../api/parkingLogApi'
 
-const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
+const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDetail }) => {
     const [isSubmitting, setIsSubmitting] = useState(false); //버튼을 여러번 클릭시 에러 방지용
     const [isEditingDiscount, setIsEditingDiscount] = useState(false); //할인수정 버튼 클릭 시 실행용
     const [editReason, setEditReason] = useState("");
@@ -106,6 +106,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
             setIsEditingDiscount(false)
             //부모 리스트 및 데이터 새로고침
             if (onRefresh) { await onRefresh() }
+            if(onRefetchDetail) { await onRefetchDetail(data.parkingLogId) }
             onClose()
         } catch (error) {
             const errorMsg = error.response?.data?.message || "수정에 실패했습니다."
@@ -219,7 +220,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                         {/* 3. 결제 정보 */}
                         <section className='info-group payment-info'>
                             <div className='info-row'>
-                                <label>원래 요금 (원금)</label>
+                                <label>실시간 발생 요금 (원금)</label>
                                 <span>{data.rawFee?.toLocaleString() || 0}원</span>
                             </div>
                             {/* 상세 할인 내역 표시(상가/관리자 분리) */}
@@ -286,7 +287,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh }) => {
                             <div className='info-row highlight-row'>
                                 <label>최종 청구 금액</label>
                                 <span className='final-price'>
-                                    {(data.calculatedFee || 0).toLocaleString()}원
+                                    {data.calculatedFee?.toLocaleString() || 0}원
                                 </span>
                             </div>
                             <div className='info-row'>
