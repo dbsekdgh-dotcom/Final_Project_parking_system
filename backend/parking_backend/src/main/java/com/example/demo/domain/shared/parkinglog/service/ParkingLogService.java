@@ -4,6 +4,8 @@ import com.example.demo.domain.admin.management.parking.service.AdminParkingServ
 import com.example.demo.domain.shared.parkingTicket.ParkingTicket;
 import com.example.demo.domain.shared.parkingTicket.Status;
 import com.example.demo.domain.shared.parkingTicket.repository.ParkingTicketRepository;
+import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy;
+import com.example.demo.domain.shared.parkingfeepolicy.repository.ParkingFeePolicyRepository;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogDetailResponse;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListResponse;
@@ -33,6 +35,8 @@ public class ParkingLogService {
     private final ParkingLogRepository parkinglogRepository;
     private final ParkingTicketRepository parkingTicketRepository;
     private final AdminParkingService adminParkingService;
+    private final ParkingFeeCalculator parkingFeeCalculator;
+    private final ParkingFeePolicyRepository parkingFeePolicyRepository;
 
     //차량번호 4자리 입력 후 차량 조회 시 조회될 차량번호 목록
     public List<ParkingLogSettlementDto> getActiveVehicleList(String vehicleNumber){
@@ -77,12 +81,12 @@ public class ParkingLogService {
     public ParkingLogDetailResponse getParkingLogDetail(Long parkingLogId){
         ParkingLog log = parkinglogRepository.findById(parkingLogId)
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_LOG_NOT_FOUND));
-        //해당 로그에 쌓인 티켓들 전부 조회
+        ParkingFeePolicy policy = parkingFeePolicyRepository.findById(log.getParkingFeePolicyId())
+                .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
+        //할인티켓 합산 로직
         List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
-
         int storeSum=0;
         int adminSum=0;
-
         //티켓 리스트 돌며 status에 따라 금액 분류 합산
         if(tickets != null && !tickets.isEmpty()){
             for (ParkingTicket ticket:tickets) {
@@ -93,6 +97,22 @@ public class ParkingLogService {
                 }
             }
         }
-        return ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum); // 찾은 엔티티를 응답용 DTO로 반환
+        //실시간 요금 계산
+        Long realTimeRawFee;
+        //이미 출차완료된 차량이면 DB에 저장된 rawFee 사용, 주차중이면 실시간 계산
+        if(log.getParkingStatus()==ParkingStatus.EXITED || log.getExitedAt()!=null){
+            realTimeRawFee = (long)log.getRawFee();
+        } else {
+            //아직 주차중인 경우, 조회한 policy 객체를 계산기에 전달
+            realTimeRawFee = parkingFeeCalculator.calculateRawFee(
+                    log.getEnteredAt(),
+                    log.getExitedAt(),
+                    policy
+            );
+        }
+        //최종 결제 예정 금액 계산 (0원 이하 방지)
+        Long finalPrice = Math.max(0L, realTimeRawFee - (storeSum+adminSum));
+        //DTO 변환 및 반환
+        return ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum,realTimeRawFee,finalPrice);
     }
 }
