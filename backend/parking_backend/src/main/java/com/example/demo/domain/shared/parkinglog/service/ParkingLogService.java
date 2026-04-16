@@ -92,6 +92,12 @@ public class ParkingLogService {
         ParkingFeePolicy policy = parkingFeePolicyRepository.findById(log.getParkingFeePolicyId())
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
 
+        //입차취소 등 입차 시간이 없는 차량
+        if(log.getEnteredAt()==null){
+            //입차시간이 없으면 요금 계산 로직을 아예 타지 않고 즉시 반환
+            return ParkingLogDetailResponse.toDetailDto(log,0,0,0L,0L);
+        }
+
         //무료 대상자(정기권, 입주민)인지 먼저 확인
         PaymentEligibilityResult eligibility = paymentService.checkFreeExitEligibility(parkingLogId);
         System.out.println("차량번호: {" + log.getCarNumberSnapshot() +"}, 무료대상여부: {" +eligibility.isFree()+"}");
@@ -142,8 +148,7 @@ public class ParkingLogService {
         //할인티켓 합산 로직
         int storeSum=0;
         int adminSum=0;
-
-        if(!eligibility.isFree()){
+        if(!isTrulyFree){
             List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
             //티켓 리스트 돌며 status에 따라 금액 분류 합산
             if(tickets != null && !tickets.isEmpty()){
@@ -156,7 +161,6 @@ public class ParkingLogService {
                 }
             }
         }
-
         //DTO 변환 및 반환
         return ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum,realTimeRawFee,finalPrice);
     }

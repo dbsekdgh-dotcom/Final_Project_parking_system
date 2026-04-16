@@ -64,7 +64,7 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
 
     //상세조회 변환 메서드
     public static ParkingLogDetailResponse toDetailDto(ParkingLog entity, Integer storeSum, Integer adminSum,
-                                                       Long realTimeCalculatedFee, Long finalPrice){
+                                                       Long realTimeRawFee, Long finalPrice){
         String duration = "-";
         if(entity.getEnteredAt() != null){
             LocalDateTime end = (entity.getExitedAt() != null) ? entity.getExitedAt():LocalDateTime.now();
@@ -96,7 +96,7 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
                 .paidAt(entity.getPaidAt())
                 .freeExitUntil(entity.getFreeExitUntil())
                 .totalDiscountAmount(storeSum+adminSum)
-                .rawFee(realTimeCalculatedFee.intValue())
+                .rawFee(realTimeRawFee.intValue())
                 .storeDiscountTotal(storeSum)
                 .adminDiscountTotal(adminSum)
                 .fee(entity.getFee())
