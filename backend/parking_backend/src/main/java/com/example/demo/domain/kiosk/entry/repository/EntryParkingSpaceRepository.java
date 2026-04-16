@@ -32,4 +32,6 @@ public interface EntryParkingSpaceRepository extends JpaRepository<ParkingSpace,
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT ps FROM ParkingSpace ps WHERE ps.id=:id")
     Optional<ParkingSpace> findByIdWithLock(@Param("id")Long id);
+
+    int countByFloorAndStatus(Floor floor, SpaceStatus status);
 }
