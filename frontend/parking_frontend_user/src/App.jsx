@@ -14,6 +14,7 @@ import ReportPage from './features/report/ReportPage.jsx';
 import MyPage from './features/mypage/pages/MyPage.jsx';
 import ReservationPage from './features/reservation/pages/ReservationPage.jsx';
 
+// 준비 중 페이지 컴포넌트
 const PlaceholderPage = ({ title }) => (
   <div style={{ padding: '2rem' }}>
     <h2>{title}</h2>
@@ -22,12 +23,10 @@ const PlaceholderPage = ({ title }) => (
 );
 
 function App() {
-  // 토큰은 HttpOnly 쿠키로 관리되므로 JS에서 직접 확인 불가
-
   return (
     <BrowserRouter>
       <Routes>
-        {/* 1. 로그인: / 경로가 로그인 페이지임 */}
+        {/* 1. 공개 경로: 로그인, 회원가입 */}
         <Route 
           path="/" 
           element={
@@ -36,8 +35,6 @@ function App() {
             </PublicRoute>
           } 
         />
-
-        {/* 2. 회원가입 */}
         <Route 
           path="/signup" 
           element={
@@ -46,11 +43,9 @@ function App() {
             </PublicRoute>
           } 
         />
-
-        {/* 소셜 로그인 리다이렉트 처리 */}
         <Route path="/oauth-redirect" element={<OAuthRedirectPage />} />
 
-        {/* 3. 보호된 경로 (로그인 필요) */}
+        {/* 2. 보호된 경로 (로그인 필수) */}
         <Route 
           element={
             <PrivateRoute>
@@ -58,15 +53,15 @@ function App() {
             </PrivateRoute>
           }
         >
-          {/* 로그인 후 첫 화면은 대시보드 */}
+          {/* 하위 경로들: DashBoard에서 navigate로 보내는 주소와 일치시켜야 함 */}
           <Route path="/dashboard" element={<DashBoard />} />
-          <Route path="/season-pass" element={<PlaceholderPage title="정기권" />} />
-          <Route path="/visit" element={<ReservationPage />} />          
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/complaints" element={<ReportPage title="민원/신고" />} />
+          <Route path="/subscription" element={<PlaceholderPage title="정기권" />} />
+          <Route path="/reservation" element={<ReservationPage title="방문예약" />} />          
+          <Route path="/mypage" element={<MyPage title="마이페이지" />} />
+          <Route path="/report" element={<ReportPage title="민원/신고" />} />
         </Route>
 
-        {/* 4. 잘못된 경로는 모두 루트(/)로 리다이렉트 */}
+        {/* 3. 잘못된 경로는 모두 루트(/)로 리다이렉트 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -70,68 +70,151 @@
   transform: translateY(-2px);
 }
 
-/* 내 현황 */
-.my-status {
-  display: flex;
-  gap: 16px;
+/* 내 현황 섹션 컨테이너 */
+.my-status-container {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   margin-bottom: 24px;
 }
 
-.status-item {
-  flex: 1;
-  background: #fff;
-  padding: 16px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.my-status-container h3 {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #333;
 }
 
-.status-label {
-  color: #888;
+/* 가로 나열을 위한 그리드 설정 */
+.status-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 개별 카드 스타일 */
+.status-card {
+  flex: 1;                /* 1:1:1 비율로 너비 나눔 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+/* 카드 사이의 구분선 (선택 사항) */
+.status-card:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background-color: #eee;
+}
+
+/* 중앙 번호판 디자인 */
+.car-plate {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 6px 20px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: #fcfcfc;
+  margin-bottom: 8px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.status-icon {
+  font-size: 1.8rem;
   margin-bottom: 8px;
 }
 
 .status-value {
-  font-weight: bold;
-  font-size: 20px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 4px;
 }
 
-/* 최근 입출차 내역 */
+.status-title {
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.status-label, .status-detail {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* 포인트와 정기권 색상 강조 */
+.orange { color: #FF9800; }
+.blue { color: #2196F3; }
+.green { color: #4CAF50; }
+
+/* 최근 입출차 내역 컨테이너 */
 .recent-logs {
   background: #fff;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 24px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
+/* 개별 로그 아이템 - 젤 우측으로 붙이는 핵심: justify-content */
 .log-item {
   display: flex;
   align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f8f9fa;
+  justify-content: space-between; /* 요소들 사이에 공간을 꽉 채워 양 끝으로 밀어줌 */
+}
+
+/* 왼쪽 아이콘과 텍스트 정보를 묶는 컨테이너 */
+.log-left-section {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
 }
 
-.log-item:last-child {
-  border-bottom: none;
-}
-
-.car-number {
-  flex: 2;
-  font-weight: bold;
-}
-
-.log-type {
-  flex: 1;
+/* 아이콘 스타일 */
+.log-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
-  padding: 4px 8px;
-  border-radius: 8px;
-  text-align: center;
+  font-weight: bold;
+  font-size: 0.85rem;
 }
 
-.log-time {
-  flex: 1;
+/* 중앙 정보 (차번호 + 서브정보) */
+.log-info {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1. 차량번호: 굵고 눈에 띄게 */
+.log-car-number {
+  font-weight: 800; /* 아주 굵게 */
+  font-size: 1.05rem;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+/* 2. 층/시간: 더 작고 연하게 */
+.log-sub-info {
+  font-size: 0.75rem; /* 크기 줄임 */
+  color: #999;       /* 연한 회색 */
+  font-weight: 400;
+}
+
+/* 3. 우측 상태 텍스트: 젤 오른쪽 끝으로! */
+.log-status-text {
+  font-weight: bold;
+  font-size: 0.9rem;
   text-align: right;
-  color: #666;
-  font-size: 12px;
+  min-width: 50px; /* 고정 폭을 주어 정렬 유지 */
 }

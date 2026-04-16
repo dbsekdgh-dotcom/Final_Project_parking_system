@@ -73,4 +73,6 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "                        com.example.demo.domain.shared.parkinglog.enums.ParkingStatus.ENTERED, " +
             "                        com.example.demo.domain.shared.parkinglog.enums.ParkingStatus.EXIT_REQUESTED)")
     boolean isAlreadyInParkingLot(@Param("carNumber") String carNumber);
+
+    List<ParkingLog> findTop5ByCarNumberSnapshotOrderByEntryTimeDesc(String carNumber);
 }

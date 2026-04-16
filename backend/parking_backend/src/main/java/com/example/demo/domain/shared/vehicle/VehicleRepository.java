@@ -21,4 +21,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle,Long> {
     @Query("SELECT v FROM Vehicle v WHERE v.user.userId = :userId AND v.status != 'DELETED'")
     Optional<Vehicle> findCurrentVehicle(@Param("userId") Long userId);
 
+    //윤진 추가
+    @Query("SELECT v FROM Vehicle v WHERE v.user.userId =:userId AND v.status = :status ORDER BY v.createdAt DESC LIMIT 1")
+    Optional<Vehicle> findMainVehicle(@Param("userId") Long userId, @Param("status") VehicleStatus status);
 }

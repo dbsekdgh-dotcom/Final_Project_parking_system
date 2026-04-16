@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface EntrySubscriptionRepository extends JpaRepository<Subscription, Long> {
 
     // 차량 ID로 현재 유효한 정기권의 종료일 조회
+
+
     // free_exit_until = 정기권 endDate 세팅에 사용
     @Query("""
         SELECT s.endDate

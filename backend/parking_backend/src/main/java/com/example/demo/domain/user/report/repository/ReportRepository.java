@@ -21,7 +21,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     Page<Report> findReceivedReports(@Param("carNumbers") List<String> carNumbers, Pageable pageable);
 
     // 3. 기간 검색
-    @Query("SELECT r FROM Report r WHERE r.reporter.id = :userId AND r.createdAt BETWEEN :start AND :end ORDER BY r.createdAt DESC")
+    @Query("""
+            SELECT r FROM Report r WHERE r.reporter.id = :userId AND r.createdAt BETWEEN :start AND :end ORDER BY r.createdAt DESC""")
     Page<Report> findByPeriod(
             @Param("userId") Long userId,
             @Param("start") LocalDateTime start,
