@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import './ParkingLogDetailModal.css'
 import { PARKING_STATUS_LABELS, PARKING_TYPE_LABELS, PAYMENT_STATUS_LABELS } from '../../../shared/constants/parkingLabel'
 import { processForceExit, modifyDiscount as modifyDiscountApi, getAdminTicketPolicies } from '../api/parkingLogApi'
@@ -30,8 +30,25 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
         }
     },[isOpen])
 
+    const getCalculatedStatus =useMemo(()=>{
+        if(!data) return {label: "데이터 없음", class:"NONE"}
+        const {paymentStatus,calculatedFee,parkingStatus}=data;
+        //이미 출차했거나 결제 완료된 건 DB 상태 우선
+        if (['PAID','SUCCESS'].includes(paymentStatus)) return {label: "결제 완료", class:"PAID"}
+        if(parkingStatus === 'EXITED') return {label: "출차 완료", class: "EXITED"}
+        //실시간 계산 금액이 0보다 큰경우
+        if(calculatedFee > 0 ) return {label: "미납 (결제 필요)", class:"UNPAID"}
+        //금액이 0원인 경우
+        if(paymentStatus === 'NONE') return {label: "무료 (대상 차량)", class:"NONE"}
+        return {label: PAYMENT_STATUS_LABELS[paymentStatus] || paymentStatus, class:paymentStatus}
+    },[data]);
+
+    
+
     // 모달이 닫혀있거나 데이터가 없으면 아무것도 렌더링하지 않음
     if (!isOpen || !data) return null;
+
+    
 
     // 상태변경 버튼 활성화 조건: 입차 완료 상태(ENTERED) 또는 입차 기록이 있는 경우 중,
     // 이미 출차완료(EXITED), 강제출차(FORCE_EXITED)가 아닌 경우만 활성화
@@ -61,8 +78,9 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
                 setIsSubmitting(true);
                 const res = await processForceExit(data.parkingLogId, reason);
                 alert(res.message || "강제 출차 처리가 완료되었습니다.");
-                if (onRefresh) onRefresh(); //부모 컴포넌트 새로고침 함수 호출
-                onClose(); //모달 닫기
+                if (onRefresh) { await onRefresh() } //부모 컴포넌트 새로고침 함수 호출
+                if(onRefetchDetail) { await onRefetchDetail(data.parkingLogId) }
+
             } catch (error) {
                 alert(error.response?.data?.message || "처리에 실패했습니다.");
             } finally {
@@ -107,7 +125,7 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
             //부모 리스트 및 데이터 새로고침
             if (onRefresh) { await onRefresh() }
             if(onRefetchDetail) { await onRefetchDetail(data.parkingLogId) }
-            onClose()
+
         } catch (error) {
             const errorMsg = error.response?.data?.message || "수정에 실패했습니다."
             alert(errorMsg)
@@ -205,8 +223,8 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
                                 </div>
                             )}
                             <div className='info-row'>
-                                <label>결제 요청</label>
-                                <span>{data.paymentRequestedAt || '-'}</span>
+                                <label>결제 시간</label>
+                                <span>{data.paidAt || '-'}</span>
                             </div>
                             {/* 입차완료, 아직 출차 하지 않은 '주차중'일 때만 데드라인 표시(출차완료시 불필요) */}
                             {data.parkingStatus !== 'EXITED' && data.parkingStatus !== 'ENTRY_CANCELLED' && (
@@ -299,8 +317,8 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
                             <div className='info-row'>
                                 <label>결제 상태</label>
                                 <div className='value-with-btn'>
-                                    <span className={`payment-val ${data.paymentStatus}`}>
-                                        {PAYMENT_STATUS_LABELS[data.paymentStatus] || data.paymentStatus}
+                                    <span className={`payment-val ${getCalculatedStatus.class}`}>
+                                        {getCalculatedStatus.label}
                                     </span>
                                     {/* 미납(UNPAID), 차량이 주차장 안에 있는 상태일때만 결제처리 버튼 활성화 */}
                                     {/* <button className={`action-btn-primary ${data.paymentStatus !== 'UNPAID' ? 'disabled' : ''}`}>
