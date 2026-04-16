@@ -276,6 +276,7 @@ public class PaymentService {
     }
 
     //EXIT_REQUESTED
+    @Transactional
     public VehiclePaymentResponseDto requestPayment(ParkingLog parkingLog) {
         String carNumber = parkingLog.getCarNumberSnapshot();
         Long parkingFeePolicyId = parkingLog.getParkingFeePolicyId();

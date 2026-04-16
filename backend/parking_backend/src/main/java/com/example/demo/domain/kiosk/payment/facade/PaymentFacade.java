@@ -105,7 +105,6 @@ public class PaymentFacade {
     }
 
     //결제 성공/실패/취소 시
-    @Transactional
     public SettlementResponseDto afterPayment(PaymentConfirmRequestDto dto, ActivityType activityType){
         // 0. 기초정보 조회
         List<Payment> payments=paymentRepository.findByExternalPaymentId(dto.getOrderId());
