@@ -10,7 +10,7 @@ import { fetchUserStatus } from '../../../features/apply/api/applyApi'
 const navItems = [
   { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },
   { to: '/season-pass', label: '정기권', icon: TicketIcon },
-  { to: '/visit', label: '방문 예약', icon: CalendarIcon },
+  { to: '/visit', label: '방문 예약', icon: CalendarIcon, residentOnly: true },
   { to: '/mypage', label: '마이페이지', icon: UserIcon },
   { to: '/complaints', label: '민원/신고', icon: AlertIcon },
 ]
@@ -50,22 +50,24 @@ export function Sidebar() {
       <div className="sidebar__divider" />
 
       <nav className="sidebar__nav" aria-label="주 메뉴">
-        {navItems.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
-            }
-          >
-            <Icon className="sidebar__link-icon" />
-            {label}
-            <span className="sidebar__link-chevron" aria-hidden>
-              ›
-            </span>
-          </NavLink>
-        ))}
+        {navItems
+          .filter(({ residentOnly }) => !residentOnly || memberStatus === 'RESIDENT')
+          .map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
+              }
+            >
+              <Icon className="sidebar__link-icon" />
+              {label}
+              <span className="sidebar__link-chevron" aria-hidden>
+                ›
+              </span>
+            </NavLink>
+          ))}
       </nav>
 
       <div className="sidebar__footer">

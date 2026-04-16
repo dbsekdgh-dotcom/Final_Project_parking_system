@@ -1,6 +1,9 @@
 package com.example.demo.domain.shared.parkinglog.service;
 
 import com.example.demo.domain.admin.management.parking.service.AdminParkingService;
+import com.example.demo.domain.kiosk.payment.dtos.internal.PaymentEligibilityResult;
+import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
+import com.example.demo.domain.kiosk.payment.service.PaymentService;
 import com.example.demo.domain.shared.parkingTicket.ParkingTicket;
 import com.example.demo.domain.shared.parkingTicket.Status;
 import com.example.demo.domain.shared.parkingTicket.repository.ParkingTicketRepository;
@@ -12,8 +15,10 @@ import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogListRes
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSummaryResponse;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
+import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
+import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
 import com.example.demo.domain.shared.ticketPolicy.enums.UseType;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -23,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -37,6 +43,8 @@ public class ParkingLogService {
     private final AdminParkingService adminParkingService;
     private final ParkingFeeCalculator parkingFeeCalculator;
     private final ParkingFeePolicyRepository parkingFeePolicyRepository;
+    private final PaymentService paymentService;
+    private final ReservationRepository reservationRepository;
 
     //차량번호 4자리 입력 후 차량 조회 시 조회될 차량번호 목록
     public List<ParkingLogSettlementDto> getActiveVehicleList(String vehicleNumber){
@@ -83,35 +91,76 @@ public class ParkingLogService {
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_LOG_NOT_FOUND));
         ParkingFeePolicy policy = parkingFeePolicyRepository.findById(log.getParkingFeePolicyId())
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
+
+        //입차취소 등 입차 시간이 없는 차량
+        if(log.getEnteredAt()==null){
+            //입차시간이 없으면 요금 계산 로직을 아예 타지 않고 즉시 반환
+            return ParkingLogDetailResponse.toDetailDto(log,0,0,0L,0L);
+        }
+
+        //무료 대상자(정기권, 입주민)인지 먼저 확인
+        PaymentEligibilityResult eligibility = paymentService.checkFreeExitEligibility(parkingLogId);
+        System.out.println("차량번호: {" + log.getCarNumberSnapshot() +"}, 무료대상여부: {" +eligibility.isFree()+"}");
+
+        boolean isTrulyFree = eligibility.isFree() && !log.getParkingTypeSnapshot().equals(ParkingTypeSnapshot.VISIT);
+        LocalDateTime now = LocalDateTime.now();
+
+        //과금 시작 시점 결정(방문 예약 차량 처리)
+        LocalDateTime calculationStartTime = log.getEnteredAt();
+        if(log.getParkingTypeSnapshot().equals(ParkingTypeSnapshot.RESERVATION)){
+            //예약 차량이고, ENTERED상태가 더이상 유효하지 않으면 입차시간이 아닌 '무료 만료 시간'부터 과금 시작
+            if(reservationRepository.getCountbyCarNumber(log.getCarNumberSnapshot(), com.example.demo.domain.shared.reservation.enums.Status.ENTERED,true)<=0){
+                calculationStartTime = log.getFreeExitUntil();
+            }
+        }
+
+        //실시간 요금 및 최종 요금 계산
+        Long realTimeRawFee =0L;
+        Long finalPrice =0L;
+
+        //무료 대상자면 요금계산 타지 않고 바로 0원 처리
+        if(isTrulyFree) {
+            realTimeRawFee =0L;
+            finalPrice =0L;
+        }
+        //무료 대상이 아닌 경우
+        else {
+            //A.이미 출차 완료된 차량: DB 스냅샷 사용
+            if (log.getParkingStatus() == ParkingStatus.EXITED || log.getExitedAt() != null) {
+                realTimeRawFee = (long) log.getRawFee();
+                finalPrice = (long) log.getFee();
+            }
+            //B.주차 중인 차량: 실시간 계산 메서드 사용
+            else {
+                //보정된 시작 시간부터 현재까지의 주차 분(minutes)계산
+                long totalDurationForCalculation = Duration.between(calculationStartTime,now).toMinutes();
+                //요금계산 메서드(할인권 조회 및 log.getFee() 차감 처리됨)
+                FeeCalculationResponseDto calculation = paymentService.settlementFee(
+                        log,
+                        log.getParkingFeePolicyId(),
+                        totalDurationForCalculation
+                );
+                realTimeRawFee = (long) calculation.getRawFee(); // 할인 전 원금(또는 시간할인만 적용된 원금)
+                finalPrice = calculation.getAmountToPay(); //추가결제 해야 할 최종 금액
+            }
+        }
+
         //할인티켓 합산 로직
-        List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
         int storeSum=0;
         int adminSum=0;
-        //티켓 리스트 돌며 status에 따라 금액 분류 합산
-        if(tickets != null && !tickets.isEmpty()){
-            for (ParkingTicket ticket:tickets) {
-                if(ticket.getStatus() == Status.STORE){
-                    storeSum += ticket.getAppliedAmount();
-                } else if (ticket.getStatus() == Status.ADMIN) {
-                    adminSum += ticket.getAppliedAmount();
+        if(!isTrulyFree){
+            List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
+            //티켓 리스트 돌며 status에 따라 금액 분류 합산
+            if(tickets != null && !tickets.isEmpty()){
+                for (ParkingTicket ticket:tickets) {
+                    if(ticket.getStatus() == Status.STORE){
+                        storeSum += ticket.getAppliedAmount();
+                    } else if (ticket.getStatus() == Status.ADMIN) {
+                        adminSum += ticket.getAppliedAmount();
+                    }
                 }
             }
         }
-        //실시간 요금 계산
-        Long realTimeRawFee;
-        //이미 출차완료된 차량이면 DB에 저장된 rawFee 사용, 주차중이면 실시간 계산
-        if(log.getParkingStatus()==ParkingStatus.EXITED || log.getExitedAt()!=null){
-            realTimeRawFee = (long)log.getRawFee();
-        } else {
-            //아직 주차중인 경우, 조회한 policy 객체를 계산기에 전달
-            realTimeRawFee = parkingFeeCalculator.calculateRawFee(
-                    log.getEnteredAt(),
-                    log.getExitedAt(),
-                    policy
-            );
-        }
-        //최종 결제 예정 금액 계산 (0원 이하 방지)
-        Long finalPrice = Math.max(0L, realTimeRawFee - (storeSum+adminSum));
         //DTO 변환 및 반환
         return ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum,realTimeRawFee,finalPrice);
     }

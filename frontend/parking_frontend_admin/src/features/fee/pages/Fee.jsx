@@ -12,9 +12,6 @@ const Fee = () => {
     {id: 'history', label: '과거 이력',icon:'📋'},
     {id: 'stats',label: '통계',icon: '📈'}
   ]
-   useEffect(()=>{
-    console.log(activeTab)
-   },[])
 
   return (
     <div className='admin-container'>

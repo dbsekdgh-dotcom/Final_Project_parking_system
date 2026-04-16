@@ -25,7 +25,14 @@ public enum SettingKey {
     PAYMENT_POINT_EARN_RATE("PAYMENT_POINT_EARN_RATE","5"),
 
     // 주차장 전체 세대 일일 총 방문 예약 가능 횟수 - 기본값 10회
-    TOTAL_DAILY_RESERVATION_LIMIT("TOTAL_DAILY_RESERVATION_LIMIT", "10");
+    TOTAL_DAILY_RESERVATION_LIMIT("TOTAL_DAILY_RESERVATION_LIMIT", "10"),
+
+    // 차량 자동 승인 유사도 기준치 (%) - 기본값 95%
+    VEHICLE_AUTO_APPROVAL_THRESHOLD("VEHICLE_AUTO_APPROVAL_THRESHOLD", "95");
+
+
+
+
     private final String key;
     private final String defaultValue;
 

@@ -30,21 +30,21 @@ public class TicketPolicyResponseDto {
     private boolean stackable;
     private Status status;
     private boolean isFreeTicket;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     public static TicketPolicyResponseDto toTicketPolicyDto(TicketPolicy ticketPolicy){
         return TicketPolicyResponseDto.builder()
                 .ticketPolicyId(ticketPolicy.getTicketPolicyId())
                 .name(ticketPolicy.getName())
-                .description(ticketPolicy.getDescription())
+                .description(ticketPolicy.getDescription()!=null?ticketPolicy.getDescription():"")
                 .price(ticketPolicy.getPrice())
                 .discountType(ticketPolicy.getDiscountType())
                 .discountValue(ticketPolicy.getDiscountValue())
                 .useType(ticketPolicy.getUseType())
-                .maxDiscountAmount(ticketPolicy.getMaxDiscountAmount())
-                .validDays(ticketPolicy.getValidDays())
-                .validMinutes(ticketPolicy.getValidMinutes())
+                .maxDiscountAmount(ticketPolicy.getMaxDiscountAmount()!=null?ticketPolicy.getMaxDiscountAmount():0)
+                .validDays(ticketPolicy.getValidDays()!=null?ticketPolicy.getValidDays():0)
+                .validMinutes(ticketPolicy.getValidMinutes()!=null?ticketPolicy.getValidMinutes():0)
                 .stackable(ticketPolicy.isStackable())
                 .status(ticketPolicy.getStatus())
                 .isFreeTicket(ticketPolicy.isFreeTicket())

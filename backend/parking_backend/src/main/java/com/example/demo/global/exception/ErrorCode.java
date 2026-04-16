@@ -17,6 +17,12 @@ public enum ErrorCode {
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고 내역을 찾을 수 없습니다."),
     REPORT_CANNOT_CANCEL(HttpStatus.FORBIDDEN, "본인 신고만 취소 가능합니다."),
     USER_NOT_FOUND_REPORT(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
+    VEHICLE_SIMILARITY_TOO_LOW(HttpStatus.BAD_REQUEST, "등록 정보가 일치하지 않습니다. 관리자 승인이 필요합니다."),
+    INVALID_CAR_NUMBER_FORMAT(HttpStatus.BAD_REQUEST, "올바른 차량 번호 형식이 아닙니다."),
+    OCR_DATA_MISSING(HttpStatus.BAD_REQUEST, "OCR 인식 결과 데이터가 누락되었습니다."),
+    VEHICLE_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 승인 대기 중인 차량 번호입니다."),
+
+
     // PARKING
     PARKING_FULL(HttpStatus.CONFLICT, "주차장이 만차입니다."),
     SPACE_NOT_AVAILABLE(HttpStatus.CONFLICT, "선택한 자리를 사용할 수 없습니다."),
@@ -135,6 +141,9 @@ public enum ErrorCode {
     POINT_EXPIRED(HttpStatus.BAD_REQUEST, "포인트가 만료되었습니다."),
     POINT_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 사용된 포인트입니다."),
     POINT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 포인트 요청입니다."),
+
+    // SYSTEM SETTING
+    SYSTEM_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, "필요한 시스템 설정값을 찾을 수 없습니다."),
 
     // [추가] 정의되지 않은 모든 서버 에러를 위한 공통 코드
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요."),

@@ -7,6 +7,19 @@ const ReservationPage = () => {
     // 3. 모달의 열림 상태 관리 (기본값: 닫힘)
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const memberStatus = localStorage.getItem('userStatus') ?? 'NONE';
+
+    if (memberStatus !== 'RESIDENT') {
+        return (
+            <div className="reservation-page">
+                <h2 className="reservation-page__title">방문 예약</h2>
+                <div className="reservation-page__restricted">
+                    <p>입주민 등록 후 이용 가능한 서비스입니다.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="reservation-page">
             <h2 className="reservation-page__title">방문 예약</h2>

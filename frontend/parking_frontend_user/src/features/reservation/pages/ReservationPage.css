@@ -38,6 +38,13 @@
     filter: brightness(0.94);
 }
 
+.reservation-page__restricted {
+    margin-top: 80px;
+    text-align: center;
+    color: #9e9eb8;
+    font-size: 0.95rem;
+}
+
 @media (max-width: 640px) {
     .reservation-page {
         padding: 20px 16px;
