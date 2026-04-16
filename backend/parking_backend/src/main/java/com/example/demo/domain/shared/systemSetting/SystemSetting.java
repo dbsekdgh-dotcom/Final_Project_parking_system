@@ -21,4 +21,8 @@ public class SystemSetting {
     @Column(name="is_editable", nullable = false)
     private Boolean isEditable = true;
 
+
+    public void updateValue(String settingValue){
+        this.settingValue = settingValue;
+    }
 }
