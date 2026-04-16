@@ -44,7 +44,7 @@ function formatDate(isoString) {
     console.error("날짜 변환 에러:", e);
     return "날짜 오류";
   }
-} // <--- 아까 여기서 이 괄호가 빠져있었어!
+} 
 
 export default function ReportPage() {
   const [activeTab, setActiveTab] = useState("sent");
