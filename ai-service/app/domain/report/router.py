@@ -3,7 +3,7 @@ from app.domain.entry.entryimagesave.entryimagesaveservice import upload_file_to
 import io
 
 report_router = APIRouter()
-@report_router.post("") # 리액트에서 매핑경로를 연결 리액트 -> 파이썬
+@report_router.post("/") # 리액트에서 매핑경로를 연결 리액트 -> 파이썬
 async def report_s3path(file: UploadFile =File(...)):
     try:
         file_bytes = await file.read()

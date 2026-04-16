@@ -5,6 +5,7 @@ import com.example.demo.domain.kiosk.entry.dtos.response.EntryCheckResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingLogTypeResponse;
 import com.example.demo.domain.kiosk.entry.dtos.response.ParkingSpaceResponse;
 import com.example.demo.domain.kiosk.entry.repository.*;
+import com.example.demo.domain.kiosk.exit.service.FreeExitRedisService;
 import com.example.demo.domain.shared.activityLog.ActivityLog;
 import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;
 import com.example.demo.domain.shared.camera.enums.CameraType;
@@ -19,6 +20,7 @@ import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.parkingspace.enums.Floor;
 import com.example.demo.domain.shared.parkingspace.enums.SpaceStatus;
+import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -47,6 +49,8 @@ public class EntryService {
     private final EntrySubscriptionRepository entrySubscriptionRepository;
     private final EntrySystemSettingRepository entrySystemSettingRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final ReservationRepository reservationRepository;
+    private final FreeExitRedisService freeExitRedisService;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -169,6 +173,10 @@ public class EntryService {
         LocalDateTime freeExitUntil = resolveFreeExitUntil(log);
         log.enter(freeExitUntil);
         parkinglogRepository.save(log);
+        freeExitRedisService.register(log.getParkingLogId(),freeExitUntil);
+        if (log.getParkingTypeSnapshot()==ParkingTypeSnapshot.RESERVATION){
+            reservationRepository.updateStatusToEntered(log.getCarNumberSnapshot());
+        }
         Household household = (log.getVehicle()!=null && log.getVehicle().getUser()!=null)
                 ? log.getVehicle().getUser().getHousehold():null;
         activityLogRepository.save(ActivityLog.ofEntry(log,household));

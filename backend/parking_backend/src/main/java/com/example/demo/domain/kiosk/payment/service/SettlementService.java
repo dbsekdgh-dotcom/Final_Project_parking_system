@@ -1,5 +1,6 @@
 package com.example.demo.domain.kiosk.payment.service;
 
+import com.example.demo.domain.kiosk.exit.service.FreeExitRedisService;
 import com.example.demo.domain.kiosk.payment.dtos.internal.AppliedTicketResult;
 import com.example.demo.domain.kiosk.payment.dtos.request.PaymentConfirmRequestDto;
 import com.example.demo.domain.kiosk.payment.dtos.request.SettlementRequestDto;
@@ -62,6 +63,7 @@ public class SettlementService {
     private final ActivityLogRepository activityLogRepository;
     private final EntityManager entityManager;
     private final ParkingTicketRepository parkingTicketRepository;
+    private final FreeExitRedisService freeExitRedisService;
 
     //결제 전 검증
     public ParkingLog validateVehicleStatus(long parkingLogId) {
@@ -366,6 +368,7 @@ public class SettlementService {
         parkingLog.completePayment((int)paidAmount,Integer.parseInt(postPaymentGraceMinutes));
         DateTimeFormatter formatter=DateTimeFormatter.ofPattern("HH:mm");
         String deadlineStr=parkingLog.getFreeExitUntil().format(formatter);
+        freeExitRedisService.register(parkingLog.getParkingLogId(),parkingLog.getFreeExitUntil());
 
         return SettlementResponseDto.builder()
                 .paymentStatus(parkingLog.getPaymentStatus().name())

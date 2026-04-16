@@ -62,6 +62,11 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
            "WHERE p.parkingStatus = 'DETECTED' AND p.entryTime < :cutoff")
     int cancelExpiredDetected(@Param("cutoff") LocalDateTime cutoff);
 
+
+    // 방치된 EXIT_REQUESTED 차량 조회
+    @Query("SELECT p FROM ParkingLog  p WHERE p.parkingStatus='EXIT_REQUESTED' AND p.exitTime<:cutoff")
+    List<ParkingLog> findStaledExitRequestedLogs(@Param("cutoff")LocalDateTime cutoff);
+
     @Query("SELECT COUNT(p) > 0 FROM ParkingLog p " +
             "WHERE p.carNumberSnapshot = :carNumber " +
             "AND p.parkingStatus IN (com.example.demo.domain.shared.parkinglog.enums.ParkingStatus.DETECTED, " +

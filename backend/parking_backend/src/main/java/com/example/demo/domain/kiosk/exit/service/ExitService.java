@@ -7,10 +7,12 @@ import com.example.demo.domain.shared.activityLog.repository.ActivityLogReposito
 import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
+import com.example.demo.domain.shared.parkinglog.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.parkingspace.enums.SpaceStatus;
-import com.example.demo.domain.shared.user.User;
+import com.example.demo.domain.shared.reservation.enums.Status;
+import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
 import com.example.demo.domain.shared.vehicle.Vehicle;
 import com.example.demo.domain.user.mypage.point.entity.UserPoint;
 import com.example.demo.domain.user.mypage.point.repository.UserPointRepository;
@@ -19,7 +21,6 @@ import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 
 @Service
@@ -30,6 +31,8 @@ public class ExitService {
     private final PaymentFacade paymentFacade;
     private final ActivityLogRepository activityLogRepository;
     private final UserPointRepository userPointRepository;
+    private final FreeExitExpirationService freeExitExpirationService;
+    private final ReservationRepository reservationRepository;
 
     //출차 대기
     public VehiclePaymentResponseDto requestExit(Long parkingLogId,Long exitCameraId,String imagePath){
@@ -48,6 +51,7 @@ public class ExitService {
         parkingLog.exitRequested(exitCameraId,imagePath);
         parkingLogRepository.save(parkingLog);
 
+        freeExitExpirationService.syncFreeExitStatus(parkingLog);
         //요금 계산 및 차량 검증
         return paymentFacade.paymentProcess(parkingLogId);
 
@@ -73,6 +77,10 @@ public class ExitService {
         ParkingSpace parkingSpace=parkingLog.getParkingSpace();
         if (parkingSpace!=null){
             parkingSpace.setStatus(SpaceStatus.AVAILABLE);
+        }
+        // 방문 예약 차량 값변경
+        if (parkingLog.getParkingTypeSnapshot() == ParkingTypeSnapshot.RESERVATION){
+            reservationRepository.updateStatusToCompleted(parkingLog.getCarNumberSnapshot(), Status.COMPLETED,Status.ENTERED);
         }
         parkingLog.setParkingStatus(ParkingStatus.EXITED);
         parkingLog.setExitedAt(LocalDateTime.now());
