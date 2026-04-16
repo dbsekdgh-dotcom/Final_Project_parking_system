@@ -13,7 +13,6 @@ import com.example.demo.domain.shared.vehicle.enums.VehicleStatus;
 import com.example.demo.domain.user.home.dashboard.dto.DashboardResponseDto;
 import com.example.demo.domain.user.mypage.point.entity.UserPoint;
 import com.example.demo.domain.user.mypage.point.repository.UserPointRepository;
-import com.example.demo.domain.user.report.repository.VehicleReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

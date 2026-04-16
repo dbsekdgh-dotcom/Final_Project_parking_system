@@ -100,7 +100,7 @@ const ParkingLogPage = () => {
                 logs={parkingLogs} page={page} totalPages={totalPages} onPageChange={setPage} onShowDetail={handleShowDetail} />
             
             {/* 모달 컴포넌트 추가 */}
-            <ParkingLogDetailModal isOpen={isModalOpen} data={selectedLog} onClose={()=>setIsModalOpen(false)} onRefresh={handleRefresh}/>
+            <ParkingLogDetailModal isOpen={isModalOpen} data={selectedLog} onClose={()=>setIsModalOpen(false)} onRefresh={handleRefresh} onRefetchDetail={handleShowDetail}/>
         </div>
     )
 }

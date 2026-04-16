@@ -19,3 +19,5 @@ async def plate_ocr(file: UploadFile = File(...)):
     s3_path = upload_file_to_s3(s3_file)
 
     return {"plateNumber": plate, "s3path": s3_path}
+
+

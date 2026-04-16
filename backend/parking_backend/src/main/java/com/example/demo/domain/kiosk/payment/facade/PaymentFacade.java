@@ -20,6 +20,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,7 +34,6 @@ public class PaymentFacade {
     private final PaymentRepository paymentRepository;
     private final ParkingLogRepository parkingLogRepository;
     private final TossPaymentService tossPaymentService;
-    private final EntityManager entityManager;
     private final RefundService refundService;
 
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {

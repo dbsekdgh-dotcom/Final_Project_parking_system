@@ -7,12 +7,14 @@ import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@Log4j2
 public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량 상세보기 Dto
     private Long parkingLogId;
     private String carNumber;
@@ -61,7 +63,8 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
     private String floor;
 
     //상세조회 변환 메서드
-    public static ParkingLogDetailResponse toDetailDto(ParkingLog entity, Integer storeSum, Integer adminSum){
+    public static ParkingLogDetailResponse toDetailDto(ParkingLog entity, Integer storeSum, Integer adminSum,
+                                                       Long realTimeRawFee, Long finalPrice){
         String duration = "-";
         if(entity.getEnteredAt() != null){
             LocalDateTime end = (entity.getExitedAt() != null) ? entity.getExitedAt():LocalDateTime.now();
@@ -74,6 +77,8 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
                 duration = mins + "분";
             }
         }
+
+        log.info("엔티티 시간: {}", entity.getEnteredAt());
 
         return ParkingLogDetailResponse.builder()
                 .parkingLogId(entity.getParkingLogId())
@@ -90,12 +95,12 @@ public class ParkingLogDetailResponse { // 관리자 - 입출차 기록 - 차량
                 .paymentRequestedAt(entity.getPaymentRequestedAt())
                 .paidAt(entity.getPaidAt())
                 .freeExitUntil(entity.getFreeExitUntil())
-                .totalDiscountAmount(entity.getTotalDiscountAmount())
-                .rawFee(entity.getRawFee())
+                .totalDiscountAmount(storeSum+adminSum)
+                .rawFee(realTimeRawFee.intValue())
                 .storeDiscountTotal(storeSum)
                 .adminDiscountTotal(adminSum)
                 .fee(entity.getFee())
-                .calculatedFee(entity.getCalculatedFee())
+                .calculatedFee(finalPrice)
                 .parkingDuration(duration)
                 .isBlacklist(entity.getIsBlacklist())
                 .spaceCode(entity.getParkingSpace() != null ?
