@@ -1,0 +1,125 @@
+.setting-card {
+  background-color: #1e1e1e;
+  border: 1px solid #2e2e2e;
+  border-radius: 8px;
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s ease;
+  min-height: 108px;
+}
+
+.setting-card--editing {
+  border-color: #4a4a4a;
+}
+
+.setting-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.setting-card__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e0e0e0;
+  line-height: 1.4;
+}
+
+.setting-card__key {
+  font-size: 12px;
+  color: #6b6b6b;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+.setting-card__value {
+  font-size: 26px;
+  font-weight: 500;
+  color: #f0f0f0;
+  margin-top: 4px;
+}
+
+.setting-card__icon-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #6b6b6b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s, background-color 0.15s;
+  flex-shrink: 0;
+}
+
+.setting-card__icon-btn:hover {
+  color: #c0c0c0;
+  background-color: #2a2a2a;
+}
+
+.setting-card__icon-btn--close {
+  font-size: 13px;
+}
+
+.setting-card__edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.setting-card__input {
+  flex: 1;
+  background: #121212;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #f0f0f0;
+  font-size: 22px;
+  font-weight: 500;
+  padding: 4px 10px;
+  outline: none;
+  width: 0;
+  min-width: 0;
+  transition: border-color 0.15s;
+}
+
+.setting-card__input:focus {
+  border-color: #5a5a5a;
+}
+
+.setting-card__input::-webkit-outer-spin-button,
+.setting-card__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.setting-card__save-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #2a2a2a;
+  border: 1px solid #3c3c3c;
+  border-radius: 6px;
+  color: #d0d0d0;
+  font-size: 13px;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.setting-card__save-btn:hover {
+  background-color: #383838;
+  border-color: #505050;
+}
+
+.setting-card__save-btn:active {
+  transform: scale(0.97);
+}
+
+.setting-card__save-icon {
+  font-size: 14px;
+}
