@@ -1,0 +1,134 @@
+/* 전체 컨테이너 (다크 배경) */
+.container {
+  padding: 20px;
+  background-color: #2c2c2c;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+/* 요금 정책 섹션 (카드) */
+.section {
+  background-color: #3d3d3d;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid #4d4d4d;
+}
+
+/* 섹션 헤더 (제목 + 메인 수정) */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.version {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: 8px;
+}
+
+/* 전체 수정 아이콘 (섹션 헤더용) */
+.mainEdit {
+  font-size: 1.2rem;
+  color: #ff4d4d;
+  cursor: pointer; 
+}
+
+/* 그리드 레이아웃 (박스 나열) */
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 가로 3개씩 균등 배분 */
+  gap: 15px; /* 박스 간격 */
+}
+
+/* 개별 데이터 박스 */
+.infoBox {
+  background-color: #4a4a4a;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 12px 15px;
+  display: flex;
+  flex-direction: column; /* 제목과 값을 세로로 쌓음 */
+  position: relative; /* 아이콘 배치의 기준점 */
+  min-height: 70px; /* 박스 높이 균일화 */
+}
+
+/* 라벨 (박스 제목) */
+.label {
+  display: block; /* 줄바꿈 확실히 */
+  font-size: 0.75rem;
+  color: #bbb;
+  margin-bottom: 8px; /* 값과의 간격 */
+}
+
+/* 값 (데이터) */
+.value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* 박스 내부 수정 아이콘 (absolute 배치) */
+.editIcon {
+  position: absolute; 
+  top: 10px; /* 오른쪽 상단 구석에 띄움 */
+  right: 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #ff4d4d; /* 빨간색 계열 */
+  z-index: 5; /* 다른 요소보다 위에 오도록 */
+}
+
+/* 적용 예정 강조 스타일 */
+.upcoming {
+  border: 1px dashed #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.05);
+}
+
+/* input과 버튼을 감싸는 컨테이너 */
+.editContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* input과 저장 버튼 사이 간격 */
+  margin-top: 4px;
+  width: 80%;
+}
+
+/* 입력창 스타일 */
+.editInput {
+  flex: 1; /* 남은 공간을 다 채움 */
+  background-color: #2c2c2c; /* 박스보다 어두운 배경 */
+  border: 1px solid #a5a4a4; /* 포인트 컬러 테두리 */
+  border-radius: 4px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 5px 8px;
+  width: 0; /* flex 환경에서 너비 버그 방지 */
+  outline: none;
+}
+
+/* 저장 버튼 스타일 */
+.saveBtn {
+  background-color: #3b82f6; /* 빨간색 포인트 */
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap; /* 글자가 밑으로 떨어지지 않게 */
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.saveBtn:active {
+  transform: scale(0.95); /* 클릭할 때 살짝 들어가는 효과 */
+}

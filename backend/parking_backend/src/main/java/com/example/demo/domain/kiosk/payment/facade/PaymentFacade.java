@@ -34,7 +34,6 @@ public class PaymentFacade {
     private final PaymentRepository paymentRepository;
     private final ParkingLogRepository parkingLogRepository;
     private final TossPaymentService tossPaymentService;
-    private final EntityManager entityManager;
     private final RefundService refundService;
 
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {

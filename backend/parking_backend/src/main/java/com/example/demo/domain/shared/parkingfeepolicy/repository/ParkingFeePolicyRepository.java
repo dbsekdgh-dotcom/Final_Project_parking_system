@@ -14,7 +14,11 @@ import java.util.List;
 public interface ParkingFeePolicyRepository extends JpaRepository<ParkingFeePolicy,Long> {
 
     @Query("select fp from ParkingFeePolicy fp where fp.isActive=true and CURRENT_TIMESTAMP between fp.effectiveFrom and fp.effectiveTo")
-    List<ParkingFeePolicy> findEffectiveParkingFeePolicy();
+    List<ParkingFeePolicy> findCurrentEffectivePolicy();
+
+    @Query("select fp from ParkingFeePolicy fp where fp.isActive=true and CURRENT_TIMESTAMP < fp.effectiveFrom")
+    List<ParkingFeePolicy> findUpcomingEffectivePolicy();
+
     // 특정 시점에 유효한 활성 정책 조회
     @Query("select p from ParkingFeePolicy p where p.parkingType=:parkingType and p.isActive=true and :now between p.effectiveFrom and p.effectiveTo order by p.id desc")
     Optional<ParkingFeePolicy> findValidPolicy(@Param("parkingType")ParkingType parkingType,

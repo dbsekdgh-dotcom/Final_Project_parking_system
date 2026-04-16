@@ -34,7 +34,6 @@ const SelectedVehicleInfo = () => {
     }
 
 
-
     const paymentHandler=async(paymentData)=>{
         console.log("지금 결제",data)
         if(isPaymentLoading)return;
