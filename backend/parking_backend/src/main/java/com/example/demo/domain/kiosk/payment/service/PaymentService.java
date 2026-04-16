@@ -22,6 +22,7 @@ import com.example.demo.domain.shared.ticketPolicy.enums.UseType;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Log4j2
 public class PaymentService {
     private final ParkingLogRepository parkinglogRepository;
     private final ReservationRepository reservationRepository;
@@ -77,6 +79,8 @@ public class PaymentService {
                         .isFree(true).message("방문 차량입니다.").rawFee(0).parkingTime(parkingTime).parkingLogId(parkingLogId).vehicleNumber(carNumber).build();
             }
         }
+        log.info("차량번호: {}, 타입: {}, 최종 무료판정: {}",
+                carNumber, parkingLog.getParkingTypeSnapshot(), responseDto != null && responseDto.isFree());
         return new PaymentEligibilityResult(parkingLog, responseDto);
     }
 

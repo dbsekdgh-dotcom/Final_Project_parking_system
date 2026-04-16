@@ -1,6 +1,7 @@
 package com.example.demo.domain.shared.parkinglog.service;
 
 import com.example.demo.domain.admin.management.parking.service.AdminParkingService;
+import com.example.demo.domain.kiosk.payment.dtos.internal.PaymentEligibilityResult;
 import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationResponseDto;
 import com.example.demo.domain.kiosk.payment.service.PaymentService;
 import com.example.demo.domain.shared.parkingTicket.ParkingTicket;
@@ -91,6 +92,11 @@ public class ParkingLogService {
         ParkingFeePolicy policy = parkingFeePolicyRepository.findById(log.getParkingFeePolicyId())
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
 
+        //무료 대상자(정기권, 입주민)인지 먼저 확인
+        PaymentEligibilityResult eligibility = paymentService.checkFreeExitEligibility(parkingLogId);
+        System.out.println("차량번호: {" + log.getCarNumberSnapshot() +"}, 무료대상여부: {" +eligibility.isFree()+"}");
+
+        boolean isTrulyFree = eligibility.isFree() && !log.getParkingTypeSnapshot().equals(ParkingTypeSnapshot.VISIT);
         LocalDateTime now = LocalDateTime.now();
 
         //과금 시작 시점 결정(방문 예약 차량 처리)
@@ -103,39 +109,50 @@ public class ParkingLogService {
         }
 
         //실시간 요금 및 최종 요금 계산
-        Long realTimeRawFee;
-        Long finalPrice;
+        Long realTimeRawFee =0L;
+        Long finalPrice =0L;
 
-        //A.이미 출차 완료된 차량: DB 스냅샷 사용
-        if (log.getParkingStatus() == ParkingStatus.EXITED || log.getExitedAt() != null) {
-            realTimeRawFee = (long) log.getRawFee();
-            finalPrice = (long) log.getFee();
+        //무료 대상자면 요금계산 타지 않고 바로 0원 처리
+        if(isTrulyFree) {
+            realTimeRawFee =0L;
+            finalPrice =0L;
         }
-        //B.주차 중인 차량: 실시간 계산 메서드 사용
+        //무료 대상이 아닌 경우
         else {
-            //보정된 시작 시간부터 현재까지의 주차 분(minutes)계산
-            long totalDurationForCalculation = Duration.between(calculationStartTime,now).toMinutes();
-            //요금계산 메서드(할인권 조회 및 log.getFee() 차감 처리됨)
-            FeeCalculationResponseDto calculation = paymentService.settlementFee(
-                    log,
-                    log.getParkingFeePolicyId(),
-                    totalDurationForCalculation
-            );
-            realTimeRawFee = (long) calculation.getRawFee(); // 할인 전 원금(또는 시간할인만 적용된 원금)
-            finalPrice = calculation.getAmountToPay(); //추가결제 해야 할 최종 금액
+            //A.이미 출차 완료된 차량: DB 스냅샷 사용
+            if (log.getParkingStatus() == ParkingStatus.EXITED || log.getExitedAt() != null) {
+                realTimeRawFee = (long) log.getRawFee();
+                finalPrice = (long) log.getFee();
+            }
+            //B.주차 중인 차량: 실시간 계산 메서드 사용
+            else {
+                //보정된 시작 시간부터 현재까지의 주차 분(minutes)계산
+                long totalDurationForCalculation = Duration.between(calculationStartTime,now).toMinutes();
+                //요금계산 메서드(할인권 조회 및 log.getFee() 차감 처리됨)
+                FeeCalculationResponseDto calculation = paymentService.settlementFee(
+                        log,
+                        log.getParkingFeePolicyId(),
+                        totalDurationForCalculation
+                );
+                realTimeRawFee = (long) calculation.getRawFee(); // 할인 전 원금(또는 시간할인만 적용된 원금)
+                finalPrice = calculation.getAmountToPay(); //추가결제 해야 할 최종 금액
+            }
         }
 
         //할인티켓 합산 로직
-        List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
         int storeSum=0;
         int adminSum=0;
-        //티켓 리스트 돌며 status에 따라 금액 분류 합산
-        if(tickets != null && !tickets.isEmpty()){
-            for (ParkingTicket ticket:tickets) {
-                if(ticket.getStatus() == Status.STORE){
-                    storeSum += ticket.getAppliedAmount();
-                } else if (ticket.getStatus() == Status.ADMIN) {
-                    adminSum += ticket.getAppliedAmount();
+
+        if(!eligibility.isFree()){
+            List<ParkingTicket> tickets = parkingTicketRepository.findAllByParkingLog(log);
+            //티켓 리스트 돌며 status에 따라 금액 분류 합산
+            if(tickets != null && !tickets.isEmpty()){
+                for (ParkingTicket ticket:tickets) {
+                    if(ticket.getStatus() == Status.STORE){
+                        storeSum += ticket.getAppliedAmount();
+                    } else if (ticket.getStatus() == Status.ADMIN) {
+                        adminSum += ticket.getAppliedAmount();
+                    }
                 }
             }
         }
