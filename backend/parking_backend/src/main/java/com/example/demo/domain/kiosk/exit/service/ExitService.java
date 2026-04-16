@@ -80,9 +80,7 @@ public class ExitService {
         }
         // 방문 예약 차량 값변경
         if (parkingLog.getParkingTypeSnapshot() == ParkingTypeSnapshot.RESERVATION){
-            reservationRepository.updateStatusToCompleated(parkingLog.getCarNumberSnapshot(), Status.COMPLETED,Status.ENTERED);
-        }else {
-            throw  new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
+            reservationRepository.updateStatusToCompleted(parkingLog.getCarNumberSnapshot(), Status.COMPLETED,Status.ENTERED);
         }
         parkingLog.setParkingStatus(ParkingStatus.EXITED);
         parkingLog.setExitedAt(LocalDateTime.now());

@@ -3,7 +3,6 @@ package com.example.demo.domain.shared.reservation.repository;
 import com.example.demo.domain.shared.reservation.Reservation;
 import com.example.demo.domain.shared.reservation.enums.Status;
 import com.example.demo.domain.shared.user.User;
-import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     //방문예약자가 입차&요금정책&출차시간 이내 출차인지
@@ -105,8 +104,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Modifying
     @Transactional
     @Query("UPDATE Reservation r SET r.status = :status WHERE r.carNumber = :carNumber AND r.status =:currentStatus")
-    void updateStatusToCompleated(@Param("carNumber") String carNumber,
-                                  @Param("status") Status status,
-                                  @Param("currentStatus") Status currentStatus
+    void updateStatusToCompleted(@Param("carNumber") String carNumber,
+                                 @Param("status") Status status,
+                                 @Param("currentStatus") Status currentStatus
     );
 }
