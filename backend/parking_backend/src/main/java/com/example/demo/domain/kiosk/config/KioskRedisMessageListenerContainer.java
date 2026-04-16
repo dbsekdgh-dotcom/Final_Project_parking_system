@@ -14,6 +14,8 @@ public class KioskRedisMessageListenerContainer {
     public RedisMessageListenerContainer freeExitRedisListenerContainer(
             RedisConnectionFactory factory,
             FreeExitKeyExpirationListener listener) {
+        factory.getConnection().serverCommands().setConfig("notify-keyspace-events","Ex");
+
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(factory);
         container.addMessageListener(listener, new PatternTopic("__keyevent@*__:expired"));

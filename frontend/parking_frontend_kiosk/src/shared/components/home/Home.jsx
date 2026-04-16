@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './home.css'
 const Home = () => {
   const navigate = useNavigate()
-
+  useEffect(()=>{
+    localStorage.removeItem("paymentFlow")
+    localStorage.removeItem("pendingParkingLogId")
+  },[])
   return (
     <div className='full-page-container'>
       <div className="home-container">
