@@ -51,11 +51,13 @@ public class Approval {
     private String rejectReason;
 
     @Builder
-    public Approval(ApprovalType approvalType, Long targetId, User requestUserId, ApprovalStatus status) {
+    public Approval(ApprovalType approvalType, Long targetId, User requestUserId,
+                    ApprovalStatus status, LocalDateTime processedAt) {
         this.approvalType = approvalType;
         this.targetId = targetId;
         this.requestUserId = requestUserId;
         this.status = (status != null) ? status : ApprovalStatus.PENDING;
+        this.processedAt = processedAt; // 자동 승인 시간을 기록하기 위해 얘만 남김
     }
 
     @PrePersist

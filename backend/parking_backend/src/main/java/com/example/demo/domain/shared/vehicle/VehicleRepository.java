@@ -14,4 +14,11 @@ public interface VehicleRepository extends JpaRepository<Vehicle,Long> {
     //특정 회원의 활성 차량만 조회
     List<Vehicle> findByUser_UserIdAndStatus(Long userId, VehicleStatus status);
 
+
+    Optional<Vehicle> findByCarNumber(String carNumber);
+
+
+    @Query("SELECT v FROM Vehicle v WHERE v.user.userId = :userId AND v.status != 'DELETED'")
+    Optional<Vehicle> findCurrentVehicle(@Param("userId") Long userId);
+
 }

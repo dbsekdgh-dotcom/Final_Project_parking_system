@@ -68,4 +68,17 @@ public class Vehicle {
     public boolean isResident(){
         return this.user !=null && this.user.getHousehold()!=null;
     }
+
+
+    public void updateRegistration(User user, String vehicleName, VehicleStatus status) {
+        this.user = user;
+        this.vehicleName = vehicleName;
+        this.status = status;
+        this.deletedAt = null; // 부활 시 삭제일 초기화
+    }
+
+    public VehicleStatus getStatus() {
+        return this.status;
+    }
+
 }
