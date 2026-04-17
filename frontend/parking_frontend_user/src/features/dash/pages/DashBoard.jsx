@@ -32,7 +32,7 @@ const DashBoard = () => {
     //백엔드 데이터 호출
     const fetchDashboard = async () =>{
       try {
-        const response = await axios.get("http://localhost:8081/api/dashboard?userId=1");
+        const response = await axios.get("http://localhost:8081/api/dashboard?userId=69");
         setData(response.data);
       }catch (error){
         console.error("데이터 로드 실패:", error);
@@ -65,7 +65,7 @@ const DashBoard = () => {
               <div className="floor-name">{floor.floorName}</div>
               <div className="floor-type">{floor.description}</div>
               <div className="floor-availability">
-                <span className="available">{floor.available}</span> / {floor.total} 가용
+                <span className="available">{floor.available}</span> / {floor.total} 
               </div>
               <div className="progress-bar">
                 <div
