@@ -19,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,8 +70,13 @@ public class ParkingFeePolicyService {
         //스프링시큐리티가 헤더에서 꺼내서 저장해둔 유저정보 가져오기
         Object principal=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String loginId=((AdminAuthDto)principal).getUsername();
-        Admin admin=adminRepository.findByLoginIdAndStatus(loginId, String.valueOf(AdminStatus.ACTIVE)).orElseThrow(()->new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
-
+        Admin admin=adminRepository.findByLoginIdAndStatus(loginId, AdminStatus.ACTIVE).orElseThrow(()->new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
+        System.out.println("ddddddddddddddddd");
+        long latestVersionId=parkingFeePolicyRepository.getLatestVersion(dto.getParkingType());
+        if(latestVersionId!=dto.getVersion()){
+            throw new BusinessException(ErrorCode.POLICY_NOT_MODIFIABLE);
+        }
+        System.out.println("vvvvvvvvvvvvvvvvvv");
         //새로운 정책 insert
         ParkingFeePolicy newPolicy=ParkingFeePolicy.builder()
                 .admin(admin)
@@ -81,9 +88,10 @@ public class ParkingFeePolicyService {
                 .dailyMaxFee(dto.getDaliyMaxFee())
                 .isActive(true)
                 .effectiveFrom(dto.getEffectiveFrom())
+                .version(dto.getVersion()+1)
                 .build();
         ParkingFeePolicy parkingFeePolicy=parkingFeePolicyRepository.save(newPolicy);
-
+        System.out.println("qqqqqqqqqqqqqqqqqqqqqqqq");
         //기존 정책 유효기간 설정
         ParkingFeePolicy oldPolicy=parkingFeePolicyRepository.findById(dto.getParkingFeePolicyId()).orElseThrow(()->new BusinessException(ErrorCode.INVALID_REQUEST));
         oldPolicy.setEffectiveTo(dto.getEffectiveFrom().minusSeconds(1));

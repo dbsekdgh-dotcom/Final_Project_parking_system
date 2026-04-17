@@ -1,19 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {changeFeePolicy} from './../api/feeApi'
 
-export const usePolicy=()=>{
+export const usePolicyMutation=()=>{
     const queryClient=useQueryClient();
 
-    const changeFeePolicyHook=useMutation({
-        mutationFn:async(payload)=>{
-            const response=await changeFeePolicy(payload)
-            return response
-        },
+    const useChangePolicy=useMutation({
+        mutationFn: changeFeePolicy,
         onSuccess:()=>{
             queryClient.invalidateQueries({queryKey:['feePolicy']})
         },
         onError:(error)=>{
-            return error.message;
+            console.log("정책 수정 중 오류 발생==>",error.message)
         }
     })
+    //await mutateAsync(data)
+    return {mutateAsync:useChangePolicy.mutateAsync}
 }
