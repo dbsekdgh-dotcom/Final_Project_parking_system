@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @Log4j2
 public class AdminParkingLogController {
     private final ParkingLogService parkingLogService;

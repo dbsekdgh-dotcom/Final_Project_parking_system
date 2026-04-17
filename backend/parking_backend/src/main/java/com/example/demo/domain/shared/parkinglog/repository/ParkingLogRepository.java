@@ -5,6 +5,7 @@ import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.dtos.response.ParkingLogSettlementDto;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
+import com.example.demo.domain.shared.parkingspace.enums.Floor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -75,4 +76,10 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     boolean isAlreadyInParkingLot(@Param("carNumber") String carNumber);
 
     List<ParkingLog> findTop5ByCarNumberSnapshotOrderByEntryTimeDesc(String carNumber);
+
+    //해당 층에 현재 주차중인 차량들 조회
+    @Query("select pl from ParkingLog pl " +
+            "join fetch pl.parkingSpace ps " +
+            "where ps.floor =: floor and pl.parkingStatus = 'ENTERED'")
+    List<ParkingLog> findActiveLogsByFloor(@Param("floor") Floor floor);
 }

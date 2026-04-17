@@ -47,7 +47,7 @@ AdminSecurityConfig {
     public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception{
         log.info("----------- [Admin Security Configuration Loading] -----------");
 
-        http.securityMatcher("/admin/**");
+        http.securityMatcher("/api/admin/**");
 
         // cors 설정 (리액트와 통신을 위해, 가장 선순위로 설정해줘야함)
         http.cors(cors->cors.configurationSource(corsConfigurationSource()));
@@ -64,22 +64,16 @@ AdminSecurityConfig {
 //                .requestMatchers(HttpMethod.POST, "/admin/parking/logs/*/force-exit").permitAll()
 
                 // 최상단에 로그아웃을 가장 먼저 배치
-                .requestMatchers(HttpMethod.POST,"/admin/logout").permitAll()
-                .requestMatchers("/admin/login","/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
+                .requestMatchers(HttpMethod.POST,"/api/admin/logout").permitAll()
+                .requestMatchers("/api/admin/login","/api/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
 
-//                .requestMatchers("/admin/v1/reports/**").permitAll()   //윤진 추가 삭제예정
-
-
-                // 테스트하기위해 잠시 추가
-//                .requestMatchers("/admin/parking/summary").permitAll()
-
-                .requestMatchers("/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
                 .anyRequest().permitAll()
         );
 
         // 로그인 설정 (핸들러 연결)
         http.formLogin(form->form
-                .loginProcessingUrl("/admin/login") // 리액트에서 보낼 로그인 엔드포인트
+                .loginProcessingUrl("/api/admin/login") // 리액트에서 보낼 로그인 엔드포인트
                 .usernameParameter("loginId")
                 .passwordParameter("password")
                 .successHandler(adminLoginSuccessHandler)
