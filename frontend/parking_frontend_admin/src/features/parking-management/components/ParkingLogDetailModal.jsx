@@ -310,8 +310,18 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
                             </div>
                             <div className='info-row'>
                                 <label>실 결제 금액</label>
-                                <span className='paid-amount' style={{ fontWeight: 'bold', color: data.paymentStatus === 'PAID' ? '#4ade80' : '#ffb0b0' }}>
-                                    {data.paymentStatus === 'PAID' ? `${data.fee?.toLocaleString()}원` : '0원 (미결제)'}
+                                <span className='paid-amount' style={{ fontWeight: 'bold', color: (data.paymentStatus === 'NONE' || data.paymentStatus === 'PAID') ? '#4ade80' : '#ffb0b0' }}>
+                                    {(()=>{
+                                        // 무료 대상 차량 (정기권, 입주민, 회차)
+                                        if(data.paymentStatus === 'NONE' && data.calculatedFee <= 0) return '무료';
+                                        // 결제 금액이 있는 경우 (일부결제)
+                                        if(data.fee > 0) {
+                                            return `${data.fee.toLocaleString()}원 ${data.paymentStatus !== 'PAID' ? '(일부결제)' : ''}`;
+                                        }
+                                        if(data.paymentStatus === 'PAID') return `${data.fee.toLocaleString()}원`
+                                        // 미결제
+                                        return '0원 (미결제)';
+                                    })()}
                                 </span>
                             </div>
                             <div className='info-row'>
