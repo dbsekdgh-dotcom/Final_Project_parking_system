@@ -41,8 +41,10 @@ public class AdminParkingSpaceService {
                 .occupiedSpaces(occupied)
                 .availableSpaces(available)
                 .occupancyRate(occupancyRate)
-                .b1Status(b1Occupied + "/" + b1Total)
-                .b2Status(b2Occupied + "/" + b2Total)
+                .b1Total(b1Total)
+                .b2Total(b2Total)
+                .b1Occupied(b1Occupied)
+                .b2Occupied(b2Occupied)
                 .build();
     }
 
