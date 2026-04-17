@@ -1,5 +1,6 @@
 package com.example.demo.domain.user.vehicle.dtos.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@Schema(description = "차량 등록 신청 요청 데이터 — 사용자가 최종 확인한 차량 정보와 OCR 원본 데이터를 함께 전달합니다. " +
+        "4가지 수정 여부 + 이름 유사도 + 명의 유사도 조건을 모두 충족하면 자동 승인(ACTIVE), 하나라도 미달 시 관리자 검토 대기(PENDING)로 처리됩니다.")
 public class VehicleRegistrationRequestDto {
 
     @NotBlank(message = "차량 번호는 필수 입력 값입니다.")

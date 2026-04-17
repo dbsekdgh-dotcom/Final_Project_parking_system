@@ -14,25 +14,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * 입주민용 방문 예약 API 컨트롤러입니다.
- */
+@Tag(name = "5. 방문 예약 (Reservation)", description = "입주민 방문 차량 예약 신청, 조회, 수정, 취소 및 예약 정책 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user/reservations") // v1 제거 완료
+@RequestMapping("/api/user/reservations")
 public class ReservationController {
 
     private final ReservationService reservationService;
 
-    /**
-     * [방문 예약 신청]
-     * POST /api/user/reservations
-     * @param principalDetails 로그인한 유저 정보
-     * @param requestDto 차량 번호, 방문 시작 시간, 방문 목적 등
-     */
+    @Operation(summary = "방문 예약 신청", description = "방문 차량 번호와 방문 일시를 입력해 예약을 신청합니다. 시스템 정책(일별/월별 한도)에 따라 신청이 제한될 수 있습니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PostMapping
     public ResponseEntity<ReservationDetailResponseDto> applyReservation(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -42,11 +38,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.applyReservation(principalDetails, requestDto));
     }
 
-    /**
-     * [내 방문 예약 목록 조회]
-     * GET /api/user/reservations
-     * 본인이 신청한 모든 예약 리스트를 조회합니다.
-     */
+    @Operation(summary = "내 방문 예약 목록 조회", description = "본인이 신청한 전체 방문 예약 목록을 반환합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @GetMapping
     public ResponseEntity<List<ReservationListResponseDto>> getMyReservations(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -55,13 +47,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getMyReservations(principalDetails));
     }
 
-    /**
-     * [방문 예약 취소]
-     * PATCH /api/user/reservations/{reservationId}/cancel
-     * 특정 예약을 취소 상태로 변경합니다. (데이터 무결성을 위해 PATCH 사용)
-     * @param principalDetails 로그인한 유저 정보 (본인 확인용)
-     * @param reservationId 취소할 예약의 고유 ID
-     */
+    @Operation(summary = "방문 예약 취소", description = "특정 예약을 취소합니다. 방문 당일 또는 이미 입차된 예약은 취소가 불가합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PatchMapping("/{reservationId}/cancel")
     public ResponseEntity<ReservationCancelResponseDto> cancelReservation(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -71,10 +57,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.cancelReservation(principalDetails, reservationId));
     }
 
-    /**
-     * [방문 예약 정책 및 특정 날짜의 잔여 현황 조회]
-     * 사용자가 달력에서 날짜를 선택했을 때, 해당 날짜의 예약 가능 여부와 단지 정책을 반환합니다.
-     */
+    @Operation(summary = "예약 정책 및 날짜별 잔여 현황 조회", description = "달력에서 날짜 선택 시 해당 날짜의 예약 가능 여부, 잔여 슬롯, 단지 정책(일/월 한도)을 반환합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @GetMapping("/policy")
     public ResponseEntity<ReservationEventPolicyResponseDto> getReservationPolicy(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -82,11 +65,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getReservationPolicyInfo(principalDetails, targetDate));
     }
 
-    /**
-     * [방문 예약 수정]
-     * PUT /api/user/reservations/{reservationId}
-     * 본인의 예약 중 '대기' 상태인 건에 한해 정보를 수정합니다.
-     */
+    @Operation(summary = "방문 예약 수정", description = "대기(PENDING) 상태인 예약의 차량번호·방문 일시를 수정합니다. 이미 승인되거나 처리 중인 예약은 수정 불가합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PutMapping("/{reservationId}")
     public ResponseEntity<ReservationDetailResponseDto> updateReservation(
             @AuthenticationPrincipal PrincipalDetails principalDetails,

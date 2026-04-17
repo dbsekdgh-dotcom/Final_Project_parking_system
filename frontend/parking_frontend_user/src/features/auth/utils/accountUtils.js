@@ -479,7 +479,10 @@ export const handleWithdraw = async (navigate) => {
                 confirmButtonColor: '#3085d6',
             });
             localStorage.clear();
-            navigate ? navigate('/') : window.location.href = '/';
+            sessionStorage.clear(); // AuthRoute가 sessionStorage.sessionActive로 인증 판단 → 반드시 제거
+            // 탈퇴 후 서버에 로그아웃 요청 → HttpOnly 쿠키(accessToken/refreshToken) 만료 처리
+            try { await api.post('/api/user/auth/local/logout'); } catch (_) { /* 이미 탈퇴된 계정이므로 무시 */ }
+            window.location.replace('/');
         } catch (error) {
             Swal.fire('실패', error.response?.data?.message || '오류가 발생했습니다.', 'error');
         }

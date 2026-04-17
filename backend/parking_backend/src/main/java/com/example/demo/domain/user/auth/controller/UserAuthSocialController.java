@@ -15,9 +15,12 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "2. 소셜 계정 관리 (Social Auth)", description = "JWT 토큰 재발급 및 소셜 계정 복구 API")
 @RestController
 @RequestMapping("/api/user/auth")
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class UserAuthSocialController {
      * - 기존: Authorization 헤더에서 리프레시 토큰 읽고 바디로 새 토큰 반환
      * - 변경: refreshToken 쿠키에서 읽고 새 토큰을 HttpOnly 쿠키로 설정
      */
+    @Operation(summary = "JWT 토큰 재발급", description = "refreshToken 쿠키를 이용해 새로운 accessToken/refreshToken을 HttpOnly 쿠키로 재발급합니다. (토큰 불필요)")
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
@@ -95,6 +99,7 @@ public class UserAuthSocialController {
      * - 기존: 토큰을 응답 바디에 포함
      * - 변경: 토큰을 HttpOnly 쿠키로 설정, 바디에서 제거
      */
+    @Operation(summary = "소셜 계정 복구 로그인", description = "탈퇴한 소셜 계정을 복구하고 즉시 로그인 처리합니다. 토큰은 HttpOnly 쿠키로 발급됩니다. (토큰 불필요)")
     @PostMapping("/social-recover")
     public ResponseEntity<?> socialRecover(
             @Valid @RequestBody UserSocialRecoverRequestDto dto,
