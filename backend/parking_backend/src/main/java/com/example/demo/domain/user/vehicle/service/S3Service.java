@@ -24,12 +24,13 @@ public class S3Service {
 
     public String uploadFile(MultipartFile file) {
 
-        String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+        String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "upload.jpg";
+        String fileName = UUID.randomUUID() + "-" + originalFilename;
 
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
-            metadata.setContentType(file.getContentType());
+            metadata.setContentType(resolveContentType(file));
 
             amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
@@ -38,6 +39,22 @@ public class S3Service {
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
         }
+    }
+
+    private String resolveContentType(MultipartFile file) {
+        String contentType = file.getContentType();
+        // 브라우저가 content-type을 제대로 안 보내는 경우 파일명으로 추론
+        if (contentType == null || contentType.isBlank() || contentType.equals("application/octet-stream")) {
+            String name = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase() : "";
+            if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+            if (name.endsWith(".png"))  return "image/png";
+            if (name.endsWith(".pdf"))  return "application/pdf";
+            if (name.endsWith(".tiff") || name.endsWith(".tif")) return "image/tiff";
+            return "image/jpeg"; // 기본값
+        }
+        // image/jpg → image/jpeg 정규화 (일부 브라우저 비표준 타입)
+        if (contentType.equalsIgnoreCase("image/jpg")) return "image/jpeg";
+        return contentType;
     }
 
     public void deleteFile(String fileName) {

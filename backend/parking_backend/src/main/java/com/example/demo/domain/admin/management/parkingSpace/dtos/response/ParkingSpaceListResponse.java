@@ -12,4 +12,6 @@ public class ParkingSpaceListResponse {
     private SpaceStatus status; //AVAILABLE,OCCUPIED,BLOCKED
     private boolean isDisabled;
     private boolean isEvCharge;
+
+    private String carNumber;
 }

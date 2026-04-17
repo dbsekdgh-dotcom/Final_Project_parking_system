@@ -11,6 +11,8 @@ public class ParkingSpaceSummaryResponse {
     private long availableSpaces; //가용(주차가능)
     private double occupancyRate; //점유율(%)
 
-    private String b1Status;
-    private String b2Status;
+    private long b1Total;
+    private long b2Total;
+    private long b1Occupied;
+    private long b2Occupied;
 }

@@ -27,3 +27,14 @@ export const TICKET_POLICY_STATUS_LABELS = Object.freeze({
     INACTIVE: '비활성',
     DELETED: '삭제'
 });
+
+export const PARKING_SPACE_FLOOR_LABELS = Object.freeze({
+    B1: 'B1',
+    B2: 'B2'
+})
+
+export const PARKING_SPACE_STATUS_LABEL = Object.freeze({
+    AVAILABLE: '주차 가능',
+    OCCUPIED: '사용 중',
+    BLOCKED: '차단',
+})

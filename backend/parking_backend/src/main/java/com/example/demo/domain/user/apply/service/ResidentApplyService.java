@@ -79,6 +79,7 @@ public class ResidentApplyService {
         // 활동 로그 남기기
         activityLogRepository.save(ActivityLog.builder()
                 .activityType(ActivityType.RESIDENT_REGISTERED)
+                .user(user)
                 .household(household)
                 .message(String.format("입주민 신청 접수 : %d호 (신청자: %s)",
                         household.getUnitNo(), user.getName()))
