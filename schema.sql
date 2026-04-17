@@ -500,6 +500,7 @@ activity_type ENUM(
 ) NOT NULL,
 parking_log_id BIGINT NULL,
 reservation_id BIGINT NULL,
+user_id BIGINT NULL,
 payment_id BIGINT NULL,
 car_number VARCHAR(25) NULL,
 household_id BIGINT NULL,
@@ -508,8 +509,12 @@ created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 CONSTRAINT fk_activity_parking_log FOREIGN KEY (parking_log_id) REFERENCES parking_log(parking_log_id),
 CONSTRAINT fk_activity_reservation FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id),
 CONSTRAINT fk_activity_payment FOREIGN KEY (payment_id) REFERENCES payment(payment_id),
-CONSTRAINT fk_activity_household FOREIGN KEY (household_id) REFERENCES household(household_id) ON DELETE SET NULL,
+CONSTRAINT fk_activity_household FOREIGN KEY (household_id) REFERENCES, household(household_id) ON DELETE SET NULL,
+CONSTRAINT fk_activity_user FOREIGN KEY (user_id) REFERENCES
+user(user_id)
 INDEX idx_activity_time (created_at DESC),
 INDEX idx_activity_household (household_id),
 INDEX idx_activity_parking_log (parking_log_id)
 );
+
+---
