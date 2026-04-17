@@ -80,7 +80,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     //해당 층에 현재 주차중인 차량들 조회
     @Query("select pl from ParkingLog pl " +
             "join fetch pl.parkingSpace ps " +
-            "where ps.floor =: floor and pl.parkingStatus = 'ENTERED'")
+            "where ps.floor =:floor and pl.parkingStatus = 'ENTERED'")
     List<ParkingLog> findActiveLogsByFloor(@Param("floor") Floor floor);
 
     // 차량 ID로 현재 입차 중인 로그가 있는지 확인 (출차 전 상태들)

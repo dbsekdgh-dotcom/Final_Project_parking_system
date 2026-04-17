@@ -1,0 +1,74 @@
+.parking-slot {
+    width: 100%; /* 부모 그리드 너비에 맞춤 */
+    max-width: 110px; /* 너무 뚱뚱해지는 것 방지 */
+    min-height: 130px; /* 내부 요소가 겹치지 않게 최소 높이 확보 */
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 4px;
+    position: relative;
+    border: 1px solid #444;
+    box-sizing: border-box;
+    transition: all 0.2s;
+}
+
+/* 상태 및 구역 스타일 */
+.parking-slot.empty {
+    border-color: #4caf50;
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.parking-slot.occupied {
+    border-color: #f44336;
+    background-color: rgba(244, 67, 54, 0.15);
+}
+
+.parking-slot.disabled-zone { 
+    border: 2px dashed #2196f3; 
+    background-color: rgba(33, 150, 243, 0.1) !important;
+}
+
+.parking-slot.ev-zone { 
+    border: 2px dashed #fbc02d; 
+    background-color: rgba(255, 235, 59, 0.05) !important;
+}
+
+/* 내부 레이아웃 */
+.slot-header {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+.slot-icon {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.4rem;
+}
+
+.slot-footer {
+    display: flex;
+    justify-content: center;
+    min-height: 24px; /* 번호판 유무와 상관없이 높이 유지 */
+}
+
+/* 차량 번호판 디자인 */
+.car-number {
+    background-color: #ffffff;
+    color: #1a1a1a;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    border: 1px solid #bbb;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.icon {
+    display: block;
+}
