@@ -105,6 +105,17 @@
 
 .modal-input:focus { border-color: #90c0ff; }
 
+/* OCR 결과 경고 문구 */
+.modal-ocr-notice {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: #7a5c00;
+    line-height: 1.6;
+}
+
 /* 서류 업로드 */
 .modal-upload-section {
     display: grid;
@@ -145,8 +156,8 @@
     border-color: #3b5bdb;
 }
 
-/* 푸터 버튼 */
-.modal-footer {
+/* 푸터 버튼 - ReservationModal.css와 클래스 충돌 방지용 높은 우선순위 */
+.modal-card .modal-footer {
     display: flex;
     gap: 10px;
     justify-content: center;

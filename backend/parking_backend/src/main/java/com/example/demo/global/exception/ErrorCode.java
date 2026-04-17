@@ -31,6 +31,7 @@ public enum ErrorCode {
     OCR_NO_TEXT_DETECTED(HttpStatus.BAD_REQUEST, "이미지에서 글자를 인식할 수 없습니다. 밝은 곳에서 다시 촬영해주세요."),
     OCR_INCOMPLETE_DATA(HttpStatus.BAD_REQUEST, "필수 정보(이름, 번호 등)가 누락되었습니다. 서류 전체가 보이도록 찍어주세요."),
     OCR_CONFIDENCE_LOW(HttpStatus.BAD_REQUEST, "인식 결과가 불분명합니다. 선명한 사진으로 다시 시도해주세요."),
+    WRONG_DOCUMENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 서류가 첨부되었습니다. 올바른 서류를 다시 첨부해주세요."),
     VEHICLE_OWNER_MISMATCH(HttpStatus.BAD_REQUEST, "차량 소유주 정보가 일치하지 않아 자동 승인이 불가능합니다."),
     ID_CARD_MISMATCH(HttpStatus.BAD_REQUEST, "신분증 정보가 계정 정보와 일치하지 않습니다."),
 
