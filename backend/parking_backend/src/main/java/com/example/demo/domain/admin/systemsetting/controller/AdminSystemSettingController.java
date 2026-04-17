@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/system-setting/status")
+@RequestMapping("/api/admin/system-setting/status")
 @RequiredArgsConstructor
 public class AdminSystemSettingController {
 

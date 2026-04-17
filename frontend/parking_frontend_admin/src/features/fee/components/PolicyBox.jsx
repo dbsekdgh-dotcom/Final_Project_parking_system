@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { SlPencil,SlShareAlt  } from "react-icons/sl";
 import './feePolicy.css'
-import Swal from 'sweetalert2';
 import {confirmAlert} from './confirmPolicy'
-import {changeFeePolicy} from './../api/feeApi'
+import {usePolicyMutation} from './../hooks/usePolicyMutation'
 
 const PolicyBox = ({title,data,isUpcoming}) => {
     const [policy,setPolicy]=useState(data)
     const [editField,setEditField]=useState(null)
     const [tempData,setTempData]=useState("")
+    const {mutateAsync}=usePolicyMutation()
 
     const fields=[
         {label:"회차시간(분)", value:data?.graceMinutes, name:"graceMinutes"},
@@ -46,19 +46,15 @@ const PolicyBox = ({title,data,isUpcoming}) => {
         const updatePolicy={
             ...policy,[changeName]:value,["effectiveFrom"]:effectiveDate,["version"]:Number(data.version)+1
         }
-        //확인 알람
-        const result=await confirmAlert({
-            title:"정책 변경 예약 확인",
+        confirmAlert({
+            title:"정책 변경예약 확인",
             label:changeLabel,
-            value:value,
+            value:value.toLocaleString(),
             effectiveDate:effectiveDate,
-            resultTitle:"정책 변경 완료"
+            resultTitle:"정책 변경 완료",
+            mutateAsync:mutateAsync,
+            updatePolicy:updatePolicy
         })
-        if(result){
-            //여기 백엔드로 정책 수정 요청 
-            changeFeePolicy(updatePolicy)
-            console.log(result)
-        }
         setEditField(null)
         setTempData("")
 
@@ -73,14 +69,17 @@ const PolicyBox = ({title,data,isUpcoming}) => {
         <div className='gridContainer'>
         {
             fields.map((f)=>
-                <div className='infoBox'>
+                <div className='infoBox' key={f.name}>
                     <span className='label'>{f.label}</span>
                     {
                         editField==f.label ?
                         <div className="editContainer" >
                             <input className="editInput" type="number" value={tempData} 
-                                onChange={(e)=>setTempData(e.target.value)}
-                                onKeyDown={(e) => e.key==="Enter"  && changeHandler(f.label,f.name) && e.preventDefault()}
+                                onChange={(e)=>setTempData(Number(e.target.value))}
+                                onKeyDown={(e) => {if(e.key==="Enter"){
+                                    e.preventDefault();
+                                    changeHandler(f.label,f.name);
+                                }}}
                                 onBlur={()=>{setEditField(null); setTempData("")}}
                                 autoFocus>
                             </input>

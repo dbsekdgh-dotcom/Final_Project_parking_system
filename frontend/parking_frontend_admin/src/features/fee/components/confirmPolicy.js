@@ -1,6 +1,5 @@
 import Swal from 'sweetalert2';
-// import {changeFeePolicyHook} from './../hooks/usePolicyMutation'
-export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mutateFn,updatePolicy})=>{
+export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mutateAsync,updatePolicy})=>{
 
     const result=await Swal.fire({
         title: `${title}`,
@@ -26,18 +25,30 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
     })
 
     if(result.isConfirmed){
-        // const res=await changeFeePolicyHook(updatePolicy)
-        //if문달기
-        await Swal.fire({
-            title:`${resultTitle}`,
-            icon:'success',
-            timer:1500,
-            showConfirmButton:false,
-            background: '#1e1e1e',
-            color: '#ffffff',
-            backdrop:'rgba(0,0,0,0.6)'
-        })
-        return true;
+        try{
+            const res= await mutateAsync(updatePolicy)
+            if(res.status==201){
+                await Swal.fire({
+                    title:`${resultTitle}`,
+                    icon:'success',
+                    timer:1500,
+                    showConfirmButton:false,
+                    background: '#1e1e1e',
+                    color: '#ffffff',
+                    backdrop:'rgba(0,0,0,0.6)'
+                })
+            }
+        }catch(error){
+            await Swal.fire({
+                title:"정책 수정 실패",
+                text:error.response?.data?.message ||  "정책 수정 중 오류가 발생하였습니다.",
+                icon:'error',
+                timer:1500,
+                showConfirmButton:false,
+                background: '#1e1e1e',
+                color: '#ffffff',
+                backdrop:'rgba(0,0,0,0.6)'
+            })
+        }
     }
-    return false;
 }

@@ -38,11 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 2. 인증 불필요 경로 정의
-        if (path.startsWith("/admin/login")
-                || path.startsWith("/admin/refresh")
-                || path.startsWith("/admin/logout")
+        if (path.startsWith("/api/admin/login")
+                || path.startsWith("/api/admin/refresh")
+                || path.startsWith("/api/admin/logout")
                 || path.startsWith("/mypage")
-                || path.startsWith("/login")
+                || path.startsWith("/admin/login")
                 || path.startsWith("/oauth-redirect")
                 || path.startsWith("/api/user/auth/refresh")
                 || path.startsWith("/api/user/auth/local/signup")
@@ -83,7 +83,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         System.out.println(">>> [필터 내부] 로직 실행 시작: " + path);
 
-        if (path.startsWith("/admin")) {
+        if (path.startsWith("/api/admin") || path.startsWith("/admin")) {
             handleAdminJwt(request, response, filterChain);
         } else {
             handleUserJwt(request, response, filterChain);

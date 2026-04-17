@@ -5,11 +5,11 @@ const VehicleInfo = ({vehicleNumber,parkingTime,fee}) => {
     let d=0;
     let h=0;
     let m=0;
-    if(parkingTime>60){
-        d=Math.floor(parkingTime/1440);
-        h=Math.floor((parkingTime-(d*1440))/60);
-        m=parkingTime%60;
-    }
+   
+    d=Math.floor(parkingTime/1440);
+    h=Math.floor((parkingTime-(d*1440))/60);
+    m=parkingTime%60;
+
   return (
     <div>
         <h2 className='page-subtitle'>차량정보</h2>

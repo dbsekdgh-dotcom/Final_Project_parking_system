@@ -19,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 public class AdminAuthController {
     private final AdminJWTUtil adminJWTUtil;
     private final RedisService redisService;

@@ -48,7 +48,7 @@ public class ParkingLogService {
 
     //차량번호 4자리 입력 후 차량 조회 시 조회될 차량번호 목록
     public List<ParkingLogSettlementDto> getActiveVehicleList(String vehicleNumber){
-        List<ParkingLogSettlementDto> list=parkinglogRepository.getActiveVehicleList(vehicleNumber.trim(),PaymentStatus.NONE);
+        List<ParkingLogSettlementDto> list=parkinglogRepository.getActiveVehicleList(vehicleNumber.trim());
         if(list==null || list.isEmpty()){
             throw new BusinessException(ErrorCode.VEHICLE_NOT_ENTERED);
         }

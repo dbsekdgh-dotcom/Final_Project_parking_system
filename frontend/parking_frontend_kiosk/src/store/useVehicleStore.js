@@ -23,9 +23,10 @@ const useVehicleStore=create(set=>({
 
     //저장정보 전부 삭제
     resetAll:()=>{
-        set({searchKeyword:''}),
-        set({selectedVehicle:null}),
-        set({paymentInfo:null})
+        set({searchKeyword:'',
+            selectedVehicle:null,
+            paymentInfo:null
+        })
     }
 }))
 export default useVehicleStore;

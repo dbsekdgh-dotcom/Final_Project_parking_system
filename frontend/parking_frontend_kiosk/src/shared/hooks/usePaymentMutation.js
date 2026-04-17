@@ -27,7 +27,7 @@ export const usePayment=()=>{
             navigate("/PrepaymentResult",{
                 state:{
                     title : "정산 중 오류가 발생하였습니다.",
-                    subTitle : `${error.message}` || "잠시 후 다시 시도해주세요.",
+                    subTitle : `${error.response?.data?.message}` || "잠시 후 다시 시도해주세요.",
                     type: "error"
                 }
             }) 
@@ -60,7 +60,7 @@ export const usePayment=()=>{
             navigate("/PrepaymentResult",{
                 state:{
                     title : "정산 중 오류가 발생하였습니다.",
-                    subTitle : `${error.message}` || "잠시 후 다시 시도해주세요.",
+                    subTitle : `${error.response?.data?.message}` || "잠시 후 다시 시도해주세요.",
                     type: "error"
                 }
             }) 
