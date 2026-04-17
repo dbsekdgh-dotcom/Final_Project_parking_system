@@ -36,5 +36,5 @@ export const PARKING_SPACE_FLOOR_LABELS = Object.freeze({
 export const PARKING_SPACE_STATUS_LABEL = Object.freeze({
     AVAILABLE: '주차 가능',
     OCCUPIED: '사용 중',
-    BLOCKED: '블럭',
+    BLOCKED: '차단',
 })
