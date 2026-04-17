@@ -5,6 +5,7 @@ import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -16,4 +17,5 @@ public class FeeCalculationRequestDto {
     private int prepaidFee;
     private List<ParkingTicket> discountTicketRequestDtos;
     private String vehicleNumber;
+    private LocalDateTime freeExitUntil;
 }

@@ -116,7 +116,6 @@ public class PaymentFacade {
         TossApprovalResult tossApprovalResult=null;
         String errorMessage=null;
 
-
         try {
             // 1. 사전 검증
             // - 결제 승인 요청 전 관리자 강제 출차 여부 확인
@@ -134,7 +133,6 @@ public class PaymentFacade {
                     paymentStatus = PaymentStatus.SUCCESS;
                 } else {
                     paymentStatus = PaymentStatus.FAILED;
-                    parkingLog.setPaymentRequestedAt(null);
                     errorMessage = tossApprovalResult.getErrorMessage();
                 }
             } else {

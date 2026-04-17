@@ -223,13 +223,7 @@ public class ParkingLog {
         this.paymentRequestedAt = null;
         this.paymentStatus = (this.calculatedFee > 0) ? PaymentStatus.UNPAID : PaymentStatus.NONE;
     }
-    // 무료 시간이 만료 됐을때 요금 상태 업데이트
-    public void expireFreeExit(int rawFee, long calculatedFee){
-        this.paymentStatus = PaymentStatus.UNPAID;
-        this.rawFee = rawFee;
-        this.calculatedFee = calculatedFee;
-        this.paymentRequestedAt = null;
-    }
+
     // EXIT_REQUESTED에서 방치된 차량 ENTERED로 되돌리기
     public void revertToEntered(){
         this.parkingStatus = ParkingStatus.ENTERED;

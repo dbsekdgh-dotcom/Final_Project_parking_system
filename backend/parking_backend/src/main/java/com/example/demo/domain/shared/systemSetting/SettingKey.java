@@ -28,9 +28,10 @@ public enum SettingKey {
     TOTAL_DAILY_RESERVATION_LIMIT("TOTAL_DAILY_RESERVATION_LIMIT", "10"),
 
     // 차량 자동 승인 유사도 기준치 (%) - 기본값 95%
-    VEHICLE_AUTO_APPROVAL_THRESHOLD("VEHICLE_AUTO_APPROVAL_THRESHOLD", "95");
+    VEHICLE_AUTO_APPROVAL_THRESHOLD("VEHICLE_AUTO_APPROVAL_THRESHOLD", "95"),
 
-
+    //사전정산 후 출차시간 초과 시 최소 부과 요금
+    OVERTIME_MIN_FEE("OVERTIME_MIN_FEE","100");
 
 
     private final String key;

@@ -25,8 +25,8 @@ public class FreeExitExpirationService {
     @Transactional
     public void syncFreeExitStatus(ParkingLog parkingLog){
         //freeExitUntil이 null이거나 현재시각보다 이후면 리턴 -> 무료
-        if (parkingLog.getFreeExitUntil()==null || !parkingLog.getFreeExitUntil().isBefore(LocalDateTime.now())) return;
-        if (parkingLog.getPaymentStatus() == PaymentStatus.UNPAID) return;
+        if (parkingLog.getFreeExitUntil()==null || !parkingLog.getFreeExitUntil().isBefore(LocalDateTime.now().plusSeconds(5))) return;
+        if (parkingLog.getPaymentStatus()==PaymentStatus.UNPAID) return;
 
         // 요금이 생성되면 상태값 업데이트 기납부 금액 + 추가 시간 요금 = 누적 청구 금액
         parkingLog.setPaymentStatus(PaymentStatus.UNPAID);
