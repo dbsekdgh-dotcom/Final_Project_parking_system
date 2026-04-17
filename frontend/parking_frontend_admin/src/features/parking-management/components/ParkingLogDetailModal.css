@@ -294,6 +294,7 @@
 /* 상태 및 배지 */
 .status-val.ENTERED { color: #4ade80; }
 .status-val.EXITED { color: #94a3b8; }
+.status-val.FORCE_EXITED {color: #f87171; font-weight: bold;}
 .payment-val.UNPAID { color: #f87171; }
 .payment-val.PAID { color: #4ade80; }
 
