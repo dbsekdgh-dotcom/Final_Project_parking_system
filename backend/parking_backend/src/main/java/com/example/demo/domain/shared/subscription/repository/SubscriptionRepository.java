@@ -1,9 +1,11 @@
 package com.example.demo.domain.shared.subscription.repository;
 
 import com.example.demo.domain.shared.subscription.Subscription;
+import lombok.extern.java.Log;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -18,4 +20,14 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
 
     @Query("SELECT s FROM Subscription  s WHERE s.user.userId = :userId ORDER BY s.endDate DESC LIMIT 1")
     Optional<Subscription> findLatestSubscription (@Param("userId") Long userId);
+
+
+    @Query("SELECT COUNT(s) > 0 FROM Subscription s " +
+            "WHERE s.vehicle.id = :vehicleId " +
+            "AND s.status = 'ACTIVE' " +
+            "AND s.endDate >= :now")
+    boolean hasActiveOrFutureSubscription(@Param("vehicleId")Long vehicleId, @Param("now") LocalDateTime now);
+
 }
+
+

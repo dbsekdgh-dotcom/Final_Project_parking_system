@@ -5,6 +5,7 @@ import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.payment.Payment;
 import com.example.demo.domain.shared.reservation.Reservation;
+import com.example.demo.domain.shared.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

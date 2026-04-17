@@ -47,7 +47,7 @@ const DashBoard = () => {
   //메뉴클릭 시 페이지 이동 함수
     const handleMenuClick = (menu) => {
       if (menu === "정기권") navigate("/subscription");
-      else if (menu === "방문 예약") navigate("/reservation"); 
+      else if (menu === "방문 예약") navigate("/reservation");
       else if (menu === "마이페이지") navigate("/mypage");
       else if (menu === "민원신고") navigate("/report");
     };

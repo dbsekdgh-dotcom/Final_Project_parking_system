@@ -13,4 +13,7 @@ public class VehicleOcrResultDto {
     private final String vehicleName;
     private final String name;
     private final String birth;
+
+    private final String ocrRawName;
+    private final String orcRawBirth;
 }

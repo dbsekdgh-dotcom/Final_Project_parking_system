@@ -16,9 +16,8 @@
     gap: 20px;
 }
 
-/* 회원 현황 + 입주민 신청 - 두 칸 전체 차지 */
-.mypage__grid > :nth-child(3),
-.mypage__grid > :nth-child(4) {
+/* 입주민 신청 - 두 칸 전체 차지 */
+.mypage__full-width {
     grid-column: 1 / -1;
 }
 
@@ -33,6 +32,5 @@
 @media (max-width: 640px) {
     .mypage { padding: 20px 16px; }
     .mypage__grid { grid-template-columns: 1fr; }
-    .mypage__grid > :nth-child(3),
-    .mypage__grid > :nth-child(4) { grid-column: auto; }
+    .mypage__full-width { grid-column: auto; }
 }

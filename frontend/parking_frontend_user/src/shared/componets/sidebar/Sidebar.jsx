@@ -9,10 +9,10 @@ import { fetchUserStatus } from '../../../features/apply/api/applyApi'
 
 const navItems = [
   { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },
-  { to: '/season-pass', label: '정기권', icon: TicketIcon },
-  { to: '/visit', label: '방문 예약', icon: CalendarIcon, residentOnly: true },
+  { to: '/subscription', label: '정기권', icon: TicketIcon },
+  { to: '/reservation', label: '방문 예약', icon: CalendarIcon, residentOnly: true },
   { to: '/mypage', label: '마이페이지', icon: UserIcon },
-  { to: '/complaints', label: '민원/신고', icon: AlertIcon },
+  { to: '/report', label: '민원/신고', icon: AlertIcon },
 ]
 
 const BADGE_CONFIG = {
