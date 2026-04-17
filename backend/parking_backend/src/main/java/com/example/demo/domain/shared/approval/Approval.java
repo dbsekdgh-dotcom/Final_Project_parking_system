@@ -71,4 +71,15 @@ public class Approval {
     public void updateStatus(ApprovalStatus status) {
         this.status = status;
     }
+
+    /**
+     * 사용자가 직접 신청을 취소할 때 사용
+     */
+    public void cancel() {
+        this.status = ApprovalStatus.CANCELLED;
+        this.processedAt = LocalDateTime.now();
+        this.rejectReason = "사용자가 신청을 취소하였습니다.";
+    }
+
+
 }

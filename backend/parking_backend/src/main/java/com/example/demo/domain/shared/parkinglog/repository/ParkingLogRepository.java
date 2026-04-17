@@ -75,4 +75,12 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     boolean isAlreadyInParkingLot(@Param("carNumber") String carNumber);
 
     List<ParkingLog> findTop5ByCarNumberSnapshotOrderByEntryTimeDesc(String carNumber);
+
+    // 차량 ID로 현재 입차 중인 로그가 있는지 확인 (출차 전 상태들)
+    // 그 중에서도 혜택을 받는 타입(RESIDENT, SUBSCRIPTION, RESERVATION)인지 확인
+    @Query("SELECT EXISTS (SELECT 1 FROM ParkingLog p " +
+            "WHERE p.vehicle.id = :vehicleId " +
+            "AND p.parkingStatus IN ('ENTERED', 'DETECTED', 'EXIT_REQUESTED') " +
+            "AND p.parkingTypeSnapshot IN ('RESIDENT', 'SUBSCRIPTION'))")
+    boolean existsActiveBenefitLogByVehicleId(@Param("vehicleId") Long vehicleId);
 }

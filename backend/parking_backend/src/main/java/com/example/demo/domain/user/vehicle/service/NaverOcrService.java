@@ -54,19 +54,15 @@ public class NaverOcrService {
             throw new RuntimeException("이미지 URL이 비어있습니다.");
         }
 
-        String ext = "jpg";
-        if (imageUrl.contains(".")) {
-            ext = imageUrl.substring(imageUrl.lastIndexOf(".") + 1).toLowerCase();
-            if (ext.contains("?")) {
-                ext = ext.substring(0, ext.indexOf("?"));
-            }
-        }
+        String ext = extractExtension(imageUrl);
 
         List<String> allowedExtensions = Arrays.asList("jpg", "jpeg", "png", "pdf", "tiff");
         if (!allowedExtensions.contains(ext)) {
             log.error("지원하지 않는 확장자 요청: {}", ext);
             throw new RuntimeException("지원하지 않는 파일 형식입니다 (" + ext + ").");
         }
+        // Naver OCR API는 "jpg" 만 처리하므로 "jpeg" → "jpg" 정규화
+        if (ext.equals("jpeg")) ext = "jpg";
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -136,18 +132,26 @@ public class NaverOcrService {
         String name = "";
         String birth = "";
 
+//        if (response.getImages() != null || response.getImages().isEmpty()) {
+//            throw
+//        }
+
         if (response.getImages() != null && !response.getImages().isEmpty()) {
             List<NaverOcrResponse.FieldResponse> fields = response.getImages().get(0).getFields();
+            log.info("--- [OCR 차량등록증] inferResult: {}, fields: {} ---",
+                    response.getImages().get(0).getInferResult(), fields);
 
-            for (NaverOcrResponse.FieldResponse field : fields) {
-                String fieldName = field.getName();
-                String text = field.getInferText();
+            if (fields != null) {
+                for (NaverOcrResponse.FieldResponse field : fields) {
+                    String fieldName = field.getName();
+                    String text = field.getInferText();
 
-                switch (fieldName) {
-                    case "car_number": carNumber = text; break;
-                    case "vehicle_name": vehicleName = text; break;
-                    case "name": name = text; break;
-                    case "birth": birth = text; break;
+                    switch (fieldName) {
+                        case "car_number": carNumber = text; break;
+                        case "vehicle_name": vehicleName = text; break;
+                        case "name": name = cleanName(text); break;
+                        case "birth": birth = text; break;
+                    }
                 }
             }
         }
@@ -168,14 +172,18 @@ public class NaverOcrService {
 
         if (response.getImages() != null && !response.getImages().isEmpty()) {
             List<NaverOcrResponse.FieldResponse> fields = response.getImages().get(0).getFields();
+            log.info("--- [OCR 신분증] inferResult: {}, fields: {} ---",
+                    response.getImages().get(0).getInferResult(), fields);
 
-            for (NaverOcrResponse.FieldResponse field : fields) {
-                String fieldName = field.getName();
-                String text = field.getInferText();
+            if (fields != null) {
+                for (NaverOcrResponse.FieldResponse field : fields) {
+                    String fieldName = field.getName();
+                    String text = field.getInferText();
 
-                switch (fieldName) {
-                    case "name": name = text; break;
-                    case "birth": birth = text; break;
+                    switch (fieldName) {
+                        case "name": name = cleanName(text); break;
+                        case "birth": birth = text; break;
+                    }
                 }
             }
         }
@@ -184,6 +192,28 @@ public class NaverOcrService {
                 .name(name)
                 .birth(birth)
                 .build();
+    }
+
+    /**
+     * OCR 이름에서 괄호 및 영문 제거 후 한글 이름만 추출
+     * 예: "홍길동(Hong Gil Dong)" → "홍길동"
+     */
+    private String cleanName(String raw) {
+        if (raw == null || raw.isBlank()) return "";
+        // 괄호와 그 안의 내용 제거
+        String cleaned = raw.replaceAll("\\(.*?\\)", "").trim();
+        // 한글, 공백만 남기기 (영문·숫자·특수문자 제거)
+        cleaned = cleaned.replaceAll("[^가-힣\\s]", "").trim();
+        return cleaned;
+    }
+
+    private String extractExtension(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) return "jpeg";
+        // 쿼리스트링 제거 후 경로에서 파일명 추출
+        String path = imageUrl.contains("?") ? imageUrl.substring(0, imageUrl.indexOf("?")) : imageUrl;
+        int dotIdx = path.lastIndexOf(".");
+        if (dotIdx < 0 || dotIdx == path.length() - 1) return "jpeg";
+        return path.substring(dotIdx + 1).toLowerCase();
     }
 
     private String normalizeTo6Digits(String rawBirth) {

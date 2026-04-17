@@ -1,9 +1,11 @@
 package com.example.demo.domain.user.vehicle.controller;
 
 import com.example.demo.domain.user.auth.principal.PrincipalDetails;
+import com.example.demo.domain.user.vehicle.dtos.request.VehicleCancelRequestDto;
 import com.example.demo.domain.user.vehicle.dtos.request.VehicleRegistrationRequestDto;
 import com.example.demo.domain.user.vehicle.dtos.response.VehicleResponseDto;
 import com.example.demo.domain.user.vehicle.service.VehicleRegistrationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,5 +47,31 @@ public class VehicleRegistrationController {
         }
 
         return ResponseEntity.ok(response);
+    }
+    /**
+     * [차량 등록 신청 취소 API]
+     * - 승인 대기 중인 차량 등록 신청을 취소하고 소유권을 해제합니다.
+     */
+    @PostMapping("/cancel")
+    public ResponseEntity<String> cancelVehicleRegistration(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @Valid @RequestBody VehicleCancelRequestDto requestDto) {
+
+        vehicleRegistrationService.cancelVehicleRegistration(principalDetails.getUser().getUserId(), requestDto);
+
+        return ResponseEntity.ok("차랑 등록 신청이 성공적으로 취소되었습니다.");
+    }
+    /**
+     * [차량 삭제 API]
+     * 활성화된 차량을 삭제(Soft Delete)합니다.
+     * 주차 중이거나 정기권이 있는 경우 서비스 레이어에서 예외를 던집니다.
+     */
+    @DeleteMapping("/{vehicleId}")
+    public ResponseEntity<String> deleteVehicle(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable("vehicleId") Long vehicleId) {
+
+        vehicleRegistrationService.deleteVehicle(principalDetails.getUser().getUserId(), vehicleId);
+        return ResponseEntity.ok("차량이 성공적으로 삭제되었습니다.");
     }
 }
