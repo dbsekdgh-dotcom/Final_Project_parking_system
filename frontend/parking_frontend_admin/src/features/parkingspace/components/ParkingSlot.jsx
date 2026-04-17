@@ -4,7 +4,8 @@ import './ParkingSlot.css'
 
 const ParkingSlot = ({space}) => {
     const statusClass = 
-    space.status === 'AVAILABLE' ? 'empty' : space.status === 'OCCUPIED' ? 'occupied' : 'blocked'
+    space.status === 'AVAILABLE' ? 'empty' : 
+    space.status === 'OCCUPIED' ? 'occupied' : 'blocked'
 
     //특수구역 여부
     const specialClass = space.isDisabled ? 'disabled-zone' : space.isEvCharge ? 'ev-zone' : ''
