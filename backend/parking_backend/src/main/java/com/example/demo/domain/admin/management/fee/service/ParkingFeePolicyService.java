@@ -86,7 +86,7 @@ public class ParkingFeePolicyService {
                 .unitMinutes(dto.getUnitMinutes())
                 .unitFee(dto.getUnitFee())
                 .dailyMaxFee(dto.getDaliyMaxFee())
-                .isActive(true)
+                .isActive(false)
                 .effectiveFrom(dto.getEffectiveFrom())
                 .version(dto.getVersion()+1)
                 .build();
