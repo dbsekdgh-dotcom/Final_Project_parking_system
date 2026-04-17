@@ -147,7 +147,7 @@ public class ReservationService {
         // 11. 활동 로그 기록
         activityLogRepository.save(ActivityLog.builder()
                 .activityType(ActivityType.RESERVATION_CREATED).reservation(savedReservation).carNumber(carNumber)
-                .household(household).message(String.format("[%s] 차량 방문 예약 신청", carNumber)).build());
+                .user(user).household(household).message(String.format("[%s] 차량 방문 예약 신청", carNumber)).build());
 
         // 12. 세대 활성 예약 카운트 증가
         householdRepository.incrementActiveReservationCount(household.getHouseholdId());

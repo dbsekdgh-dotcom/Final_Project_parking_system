@@ -2,10 +2,7 @@ package com.example.demo.domain.kiosk.payment.dtos.response;
 
 import com.example.demo.domain.kiosk.payment.dtos.internal.AppliedTicketResult;
 import com.example.demo.domain.kiosk.payment.dtos.internal.StackableTicketResult;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +11,8 @@ import java.util.List;
 @Builder
 @ToString
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class VehiclePaymentResponseDto {
     private long parkingLogId;
     private boolean isFree;

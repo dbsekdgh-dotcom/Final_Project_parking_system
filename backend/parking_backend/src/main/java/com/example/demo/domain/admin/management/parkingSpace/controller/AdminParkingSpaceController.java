@@ -19,7 +19,7 @@ import java.util.List;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/parking-space")
+@RequestMapping("/api/admin/parking-space")
 public class AdminParkingSpaceController {
     private final AdminParkingSpaceService adminParkingSpaceService;
 

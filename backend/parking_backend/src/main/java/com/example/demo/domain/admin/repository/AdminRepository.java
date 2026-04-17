@@ -1,6 +1,7 @@
 package com.example.demo.domain.admin.repository;
 
 import com.example.demo.domain.admin.entity.Admin;
+import com.example.demo.domain.admin.enums.AdminStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -11,6 +12,6 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
     Optional<Admin> findByLoginId(String loginId);
 
     // 아이디가 일치하고, 'ACTIVE' 상태인 관리자만 조회
-    Optional<Admin> findByLoginIdAndStatus(String loginId,String status);
+    Optional<Admin> findByLoginIdAndStatus(String loginId, AdminStatus status);
 
 }

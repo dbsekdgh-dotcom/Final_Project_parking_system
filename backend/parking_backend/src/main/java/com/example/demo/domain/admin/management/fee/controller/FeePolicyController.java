@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class FeePolicyController {
     private final ParkingFeePolicyService parkingFeePolicyService;
@@ -24,6 +24,7 @@ public class FeePolicyController {
 
     @PostMapping("/fee-policy/change")
     public ResponseEntity<Long> changeFeePolicy(@RequestBody ParkingFeePolicyChangeRequestDto parkingFeePolicyChangeRequestDto){
+        System.out.println("수정 요청 정책==>"+parkingFeePolicyChangeRequestDto);
         long policyId=parkingFeePolicyService.changeParkingFeePolicy(parkingFeePolicyChangeRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(policyId);
     }

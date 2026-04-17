@@ -21,7 +21,19 @@ public enum ErrorCode {
     INVALID_CAR_NUMBER_FORMAT(HttpStatus.BAD_REQUEST, "올바른 차량 번호 형식이 아닙니다."),
     OCR_DATA_MISSING(HttpStatus.BAD_REQUEST, "OCR 인식 결과 데이터가 누락되었습니다."),
     VEHICLE_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 승인 대기 중인 차량 번호입니다."),
+    INVALID_VEHICLE_STATUS(HttpStatus.BAD_REQUEST, "현재 차량 상태에서는 요청하신 처리가 불가능합니다."),
+    ACCESS_DENIED_VEHICLE(HttpStatus.FORBIDDEN, "해당 차량에 대한 접근 권한이 없습니다."),
+    CANNOT_DELETE_VEHICLE_IN_PARKING(HttpStatus.BAD_REQUEST, "현재 주차 중인 차량은 삭제할 수 없습니다. 출차 후 다시 시도해주세요."),
+    CANNOT_DELETE_VEHICLE_WITH_SUBSCRIPTION(HttpStatus.BAD_REQUEST, "활성 정기권이 존재하여 삭제할 수 없습니다. 정기권 해지 또는 만료 후 가능합니다."),
 
+    // --- [NAVER CLOVA OCR] 차량 및 신분증 인식 관련 에러 ---
+
+    OCR_NO_TEXT_DETECTED(HttpStatus.BAD_REQUEST, "이미지에서 글자를 인식할 수 없습니다. 밝은 곳에서 다시 촬영해주세요."),
+    OCR_INCOMPLETE_DATA(HttpStatus.BAD_REQUEST, "필수 정보(이름, 번호 등)가 누락되었습니다. 서류 전체가 보이도록 찍어주세요."),
+    OCR_CONFIDENCE_LOW(HttpStatus.BAD_REQUEST, "인식 결과가 불분명합니다. 선명한 사진으로 다시 시도해주세요."),
+    WRONG_DOCUMENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 서류가 첨부되었습니다. 올바른 서류를 다시 첨부해주세요."),
+    VEHICLE_OWNER_MISMATCH(HttpStatus.BAD_REQUEST, "차량 소유주 정보가 일치하지 않아 자동 승인이 불가능합니다."),
+    ID_CARD_MISMATCH(HttpStatus.BAD_REQUEST, "신분증 정보가 계정 정보와 일치하지 않습니다."),
 
     // PARKING
     PARKING_FULL(HttpStatus.CONFLICT, "주차장이 만차입니다."),
@@ -48,6 +60,7 @@ public enum ErrorCode {
     PAYMENT_NETWORK_ERROR(HttpStatus.BAD_REQUEST,"결제 시스템 오류로 결제에 실패하였습니다."),
     INVALID_REFUND_AMOUNT(HttpStatus.BAD_REQUEST, "환불 금액이 올바르지 않습니다."),
     LOCK_ACQUISITION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "현재 결제 요청이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해 주세요."),
+    INSUFFICIENT_POINTS(HttpStatus.BAD_REQUEST,"포인트 잔액이 부족합니다."),
 
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -149,7 +162,10 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요."),
 
     //Admin
-    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다");
+    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다"),
+
+    POLICY_NOT_MODIFIABLE(HttpStatus.NOT_MODIFIED,"만료 예정 정책은 수정할 수 없습니다.");
+
 
 
     private final HttpStatus status;

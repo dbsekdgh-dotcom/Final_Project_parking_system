@@ -3,6 +3,9 @@ package com.example.demo.domain.admin.management.parkingSpace.service;
 import com.example.demo.domain.admin.management.parkingSpace.dtos.response.ParkingSpaceListResponse;
 import com.example.demo.domain.admin.management.parkingSpace.dtos.response.ParkingSpaceSummaryResponse;
 import com.example.demo.domain.admin.management.parkingSpace.repository.ParkingSpaceRepository;
+import com.example.demo.domain.shared.parkinglog.ParkingLog;
+import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
+import com.example.demo.domain.shared.parkingspace.ParkingSpace;
 import com.example.demo.domain.shared.parkingspace.enums.Floor;
 import com.example.demo.domain.shared.parkingspace.enums.SpaceStatus;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class AdminParkingSpaceService {
     private final ParkingSpaceRepository parkingSpaceRepository;
+    private final ParkingLogRepository parkingLogRepository;
 
     //관리자 - 주차공간 상단 요약 모달, 하단 층별 주차 점유율
     public ParkingSpaceSummaryResponse getParkingSpaceSummary(){
@@ -41,21 +46,34 @@ public class AdminParkingSpaceService {
                 .occupiedSpaces(occupied)
                 .availableSpaces(available)
                 .occupancyRate(occupancyRate)
-                .b1Status(b1Occupied + "/" + b1Total)
-                .b2Status(b2Occupied + "/" + b2Total)
+                .b1Total(b1Total)
+                .b2Total(b2Total)
+                .b1Occupied(b1Occupied)
+                .b2Occupied(b2Occupied)
                 .build();
     }
 
     // 관리자 - 주차공간 층별 주차 구획 리스트 조회
     public List<ParkingSpaceListResponse> getFloorSpaces(Floor floor){
-        return parkingSpaceRepository.findByFloorOrderBySpaceCodeAsc(floor)
-                .stream()
+        //해당층의 모든 주차칸 조회
+        List<ParkingSpace> allSpaces = parkingSpaceRepository.findByFloorOrderBySpaceCodeAsc(floor);
+        //해당 층에서 현재 주차중인 로그들만 조회
+        List<ParkingLog> activeLogs = parkingLogRepository.findActiveLogsByFloor(floor);
+        //Map으로 변환 (Key: ParkingSpaceId, Value: CarNumber)
+        Map<Long,String> activeVehicleMap = activeLogs.stream()
+                .collect(Collectors.toMap(
+                        log -> log.getParkingSpace().getId(),
+                        ParkingLog::getCarNumberSnapshot
+                ));
+
+        return allSpaces.stream()
                 .map(space->ParkingSpaceListResponse.builder()
                         .id(space.getId())
                         .spaceCode(space.getSpaceCode())
                         .status(space.getStatus())
                         .isDisabled(space.getIsDisabled())
                         .isEvCharge(space.getIsEvCharge())
+                        .carNumber(activeVehicleMap.get(space.getId()))
                         .build())
                 .collect(Collectors.toList());
     }

@@ -21,6 +21,21 @@ public interface ParkingFeePolicyRepository extends JpaRepository<ParkingFeePoli
 
     // 특정 시점에 유효한 활성 정책 조회
     @Query("select p from ParkingFeePolicy p where p.parkingType=:parkingType and p.isActive=true and :now between p.effectiveFrom and p.effectiveTo order by p.id desc")
-    Optional<ParkingFeePolicy> findValidPolicy(@Param("parkingType")ParkingType parkingType,
-                                               @Param("now")LocalDateTime now);
+    Optional<ParkingFeePolicy> findValidPolicy(@Param("parkingType")ParkingType parkingType,@Param("now")LocalDateTime now);
+
+    //가장 최근 정책 조회
+    @Query("select p.id from ParkingFeePolicy p where p.parkingType=:parkingType and p.isActive=true order by p.version desc limit 1")
+    long getLatestVersion(@Param("parkingType")ParkingType parkingType);
+
+    //만료되었으나 isActive=true 정책들 가져오기
+    @Query("select p from ParkingFeePolicy p where p.isActive=true and p.effectiveTo<=:now")
+    List<ParkingFeePolicy> findPoliciesToInActivate(@Param("now")LocalDateTime now);
+
+    // isActive=true 정책들 가져오기
+    @Query("select p from ParkingFeePolicy p where p.isActive=true and p.parkingType=:parkingType")
+    List<ParkingFeePolicy> findPoliciesToInactivateByType(@Param("ParkingType")ParkingType parkingType );
+
+    // 정책 시작시간이 지난 정책 중 최근 버전 가져오기
+    @Query("select p from ParkingFeePolicy p where p.isActive=false and p.parkingType=:parkingType and p.effectiveFrom<:now order by p.version desc limit 1")
+    List<ParkingFeePolicy> findPoliciesToActivate(@Param("now")LocalDateTime now, @Param("ParkingType")ParkingType parkingType );
 }

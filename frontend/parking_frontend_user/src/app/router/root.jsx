@@ -5,6 +5,7 @@ import MainLayout from '../../shared/layouts/MainLayout'
 import DashBoard from '../../features/dash/pages/DashBoard'
 import MyPage from '../../features/mypage/pages/MyPage'
 import ReservationPage from '../../features/reservation/pages/ReservationPage'
+import ReportPage from '../../features/report/ReportPage'
 import { createBrowserRouter } from 'react-router-dom'
 
 const root = createBrowserRouter([
@@ -30,6 +31,10 @@ const root = createBrowserRouter([
             {
                 path: "/visit",
                 element: <ReservationPage />,
+            },
+            {
+                path: "/complaints",
+                element: <ReportPage />,
             },
         ],
     },
