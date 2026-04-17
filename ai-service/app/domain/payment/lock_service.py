@@ -35,3 +35,4 @@ class Lock_service:
         """
         lock_key=f"payment:lock:{car_number}"
         redis_client.delete(lock_key)
+        

@@ -17,6 +17,9 @@ import com.example.demo.domain.shared.parkinglog.enums.PaymentStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.reservation.enums.Status;
 import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
+import com.example.demo.domain.shared.systemSetting.SettingKey;
+import com.example.demo.domain.shared.systemSetting.SystemSetting;
+import com.example.demo.domain.shared.systemSetting.repository.SystemSettingRepository;
 import com.example.demo.domain.shared.ticketPolicy.enums.DiscountType;
 import com.example.demo.domain.shared.ticketPolicy.enums.UseType;
 import com.example.demo.global.exception.BusinessException;
@@ -41,6 +44,7 @@ public class PaymentService {
     private final ParkingFeePolicyRepository parkingFeePolicyRepository;
     private final ParkingTicketRepository parkingTicketRepository;
     private static final int MINUTES_PER_DAY = 1440;
+    private final SystemSettingRepository systemSettingRepository;
 
 
     //무료 요금 대상자인지 확인
@@ -104,11 +108,20 @@ public class PaymentService {
             return FeeCalculationResponseDto.builder().rawFee(0).calculatedFee(0).paymentRequestedAt(now).parkingTime(parkingTime).build();
         }
 
-        // 3. rawFee
+        // 3. 사전정산 금액
+        int prepaid=(prepaidFee>0)?prepaidFee:0;
+
+        // 4. rawFee
+        String overTimeFee=systemSettingRepository.findBySettingKey(SettingKey.OVERTIME_MIN_FEE.name()).map(SystemSetting::getSettingValue).orElse(SettingKey.OVERTIME_MIN_FEE.name());
         int rawFee=calculatedrawFee(billableTime,dailyMaxFee,unitMinutes,unitFee,baseFee);
+        if(request.getFreeExitUntil()!=null && request.getFreeExitUntil().isBefore(LocalDateTime.now())){
+            int minFee=Integer.parseInt(overTimeFee);
+            if((rawFee-prepaid)<minFee){
+                rawFee+=minFee;
+            }
+        }
 
-
-        // 4. 시간 할인권 차감
+        // 5. 시간 할인권 차감
         List<ParkingTicket> discountTicketRequestDtos =request.getDiscountTicketRequestDtos();
         StackableTicketResult timeDiscountResult=calculateStackable(discountTicketRequestDtos,DiscountType.TIME, UseType.STORE);
         int totalDiscountMinutes=(int)Math.min(billableTime,timeDiscountResult.getTotalAmount());
@@ -129,11 +142,14 @@ public class PaymentService {
             }
         }
 
-        // 5. 할인 후 주차요금
+        // 6. 할인 후 주차요금
         int timeDiscountedRawFee=(totalDiscountMinutes==0)?rawFee:calculatedrawFee(discountedParkingTime,dailyMaxFee,unitMinutes,unitFee,baseFee);
-
-        // 6. 사전정산 금액
-        int prepaid=(prepaidFee>0)?prepaidFee:0;
+        if(request.getFreeExitUntil()!=null && request.getFreeExitUntil().isBefore(LocalDateTime.now())){
+            int minFee=Integer.parseInt(overTimeFee);
+            if((timeDiscountedRawFee-prepaid)<minFee){
+                timeDiscountedRawFee+=minFee;
+            }
+        }
 
         // 7. 할인 가능한 금액
         int currentBalance=timeDiscountedRawFee-prepaid;
@@ -215,19 +231,21 @@ public class PaymentService {
     }
 
     public int calculatedrawFee(long discountedParkingTime,int dailyMaxFee,int unitMinutes,int unitFee,int baseFee){
-        //3. 24시간 단위 요금 계산
+        //1. 24시간 단위 요금 계산
         long fullDays=discountedParkingTime/MINUTES_PER_DAY;
         int fullDaysFee=(int)(fullDays*dailyMaxFee);
 
-        //4. 24시간을 채우지 못한 나머지 시간 계산
+        //2. 24시간을 채우지 못한 나머지 시간 계산
         long remainingMinutes=discountedParkingTime%MINUTES_PER_DAY;
         int remainingFee=0;
         if(remainingMinutes>0){
             int extraUnit=(int)Math.ceil(remainingMinutes/(double)unitMinutes);
             remainingFee=Math.min(dailyMaxFee,(extraUnit*unitFee+baseFee));
         }
+
         return  remainingFee+fullDaysFee;
     }
+
 
     public StackableTicketResult calculateStackable(List<ParkingTicket> discountTicketRequestDtos, DiscountType discountType, UseType useType){
         List<AppliedTicketResult> resultList=new ArrayList<>();
@@ -274,6 +292,7 @@ public class PaymentService {
                 .prepaidFee(parkingLog.getFee())
                 .discountTicketRequestDtos(discountTicketRequestDtos)
                 .vehicleNumber(parkingLog.getCarNumberSnapshot())
+                .freeExitUntil(parkingLog.getFreeExitUntil())
                 .build();
 
         return calculateBaseFee(request);
@@ -307,8 +326,6 @@ public class PaymentService {
         if(feeCalculationResponseDto==null || feeCalculationResponseDto.getCalculatedFee()<=0)    {
             return VehiclePaymentResponseDto.builder().isFree(true).rawFee(0).parkingLogId(parkingLogId).vehicleNumber(carNumber).parkingTime(parkingTime).build();
         }
-        //db 업데이트FeeCalculationResponseDto
-        //parkingLog.requestPayment(feeCalculationResponseDto);
 
         // 반환
         return VehiclePaymentResponseDto.builder()
