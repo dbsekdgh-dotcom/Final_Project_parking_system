@@ -1,11 +1,14 @@
 package com.example.demo.domain.user.reservaion.dtos.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 /**
  * 방문 예약 신청 모달에서 정책 안내 및 실시간 잔여 횟수를 보여주기 위한 DTO
  */
 @Getter
+@Schema(description = "예약 정책 및 날짜별 잔여 현황 응답 — 단지 공통 정책(일/월 한도, 허용 시간 등)과 " +
+        "사용자의 누적 사용량, 선택한 날짜의 실시간 잔여 슬롯 정보를 함께 반환합니다.")
 public class ReservationEventPolicyResponseDto {
 
     // --- [1. 아파트 공통 고정 정책] ---

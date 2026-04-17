@@ -3,6 +3,7 @@ package com.example.demo.domain.user.reservaion.dtos.response;
 import com.example.demo.domain.shared.reservation.Reservation;
 import com.example.demo.domain.shared.reservation.enums.Purpose;
 import com.example.demo.domain.shared.reservation.enums.Status;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "방문 예약 상세 정보 응답 — 예약 신청·수정 후 결과로 반환되며 예약 ID, 차량 번호, 상태, 방문 일시 등을 포함합니다.")
 public class ReservationDetailResponseDto {
 
     private Long reservationId;

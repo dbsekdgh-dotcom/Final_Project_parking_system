@@ -2,11 +2,13 @@ package com.example.demo.domain.user.reservaion.dtos.response;
 
 import com.example.demo.domain.shared.reservation.Reservation;
 import com.example.demo.domain.shared.reservation.enums.Status;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Schema(description = "방문 예약 취소 결과 응답 — 취소된 예약 ID, 차량 번호, 변경된 상태(CANCELLED), 취소 시각을 반환합니다.")
 public class ReservationCancelResponseDto {
 
     private final Long reservationId;

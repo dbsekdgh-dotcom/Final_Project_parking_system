@@ -2,9 +2,11 @@ package com.example.demo.domain.user.apply.dtos.response;
 
 import com.example.demo.domain.shared.household.Household;
 import com.example.demo.domain.user.apply.dtos.projection.UnitStatusProjection;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
+@Schema(description = "신청 가능 세대 목록 항목 — 세대 ID, 호수, 활성화 상태를 포함합니다.")
 public class HouseholdListResponseDto {
 
     private final Long householdId;

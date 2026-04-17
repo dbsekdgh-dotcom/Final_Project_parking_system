@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SignupPage.css";
 import { useMutation } from "@tanstack/react-query";
@@ -20,6 +20,11 @@ const SignupPage = () => {
     // 이메일 확정 상태 관리 (중복 확인 통과 여부)
     const [isEmailFixed, setIsEmailFixed] = useState(false);
 
+    // 생년월일 분리 입력용 ref (년 → 월 → 일 자동 포커스)
+    const birthMonthRef = useRef(null);
+    const birthDayRef = useRef(null);
+    const [birthParts, setBirthParts] = useState({ year: '', month: '', day: '' });
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -32,6 +37,32 @@ const SignupPage = () => {
     // 이메일 변경 시 호출 (EmailInputField용)
     const setEmail = (newEmail) => {
         setFormData(prev => ({ ...prev, email: newEmail }));
+    };
+
+    // 생년월일 분리 입력 핸들러 (년 4자리, 월 2자리, 일 2자리)
+    const handleBirthChange = (e) => {
+        const { name, value } = e.target;
+        const digits = value.replace(/\D/g, ''); // 숫자만 허용
+
+        const newParts = { ...birthParts };
+        if (name === 'birthYear') {
+            newParts.year = digits.slice(0, 4);
+            if (newParts.year.length === 4) birthMonthRef.current?.focus();
+        } else if (name === 'birthMonth') {
+            newParts.month = digits.slice(0, 2);
+            if (newParts.month.length === 2) birthDayRef.current?.focus();
+        } else {
+            newParts.day = digits.slice(0, 2);
+        }
+
+        setBirthParts(newParts);
+
+        // 세 파트가 모두 채워지면 YYYY-MM-DD 형식으로 formData에 반영
+        const y = newParts.year, m = newParts.month, d = newParts.day;
+        const combined = (y.length === 4 && m.length >= 1 && d.length >= 1)
+            ? `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
+            : '';
+        setFormData(prev => ({ ...prev, birth: combined }));
     };
 
     // 일반 입력 변경 핸들러
@@ -133,16 +164,50 @@ const SignupPage = () => {
                         setIsEmailFixed={setIsEmailFixed}
                     />
 
-                    {/* 생년월일 입력 */}
-                    <label className="fieldLabel" htmlFor="birth">생년월일</label>
-                    <input 
-                        id="birth" 
-                        type="date" 
-                        className="fieldInput"
-                        value={formData.birth} 
-                        onChange={handleChange} 
-                        required 
-                    />
+                    {/* 생년월일 입력 (년/월/일 분리 — 4자리 입력 시 자동 포커스 이동) */}
+                    <label className="fieldLabel">생년월일</label>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <input
+                            name="birthYear"
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="YYYY"
+                            maxLength={4}
+                            className="fieldInput"
+                            style={{ flex: 2, textAlign: 'center' }}
+                            value={birthParts.year}
+                            onChange={handleBirthChange}
+                            required
+                        />
+                        <span style={{ color: '#aaa' }}>-</span>
+                        <input
+                            ref={birthMonthRef}
+                            name="birthMonth"
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="MM"
+                            maxLength={2}
+                            className="fieldInput"
+                            style={{ flex: 1, textAlign: 'center' }}
+                            value={birthParts.month}
+                            onChange={handleBirthChange}
+                            required
+                        />
+                        <span style={{ color: '#aaa' }}>-</span>
+                        <input
+                            ref={birthDayRef}
+                            name="birthDay"
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="DD"
+                            maxLength={2}
+                            className="fieldInput"
+                            style={{ flex: 1, textAlign: 'center' }}
+                            value={birthParts.day}
+                            onChange={handleBirthChange}
+                            required
+                        />
+                    </div>
 
                     {/* 전화번호 입력 */}
                     <label className="fieldLabel" htmlFor="phone">전화번호</label>

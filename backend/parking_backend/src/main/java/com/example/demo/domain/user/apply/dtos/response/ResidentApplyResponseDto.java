@@ -1,9 +1,11 @@
 package com.example.demo.domain.user.apply.dtos.response;
 
 import com.example.demo.domain.shared.approval.Approval;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
+@Schema(description = "입주 신청 결과 응답 — 생성된 승인 ID, 처리 상태, 신청 유형을 반환합니다.")
 public class ResidentApplyResponseDto {
     private final Long approvalId;
     private final String status;
