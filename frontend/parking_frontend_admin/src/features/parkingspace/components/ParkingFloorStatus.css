@@ -1,0 +1,121 @@
+/* 1. 전체 컨테이너 및 카드 레이아웃 */
+.parking-floor-status {
+    display: flex;
+    flex-direction: column;
+    gap: 24px; /* 카드 사이 간격 */
+    width: 100%;
+}
+
+/* 각 섹션(범례, 층별 현황) 공통 카드 스타일 */
+.status-section {
+    background-color: #2a2a2a;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #383838;
+}
+
+/* 2. 제목 스타일 (왼쪽 정렬 고정) */
+.section-title {
+    display: block;
+    font-size: 0.95rem;
+    color: #aaaaaa;
+    margin-bottom: 20px; /* 제목과 내용 사이 간격 */
+    font-weight: 600;
+    text-align: left;
+}
+
+/* 3. 범례(Legend) 리스트 스타일 - 핵심 수정 부분 */
+.legend-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* 각 항목(li) 사이의 세로 간격 */
+}
+
+.legend-list li {
+    display: flex;
+    justify-content: space-between; /* 자식 요소들을 양 끝으로 보냄 */
+    align-items: center;
+    width: 100%;
+}
+
+/* 왼쪽: 점 + 글자 세트 */
+.legend-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #cccccc;
+    font-size: 0.95rem;
+}
+
+/* 오른쪽: 숫자 수치 */
+.legend-count {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* 4. 색상 점(Dot) 스타일 */
+.dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+}
+.dot.empty { background-color: #4ade80; }    /* 주차 가능: 연두 */
+.dot.occupied { background-color: #f87171; } /* 사용 중: 빨강 */
+.dot.blocked { background-color: #666666; }  /* 차단: 회색 */
+
+/* 5. 층별 현황(Progress) 스타일 */
+.floor-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.floor-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #eeeeee;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background-color: #444444;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #4ade80;
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+.progress-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #888888;
+    text-align: right;
+}
+
+/* 6. 로딩 스켈레톤 및 애니메이션 (기존 유지) */
+.status-skeleton {
+    background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
