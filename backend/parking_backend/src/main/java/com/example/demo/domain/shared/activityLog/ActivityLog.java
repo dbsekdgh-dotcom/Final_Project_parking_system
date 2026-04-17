@@ -27,6 +27,9 @@ public class ActivityLog {
     @Column(nullable = false)
     private ActivityType activityType;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parking_log_id")
     private ParkingLog parkingLog;
     @ManyToOne(fetch = FetchType.LAZY)

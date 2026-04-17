@@ -42,6 +42,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -92,7 +93,7 @@ public class SettlementService {
         // 시스템 설정 값: 결제 유효시간
         String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
                 .map(t->t.getSettingValue())
-                .orElse("5");
+                .orElse(SettingKey.PAYMENT_VALID_MINUTES.name());
         int lockTimeOut=Integer.parseInt(paymentValidMinutes);
         boolean timeCheck=parkingLog.getPaymentRequestedAt().plusMinutes(lockTimeOut).isAfter(LocalDateTime.now());
 
@@ -115,7 +116,7 @@ public class SettlementService {
         // 시스템 설정 값: 결제 유효시간
         String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
                 .map(t->t.getSettingValue())
-                .orElse("5");
+                .orElse(SettingKey.PAYMENT_VALID_MINUTES.name());
         int lockTimeOut=Integer.parseInt(paymentValidMinutes);
         //결제 요청 시간이 없으면 잘못된 접근
         if(parkingLog.getPaymentRequestedAt()==null){
@@ -147,7 +148,7 @@ public class SettlementService {
         }
         //유저 포인트 검증
         User user=parkingLogRepository.getDetailLogInfo(parkingLogId).map(ParkingLog::getVehicle).map(Vehicle::getUser).orElse(null);
-        int userCurrentPoint=user!=null?userPointRepository.findByUserUserIdWithLock(user.getUserId()).get().getCurrentPoint() : 0;
+        int userCurrentPoint=user!=null?userPointRepository.findByUserUserId(user.getUserId()).get().getCurrentPoint() : 0;
         if(userCurrentPoint<usedPoint){
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
@@ -281,7 +282,7 @@ public class SettlementService {
 
         String minUsagePoint=systemSettingRepository.findBySettingKey(SettingKey.MIN_USAGE_POINT.getKey())
                 .map(SystemSetting::getSettingValue)
-                .orElse("100");
+                .orElse(SettingKey.MIN_USAGE_POINT.name());
 
         // usedPoint= payment.getPriceSnapshot().intValue();
         int usedPoint=payments.stream()
@@ -305,7 +306,7 @@ public class SettlementService {
         // 회원 && 결제 시 미사용 && 첫 적립
         String pointEarnRate=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_POINT_EARN_RATE.getKey())
                 .map(SystemSetting::getSettingValue)
-                .orElse("1");
+                .orElse(SettingKey.PAYMENT_POINT_EARN_RATE.name());
         if(usedPoint==0){
             pointReason=PointReason.PAYMENT_EARN;
             changeAmount=(int)Math.round(paidAmount*(Integer.parseInt(pointEarnRate)/100.0));
@@ -322,29 +323,31 @@ public class SettlementService {
 
     public void updatePointOfPayment(User user,int changeAmount,Payment payment,PointReason pointReason,String msg){
 
-        UserPoint userPoint=userPointRepository.findByUserUserIdWithLock(user.getUserId()).orElse(null);
+        UserPoint userPoint=userPointRepository.findByUserUserId(user.getUserId()).orElse(null);
+        long userId=user.getUserId();
 
+        int updatedRow=0;
         int currentPoint=0;
+
         if(userPoint!=null){
             currentPoint=userPoint.getCurrentPoint();
-        }
-        int afterPoint=0;
-
-        if(pointReason.isDeduction()){
-            //결제 시 사용, 환불, 관리자 회수인 경우
-            afterPoint=currentPoint- changeAmount;
-        }else{
-            //결제 시 미사용, 관리자 지급인 경우
-            afterPoint=currentPoint+changeAmount;
-        }
-        if(userPoint!=null){
-            //이전 내역이 있을 때
-            userPoint.setCurrentPoint(afterPoint);
+            if(pointReason.isDeduction()){
+                updatedRow=userPointRepository.decreasePoint(userId,changeAmount);
+                //포인트 결제 실패한 경우
+                if(updatedRow==0){
+                    throw new BusinessException(ErrorCode.INSUFFICIENT_POINTS);
+                }
+            }else{
+                userPointRepository.increasePoint(userId,changeAmount);
+            }
         }else{
             //이전 내역이 없을 때
-            UserPoint newUserPoint=UserPoint.builder().user(user).currentPoint(afterPoint).build();
+            UserPoint newUserPoint=UserPoint.builder().user(user).currentPoint(changeAmount).build();
             userPointRepository.save(newUserPoint);
         }
+
+        //업데이트 후 최신 정보를 가져오기
+        entityManager.refresh(userPoint);
 
         //pointLog insert
         PointLog pointLog=PointLog.builder()
@@ -352,7 +355,7 @@ public class SettlementService {
                 .user(user)
                 .changeAmount(changeAmount)
                 .beforePoint(currentPoint)
-                .afterPoint(afterPoint)
+                .afterPoint(userPoint.getCurrentPoint())
                 .reason(pointReason)
                 .description(msg)
                 .build();
@@ -363,7 +366,7 @@ public class SettlementService {
     public SettlementResponseDto updateParkingLogFinal(ParkingLog parkingLog,long paidAmount){
         String postPaymentGraceMinutes=systemSettingRepository.findBySettingKey(SettingKey.POST_PAYMENT_GRACE_MINUTES.getKey())
                 .map(SystemSetting::getSettingValue)
-                .orElse("5");
+                .orElse(SettingKey.POST_PAYMENT_GRACE_MINUTES.name());
 
         parkingLog.completePayment((int)paidAmount,Integer.parseInt(postPaymentGraceMinutes));
         DateTimeFormatter formatter=DateTimeFormatter.ofPattern("HH:mm");
@@ -465,6 +468,7 @@ public class SettlementService {
     }
 
     //락 해제
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void restPaymentLock(List<Payment> payments,ParkingLog parkingLog){
         payments.forEach(l->l.setPaymentStatus(PaymentStatus.FAILED));
         parkingLog.setPaymentRequestedAt(null);

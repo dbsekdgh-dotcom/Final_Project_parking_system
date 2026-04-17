@@ -12,7 +12,7 @@ const mainNav = [
   { to: '/admin/live-video', label: '실시간영상', id: 'live-video' },
   { to: '/admin/video-records', label: '영상 기록', id: 'video-records' },
   { to: '/admin/realtime-io', label: '실시간 입출차', id: 'realtime-io' },
-  { to: '/admin/approval', label: '승인 관리', id: 'approval', badge: 4 },
+  { to: '/admin/approval/approval-request', label: '승인 관리', id: 'approval', badge: 4, activeMatch: '/admin/approval' },
   { to: '/admin/user-vehicle', label: '사용자 / 차량', id: 'user-vehicle' },
 ]
 
@@ -156,7 +156,9 @@ export default function Sidebar() {
   const renderLink = (item) => {
     const Icon = iconsById[item.id] || IconHome
     // 현재 주소와 메뉴의 목적지가 같은지 확인
-    const isActive = location.pathname === item.to
+    const isActive = item.activeMatch
+      ? location.pathname.startsWith(item.activeMatch)
+      : location.pathname === item.to
     return (
       <li key={item.id} className="sidebar__item">
         <Link
