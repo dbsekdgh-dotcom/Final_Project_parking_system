@@ -1,0 +1,150 @@
+package com.example.demo.domain.payment.service;
+
+import com.example.demo.domain.payment.dtos.internal.TossApprovalResult;
+import com.example.demo.domain.payment.dtos.request.PaymentConfirmRequestDto;
+import com.example.demo.global.exception.BusinessException;
+import com.example.demo.global.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+@Slf4j
+@Service
+public class TossPaymentService {
+    @Value("${TOSS_SECRET_KEY}")
+    private String toss;
+    public static final String CODE_ALREADY_PROCESSED = "ALREADY_PROCESSED_PAYMENT";
+    public static final String STATUS_DONE = "DONE";
+
+    //toss secret key 변환
+    private String authorization(){
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte[] encodedBytes = encoder.encode((toss + ":").getBytes(StandardCharsets.UTF_8));
+        return  "Basic " + new String(encodedBytes);
+    }
+
+    //결제 승인 요청
+    public ResponseEntity<JSONObject> confirmPayment(@RequestBody PaymentConfirmRequestDto dto) {
+        try {
+            //1. 승인시도 : post요청
+            String urlStr="https://api.tosspayments.com/v1/payments/confirm";
+            JSONObject body = new JSONObject();
+            body.put("orderId", dto.getOrderId());
+            body.put("amount", dto.getAmount());
+            body.put("paymentKey", dto.getPaymentKey());
+
+            return sendRequest(urlStr,"POST",body);
+
+        }catch(IOException e){
+            //2. 통신장애 발생이 요청상태 재확인 :get요청
+            try {
+                String urlStr = "https://api.tosspayments.com/v1/payments/orders/" + dto.getOrderId();
+                ResponseEntity<JSONObject> response= sendRequest(urlStr, "GET", null);
+                if(response.getBody()!=null && STATUS_DONE.equals(response.getBody().get("status"))){
+                    return response;
+                }
+            }catch (Exception ex){
+                log.error("최종 조회마저 실패 :{}",dto.getOrderId());
+                throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
+            }
+        }catch (ParseException e){
+            throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
+        }
+        throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+    public ResponseEntity<JSONObject> sendRequest(String urlStr, String method,JSONObject body) throws IOException,ParseException{
+
+            URL url=new URL(urlStr);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Authorization", authorization());
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestMethod(method);
+            connection.setConnectTimeout(5000); // 서버 연결 대기 시간 (5초)
+            connection.setReadTimeout(10000);    // 응답 읽기 대기 시간 (10초)
+
+            if("POST".equals(method)&& body!=null){
+                connection.setDoOutput(true);
+                //post형식이면 body보내기
+                try(OutputStream outputStream = connection.getOutputStream()){
+                    outputStream.write(body.toString().getBytes("UTF-8"));
+                }
+            }
+            int code = connection.getResponseCode();
+            boolean isSuccess = (code >= 200 && code < 300);
+
+            try(InputStream responseStream = isSuccess ? connection.getInputStream() : connection.getErrorStream()){
+                // 결제 성공 및 실패 비즈니스 로직(try-with-resources로 스트림 자동 종료 보장)
+                Reader reader = new InputStreamReader(responseStream, StandardCharsets.UTF_8);
+                JSONParser parser = new JSONParser();
+                JSONObject jsonObject = (JSONObject) parser.parse(reader);
+                return ResponseEntity.status(code).body(jsonObject);
+            }
+    }
+
+    //전액환불
+    public ResponseEntity<JSONObject> cancelPayment(String paymentKey,String cancelReason){
+        try {
+            String urlStr = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
+            JSONObject body = new JSONObject();
+            body.put("cancelReason", cancelReason);
+            return sendRequest(urlStr, "POST", body);
+        }catch (IOException e){
+            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
+        }catch (ParseException e){
+            throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
+        }
+    }
+    //부분환불 // 테스트 안해봤습니다..
+    public ResponseEntity<JSONObject> refundPayment(String paymentKey,String cancelReason,int amount){
+        try{
+            String urlStr="https://api.tosspayments.com/v1/payments/"+paymentKey+"/cancel";
+            JSONObject body=new JSONObject();
+            body.put("cancelReason", cancelReason);
+            body.put("cancelAmount",amount);
+            return sendRequest(urlStr, "POST", body);
+        }catch (IOException e){
+            throw new BusinessException(ErrorCode.EXTERNAL_API_ERROR);
+        }catch (ParseException e){
+            throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
+        }
+    }
+
+    public TossApprovalResult confirmAndAnalyze(PaymentConfirmRequestDto dto){
+        try {
+            ResponseEntity<JSONObject> tossResponse = confirmPayment(dto);
+            JSONObject body = tossResponse.getBody();
+            if (tossResponse.getStatusCode().is2xxSuccessful()) {
+                return TossApprovalResult.success(String.valueOf(body.get("paymentKey")));
+            } else {
+                if (body != null) {
+                    String code = String.valueOf(body.get("code"));
+                    String errorMessage = String.valueOf(body.get("message"));
+                    //이미 처리된 결제는 성공으로 간주
+                    if (CODE_ALREADY_PROCESSED.equals(code)) {
+                        log.info("이미 처리된 결제건입니다. 성공으로 간주합니다.");
+                        return TossApprovalResult.success(String.valueOf(body.get("paymentKey")));
+                    }
+                    return TossApprovalResult.fail(errorMessage);
+                }
+            }
+        }catch (BusinessException e){
+            return TossApprovalResult.fail(e.getMessage());
+        }catch (Exception e){
+            log.error("결제 분석 중 예상치 못한 에러: {}", e.getMessage());
+        }
+        return TossApprovalResult.fail("결제 시스템과의 통신이 원활하지 않습니다.");
+    }
+
+}

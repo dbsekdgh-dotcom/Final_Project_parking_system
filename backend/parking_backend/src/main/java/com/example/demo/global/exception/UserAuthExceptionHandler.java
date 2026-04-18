@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice(basePackages = "com.example.demo.domain.user.auth")
+@RestControllerAdvice(basePackages = "com.example.demo.api.user.auth")
 public class UserAuthExceptionHandler {
 
     @ExceptionHandler(AuthException.class) // 어떤 예외를 잡을지 명시해야 함

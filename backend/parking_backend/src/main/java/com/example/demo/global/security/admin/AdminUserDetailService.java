@@ -1,8 +1,8 @@
 package com.example.demo.global.security.admin;
 
-import com.example.demo.domain.admin.entity.Admin;
-import com.example.demo.domain.admin.enums.AdminStatus;
-import com.example.demo.domain.admin.repository.AdminRepository;
+import com.example.demo.domain.auth.admin.entity.Admin;
+import com.example.demo.domain.auth.admin.enums.AdminStatus;
+import com.example.demo.domain.auth.admin.repository.AdminRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.DisabledException;

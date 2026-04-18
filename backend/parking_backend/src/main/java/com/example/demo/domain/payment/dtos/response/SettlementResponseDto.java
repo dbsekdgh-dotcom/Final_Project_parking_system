@@ -1,0 +1,18 @@
+package com.example.demo.domain.payment.dtos.response;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Builder
+@Getter
+@Setter
+@ToString
+public class SettlementResponseDto {
+    private String paymentStatus;
+    private String vehicleNumber;
+    private Integer paidAmount;
+    private String exitDeadline;
+    private String message;
+}

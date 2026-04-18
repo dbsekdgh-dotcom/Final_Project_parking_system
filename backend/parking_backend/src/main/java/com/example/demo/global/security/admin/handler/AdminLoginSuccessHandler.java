@@ -1,7 +1,7 @@
 package com.example.demo.global.security.admin.handler;
 
-import com.example.demo.domain.admin.auth.dtos.response.AdminLoginResponse;
-import com.example.demo.domain.admin.repository.AdminRepository;
+import com.example.demo.domain.auth.admin.dtos.response.AdminLoginResponse;
+import com.example.demo.domain.auth.admin.repository.AdminRepository;
 import com.example.demo.global.redis.RedisService;
 import com.example.demo.global.security.admin.AdminAuthDto;
 import com.example.demo.global.util.admin.AdminJWTUtil;

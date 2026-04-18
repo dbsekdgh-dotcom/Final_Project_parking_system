@@ -1,7 +1,7 @@
 package com.example.demo.global.util.admin;
 
-import com.example.demo.domain.shared.user.User;
-import com.example.demo.domain.user.auth.principal.PrincipalDetails;
+import com.example.demo.domain.resident.User;
+import com.example.demo.domain.auth.user.principal.PrincipalDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;

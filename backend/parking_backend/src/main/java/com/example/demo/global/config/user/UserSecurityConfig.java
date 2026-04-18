@@ -1,8 +1,8 @@
 package com.example.demo.global.config.user;
 
-import com.example.demo.domain.user.auth.handler.OAuth2FailureHandler;
-import com.example.demo.domain.user.auth.handler.OAuth2SuccessHandler;
-import com.example.demo.domain.user.auth.service.CustomOAuth2UserService;
+import com.example.demo.domain.auth.user.handler.OAuth2FailureHandler;
+import com.example.demo.domain.auth.user.handler.OAuth2SuccessHandler;
+import com.example.demo.domain.auth.user.service.CustomOAuth2UserService;
 import com.example.demo.global.security.admin.JwtAuthenticationFilter;
 import com.example.demo.global.util.admin.AdminJWTUtil;
 import lombok.RequiredArgsConstructor;
