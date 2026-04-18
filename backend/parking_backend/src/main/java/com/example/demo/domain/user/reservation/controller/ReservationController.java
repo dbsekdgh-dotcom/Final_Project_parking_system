@@ -1,12 +1,12 @@
-package com.example.demo.domain.user.reservaion.controller;
+package com.example.demo.domain.user.reservation.controller;
 
 import com.example.demo.domain.user.auth.principal.PrincipalDetails;
-import com.example.demo.domain.user.reservaion.dtos.request.ReservationApplyRequestDto;
-import com.example.demo.domain.user.reservaion.dtos.response.ReservationCancelResponseDto;
-import com.example.demo.domain.user.reservaion.dtos.response.ReservationDetailResponseDto;
-import com.example.demo.domain.user.reservaion.dtos.response.ReservationEventPolicyResponseDto;
-import com.example.demo.domain.user.reservaion.dtos.response.ReservationListResponseDto;
-import com.example.demo.domain.user.reservaion.service.ReservationService;
+import com.example.demo.domain.user.reservation.dtos.request.ReservationApplyRequestDto;
+import com.example.demo.domain.user.reservation.dtos.response.ReservationCancelResponseDto;
+import com.example.demo.domain.user.reservation.dtos.response.ReservationDetailResponseDto;
+import com.example.demo.domain.user.reservation.dtos.response.ReservationEventPolicyResponseDto;
+import com.example.demo.domain.user.reservation.dtos.response.ReservationListResponseDto;
+import com.example.demo.domain.user.reservation.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;

@@ -10,7 +10,7 @@ import com.example.demo.domain.shared.parkingfeepolicy.ParkingFeePolicy;
 import com.example.demo.domain.shared.parkingfeepolicy.enums.ParkingType;
 import com.example.demo.domain.shared.parkingfeepolicy.repository.ParkingFeePolicyRepository;
 import com.example.demo.domain.shared.ticketPolicy.enums.Status;
-import com.example.demo.domain.shared.ticketPolicy.respository.TicketPolicyRepository;
+import com.example.demo.domain.shared.ticketPolicy.repository.TicketPolicyRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.security.admin.AdminAuthDto;

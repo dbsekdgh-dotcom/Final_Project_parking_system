@@ -1,4 +1,4 @@
-package com.example.demo.domain.user.reservaion.dtos.request;
+package com.example.demo.domain.user.reservation.dtos.request;
 
 
 import com.example.demo.domain.shared.reservation.enums.Purpose;

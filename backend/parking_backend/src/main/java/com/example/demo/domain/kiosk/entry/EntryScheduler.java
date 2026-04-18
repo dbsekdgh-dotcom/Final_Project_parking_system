@@ -1,6 +1,6 @@
 package com.example.demo.domain.kiosk.entry;
 
-import com.example.demo.domain.kiosk.entry.repository.EntrySystemSettingRepository;
+import com.example.demo.domain.shared.systemSetting.repository.SystemSettingRepository;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -16,14 +16,14 @@ import java.time.LocalDateTime;
 public class EntryScheduler {
 
     private final ParkingLogRepository parkingLogRepository;
-    private final EntrySystemSettingRepository entrySystemSettingRepository;
+    private final SystemSettingRepository systemSettingRepository;
 
     // 30초마다 실행 → 차량별 entryTime 기준으로 만료된 DETECTED 로그 일괄 취소
     @Scheduled(fixedDelay = 30000)
     @Transactional
     public void cancelExpiredDetected() {
         int minutes = Integer.parseInt(
-                entrySystemSettingRepository.findById("DETECTED_CANCEL_MINUTES")
+                systemSettingRepository.findById("DETECTED_CANCEL_MINUTES")
                         .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND))
                         .getSettingValue()
         );

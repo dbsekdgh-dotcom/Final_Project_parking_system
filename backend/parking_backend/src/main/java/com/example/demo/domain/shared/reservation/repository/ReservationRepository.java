@@ -109,5 +109,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                                  @Param("currentStatus") Status currentStatus
     );
 
+    @Query("""
+        SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END
+        FROM Reservation r
+        WHERE r.carNumber = :carNumber
+          AND r.status = 'RESERVED'
+          AND CURRENT_TIMESTAMP BETWEEN r.visitStartAt AND r.visitEndAt
+        """)
+    boolean existsValidReservation(@Param("carNumber") String carNumber);
 
 }

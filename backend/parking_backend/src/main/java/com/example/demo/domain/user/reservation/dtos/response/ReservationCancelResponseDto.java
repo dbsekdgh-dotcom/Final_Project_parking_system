@@ -1,4 +1,4 @@
-package com.example.demo.domain.user.reservaion.dtos.response;
+package com.example.demo.domain.user.reservation.dtos.response;
 
 import com.example.demo.domain.shared.reservation.Reservation;
 import com.example.demo.domain.shared.reservation.enums.Status;

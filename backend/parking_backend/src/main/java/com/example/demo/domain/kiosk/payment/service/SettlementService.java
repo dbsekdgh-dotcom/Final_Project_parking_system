@@ -8,10 +8,10 @@ import com.example.demo.domain.kiosk.payment.dtos.response.FeeCalculationRespons
 import com.example.demo.domain.kiosk.payment.dtos.response.PaymentReadyResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.SettlementResponseDto;
 import com.example.demo.domain.kiosk.payment.dtos.response.VehiclePaymentResponseDto;
-import com.example.demo.domain.shared.Notification.Notification;
-import com.example.demo.domain.shared.Notification.enums.Status;
-import com.example.demo.domain.shared.Notification.enums.Type;
-import com.example.demo.domain.shared.Notification.respository.NotificationRepository;
+import com.example.demo.domain.shared.notification.Notification;
+import com.example.demo.domain.shared.notification.enums.Status;
+import com.example.demo.domain.shared.notification.enums.Type;
+import com.example.demo.domain.shared.notification.repository.NotificationRepository;
 import com.example.demo.domain.shared.activityLog.ActivityLog;
 import com.example.demo.domain.shared.activityLog.enums.ActivityType;
 import com.example.demo.domain.shared.activityLog.repository.ActivityLogRepository;

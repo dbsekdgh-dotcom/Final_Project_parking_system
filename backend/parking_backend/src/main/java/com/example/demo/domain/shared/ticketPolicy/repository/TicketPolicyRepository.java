@@ -1,4 +1,4 @@
-package com.example.demo.domain.shared.ticketPolicy.respository;
+package com.example.demo.domain.shared.ticketPolicy.repository;
 
 import com.example.demo.domain.shared.ticketPolicy.TicketPolicy;
 import com.example.demo.domain.shared.ticketPolicy.enums.Status;

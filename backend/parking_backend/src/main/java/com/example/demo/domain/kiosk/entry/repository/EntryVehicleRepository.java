@@ -1,15 +1,13 @@
 package com.example.demo.domain.kiosk.entry.repository;
 
 import com.example.demo.domain.kiosk.entry.dtos.response.EntryCheckResponse;
-import com.example.demo.domain.shared.vehicle.Vehicle;
-import com.example.demo.domain.shared.vehicle.enums.VehicleStatus;
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.demo.domain.shared.vehicle.VehicleRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface EntryVehicleRepository extends JpaRepository<Vehicle,Long> {
+public interface EntryVehicleRepository extends VehicleRepository {
 
 
     @Query("""

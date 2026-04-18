@@ -1,7 +1,7 @@
-package com.example.demo.domain.shared.Notification;
+package com.example.demo.domain.shared.notification;
 
-import com.example.demo.domain.shared.Notification.enums.Status;
-import com.example.demo.domain.shared.Notification.enums.Type;
+import com.example.demo.domain.shared.notification.enums.Status;
+import com.example.demo.domain.shared.notification.enums.Type;
 import com.example.demo.domain.shared.user.User;
 import jakarta.persistence.*;
 import lombok.*;

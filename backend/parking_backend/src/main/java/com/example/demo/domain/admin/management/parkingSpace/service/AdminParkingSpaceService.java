@@ -2,7 +2,7 @@ package com.example.demo.domain.admin.management.parkingSpace.service;
 
 import com.example.demo.domain.admin.management.parkingSpace.dtos.response.ParkingSpaceListResponse;
 import com.example.demo.domain.admin.management.parkingSpace.dtos.response.ParkingSpaceSummaryResponse;
-import com.example.demo.domain.admin.management.parkingSpace.repository.ParkingSpaceRepository;
+import com.example.demo.domain.shared.parkingspace.repository.ParkingSpaceRepository;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
 import com.example.demo.domain.shared.parkingspace.ParkingSpace;

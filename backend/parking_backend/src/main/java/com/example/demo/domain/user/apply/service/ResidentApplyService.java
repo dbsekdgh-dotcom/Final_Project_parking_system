@@ -18,7 +18,7 @@ import com.example.demo.domain.user.apply.dtos.response.ResidentApplyCancelRespo
 import com.example.demo.domain.user.apply.dtos.response.ResidentApplyResponseDto;
 import com.example.demo.domain.user.apply.dtos.response.UserStatusResponseDto;
 import com.example.demo.domain.user.auth.principal.PrincipalDetails;
-import com.example.demo.domain.user.reservaion.dtos.response.ReservationListResponseDto;
+import com.example.demo.domain.user.reservation.dtos.response.ReservationListResponseDto;
 import com.example.demo.global.exception.CustomException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

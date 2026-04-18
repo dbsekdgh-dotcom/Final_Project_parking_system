@@ -1,4 +1,4 @@
-package com.example.demo.domain.user.reservaion.dtos.response;
+package com.example.demo.domain.user.reservation.dtos.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

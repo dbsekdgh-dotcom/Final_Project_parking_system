@@ -28,6 +28,15 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
             "AND s.endDate >= :now")
     boolean hasActiveOrFutureSubscription(@Param("vehicleId")Long vehicleId, @Param("now") LocalDateTime now);
 
+    @Query("""
+        SELECT s.endDate
+        FROM Subscription s
+        WHERE s.vehicle.id = :vehicleId
+          AND s.status = 'ACTIVE'
+          AND CURRENT_TIMESTAMP BETWEEN s.startDate AND s.endDate
+        """)
+    Optional<LocalDateTime> findActiveSubscriptionEndDate(@Param("vehicleId") Long vehicleId);
+
 }
 
 

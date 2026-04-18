@@ -1,6 +1,6 @@
 package com.example.demo.domain.user.home.dashboard.service;
 
-import com.example.demo.domain.kiosk.entry.repository.EntryParkingSpaceRepository;
+import com.example.demo.domain.shared.parkingspace.repository.ParkingSpaceRepository;
 import com.example.demo.domain.shared.parkinglog.ParkingLog;
 import com.example.demo.domain.shared.parkinglog.enums.ParkingStatus;
 import com.example.demo.domain.shared.parkinglog.repository.ParkingLogRepository;
@@ -31,7 +31,7 @@ public class DashboardService {
     //필요한 레파지토리 주입받기
     private final UserPointRepository userPointRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final EntryParkingSpaceRepository entryParkingSpaceRepository;
+    private final ParkingSpaceRepository parkingSpaceRepository;
     private final VehicleRepository vehicleRepository;
     private final ParkingLogRepository parkingLogRepository;
 
@@ -86,8 +86,8 @@ public class DashboardService {
                 .orElse(0L);
 
         //층별 주차 현황 조회
-        int b1Available = entryParkingSpaceRepository.countByFloorAndStatus(Floor.B1, SpaceStatus.AVAILABLE);
-        int b2Available = entryParkingSpaceRepository.countByFloorAndStatus(Floor.B2, SpaceStatus.AVAILABLE);
+        int b1Available = (int) parkingSpaceRepository.countByFloorAndStatus(Floor.B1, SpaceStatus.AVAILABLE);
+        int b2Available = (int) parkingSpaceRepository.countByFloorAndStatus(Floor.B2, SpaceStatus.AVAILABLE);
 
         int floorTotal =30;
 
