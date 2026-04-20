@@ -15,13 +15,13 @@ const TYPE_OPTIONS = [
 const STATUS_OPTIONS = [
   { value: '',         label: '상태 전체' },
   { value: 'PENDING',  label: '대기중'    },
-  { value: 'APPROVAL', label: '승인'      },
+  { value: 'APPROVED', label: '승인'      },
   { value: 'REJECTED', label: '거절'      },
 ];
 
 const STATUS_LABEL = {
   PENDING:  '대기중',
-  APPROVAL: '승인',
+  APPROVED: '승인',
   REJECTED: '거절',
   CANCELLED: '취소',
 };

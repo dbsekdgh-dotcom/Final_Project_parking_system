@@ -31,7 +31,10 @@ public enum SettingKey {
     VEHICLE_AUTO_APPROVAL_THRESHOLD("VEHICLE_AUTO_APPROVAL_THRESHOLD", "95"),
 
     //사전정산 후 출차시간 초과 시 최소 부과 요금
-    OVERTIME_MIN_FEE("OVERTIME_MIN_FEE","100");
+    OVERTIME_MIN_FEE("OVERTIME_MIN_FEE","100"),
+
+    //블랙리스트 등록을 위한 신고 횟수 기준
+    REPORT_BLACKLIST_THRESHOLD("REPORT_BLACKLIST_THRESHOLD","10");
 
 
     private final String key;
