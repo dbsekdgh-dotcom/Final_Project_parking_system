@@ -63,10 +63,12 @@ export default function ApprovalRequestPage() {
       if (filterStatus) params.append('status', filterStatus);
       if (searchText.trim) params.append('keyword', searchText.trim());
 
-      const res = await fetch(`/api/admin/approvals?${params}`);
+      const res = await fetch(`/api/admin/approvals?${params}`, { 
+        credentials:'include',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
+      });
       const data = await res.json();
-
-      setRows(data.content);
+      setRows(data.content ?? []);
       setTotalPages(data.totalPages);
       setTotalElements(data.totalElements);
       setStats(data.stats ?? {
@@ -106,7 +108,11 @@ export default function ApprovalRequestPage() {
 
   //  승인 
   const handleApprove = async(approvalId) => {
-    await fetch(`/api/admin/approvals/${approvalId}/approve`,{ method : 'POST'});
+    await fetch(`/api/admin/approvals/${approvalId}/approve`,{
+       method : 'POST',
+       credentials:'include',
+       headers : { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
+      });
     fetchApprovals();
   };
 
@@ -118,8 +124,11 @@ export default function ApprovalRequestPage() {
     if (!rejectReason.trim()) return;
     await fetch(`/api/admin/approvals/${rejectTarget.approvalId}/reject`,{
       method : 'POST',
-      headers : { 'Content-Type': 'application/json'},
+      headers : { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
       body : JSON.stringify({ rejectReason: rejectReason.trim() }),
+      credentials : 'include',
     });
     closeReject();
     fetchApprovals();
