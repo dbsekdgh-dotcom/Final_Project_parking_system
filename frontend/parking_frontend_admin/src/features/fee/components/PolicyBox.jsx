@@ -3,12 +3,13 @@ import { SlPencil,SlShareAlt  } from "react-icons/sl";
 import './feePolicy.css'
 import {confirmAlert} from './confirmPolicy'
 import {usePolicyMutation} from './../hooks/usePolicyMutation'
+import { updatePolicy } from './updatePolicy';
 
-const PolicyBox = ({title,data,isUpcoming}) => {
+const PolicyBox = ({title,data,isUpcoming, isLatest}) => {
     const [policy,setPolicy]=useState(data)
     const [editField,setEditField]=useState(null)
     const [tempData,setTempData]=useState("")
-    const {mutateAsync}=usePolicyMutation()
+    const {mutateAsync,updateMutateAsync}=usePolicyMutation()
 
     const fields=[
         {label:"회차시간(분)", value:data?.graceMinutes, name:"graceMinutes"},
@@ -23,7 +24,11 @@ const PolicyBox = ({title,data,isUpcoming}) => {
     },[data])
 
     const changeAllHandler=()=>{
-
+        updatePolicy({
+            title:title,
+            type:data?.parkingType,
+            updateMutateAsync:updateMutateAsync
+        })
     }
 
     const changeHandler=async(label,name)=>{
@@ -87,8 +92,9 @@ const PolicyBox = ({title,data,isUpcoming}) => {
                         </div>
                         :<span className='value'>{Number(f.value).toLocaleString()}</span>
                     }
-
-                    <span className='editIcon' role='button' onClick={()=>setEditField(editField==f.label?null:f.label)}>{editField==f.label?<SlShareAlt />:<SlPencil/>}</span>
+                    {
+                        isLatest && <span className='editIcon' role='button' onClick={()=>setEditField(editField==f.label?null:f.label)}>{editField==f.label?<SlShareAlt />:<SlPencil/>}</span>
+                    }
                 </div>
             )
         }

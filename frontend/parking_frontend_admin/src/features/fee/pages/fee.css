@@ -24,7 +24,7 @@
 
 /* 활성화된 탭 스타일  */
 .tab-btn.active {
-  background-color: #617eac; /* 파란색 포인트 */
+  background-color: #3b82f6; /* 파란색 포인트 */
   color: white;
   font-weight: bold;
   box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
