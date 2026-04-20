@@ -63,7 +63,8 @@ export default function ApprovalRequestPage() {
       if (filterStatus) params.append('status', filterStatus);
       if (searchText.trim) params.append('keyword', searchText.trim());
 
-      const res = await fetch(`/api/admin/approvals?${params}`);
+      const res = await fetch(`/api/admin/approvals?${params}`, { credentials:'include'});
+      setRows(data.content ?? []);
       const data = await res.json();
 
       setRows(data.content);
@@ -106,7 +107,7 @@ export default function ApprovalRequestPage() {
 
   //  승인 
   const handleApprove = async(approvalId) => {
-    await fetch(`/api/admin/approvals/${approvalId}/approve`,{ method : 'POST'});
+    await fetch(`/api/admin/approvals/${approvalId}/approve`,{ method : 'POST', credentials:'include'});
     fetchApprovals();
   };
 
@@ -120,6 +121,7 @@ export default function ApprovalRequestPage() {
       method : 'POST',
       headers : { 'Content-Type': 'application/json'},
       body : JSON.stringify({ rejectReason: rejectReason.trim() }),
+      credentials : 'include',
     });
     closeReject();
     fetchApprovals();
