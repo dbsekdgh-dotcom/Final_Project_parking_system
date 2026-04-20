@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin/approvals")
 @RequiredArgsConstructor
-public class AdminApprovalRequest {
+public class AdminApprovalRequestController {
     private final AdminApprovalService adminApprovalService;
 
     @GetMapping
