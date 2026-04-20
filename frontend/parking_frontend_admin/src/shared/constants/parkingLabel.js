@@ -38,3 +38,16 @@ export const PARKING_SPACE_STATUS_LABEL = Object.freeze({
     OCCUPIED: '사용 중',
     BLOCKED: '차단',
 })
+
+export const TICKET_POLICY_TYPE_LABEL = Object.freeze({
+    AMOUNT: '금액',
+    TIME: '시간',
+    FREE: '무료',
+    RATE: '비율'
+})
+
+export const TICKET_POLICY_STATUS_LABEL = Object.freeze({
+    ACTIVE: '활성',
+    INACTIVE: '비활성',
+    DELETED: '삭제',
+})

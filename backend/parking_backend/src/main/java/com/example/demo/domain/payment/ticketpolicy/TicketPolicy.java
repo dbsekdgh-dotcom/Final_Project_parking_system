@@ -35,7 +35,6 @@ public class TicketPolicy {
     @Column(name = "use_type",nullable = false)
     @Enumerated(EnumType.STRING)
     private UseType useType=UseType.STORE;
-    private Integer maxDiscountAmount;
     private Integer validMinutes;
     private Integer validDays;
     @Builder.Default
