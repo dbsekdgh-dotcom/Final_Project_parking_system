@@ -1,0 +1,172 @@
+.refund-modal__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.refund-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.refund-modal__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+/* 예상 금액 요약 */
+.refund-modal__summary {
+    background: #f8f9ff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.refund-modal__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.refund-modal__row--deduct .refund-modal__value {
+    color: #e05c5c;
+    font-weight: 600;
+}
+
+.refund-modal__row--point .refund-modal__value {
+    color: #2ecc71;
+    font-weight: 600;
+}
+
+.refund-modal__row--total {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.refund-modal__label {
+    color: #777;
+}
+
+.refund-modal__hint {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: #aaa;
+    margin-left: 4px;
+}
+
+.refund-modal__final {
+    font-size: 1.1rem;
+    color: #4f7af8;
+}
+
+.refund-modal__divider {
+    border-top: 1px dashed #e0e0e8;
+    margin: 2px 0;
+}
+
+/* 약관 */
+.refund-modal__terms {
+    background: #fffbf0;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+}
+
+.refund-modal__terms-title {
+    font-size: 0.83rem;
+    font-weight: 700;
+    color: #b7791f;
+    margin: 0 0 8px 0;
+}
+
+.refund-modal__terms-list {
+    margin: 0;
+    padding-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.refund-modal__terms-list li {
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* 동의 체크박스 */
+.refund-modal__agree {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #444;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.refund-modal__agree input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #e53e3e;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* 버튼 */
+.refund-modal__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.refund-modal__btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s;
+}
+
+.refund-modal__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.refund-modal__btn--cancel {
+    background: #f0f0f8;
+    color: #555;
+}
+
+.refund-modal__btn--cancel:hover:not(:disabled) {
+    background: #e4e4f0;
+}
+
+.refund-modal__btn--confirm {
+    background: #e53e3e;
+    color: #fff;
+}
+
+.refund-modal__btn--confirm:hover:not(:disabled) {
+    opacity: 0.88;
+}

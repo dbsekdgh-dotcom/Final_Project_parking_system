@@ -61,3 +61,34 @@
     color: #fff;
     border-color: #3b82f6;
 }
+
+/* --- 모달 레이어 (화면 밀림 방지 핵심) --- */
+
+/* 1. 배경 오버레이: 화면 전체를 덮음 */
+.admin-modal-overlay {
+    position: fixed;      /* 브라우저 화면에 고정 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* 배경을 어둡게 처리 */
+    display: flex;
+    justify-content: center; /* 가로 중앙 */
+    align-items: center;     /* 세로 중앙 */
+    z-index: 9999;           /* 최상단으로 올림 */
+}
+
+/* 2. 모달 박스: 실제 제어창 */
+.admin-modal {
+    background-color: #2a2a2a; /* 우측 영역과 통일감 있는 배경색 */
+    width: 400px;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid #444;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: #fff;
+}
+

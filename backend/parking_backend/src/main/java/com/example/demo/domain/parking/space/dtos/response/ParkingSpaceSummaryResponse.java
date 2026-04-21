@@ -15,4 +15,6 @@ public class ParkingSpaceSummaryResponse {
     private long b2Total;
     private long b1Occupied;
     private long b2Occupied;
+    private long b1Blocked;
+    private long b2Blocked;
 }

@@ -118,4 +118,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         """)
     boolean existsValidReservation(@Param("carNumber") String carNumber);
 
+    // 노쇼 처리: visitEndAt 이 지났는데 RESERVED 또는 PENDING 상태인 예약 → NO_SHOW
+    @Modifying
+    @Query("""
+        UPDATE Reservation r
+        SET r.status = 'NO_SHOW'
+        WHERE r.status IN ('RESERVED', 'PENDING')
+          AND r.visitEndAt < :now
+        """)
+    int bulkMarkNoShow(@Param("now") LocalDateTime now);
+
 }

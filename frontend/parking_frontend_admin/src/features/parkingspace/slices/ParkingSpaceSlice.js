@@ -7,10 +7,10 @@ export const __controlParkingSpace = createAsyncThunk(
     async ({spaceId,action}, thunkAPI) => {
         try{
             const response= await controlParkingSpace(spaceId,action)
-            return response.data
+            return typeof response === 'string' ? response : (response.message || "성공적으로 변경되었습니다")
         }catch(error){
-            const errorMessage = error.response?.data?.message || "상태 변경에 실패했습니다."
-            return thunkAPI.rejectWithValue(errorMessage)
+            const errorMessage = error.response?.data?.message || error.message ||  "상태 변경에 실패했습니다."
+            return thunkAPI.rejectWithValue(String(errorMessage))
         }
     }
 )
