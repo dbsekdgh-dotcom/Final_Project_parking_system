@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {changeFeePolicy} from './../api/feeApi'
-import { updateFeePolicy,deleteTicketPolicy,insertTicketPolicy } from "./../api/feeApi";
+import { updateFeePolicy,deleteTicketPolicy,insertTicketPolicy,inactivateTicketPolicy ,searchPolicyHistory} from "./../api/feeApi";
 
 export const usePolicyMutation=()=>{
     const queryClient=useQueryClient();
@@ -43,8 +43,18 @@ export const usePolicyMutation=()=>{
             queryClient.invalidateQueries({queryKey:['feePolicy']})
         },
         onError:(error)=>{
-            console.log("할인권 삭제중 오류 발생==>",error.message)
+            console.log("할인권 등록중 오류 발생==>",error.message)
         }
+    })
+
+    const useInactivateTicketMutation=useMutation({
+        mutationFn:inactivateTicketPolicy,
+        onSuccess:()=>{
+            queryClient.invalidateQueries({queryKey:['feePolicy']})
+        },
+        onError:(error)=>{
+            console.log("할인권 비활성화 중 오류 발생==>",error.message)
+        }        
     })
 
     //await mutateAsync(data)
@@ -52,6 +62,7 @@ export const usePolicyMutation=()=>{
         mutateAsync:useChangePolicy.mutateAsync,
         updateMutateAsync:useUpdateMutation.mutateAsync,
         deleteTicketMutationAsync:usedeleteTicketMutation.mutateAsync,
-        insertTicketMutationAsync:useInsertTicketMutation.mutateAsync
+        insertTicketMutationAsync:useInsertTicketMutation.mutateAsync,
+        inactivateTicketMutationAsync:useInactivateTicketMutation.mutateAsync
     }
 }

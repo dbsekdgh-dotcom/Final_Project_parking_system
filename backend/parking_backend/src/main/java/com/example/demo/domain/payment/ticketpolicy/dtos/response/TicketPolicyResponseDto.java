@@ -1,4 +1,4 @@
-package com.example.demo.domain.parking.policy.dtos.response;
+package com.example.demo.domain.payment.ticketpolicy.dtos.response;
 
 import com.example.demo.domain.payment.ticketpolicy.TicketPolicy;
 import com.example.demo.domain.payment.ticketpolicy.enums.DiscountType;

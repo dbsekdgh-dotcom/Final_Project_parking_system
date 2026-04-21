@@ -37,11 +37,13 @@ const PolicyBox = ({title,data,isUpcoming, isLatest}) => {
             setTempData("")
             return;
         }
-        //적용 날짜 
-        const now=new Date();
-        const y=now.getFullYear();
-        const m=String(now.getMonth()+1).padStart(2,'0')
-        const d=String(now.getDate()+1).padStart(2,'0')
+        //적용 날짜
+        const tomorrow=new Date();
+        tomorrow.setDate(tomorrow.getDate()+1);
+        tomorrow.setHours(0,0,0,0);
+        const y=tomorrow.getFullYear();
+        const m=String(tomorrow.getMonth()+1).padStart(2,'0')
+        const d=String(tomorrow.getDate()).padStart(2,'0')
         const effectiveDate=`${y}-${m}-${d} 00:00:00`
 
         //적용할 데이터

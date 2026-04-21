@@ -3,6 +3,7 @@ package com.example.demo.api.admin.fee;
 import com.example.demo.domain.parking.policy.dtos.request.ParkingFeePolicyChangeRequestDto;
 import com.example.demo.domain.parking.policy.dtos.request.ParkingFeePolicyUpdateRequestDto;
 import com.example.demo.domain.parking.policy.service.ParkingFeePolicyService;
+import com.example.demo.domain.parking.policy.service.PolicyHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FeePolicyController {
     private final ParkingFeePolicyService parkingFeePolicyService;
+    private final PolicyHistoryService policyHistoryService;
 
     @GetMapping("/fee-policy")
     public Map<String,Object> searchFeePolicy(){
@@ -37,4 +39,6 @@ public class FeePolicyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(policyId);
     }
 
+    @GetMapping("/fee-policy/history")
+    public Map<String,Object> searchFeePolicyHistory(){return policyHistoryService.getPolicyHistory();}
 }

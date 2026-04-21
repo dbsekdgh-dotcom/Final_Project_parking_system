@@ -39,7 +39,7 @@ public class ParkingFeePolicyResponseDto {
                 .graceMinutes(parkingFeePolicy.getGraceMinutes())
                 .baseFee(parkingFeePolicy.getBaseFee())
                 .unitMinutes(parkingFeePolicy.getUnitMinutes())
-                .unitFee(parkingFeePolicy.getUnitMinutes())
+                .unitFee(parkingFeePolicy.getUnitFee())
                 .daliyMaxFee(parkingFeePolicy.getDailyMaxFee())
                 .isActive(parkingFeePolicy.getIsActive())
                 .effectiveFrom(parkingFeePolicy.getEffectiveFrom())

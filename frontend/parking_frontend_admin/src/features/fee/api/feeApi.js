@@ -32,3 +32,15 @@ export const insertTicketPolicy=async(ticketPolicies)=>{
     const res=await adminApi.post(`/ticket-policy`,ticketPolicies)
     return res;
 }
+//할인권 비활성화
+export const inactivateTicketPolicy=async(ticketPolicyId)=>{
+    console.log("수정하려는 티켓 아이디 ==>",ticketPolicyId)
+    const res=await adminApi.put(`/ticket-policy`,{ticketPolicyId})
+    return res;
+}
+//과거 요금 정책 이력 불러오기
+export const searchPolicyHistory=async()=>{
+    const res=await adminApi.get(`/fee-policy/history`)
+    console.log("요금정책이력==>",res.data)
+    return res.data
+}

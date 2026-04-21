@@ -21,10 +21,6 @@ public interface ParkingFeePolicyRepository extends JpaRepository<ParkingFeePoli
     @Query("select fp from ParkingFeePolicy fp where fp.isActive=false and :now < fp.effectiveFrom")
     List<ParkingFeePolicy> findUpcomingEffectivePolicy(@Param("now")LocalDateTime now);
 
-    // 특정 시점에 유효한 활성 정책 조회
-    @Query("select p from ParkingFeePolicy p where p.parkingType=:parkingType and p.isActive=true and :now between p.effectiveFrom and p.effectiveTo order by p.id desc")
-    Optional<ParkingFeePolicy> findValidPolicy(@Param("parkingType")ParkingType parkingType,@Param("now")LocalDateTime now);
-
     //가장 최근 정책 조회
     @Query("select p from ParkingFeePolicy p where p.parkingType=:parkingType order by p.version desc limit 1")
     Optional<ParkingFeePolicy> getLatestVersion(@Param("parkingType")ParkingType parkingType);
@@ -49,4 +45,8 @@ public interface ParkingFeePolicyRepository extends JpaRepository<ParkingFeePoli
           AND CURRENT_TIMESTAMP BETWEEN p.effectiveFrom AND p.effectiveTo
         """)
     Optional<ParkingFeePolicy> findActivePolicy(@Param("type") ParkingType type);
+
+    //과거 이력조회
+    @Query("select p from ParkingFeePolicy p where p.effectiveTo<CURRENT_TIMESTAMP order by p.version desc ")
+    List<ParkingFeePolicy> findPolicyHistory();
 }

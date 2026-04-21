@@ -66,9 +66,9 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
                     </div>
                 </div>
 
-                <div class="policy-field compact-field">
-                    <label class="group-label">상가 무료지급권 여부</label>
-                    <div class="radio-options">
+                <div class="policy-field" style="margin-top:10px">
+                    <div class="group-label" style="margin-bottom:0">상가 무료지급권 여부</div>
+                    <div class="radio-options" style="margin-top:0;padding:6px 12px">
                         <label class="radio-label"><input type="radio" name="isFreeTicket" value="false" checked> 유료 판매권</label>
                         <label class="radio-label"><input type="radio" name="isFreeTicket" value="true"> 무료 지급권</label>
                     </div>
@@ -108,9 +108,13 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
                      Swal.showValidationMessage("할인권명을 기재해주세요.");
                      return false;
                 }
-                if(!data.discountType || !data.discountValue){
-                    Swal.showValidationMessage("할인타입 및 할인값을 지정해주세요.");
+                if(!data.discountType){
+                    Swal.showValidationMessage("할인타입을 지정해주세요.");
                     return false;
+                }
+                if(data.discountType!='FREE' && !data.discountValue){
+                    Swal.showValidationMessage("할인값을 입력해주세요.");
+                    return false;    
                 }
                 if(!data.useType){
                     Swal.showValidationMessage("할인권 사용자를 지정해주세요.")

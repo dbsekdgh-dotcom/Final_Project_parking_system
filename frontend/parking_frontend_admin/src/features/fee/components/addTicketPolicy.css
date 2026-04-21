@@ -73,18 +73,18 @@ display: flex;
 
 /* 특정 필드의 라벨과 박스 사이 간격을 최소화 */
 .compact-field {
-    gap: 2px !important; /* 필드 내부 요소(라벨-박스) 사이 간격을 2px로 강제 */
+    gap: 0 !important;
 }
 
 .compact-field .group-label {
-    margin-bottom: 0 !important; /* 라벨 아래 마진 완전히 제거 */
+    margin-bottom: 0 !important;
 }
 
 /* 라디오 박스 자체의 높이와 여백도 더 컴팩트하게 */
 .compact-field .radio-options {
-    padding: 6px 12px; /* 상하 패딩을 12px -> 6px로 줄임 */
-    margin-top: 0 !important; /* 위쪽 여백 제거 */
-    background: #1a1a1a; /* 다른 입력창과 톤을 맞춰 더 일체감 있게 (선택사항) */
+    padding: 3px 10px !important;
+    margin-top: 0 !important;
+    background: #1a1a1a;
 }
 
 /* 전체적인 여백이 여전히 넓게 느껴진다면 아래 값도 조정하세요 */
