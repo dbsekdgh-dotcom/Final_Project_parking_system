@@ -13,7 +13,9 @@ import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
 import ReportPage from './features/report/ReportPage.jsx';
 import MyPage from './features/mypage/pages/MyPage.jsx';
 import ReservationPage from './features/reservation/pages/ReservationPage.jsx';
-import SubscriptionPage from './features/subscription/pages/SubscriptionPage.jsx';
+import SubscriptionPage from './shared/subscription/pages/SubscriptionPage.jsx';
+import SubscriptionSuccessPage from './shared/subscription/pages/SubscriptionSuccessPage.jsx';
+import SubscriptionFailPage from './shared/subscription/pages/SubscriptionFailPage.jsx';
 
 function App() {
   return (
@@ -49,7 +51,9 @@ function App() {
           {/* 하위 경로들: DashBoard에서 navigate로 보내는 주소와 일치시켜야 함 */}
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/subscription" element={<SubscriptionPage title="정기권"/>} />
-          <Route path="/reservation" element={<ReservationPage title="방문예약" />} />          
+          <Route path="/subscription/success" element={<SubscriptionSuccessPage />} />
+          <Route path="/subscription/fail" element={<SubscriptionFailPage />} />
+          <Route path="/reservation" element={<ReservationPage title="방문예약" />} />
           <Route path="/mypage" element={<MyPage title="마이페이지" />} />
           <Route path="/report" element={<ReportPage title="민원/신고" />} />
         </Route>

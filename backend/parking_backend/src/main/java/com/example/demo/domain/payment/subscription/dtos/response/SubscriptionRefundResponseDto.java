@@ -7,7 +7,8 @@ import lombok.Getter;
 @Builder
 public class SubscriptionRefundResponseDto {
 
-    private long refundAmount;   // 실제 환불된 금액
-    private String refundType;   // "전액환불" 또는 "부분환불"
-    private String message;      // 사용자에게 보여줄 안내 문구
+    private int cashRefundAmount;      // 실제 환불된 현금액
+    private int pointRefundAmount;     // 반환된 포인트 (포인트/혼합 결제 시)
+    private int revokedPoint;          // 회수된 적립 포인트
+    private int pointDeductedAsCash;   // 포인트 잔고 부족으로 현금에서 추가 공제된 금액
 }

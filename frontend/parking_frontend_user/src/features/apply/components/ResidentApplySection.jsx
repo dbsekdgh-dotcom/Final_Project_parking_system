@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { useUnitStatus, useApplyResident } from '../hooks/useApply';
 import './ResidentApplySection.css';
@@ -11,13 +11,25 @@ const STATUS_CONFIG = {
 
 const ResidentApplySection = ({ memberStatus }) => {
     const [selectedUnit, setSelectedUnit] = useState(null); // { householdId, unitNo }
+    const sectionRef = useRef(null);
+
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            if (sectionRef.current && !sectionRef.current.contains(e.target)) {
+                setSelectedUnit(null);
+            }
+        };
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => document.removeEventListener('mousedown', handleOutsideClick);
+    }, []);
 
     const { data: unitStatuses = [], isLoading } = useUnitStatus();
     const applyMutation = useApplyResident(() => setSelectedUnit(null));
 
     const isAlreadyApplied = memberStatus === 'PENDING' || memberStatus === 'RESIDENT';
 
-    const handleCellClick = (unit) => {
+    const handleCellClick = (e, unit) => {
+        e.stopPropagation();
         if (isAlreadyApplied) return;
         const config = STATUS_CONFIG[unit.status];
         if (!config?.clickable) return;
@@ -45,7 +57,7 @@ const ResidentApplySection = ({ memberStatus }) => {
     };
 
     return (
-        <div className="apply-section">
+        <div className="apply-section" ref={sectionRef} onClick={() => setSelectedUnit(null)}>
             <h3 className="apply-section__title">입주민 등록 신청</h3>
 
             {isAlreadyApplied ? (
@@ -74,7 +86,7 @@ const ResidentApplySection = ({ memberStatus }) => {
                                     isSelected ? 'unit-cell--selected' : '',
                                 ].join(' ')}
                                 style={{ background: isSelected ? '#cfe0ff' : config.bg }}
-                                onClick={() => handleCellClick(unit)}
+                                onClick={(e) => handleCellClick(e, unit)}
                                 title={config.clickable ? '클릭하여 선택' : config.label}
                             >
                                 <span className="unit-no">{unit.unitNo}호</span>

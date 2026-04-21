@@ -88,11 +88,20 @@ export const useRefundSubscription = () => {
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['mySubscription'] });
             queryClient.invalidateQueries({ queryKey: ['subscriptionHistory'] });
+            queryClient.invalidateQueries({ queryKey: ['subscriptionMyPoint'] });
+
+            const lines = [`현금 환불: ${(data?.cashRefundAmount ?? 0).toLocaleString()}원`];
+            if (data?.pointRefundAmount > 0)
+                lines.push(`포인트 반환: ${data.pointRefundAmount.toLocaleString()}P`);
+            if (data?.revokedPoint > 0)
+                lines.push(`적립 포인트 회수: ${data.revokedPoint.toLocaleString()}P`);
+            if (data?.pointDeductedAsCash > 0)
+                lines.push(`포인트 잔고 부족으로 ${data.pointDeductedAsCash.toLocaleString()}원 추가 공제`);
 
             Swal.fire({
                 icon: 'success',
                 title: '환불 완료',
-                text: data?.message || '정기권이 취소되었습니다.',
+                html: lines.join('<br/>'),
                 confirmButtonColor: '#3085d6',
             });
         },

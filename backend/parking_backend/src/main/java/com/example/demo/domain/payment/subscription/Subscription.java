@@ -82,4 +82,11 @@ public class Subscription {
     public void expire() {
         this.status = Status.EXPIRED;
     }
+
+    public void updateStatus(Status status) {
+        this.status = status;
+        if (status == Status.CANCELLED || status == Status.REFUNDED) {
+            this.cancelledAt = LocalDateTime.now();
+        }
+    }
 }
