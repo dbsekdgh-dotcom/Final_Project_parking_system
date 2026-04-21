@@ -1,7 +1,18 @@
 import React from 'react';
 
-const ReservationActionButtons = ({ status, onCancel, onEdit }) => {
+const isTodayOrPast = (dateStr) => {
+    if (!dateStr) return false;
+    const visit = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    visit.setHours(0, 0, 0, 0);
+    return visit <= today;
+};
+
+const ReservationActionButtons = ({ status, visitStartAt, onCancel, onEdit }) => {
     if (!['PENDING', 'RESERVED'].includes(status)) return null;
+
+    const showCancel = !isTodayOrPast(visitStartAt);
 
     return (
         <div className="res-action-buttons">
@@ -10,9 +21,11 @@ const ReservationActionButtons = ({ status, onCancel, onEdit }) => {
                     수정
                 </button>
             )}
-            <button className="btn-cancel-res" type="button" onClick={onCancel}>
-                취소
-            </button>
+            {showCancel && (
+                <button className="btn-cancel-res" type="button" onClick={onCancel}>
+                    취소
+                </button>
+            )}
         </div>
     );
 };

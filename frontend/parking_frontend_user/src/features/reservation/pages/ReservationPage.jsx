@@ -1,46 +1,56 @@
-import React, { useState } from 'react'; // 1. useState 추가
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReservationList from '../components/ReservationList';
-import ReservationModal from '../components/ReservationModal'; // 2. 모달 컴포넌트 임포트
+import ReservationModal from '../components/ReservationModal';
 import './ReservationPage.css';
 
+const ResidentOnlyModal = ({ onClose }) => (
+    <div className="resident-only-overlay">
+        <div className="resident-only-modal">
+            <div className="resident-only-modal__icon">🔒</div>
+            <h3 className="resident-only-modal__title">입주민 전용 서비스</h3>
+            <p className="resident-only-modal__desc">
+                방문 예약은 입주민 등록 후<br />이용 가능한 서비스입니다.
+            </p>
+            <button className="resident-only-modal__btn" onClick={onClose}>
+                확인
+            </button>
+        </div>
+    </div>
+);
+
 const ReservationPage = () => {
-    // 3. 모달의 열림 상태 관리 (기본값: 닫힘)
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     const memberStatus = localStorage.getItem('userStatus') ?? 'NONE';
+    const isResident = memberStatus === 'RESIDENT';
 
-    if (memberStatus !== 'RESIDENT') {
-        return (
-            <div className="reservation-page">
-                <h2 className="reservation-page__title">방문 예약</h2>
-                <div className="reservation-page__restricted">
-                    <p>입주민 등록 후 이용 가능한 서비스입니다.</p>
-                </div>
-            </div>
-        );
-    }
+    const handleRestrictedClose = () => navigate(-1);
 
     return (
         <div className="reservation-page">
             <h2 className="reservation-page__title">방문 예약</h2>
 
-            <ReservationList />
-
-            <div className="reservation-page__footer">
-                {/* 4. 버튼 클릭 시 모달 열기 */}
-                <button
-                    className="btn-new-reservation"
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    방문 예약 신청
-                </button>
-            </div>
-
-            {/* 5. 모달 배치: 상태값과 닫기 함수를 전달합니다 */}
-            <ReservationModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-            />
+            {isResident ? (
+                <>
+                    <ReservationList />
+                    <div className="reservation-page__footer">
+                        <button
+                            className="btn-new-reservation"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            방문 예약 신청
+                        </button>
+                    </div>
+                    <ReservationModal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                    />
+                </>
+            ) : (
+                <ResidentOnlyModal onClose={handleRestrictedClose} />
+            )}
         </div>
     );
 };

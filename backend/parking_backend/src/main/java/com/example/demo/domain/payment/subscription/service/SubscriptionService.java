@@ -1,340 +1,367 @@
 package com.example.demo.domain.payment.subscription.service;
 
 import com.example.demo.domain.payment.Payment;
-import com.example.demo.domain.payment.dtos.internal.TossApprovalResult;
 import com.example.demo.domain.payment.dtos.request.PaymentConfirmRequestDto;
 import com.example.demo.domain.payment.enums.PaymentMethod;
 import com.example.demo.domain.payment.enums.PaymentStatus;
 import com.example.demo.domain.payment.enums.PaymentType;
-import com.example.demo.domain.payment.repository.PaymentRepository;
-import com.example.demo.domain.payment.service.TossPaymentService;
+import com.example.demo.domain.payment.point.entity.PointReason;
+import com.example.demo.domain.payment.point.repository.UserPointRepository;
+import com.example.demo.domain.payment.point.service.PointService;
 import com.example.demo.domain.system.activitylog.ActivityLog;
 import com.example.demo.domain.system.activitylog.enums.ActivityType;
 import com.example.demo.domain.system.activitylog.repository.ActivityLogRepository;
+import com.example.demo.domain.payment.repository.PaymentRepository;
+import com.example.demo.domain.payment.service.TossPaymentService;
 import com.example.demo.domain.payment.subscription.Subscription;
-import com.example.demo.domain.payment.subscription.dtos.request.SubscriptionConfirmRequestDto;
-import com.example.demo.domain.payment.subscription.dtos.request.SubscriptionReadyRequestDto;
-import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionHistoryResponseDto;
+import com.example.demo.domain.payment.subscription.dtos.request.SubscriptionPurchaseRequestDto;
 import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionPolicyResponseDto;
-import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionMyInfoResponseDto;
-import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionReadyResponseDto;
 import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionRefundResponseDto;
+import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionResponseDto;
 import com.example.demo.domain.payment.subscription.enums.Status;
 import com.example.demo.domain.payment.subscription.repository.SubscriptionRepository;
 import com.example.demo.domain.resident.User;
 import com.example.demo.domain.resident.UserRepository;
-import com.example.demo.domain.system.setting.SystemSetting;
+import com.example.demo.domain.system.setting.SettingKey;
 import com.example.demo.domain.system.setting.repository.SystemSettingRepository;
 import com.example.demo.domain.vehicle.Vehicle;
 import com.example.demo.domain.vehicle.VehicleRepository;
-import com.example.demo.domain.vehicle.enums.VehicleStatus;
-import com.example.demo.global.exception.CustomException;
+import com.example.demo.domain.vehicle.blacklist.repository.VehicleBlacklistRepository;
+import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 
-@Slf4j
+/**
+ * 정기권 구매 및 환불 업무를 담당하는 서비스 레이어입니다.
+ */
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final SystemSettingRepository systemSettingRepository;
-    private final VehicleRepository vehicleRepository;
     private final PaymentRepository paymentRepository;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleBlacklistRepository vehicleBlacklistRepository;
     private final UserRepository userRepository;
+    private final UserPointRepository userPointRepository;
+    private final PointService pointService;
     private final TossPaymentService tossPaymentService;
+    private final SystemSettingRepository systemSettingRepository;
     private final ActivityLogRepository activityLogRepository;
 
-
-    @Transactional
-    public SubscriptionReadyResponseDto prepareSubscription(Long userId, SubscriptionReadyRequestDto requestDto) {
-
+    /**
+     * 정기권을 구매하고 결제 정보 및 포인트를 처리합니다.
+     */
+    public SubscriptionResponseDto purchase(Long userId, SubscriptionPurchaseRequestDto dto) {
+        // 1. 유저 및 차량 존재 여부 확인
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
 
-        Vehicle vehicle = vehicleRepository.findByCarNumber(requestDto.getCarNumber())
-                .orElseThrow(() -> new CustomException(ErrorCode.VEHICLE_NOT_FOUND));
+        Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
 
-        if (vehicle.getUser() == null || !vehicle.getUser().getUserId().equals(userId)) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED_VEHICLE);
+        // 2. 차량 소유권 검증
+        if (!vehicle.getUser().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        // 차량이 승인된 ACTIVE 상태가 아니면 정기권 구매 불가 (PENDING, DELETED 등)
-        if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
-            throw new CustomException(ErrorCode.INVALID_VEHICLE_STATUS);
+        // 3. 블랙리스트 여부 확인 (현재 시점 기준)
+        if (vehicleBlacklistRepository.isCurrentlyBlacklisted(vehicle.getCarNumber(), LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        // 시작일이 오늘보다 이전이면 불가 — 과거 날짜로 정기권 구매 방지
-        if (requestDto.getStartDate().isBefore(LocalDateTime.now())) {
-            throw new CustomException(ErrorCode.INVALID_SUBSCRIPTION_PERIOD);
+        // 4. 해당 차량에 이미 사용 중인 정기권이 있는지 중복 체크
+        if (subscriptionRepository.hasActiveSubscription(vehicle.getCarNumber(), LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        SystemSetting maxCountSettiong = systemSettingRepository.findByIdWithLock("SUB_MAX_COUNT")
-                .orElseThrow(() -> new CustomException(ErrorCode.SYSTEM_SETTING_NOT_FOUND));
+        // 5. 시스템 설정값 로드 (가격, 기간 등)
+        int subscriptionPrice = getSetting(SettingKey.SUBSCRIPTION_PRICE);
+        int subscriptionDaysTemp = getSetting(SettingKey.SUBSCRIPTION_DAYS);
 
-        SystemSetting priceSettiong = systemSettingRepository.findBySettingKey("SUB_MONTHLY_PRICE")
-                .orElseThrow(() -> new CustomException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
-
-        SystemSetting durationSetting = systemSettingRepository.findBySettingKey("SUB_DURATION_DAYS")
-                .orElseThrow(() -> new CustomException(ErrorCode.SYSTEM_SETTING_NOT_FOUND));
-
-        long configPrice = Long.parseLong(priceSettiong.getSettingValue());
-        int durationDays = Integer.parseInt(durationSetting.getSettingValue());
-
-        if (requestDto.getAmount() != configPrice) {
-            throw new CustomException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+        // 6. 유저의 정기권 기간 중첩 여부 확인
+        LocalDateTime purchaseStart = (dto.getStartDate() != null) ? dto.getStartDate() : LocalDateTime.now();
+        LocalDateTime purchaseEnd   = purchaseStart.plusDays(subscriptionDaysTemp);
+        if (subscriptionRepository.hasOverlappingSubscriptionForUser(userId, Status.ACTIVE, purchaseStart, purchaseEnd)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        LocalDateTime endDate = requestDto.getStartDate().plusDays(durationDays);
+        int subscriptionDays  = subscriptionDaysTemp;
+        int minUsagePoint     = getSetting(SettingKey.MIN_USAGE_POINT);
 
-        boolean alreadyHas = subscriptionRepository.hasVehicleOverlappingSubscription(
-                vehicle.getId(), requestDto.getStartDate(), endDate
-        );
-        if (alreadyHas) {
-            throw new CustomException(ErrorCode.ALREADY_HAS_SUBSCRIPTION);
+        // 7. 포인트 사용 조건 검증 (최소 사용 포인트)
+        if (dto.getUsedPoint() > 0 && dto.getUsedPoint() < minUsagePoint) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        long currentSold = subscriptionRepository.countOverlappingActiveSubscriptions(
-                requestDto.getStartDate(), endDate
-        );
-
-        if (currentSold >= Long.parseLong(maxCountSettiong.getSettingValue())) {
-            throw new CustomException(ErrorCode.SUBSCRIPTION_SOLD_OUT);
+        // 8. 결제 금액 정합성 확인 (포인트 + 현금 == 정기권 가격)
+        if (dto.getUsedPoint() + dto.getPaidAmount() != subscriptionPrice) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        String orderId = "SUB_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
-
-        Payment readyPayment = Payment.builder()
-                .externalPaymentId(orderId)
-                .amount(requestDto.getAmount())
-                .priceSnapshot(requestDto.getAmount())
-                .paymentMethod(PaymentMethod.PAY)
-                .paymentType(PaymentType.SUBSCRIPTION)
-                .paymentStatus(PaymentStatus.READY)
-                .build();
-        paymentRepository.save(readyPayment);
-
-        log.info("[정기권 준비 완료] 유저 : {}, 차량: {}, 주문번호: {}",user.getName(), vehicle.getCarNumber(), orderId);
-
-        return SubscriptionReadyResponseDto.builder()
-                .orderId(orderId)
-                .orderName("정기권 " + durationDays + "일 (" + requestDto.getCarNumber() + ")")
-                .amount(requestDto.getAmount())
-                .carNumber(requestDto.getCarNumber())
-                .startDate(requestDto.getStartDate())
-                .endDate(endDate)
-                .build();
-    }
-
-    @Transactional
-    public void confirmSubscription(Long userId, SubscriptionConfirmRequestDto confirmRequestDto) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        PaymentConfirmRequestDto internalDto = PaymentConfirmRequestDto.builder()
-                .paymentKey(confirmRequestDto.getPaymentKey())
-                .orderId(confirmRequestDto.getOrderId())
-                .amount(confirmRequestDto.getAmount())
-                .build();
-
-        TossApprovalResult approvalResult = tossPaymentService.confirmAndAnalyze(internalDto);
-
-        Payment payment = paymentRepository.findByExternalPaymentId(confirmRequestDto.getOrderId())
-                .stream().findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
-
-        // 토스 승인 실패 시 Payment를 FAILED로 변경 — READY 상태로 고아 레코드 남는 것 방지
-        if (!approvalResult.isSuccess()) {
-            payment.setPaymentStatus(PaymentStatus.FAILED);
-            log.error("토스 승인 실패: {}", approvalResult.getErrorMessage());
-            throw new CustomException(ErrorCode.PG_PROVIDER_ERROR);
+        // 9. PG사(토스) 결제 승인 요청
+        if (dto.getPaidAmount() > 0) {
+            PaymentConfirmRequestDto confirmDto = PaymentConfirmRequestDto.builder()
+                    .paymentKey(dto.getPaymentKey())
+                    .orderId(dto.getOrderId())
+                    .amount(dto.getPaidAmount())
+                    .parkingLogId(0L)
+                    .build();
+            var tossResult = tossPaymentService.confirmAndAnalyze(confirmDto);
+            if (!tossResult.isSuccess()) {
+                throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
+            }
         }
 
-        // prepare 시 저장된 금액과 confirm 요청 금액이 다르면 차단 — 클라이언트 금액 변조 방지
-        if (!payment.getAmount().equals(confirmRequestDto.getAmount())) {
-            throw new CustomException(ErrorCode.INVALID_PAYMENT_AMOUNT);
-        }
-
-        Vehicle vehicle = vehicleRepository.findByCarNumber(confirmRequestDto.getCarNumber())
-                .orElseThrow(() -> new CustomException(ErrorCode.VEHICLE_NOT_FOUND));
-
-        if (vehicle.getUser() == null || !vehicle.getUser().getUserId().equals(userId)) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED_VEHICLE);
-        }
-
-        Subscription subscription = Subscription.builder()
-                .user(user)
+        // 10. 결제 수단별 Payment 생성
+        // - 현금 결제분: Subscription FK로 사용 (cancel 로직에서 amount=현금액으로 포인트 역산)
+        // - 포인트 결제분: 혼합 결제 시 추가 INSERT (이력 기록용)
+        PaymentMethod mainMethod = (dto.getPaidAmount() > 0) ? PaymentMethod.PAY : PaymentMethod.POINT;
+        Payment payment = Payment.builder()
                 .vehicle(vehicle)
-                .startDate(confirmRequestDto.getStartDate())
-                .endDate(confirmRequestDto.getEndDate())
-                .status(Status.ACTIVE)
-                .payment(payment)
-                .price(confirmRequestDto.getAmount().intValue())
+                .amount((long) dto.getPaidAmount())
+                .priceSnapshot((long) subscriptionPrice)
+                .paymentMethod(mainMethod)
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentType(PaymentType.SUBSCRIPTION)
+                .externalPaymentId(dto.getOrderId())
+                .paidAt(LocalDateTime.now())
                 .build();
+        paymentRepository.save(payment);
 
+        Payment pointPayment = null;
+        if (dto.getUsedPoint() > 0 && dto.getPaidAmount() > 0) {
+            pointPayment = Payment.builder()
+                    .vehicle(vehicle)
+                    .amount((long) dto.getUsedPoint())
+                    .priceSnapshot((long) subscriptionPrice)
+                    .paymentMethod(PaymentMethod.POINT)
+                    .paymentStatus(PaymentStatus.SUCCESS)
+                    .paymentType(PaymentType.SUBSCRIPTION)
+                    .paidAt(LocalDateTime.now())
+                    .build();
+            paymentRepository.save(pointPayment);
+            // 환불 시 두 Payment 모두 조회할 수 있도록 역참조 키 저장
+            pointPayment.setExternalPaymentId("POINT:" + payment.getPaymentId());
+        }
+
+        // 11. 사용한 포인트 차감 처리 (혼합 결제면 포인트 Payment ID 사용, 아니면 메인 ID)
+        if (dto.getUsedPoint() > 0) {
+            Long pointPaymentId = (pointPayment != null)
+                    ? pointPayment.getPaymentId()
+                    : payment.getPaymentId();
+            pointService.usePoints(userId, pointPaymentId,
+                    dto.getUsedPoint(), "정기권 구매 포인트 사용");
+        }
+
+        // 12. 정기권 정보 생성 및 저장
+        LocalDateTime now   = LocalDateTime.now();
+        LocalDateTime start = (dto.getStartDate() != null) ? dto.getStartDate() : now;
+        Subscription subscription = new Subscription(
+                null, user, vehicle,
+                start, start.plusDays(subscriptionDays),
+                Status.ACTIVE, payment,
+                subscriptionPrice, now, now, null);
         subscriptionRepository.save(subscription);
 
-        payment.completePayment(approvalResult.getPaymentKey());
+        // 13. 포인트 적립 (순수 현금 결제인 경우에만 혜택 제공)
+        int earnedPoint = 0;
+        if (dto.getUsedPoint() == 0 && dto.getPaidAmount() > 0) {
+            int earnRate = getSetting(SettingKey.PAYMENT_POINT_EARN_RATE);
+            earnedPoint = dto.getPaidAmount() * earnRate / 100;
+            pointService.earnPoints(userId, payment.getPaymentId(),
+                    earnedPoint, "정기권 구매 포인트 적립");
+        }
 
-        // 정기권 구매 액티비티 로그 저장 — user, payment, carNumber 포함
         activityLogRepository.save(ActivityLog.builder()
                 .activityType(ActivityType.PASS_PURCHASED)
-                .user(user)                                          // 구매자 유저
-                .payment(payment)                                    // 연결된 결제 내역
-                .carNumber(vehicle.getCarNumber())                   // 정기권 등록 차량번호
-                .message("정기권 구매 완료 (" + confirmRequestDto.getStartDate().toLocalDate()
-                        + " ~ " + confirmRequestDto.getEndDate().toLocalDate() + ")")
+                .user(user)
+                .payment(payment)
+                .carNumber(vehicle.getCarNumber())
+                .message("정기권 구매 완료")
                 .build());
 
-        log.info("[정기권 발급 완료] 유저: {}, 차량: {}, 결제성공 키: {}",
-                user.getName(), vehicle.getCarNumber(), approvalResult.getPaymentKey());
+        return SubscriptionResponseDto.from(subscription, earnedPoint);
     }
 
+    /**
+     * 유저의 현재 보유 포인트를 조회합니다.
+     */
     @Transactional(readOnly = true)
-    public SubscriptionPolicyResponseDto getSubscriptionPolicy(LocalDateTime targetDate) {
-        long price = Long.parseLong(systemSettingRepository.findBySettingKey("SUB_MONTHLY_PRICE")
-                .orElseThrow(() -> new CustomException(ErrorCode.SYSTEM_SETTING_NOT_FOUND)).getSettingValue());
+    public int getMyPoint(Long userId) {
+        return userPointRepository.findByUserUserId(userId)
+                .map(up -> up.getCurrentPoint())
+                .orElse(0);
+    }
 
-        int durationDays = Integer.parseInt(systemSettingRepository.findBySettingKey("SUB_DURATION_DAYS")
-                .orElseThrow(() -> new CustomException(ErrorCode.SYSTEM_SETTING_NOT_FOUND)).getSettingValue());
+    /**
+     * 특정 시작일 기준, 정기권 구매 가능 잔여 수량을 조회합니다.
+     */
+    @Transactional(readOnly = true)
+    public SubscriptionPolicyResponseDto getPolicy(LocalDateTime startDate) {
+        int price    = getSetting(SettingKey.SUBSCRIPTION_PRICE);
+        int days     = getSetting(SettingKey.SUBSCRIPTION_DAYS);
+        int maxCount = getSetting(SettingKey.SUBSCRIPTION_MAX_COUNT);
 
-        long maxCount = Long.parseLong(systemSettingRepository.findBySettingKey("SUB_MAX_COUNT")
-                .orElseThrow(() -> new CustomException(ErrorCode.SYSTEM_SETTING_NOT_FOUND)).getSettingValue());
+        LocalDateTime start = (startDate != null) ? startDate : LocalDateTime.now();
+        LocalDateTime end   = start.plusDays(days);
 
-        // 선택한 시작일 기준으로 현재 판매된 수량 조회 → 남은 슬롯 계산
-        long soldCount = subscriptionRepository.countOverlappingActiveSubscriptions(
-                targetDate, targetDate.plusDays(durationDays));
-        long remainCount = Math.max(maxCount - soldCount, 0);
+        // 해당 기간에 활성화된 전체 정기권 수량 체크
+        long activeCount = subscriptionRepository.countOverlappingSubscriptions(Status.ACTIVE, start, end);
+        long remaining   = Math.max(0, maxCount - activeCount);
 
         return SubscriptionPolicyResponseDto.builder()
                 .price(price)
-                .durationDays(durationDays)
+                .days(days)
                 .maxCount(maxCount)
-                .remainCount(remainCount)
+                .activeCount(activeCount)
+                .remaining(remaining)
                 .build();
     }
 
+    /**
+     * 정기권을 취소하고 남은 일수에 비례하여 금액 및 포인트를 환불합니다.
+     */
+    public SubscriptionRefundResponseDto cancel(Long userId, Long subscriptionId) {
+        Subscription subscription = subscriptionRepository.findByIdWithVehicleAndPaymentForUpdate(subscriptionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+
+        // 1. 소유권 및 상태 검증 (본인 확인, 활성화 상태 여부, 기간 만료 여부)
+        if (!subscription.getUser().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        if (subscription.getStatus() != Status.ACTIVE) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        if (LocalDateTime.now().isAfter(subscription.getEndDate())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        // 2. 남은 기간 비례 환불 비율 계산
+        long totalDays = java.time.temporal.ChronoUnit.DAYS.between(subscription.getStartDate(), subscription.getEndDate());
+        long remainDays = java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getEndDate());
+        if (remainDays < 0) remainDays = 0;
+        double ratio = totalDays > 0 ? (double) remainDays / totalDays : 0;
+
+        Payment payment = subscription.getPayment();
+        int paidAmount  = payment.getAmount().intValue();
+        int totalPrice  = payment.getPriceSnapshot().intValue();
+        int usedPoint   = totalPrice - paidAmount;
+
+        // 혼합 결제 시 존재하는 포인트 Payment 조회 (역참조 키로 찾음)
+        Payment pointPayment = paymentRepository
+                .findFirstByExternalPaymentId("POINT:" + payment.getPaymentId())
+                .orElse(null);
+
+        // 3. [사전 계산] 순수 현금 결제인 경우 회수할 포인트와 잔고 부족분을 Toss 호출 전에 먼저 산출
+        //    포인트 잔고가 부족하면 그 차액을 현금 환불액에서 공제해야 하므로 순서가 중요함
+        int revokePoint = 0;
+        int actualRevoke = 0;
+        int shortfall = 0;
+        if (usedPoint == 0 && paidAmount > 0) {
+            int earnRate = getSetting(SettingKey.PAYMENT_POINT_EARN_RATE);
+            int originalEarned = paidAmount * earnRate / 100;
+            revokePoint = (int) (originalEarned * ratio);
+            if (revokePoint > 0) {
+                int currentBalance = userPointRepository.findByUserUserId(userId)
+                        .map(up -> up.getCurrentPoint())
+                        .orElse(0);
+                actualRevoke = Math.min(revokePoint, currentBalance);
+                shortfall = revokePoint - actualRevoke;
+            }
+        }
+
+        // 4. 카드 결제 환불 (잔고 부족분만큼 공제 후 Toss 호출)
+        int cashRefundAmount = 0;
+        if (paidAmount > 0 && payment.getExternalPaymentId() != null) {
+            int rawCashRefund = (int) (paidAmount * ratio);
+            cashRefundAmount = Math.max(0, rawCashRefund - shortfall);
+            if (cashRefundAmount > 0) {
+                if (cashRefundAmount == paidAmount) {
+                    tossPaymentService.cancelPayment(payment.getExternalPaymentId(), "정기권 환불");
+                } else {
+                    tossPaymentService.refundPayment(payment.getExternalPaymentId(), "정기권 부분환불", cashRefundAmount);
+                }
+            }
+        }
+
+        // 5. [포인트 반환] 결제 시 소모했던 포인트를 비율만큼 다시 적립
+        int pointRefundAmount = 0;
+        if (usedPoint > 0) {
+            pointRefundAmount = (int) (usedPoint * ratio);
+            if (pointRefundAmount > 0) {
+                Long refPointPaymentId = (pointPayment != null)
+                        ? pointPayment.getPaymentId()
+                        : payment.getPaymentId();
+                pointService.earnPoints(userId, refPointPaymentId,
+                        pointRefundAmount, "정기권 환불 - 포인트 반환", PointReason.REFUND);
+            }
+        }
+
+        // 6. [적립 포인트 회수] 잔고 내에서 회수 가능한 만큼만 차감 (부족분은 Step 4에서 현금 공제)
+        if (actualRevoke > 0) {
+            pointService.usePoints(userId, payment.getPaymentId(),
+                    actualRevoke, "정기권 환불 - 적립 포인트 회수", PointReason.REFUND);
+        }
+
+        // 7. Payment 상태 업데이트 (메인 - 현금/포인트단독)
+        PaymentStatus mainRefundStatus = (cashRefundAmount == paidAmount && paidAmount > 0) || (paidAmount == 0 && ratio >= 1.0)
+                ? PaymentStatus.CANCELLED : PaymentStatus.REFUNDED;
+        payment.setPaymentStatus(mainRefundStatus);
+        payment.setRefundedAmount(payment.getRefundedAmount() + cashRefundAmount);
+
+        // 8. Payment 상태 업데이트 (혼합 결제의 포인트 Payment)
+        if (pointPayment != null) {
+            PaymentStatus pointRefundStatus = (pointRefundAmount == usedPoint)
+                    ? PaymentStatus.CANCELLED : PaymentStatus.REFUNDED;
+            pointPayment.setPaymentStatus(pointRefundStatus);
+            pointPayment.setRefundedAmount(pointPayment.getRefundedAmount() + pointRefundAmount);
+        }
+
+        // 9. 정기권 상태를 환불됨으로 변경
+        subscription.updateStatus(Status.REFUNDED);
+
+        activityLogRepository.save(ActivityLog.builder()
+                .activityType(ActivityType.REFUNDED)
+                .user(subscription.getUser())
+                .payment(payment)
+                .carNumber(subscription.getVehicle().getCarNumber())
+                .message("정기권 환불 처리")
+                .build());
+
+        return SubscriptionRefundResponseDto.builder()
+                .cashRefundAmount(cashRefundAmount)
+                .pointRefundAmount(pointRefundAmount)
+                .revokedPoint(actualRevoke)
+                .pointDeductedAsCash(shortfall)
+                .build();
+    }
+
+    /**
+     * 유저의 전체 정기권 구매 이력을 조회합니다.
+     */
     @Transactional(readOnly = true)
-    public List<SubscriptionHistoryResponseDto> getMySubscriptionHistory(Long userId) {
-        return subscriptionRepository.findAllByUserId(userId).stream()
-                .map(SubscriptionHistoryResponseDto::from)
+    public List<SubscriptionResponseDto> getMySubscriptions(Long userId) {
+        return subscriptionRepository
+                .findAllByUserIdOrderByEndDateDesc(userId)
+                .stream()
+                .map(s -> SubscriptionResponseDto.from(s, 0))
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public SubscriptionMyInfoResponseDto getMySubscription(Long userId) {
-        // 현재 ACTIVE 상태인 정기권 조회 — 없으면 null 반환 (프론트에서 "정기권 없음" 처리)
-        return subscriptionRepository.findMyActiveSubscription(userId, LocalDateTime.now())
-                .map(SubscriptionMyInfoResponseDto::from)
-                .orElse(null);
-    }
-
-    @Transactional
-    public SubscriptionRefundResponseDto refundSubscription(Long userId, Long subscriptionId) {
-
-        // vehicle, payment를 JOIN FETCH로 한 번에 조회 — 없으면 에러
-        Subscription subscription = subscriptionRepository.findByIdWithVehicleAndPayment(subscriptionId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
-
-        // 본인 정기권인지 확인 — 차량의 소유자 userId와 요청자 userId 비교
-        if (!subscription.getVehicle().getUser().getUserId().equals(userId)) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED_VEHICLE);
-        }
-
-        // 이미 취소 또는 환불된 정기권은 재환불 불가
-        if (subscription.getStatus() == Status.CANCELLED || subscription.getStatus() == Status.REFUNDED) {
-            throw new CustomException(ErrorCode.SUBSCRIPTION_ALREADY_CANCELLED);
-        }
-
-        // 이미 만료된 정기권은 환불 불가
-        if (subscription.getStatus() == Status.EXPIRED) {
-            throw new CustomException(ErrorCode.SUBSCRIPTION_ALREADY_EXPIRED);
-        }
-
-        // 결제 내역 가져오기 — 토스 환불 호출에 paymentKey 필요
-        Payment payment = subscription.getPayment();
-
-        // 결제가 정상 완료된 건인지 확인 — SUCCESS가 아니면 토스에 환불 요청 불가
-        if (payment.getPaymentStatus() != PaymentStatus.SUCCESS) {
-            throw new CustomException(ErrorCode.PAYMENT_NOT_COMPLETED);
-        }
-
-        // 토스 결제 승인 시 저장된 paymentKey — 환불 API 호출에 사용
-        String paymentKey = payment.getExternalPaymentId();
-
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDate = subscription.getStartDate();
-        LocalDateTime endDate = subscription.getEndDate();
-
-        // 전체 이용 기간 (일수) — 예: 30일
-        long totalDays = ChronoUnit.DAYS.between(startDate, endDate);
-
-        long refundAmount;
-        String refundType;
-
-        if (now.isBefore(startDate)) {
-            // 시작일 전에 취소 → 하루도 안 썼으므로 전액 환불
-            refundAmount = payment.getAmount();
-            refundType = "전액환불";
-            tossPaymentService.cancelPayment(paymentKey, "정기권 전액 환불"); // 토스 전액 취소 API 호출
-        } else {
-            // 시작일 이후 취소 → 남은 일수만큼 일할 계산해서 부분 환불
-            long usedDays = ChronoUnit.DAYS.between(startDate, now); // 오늘까지 사용한 일수
-            long remainingDays = totalDays - usedDays;               // 남은 일수
-
-            // 마지막 날(remainingDays=0)이면 환불할 금액이 없으므로 토스 호출 없이 그냥 취소만 처리
-            if (remainingDays <= 0) {
-                subscription.refund();
-                payment.setPaymentStatus(PaymentStatus.REFUNDED);
-                payment.setRefundedAmount(0L);
-                log.info("[정기권 환불 완료] 유저: {}, 환불유형: 부분환불(0원), 마지막날 취소", userId);
-                return SubscriptionRefundResponseDto.builder()
-                        .refundAmount(0)
-                        .refundType("부분환불")
-                        .message("정기권이 취소되었습니다. 마지막 이용일이므로 환불 금액이 없습니다.")
-                        .build();
-            }
-
-            // 곱셈 먼저 → 나눗셈 순서로 계산해야 소수점 손실 최소화 (원 단위 내림 처리)
-            // 예: 100,000원 × 20일 / 30일 = 66,666원 (66,666.6...에서 내림)
-            refundAmount = payment.getAmount() * remainingDays / totalDays;
-            refundType = "부분환불";
-            tossPaymentService.refundPayment(paymentKey, "정기권 부분 환불", (int) refundAmount); // 토스 부분 취소 API 호출
-        }
-
-        // 정기권 상태를 REFUNDED로 변경 — Subscription 엔티티의 refund() 메서드 호출
-        subscription.refund();
-
-        // 결제 상태 REFUNDED로 변경, 환불 금액 기록
-        payment.setPaymentStatus(PaymentStatus.REFUNDED);
-        payment.setRefundedAmount(refundAmount);
-
-        // 환불 액티비티 로그 저장 — vehicle에서 user 꺼내서 포함
-        User refundUser = subscription.getVehicle().getUser();
-        activityLogRepository.save(ActivityLog.builder()
-                .activityType(ActivityType.REFUNDED)
-                .user(refundUser)                                    // 환불 요청 유저
-                .payment(payment)                                    // 연결된 결제 내역
-                .carNumber(subscription.getVehicle().getCarNumber()) // 정기권 등록 차량번호
-                .message("정기권 " + refundType + " (" + refundAmount + "원)")
-                .build());
-
-        log.info("[정기권 환불 완료] 유저: {}, 환불유형: {}, 환불금액: {}원", userId, refundType, refundAmount);
-
-        return SubscriptionRefundResponseDto.builder()
-                .refundAmount(refundAmount)
-                .refundType(refundType)
-                .message("정기권이 취소되었습니다. " + refundAmount + "원이 환불됩니다.")
-                .build();
+    /**
+     * 데이터베이스에서 시스템 설정값을 가져오거나 기본값을 반환합니다.
+     */
+    private int getSetting(SettingKey key) {
+        return systemSettingRepository.findBySettingKey(key.getKey())
+                .map(s -> Integer.parseInt(s.getSettingValue()))
+                .orElse(key.getDefaultIntValue());
     }
 
 }

@@ -122,6 +122,7 @@ const ReservationList = () => {
                                             <td className="center">
                                                 <ReservationActionButtons
                                                     status={res.status}
+                                                    visitStartAt={res.visitStartAt}
                                                     onCancel={() => handleCancel(res.reservationId)}
                                                     onEdit={() => handleEditOpen(res)}
                                                 />

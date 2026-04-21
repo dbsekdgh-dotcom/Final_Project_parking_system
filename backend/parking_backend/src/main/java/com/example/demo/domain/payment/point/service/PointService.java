@@ -58,13 +58,15 @@ public class PointService {
     @Transactional
     public void earnPoints(Long userId, Long paymentId, int amount, String description){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POINT_NOT_ENOUGH));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(()-> new CustomException(ErrorCode.POINT_INVALID_REQUEST));
 
         UserPoint userPoint = userPointRepository.findByUserUserId(userId)
-                .orElseThrow(()->new CustomException(ErrorCode.POINT_NOT_ENOUGH));
+                .orElseGet(() -> userPointRepository.save(
+                        UserPoint.builder().user(user).currentPoint(0).build()
+                ));
 
         int before = userPoint.getCurrentPoint();
         int after = before + amount;
@@ -119,6 +121,75 @@ public class PointService {
                 .beforePoint(before)
                 .afterPoint(after)
                 .reason(PointReason.PAYMENT_USE)
+                .description(description)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        pointLogRepository.save(log);
+    }
+
+    // 4. 포인트 차감 (환불/관리자용 - 사유 선택 가능)
+    @Transactional
+    public void usePoints(Long userId, Long paymentId, int amount, String description, PointReason reason) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POINT_NOT_ENOUGH));
+
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POINT_INVALID_REQUEST));
+
+        UserPoint userPoint = userPointRepository.findByUserUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POINT_NOT_ENOUGH));
+
+        int before = userPoint.getCurrentPoint();
+        if (before < amount) {
+            throw new CustomException(ErrorCode.POINT_NOT_ENOUGH);
+        }
+        int after = before - amount;
+
+        userPoint.setCurrentPoint(after);
+        userPointRepository.save(userPoint);
+
+        PointLog log = PointLog.builder()
+                .user(user)
+                .payment(payment)
+                .changeAmount(-amount)
+                .beforePoint(before)
+                .afterPoint(after)
+                .reason(reason)
+                .description(description)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        pointLogRepository.save(log);
+    }
+
+    // 5. 포인트 적립 (환불/관리자용 - 사유 선택 가능)
+    @Transactional
+    public void earnPoints(Long userId, Long paymentId, int amount, String description, PointReason reason) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POINT_INVALID_REQUEST));
+
+        UserPoint userPoint = userPointRepository.findByUserUserId(userId)
+                .orElseGet(() -> userPointRepository.save(
+                        UserPoint.builder().user(user).currentPoint(0).build()
+                ));
+
+        int before = userPoint.getCurrentPoint();
+        int after = before + amount;
+
+        userPoint.setCurrentPoint(after);
+        userPointRepository.save(userPoint);
+
+        PointLog log = PointLog.builder()
+                .user(user)
+                .payment(payment)
+                .changeAmount(amount)
+                .beforePoint(before)
+                .afterPoint(after)
+                .reason(reason) // 인자로 받은 PointReason.REFUND가 들어감
                 .description(description)
                 .createdAt(LocalDateTime.now())
                 .build();
