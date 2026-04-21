@@ -1,0 +1,10 @@
+*, *::before, *::after {
+    font-family: 'Pretendard', sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

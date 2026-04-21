@@ -17,8 +17,10 @@ public class SubscriptionResponseDto {
     private Status status;
     private int price;
     private int earnedPoint;
-    private int paidAmount;   // 현금 결제분 (환불 예상액 계산용)
-    private int usedPoint;    // 포인트 결제분 (환불 예상액 계산용)
+    private int paidAmount;        // 현금 결제분
+    private int usedPoint;         // 포인트 결제분
+    private LocalDateTime createdAt;    // 결제일
+    private LocalDateTime cancelledAt;  // 환불일 (REFUNDED) / 취소일 (CANCELLED)
 
     public static SubscriptionResponseDto from(Subscription subscription, int earnedPoint) {
         int paid = subscription.getPayment() != null
@@ -34,6 +36,8 @@ public class SubscriptionResponseDto {
                 .earnedPoint(earnedPoint)
                 .paidAmount(paid)
                 .usedPoint(used)
+                .createdAt(subscription.getCreatedAt())
+                .cancelledAt(subscription.getCancelledAt())
                 .build();
     }
 }

@@ -55,6 +55,11 @@
     font-weight: 600;
 }
 
+.sub-history-card__cancelled {
+    color: #e05c5c;
+    font-size: 0.85rem;
+}
+
 .sub-history-card__badge {
     font-size: 0.75rem;
     font-weight: 700;

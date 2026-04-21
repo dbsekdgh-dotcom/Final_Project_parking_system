@@ -26,7 +26,9 @@ import com.example.demo.domain.system.setting.SettingKey;
 import com.example.demo.domain.system.setting.repository.SystemSettingRepository;
 import com.example.demo.domain.vehicle.Vehicle;
 import com.example.demo.domain.vehicle.VehicleRepository;
+import com.example.demo.domain.vehicle.enums.VehicleStatus;
 import com.example.demo.domain.vehicle.blacklist.repository.VehicleBlacklistRepository;
+import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,7 @@ public class SubscriptionService {
     private final PaymentRepository paymentRepository;
     private final VehicleRepository vehicleRepository;
     private final VehicleBlacklistRepository vehicleBlacklistRepository;
+    private final ParkingLogRepository parkingLogRepository;
     private final UserRepository userRepository;
     private final UserPointRepository userPointRepository;
     private final PointService pointService;
@@ -66,12 +69,27 @@ public class SubscriptionService {
         Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
 
-        // 2. 차량 소유권 검증
+        // 2. 유저 상태 검증 (정지/탈퇴 계정 차단)
+        if (user.getStatus() != com.example.demo.domain.resident.enums.Status.ACTIVE) {
+            throw new BusinessException(ErrorCode.USER_SUSPENDED);
+        }
+
+        // 3. 차량 소유권 검증
         if (!vehicle.getUser().getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        // 3. 블랙리스트 여부 확인 (현재 시점 기준)
+        // 4. 차량 활성 상태 검증 (PENDING/DELETED 차량은 정기권 불가)
+        if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_STATUS);
+        }
+
+        // 5. 시작일이 과거인 경우 차단
+        if (dto.getStartDate() != null && dto.getStartDate().toLocalDate().isBefore(java.time.LocalDate.now())) {
+            throw new BusinessException(ErrorCode.INVALID_SUBSCRIPTION_PERIOD);
+        }
+
+        // 6. 블랙리스트 여부 확인 (현재 시점 기준)
         if (vehicleBlacklistRepository.isCurrentlyBlacklisted(vehicle.getCarNumber(), LocalDateTime.now())) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
@@ -243,7 +261,12 @@ public class SubscriptionService {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        // 2. 남은 기간 비례 환불 비율 계산
+        // 2. 현재 주차 중인 차량은 정기권 취소 불가
+        if (parkingLogRepository.isAlreadyInParkingLot(subscription.getVehicle().getCarNumber())) {
+            throw new BusinessException(ErrorCode.VEHICLE_ALREADY_ENTERED);
+        }
+
+        // 3. 남은 기간 비례 환불 비율 계산
         long totalDays = java.time.temporal.ChronoUnit.DAYS.between(subscription.getStartDate(), subscription.getEndDate());
         long remainDays = java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getEndDate());
         if (remainDays < 0) remainDays = 0;
