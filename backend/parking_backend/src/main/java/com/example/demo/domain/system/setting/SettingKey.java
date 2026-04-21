@@ -35,7 +35,6 @@ public enum SettingKey {
 
     //블랙리스트 등록을 위한 신고 횟수 기준
     REPORT_BLACKLIST_THRESHOLD("REPORT_BLACKLIST_THRESHOLD","10"),
-    OVERTIME_MIN_FEE("OVERTIME_MIN_FEE","100"),
 
     // 정기권 월별 최대 판매 수량 (선착순)
     SUB_MAX_COUNT("SUB_MAX_COUNT", "10"),
