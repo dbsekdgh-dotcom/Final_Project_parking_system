@@ -53,9 +53,11 @@ public class AdminParkingSpaceService {
         // 층별 현황 데이터 계산(우측 하단 게이지바용)
         long b1Occupied = parkingSpaceRepository.countByFloorAndStatus(Floor.B1, SpaceStatus.OCCUPIED);
         long b1Total = parkingSpaceRepository.countByFloor(Floor.B1);
+        long b1Blocked = parkingSpaceRepository.countByFloorAndStatus(Floor.B1,SpaceStatus.BLOCKED);
 
         long b2Occupied = parkingSpaceRepository.countByFloorAndStatus(Floor.B2,SpaceStatus.OCCUPIED);
         long b2Total = parkingSpaceRepository.countByFloor(Floor.B2);
+        long b2Blocked = parkingSpaceRepository.countByFloorAndStatus(Floor.B2,SpaceStatus.BLOCKED);
 
         return ParkingSpaceSummaryResponse.builder()
                 .totalSpaces(totalSpaces)
@@ -66,6 +68,8 @@ public class AdminParkingSpaceService {
                 .b2Total(b2Total)
                 .b1Occupied(b1Occupied)
                 .b2Occupied(b2Occupied)
+                .b1Blocked(b1Blocked)
+                .b2Blocked(b2Blocked)
                 .build();
     }
 
@@ -95,6 +99,7 @@ public class AdminParkingSpaceService {
     }
 
     // 관리자 - 주차공간 구획별 통합 제어
+    @Transactional
     public void controlParkingSpace(Long spaceId, SpaceControlRequest request, AdminAuthDto adminAuthDto) throws Exception{
         //관리자 조회
         Admin currentAdmin = adminRepository.findByLoginId(adminAuthDto.getUsername())
