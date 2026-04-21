@@ -1,76 +1,177 @@
+/* 오버레이: 배경을 조금 더 어둡게 하여 모달 집중도 향상 */
 .admin-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 2000; /* 최상단 보장 */
+    backdrop-filter: blur(4px); /* 배경 살짝 흐리게 처리 */
 }
 
+/* 모달 본체: 크기를 살짝 키우고 깔끔한 다크 모드 테마 적용 */
 .admin-modal {
-    background-color: #2a2a2a;
-    width: 380px;
-    padding: 24px;
-    border-radius: 12px;
-    border: 1px solid #444;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    background-color: #1e1e1e;
+    width: 420px;
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid #333;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
 }
 
 .modal-header h3 {
     margin: 0;
-    font-size: 1.2rem;
-    color: #3b82f6;
+    font-size: 1.4rem;
+    color: #60a5fa; /* 조금 더 밝은 파랑 */
+    font-weight: 700;
 }
 
 .close-x-btn {
     background: none;
     border: none;
-    color: #888;
-    font-size: 1.5rem;
+    color: #666;
+    font-size: 2rem;
     cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
 }
 
+.close-x-btn:hover {
+    color: #fff;
+}
+
+/* 상태 표시 영역 */
 .modal-body {
-    margin-bottom: 24px;
-    line-height: 1.6;
+    margin-bottom: 30px;
 }
 
-.modal-description {
-    color: #aaa;
-    font-size: 0.95rem;
-    margin-top: 8px;
+.modal-body p {
+    color: #ccc;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
 }
 
-.modal-footer {
+.modal-body strong {
+    color: #fff;
+    margin-left: 8px;
+}
+
+/* 배지 스타일 보완 */
+.type-badges {
     display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge.disabled {
+    background-color: #3b82f6 !important; /* 투명도 없이 꽉 찬 파랑 */
+    color: #ffffff !important;           /* 글씨는 흰색으로 선명하게 */
+    border: none;
+    padding: 6px 14px;
+    box-shadow: 0 0 8px rgba(132, 175, 245, 0.5); /* 파란색 광택 효과 */
+}
+
+.badge.ev {
+    background-color: #eab308 !important; /* 투명도 없이 꽉 찬 노랑 */
+    color: #000000 !important;           /* 노랑 위에는 검정 글씨가 훨씬 잘 보입니다 */
+    border: none;
+    padding: 6px 14px;
+    box-shadow: 0 0 8px rgba(234, 179, 8, 0.5);  /* 노란색 광택 효과 */
+}
+.badge.general { background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid #9ca3af; }
+
+/* 섹션 공통 스타일 */
+.modal-section {
+    margin-bottom: 25px;
+}
+
+.modal-section h4 {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 버튼 그룹 레이아웃 보완 */
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3열로 정렬 */
     gap: 10px;
 }
 
-.modal-footer button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    font-weight: bold;
+/* 버튼 공통 스타일 */
+.button-group button {
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: #ddd;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: filter 0.2s;
+    transition: all 0.2s;
 }
 
-.btn-block { background-color: #ef4444; color: white; }
-.btn-unblock { background-color: #10b981; color: white; }
-.btn-close { background-color: #555; color: white; }
+.button-group button:hover:not(:disabled) {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+}
 
-.modal-footer button:hover {
-    filter: brightness(1.2);
+/* 비활성화(현재 선택된 상태) 버튼 스타일 */
+.button-group button:disabled {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    cursor: default;
+    opacity: 0.8;
+}
+
+/* 상태 제어 버튼 (하단 큰 버튼) */
+.modal-section:last-child .button-group {
+    grid-template-columns: 1fr; /* 하단 버튼은 한 줄 꽉 차게 */
+}
+
+.btn-block { 
+    background-color: rgba(239, 68, 68, 0.1) !important; 
+    color: #ef4444 !important; 
+    border: 1px solid #ef4444 !important;
+}
+
+.btn-block:hover { 
+    background-color: #ef4444 !important; 
+    color: white !important; 
+}
+
+.btn-unblock { 
+    background-color: rgba(16, 185, 129, 0.1) !important; 
+    color: #10b981 !important; 
+    border: 1px solid #10b981 !important;
+}
+
+.btn-unblock:hover { 
+    background-color: #10b981 !important; 
+    color: white !important; 
 }

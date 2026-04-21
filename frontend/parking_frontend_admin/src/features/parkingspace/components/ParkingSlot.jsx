@@ -2,25 +2,32 @@ import React from 'react'
 import './ParkingSlot.css'
 // 주차칸 하나하나의 컴포넌트
 
-const ParkingSlot = ({space, onClick}) => {
-    const statusClass = 
-    space.status === 'AVAILABLE' ? 'empty' : 
-    space.status === 'OCCUPIED' ? 'occupied' : 'blocked'
+const ParkingSlot = ({ space, onClick }) => {
+    const statusClass =
+        space.status === 'AVAILABLE' ? 'empty' :
+            space.status === 'OCCUPIED' ? 'occupied' : 'blocked'
 
     //특수구역 여부
     const specialClass = space.isDisabled ? 'disabled-zone' : space.isEvCharge ? 'ev-zone' : ''
 
     return (
         <div className={`parking-slot ${statusClass} ${specialClass}`}
-        onClick={onClick} style={{cursor: 'pointer'}}>
+            onClick={onClick} style={{ cursor: 'pointer' }}>
             {/* 상단: 주차 구역 코드 */}
             <div className='slot-header'>
                 <span className='space-code'>{space.spaceCode}</span>
             </div>
             {/* 중앙: 특수 구역 아이콘 (장애인/전기차) */}
             <div className='slot-icon'>
-                {space.isDisabled && <span className='icon'>♿</span>}
-                {space.isEvCharge && <span className='icon'>⚡</span>}
+                {space.status === 'BLOCKED' ? (
+                    <span className='icon' style={{ color: '#ff4444', fontSize: '1.6rem' }}>🚫</span>
+                ) : (
+                    <>
+                        {space.isDisabled && <span className='icon'>♿</span>}
+                        {space.isEvCharge && <span className='icon'>⚡</span>}
+                    </>
+                )}
+
             </div>
             {/* 하단: 차량 번호(점유중일 경우) */}
             <div className='slot-footer'>
@@ -28,11 +35,11 @@ const ParkingSlot = ({space, onClick}) => {
                     <span className='car-number'>{space.carNumber}</span>
                 ) : (
                     space.status === 'BLOCKED' ?
-                    <span className='status-text'>차단됨</span> :
-                    <span className='empty-text'></span>
+                        <span className='status-text'>차단됨</span> :
+                        <span className='empty-text'></span>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
 

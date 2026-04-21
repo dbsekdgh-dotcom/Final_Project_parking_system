@@ -7,7 +7,7 @@ const ParkingControlModal = ({isOpen, onClose, selectedSpace, onBlock, onUnblock
     return (
         <div className='admin-modal-overlay' onClick={onClose}>
             {/* onClick={onClose}: 배경 클릭 시 모달 닫힘 */}
-            <div className='admin-modal' onClick={(e)=>e.stopPropagation}>
+            <div className='admin-modal' onClick={(e)=>e.stopPropagation()}>
                 {/* stopPropagation: 모달 본체 클릭시 닫히지 않게 방지 */}
                 <div className='modal-header'>
                     <h3>구역 제어: {selectedSpace.spaceCode}</h3>
