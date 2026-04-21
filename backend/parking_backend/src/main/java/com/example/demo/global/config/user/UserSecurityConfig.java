@@ -71,6 +71,7 @@ public class UserSecurityConfig {
                         .requestMatchers("/api/user/apply/**").authenticated()
                         .requestMatchers("/api/report/**").authenticated()
                         .requestMatchers("/api/user/reservations/**").authenticated()
+                        .requestMatchers("/api/user/subscriptions/**").authenticated()
                         .requestMatchers("/api/user/auth/local/logout").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/user/auth/local/withdraw").authenticated()
 

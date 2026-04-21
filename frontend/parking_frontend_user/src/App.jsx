@@ -13,14 +13,7 @@ import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
 import ReportPage from './features/report/ReportPage.jsx';
 import MyPage from './features/mypage/pages/MyPage.jsx';
 import ReservationPage from './features/reservation/pages/ReservationPage.jsx';
-
-// 준비 중 페이지 컴포넌트
-const PlaceholderPage = ({ title }) => (
-  <div style={{ padding: '2rem' }}>
-    <h2>{title}</h2>
-    <p>준비 중입니다.</p>
-  </div>
-);
+import SubscriptionPage from './features/subscription/pages/SubscriptionPage.jsx';
 
 function App() {
   return (
@@ -55,7 +48,7 @@ function App() {
         >
           {/* 하위 경로들: DashBoard에서 navigate로 보내는 주소와 일치시켜야 함 */}
           <Route path="/dashboard" element={<DashBoard />} />
-          <Route path="/subscription" element={<PlaceholderPage title="정기권" />} />
+          <Route path="/subscription" element={<SubscriptionPage title="정기권"/>} />
           <Route path="/reservation" element={<ReservationPage title="방문예약" />} />          
           <Route path="/mypage" element={<MyPage title="마이페이지" />} />
           <Route path="/report" element={<ReportPage title="민원/신고" />} />

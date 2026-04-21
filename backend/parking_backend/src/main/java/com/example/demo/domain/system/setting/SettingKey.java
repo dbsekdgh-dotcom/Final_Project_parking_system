@@ -31,7 +31,16 @@ public enum SettingKey {
     VEHICLE_AUTO_APPROVAL_THRESHOLD("VEHICLE_AUTO_APPROVAL_THRESHOLD", "95"),
 
     //사전정산 후 출차시간 초과 시 최소 부과 요금
-    OVERTIME_MIN_FEE("OVERTIME_MIN_FEE","100");
+    OVERTIME_MIN_FEE("OVERTIME_MIN_FEE","100"),
+
+    // 정기권 월별 최대 판매 수량 (선착순)
+    SUB_MAX_COUNT("SUB_MAX_COUNT", "10"),
+
+    // 정기권 30일권 이용 금액
+    SUB_MONTHLY_PRICE("SUB_MONTHLY_PRICE", "100000"),
+
+    // 정기권 기본 이용 기간 (일)
+    SUB_DURATION_DAYS("SUB_DURATION_DAYS", "30");
 
 
     private final String key;
