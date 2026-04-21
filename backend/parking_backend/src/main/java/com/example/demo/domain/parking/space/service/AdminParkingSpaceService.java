@@ -95,6 +95,7 @@ public class AdminParkingSpaceService {
     }
 
     // 관리자 - 주차공간 구획별 통합 제어
+    @Transactional
     public void controlParkingSpace(Long spaceId, SpaceControlRequest request, AdminAuthDto adminAuthDto) throws Exception{
         //관리자 조회
         Admin currentAdmin = adminRepository.findByLoginId(adminAuthDto.getUsername())

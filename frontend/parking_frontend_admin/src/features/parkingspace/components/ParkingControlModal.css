@@ -1,0 +1,76 @@
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.admin-modal {
+    background-color: #2a2a2a;
+    width: 380px;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #444;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #3b82f6;
+}
+
+.close-x-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-body {
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.modal-description {
+    color: #aaa;
+    font-size: 0.95rem;
+    margin-top: 8px;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.btn-block { background-color: #ef4444; color: white; }
+.btn-unblock { background-color: #10b981; color: white; }
+.btn-close { background-color: #555; color: white; }
+
+.modal-footer button:hover {
+    filter: brightness(1.2);
+}

@@ -2,7 +2,7 @@ import React from 'react'
 import './ParkingSlot.css'
 // 주차칸 하나하나의 컴포넌트
 
-const ParkingSlot = ({space}) => {
+const ParkingSlot = ({space, onClick}) => {
     const statusClass = 
     space.status === 'AVAILABLE' ? 'empty' : 
     space.status === 'OCCUPIED' ? 'occupied' : 'blocked'
@@ -11,7 +11,8 @@ const ParkingSlot = ({space}) => {
     const specialClass = space.isDisabled ? 'disabled-zone' : space.isEvCharge ? 'ev-zone' : ''
 
     return (
-        <div className={`parking-slot ${statusClass} ${specialClass}`}>
+        <div className={`parking-slot ${statusClass} ${specialClass}`}
+        onClick={onClick} style={{cursor: 'pointer'}}>
             {/* 상단: 주차 구역 코드 */}
             <div className='slot-header'>
                 <span className='space-code'>{space.spaceCode}</span>
@@ -26,6 +27,8 @@ const ParkingSlot = ({space}) => {
                 {space.status === 'OCCUPIED' && space.carNumber ? (
                     <span className='car-number'>{space.carNumber}</span>
                 ) : (
+                    space.status === 'BLOCKED' ?
+                    <span className='status-text'>차단됨</span> :
                     <span className='empty-text'></span>
                 )}
             </div>

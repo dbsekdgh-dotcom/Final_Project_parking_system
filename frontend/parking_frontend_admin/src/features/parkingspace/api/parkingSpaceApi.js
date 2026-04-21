@@ -25,7 +25,7 @@ export const getParkingSpace =async(floor)=>{
 //관리자 - 주차 공간 구획별 통합 제어
 export const controlParkingSpace = async(spaceId,action) => {
     try{
-        const response = await adminApi.patch(`/parking-space/{spaceId}/control`,{
+        const response = await adminApi.patch(`/parking-space/${spaceId}/control`,{
             action:action
         })
         return response.data
