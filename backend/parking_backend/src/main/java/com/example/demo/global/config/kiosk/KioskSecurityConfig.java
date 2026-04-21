@@ -1,11 +1,16 @@
 package com.example.demo.global.config.kiosk;
 
+import com.example.demo.global.security.store.KioskJwtFilter;
+import com.example.demo.global.util.admin.AdminJWTUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -15,17 +20,24 @@ import java.util.List;
 
 @Configuration
 @Order(3)
+@RequiredArgsConstructor
 public class KioskSecurityConfig {
+
+    private final AdminJWTUtil adminJWTUtil;
 
     @Bean
     public SecurityFilterChain kioskFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/v1/**", "/api/payment/**", "/api/exit/**")
+            .securityMatcher("/api/v1/**", "/api/payment/**", "/api/exit/**", "/api/store/**")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(kioskCorsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(HttpMethod.POST, "/api/store/login").permitAll()
+                    .requestMatchers("/api/store/**").hasRole("STORE")
+                    .anyRequest().permitAll()
+            ).addFilterBefore(new KioskJwtFilter(adminJWTUtil),
+                        UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
