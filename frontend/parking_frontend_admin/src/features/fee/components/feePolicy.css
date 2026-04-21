@@ -87,9 +87,10 @@
   z-index: 5; /* 다른 요소보다 위에 오도록 */
 }
 
+
 /* 적용 예정 강조 스타일 */
 .upcoming {
-  border: 1px dashed #ff4d4d;
+  border: 1px dashed #3b82f6;
   background-color: rgba(255, 77, 77, 0.05);
 }
 
@@ -131,4 +132,46 @@
 
 .saveBtn:active {
   transform: scale(0.95); /* 클릭할 때 살짝 들어가는 효과 */
+}
+
+/*  적용 예정 섹션 전체 컨테이너 */
+.upcomingSection {
+  margin-top: -15px; /* 위쪽 카드와 가깝게 올리기 */
+  margin-bottom: 20px;
+}
+
+/*  "상세보기" 클릭하는 부분 */
+.upcomingToggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 20px; /* 오른쪽으로 들여쓰기 */
+  padding: 5px 10px;
+  background-color: #3d3d3d; /* 배경을 살짝 줘서 버튼 같은 느낌 부여 */
+  border-radius: 20px; /* 둥글게 */
+  border: 1px solid #4d4d4d;
+  transition: all 0.2s;
+  cursor:pointer;
+}
+
+.upcomingToggle:hover {
+  background-color: #4a4a4a; /* 호버 시 살짝 밝게 */
+  border-color: #3b82f6;
+}
+
+.upcomingToggle span {
+  font-size: 0.85rem;
+  color: #aaa; /* 연한 회색 */
+  font-weight: 500;
+}
+
+/*  펼쳐지는 상세 내용 간격 */
+.upcomingContent {
+  margin-top: 15px;
+}
+
+.section.true {
+  border: 1px solid #2196f3; /* 💡 테두리는 진한 파랑 */
+  background-color: rgba(33, 150, 243, 0.1) !important; /* 💡 배경은 연한 파랑 (10% 투명도) */
+  /* hexagon 코드: #2196f31a */
 }

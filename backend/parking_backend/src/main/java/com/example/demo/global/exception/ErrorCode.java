@@ -175,9 +175,10 @@ public enum ErrorCode {
     //Admin
     ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다"),
 
-    POLICY_NOT_MODIFIABLE(HttpStatus.NOT_MODIFIED,"만료 예정 정책은 수정할 수 없습니다.");
+    POLICY_NOT_MODIFIABLE(HttpStatus.NOT_MODIFIED,"만료 예정 정책은 수정할 수 없습니다."),
 
-
+    //ParkingSpace
+    CANNOT_BLOCK_OCCUPIED_SPACE(HttpStatus.BAD_REQUEST,"현재 차량이 주차중인 공간은 차단할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

@@ -1,0 +1,93 @@
+/* 컨테이너 */
+.policy-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 항목 간 간격 */
+    padding: 10px;
+    text-align: left;
+}
+
+/* 개별 필드 (세로 정렬 고정) */
+.policy-field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 라벨 스타일 */
+.field-label, .group-label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+
+/* 입력창 및 셀렉트 (기존 블랙 테마 유지) */
+input[type="text"], 
+input[type="number"], 
+textarea, 
+.swal-select {
+    width: 100%;
+    background: #121212 !important;
+    border: 1px solid #333 !important;
+    color: white !important;
+    padding: 10px !important;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+}
+
+textarea {
+    height: 60px;
+    resize: none;
+}
+
+/* 라디오 버튼 영역 */
+.radio-options {
+display: flex;
+    gap: 25px; 
+    padding: 8px 12px; /* 상하 여백을 12px -> 8px로 줄임 */
+    background: #222; 
+    border-radius: 6px;
+    margin-top: 4px;
+    width: 100%; /* 너비를 입력창과 동일하게 100%로 설정 */
+    box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+    align-items: center; /* 내부 요소 수직 중앙 정렬 */
+}
+
+.radio-label {
+display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: white;
+    font-size: 0.9rem;
+    margin: 0 !important;
+    white-space: nowrap; /* 글자 줄바꿈 방지 */
+}
+
+.radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3b82f6;
+}
+
+/* 특정 필드의 라벨과 박스 사이 간격을 최소화 */
+.compact-field {
+    gap: 2px !important; /* 필드 내부 요소(라벨-박스) 사이 간격을 2px로 강제 */
+}
+
+.compact-field .group-label {
+    margin-bottom: 0 !important; /* 라벨 아래 마진 완전히 제거 */
+}
+
+/* 라디오 박스 자체의 높이와 여백도 더 컴팩트하게 */
+.compact-field .radio-options {
+    padding: 6px 12px; /* 상하 패딩을 12px -> 6px로 줄임 */
+    margin-top: 0 !important; /* 위쪽 여백 제거 */
+    background: #1a1a1a; /* 다른 입력창과 톤을 맞춰 더 일체감 있게 (선택사항) */
+}
+
+/* 전체적인 여백이 여전히 넓게 느껴진다면 아래 값도 조정하세요 */
+.policy-form-container {
+    gap: 8px; /* 항목(세로줄) 간 전체 간격을 줄임 */
+}

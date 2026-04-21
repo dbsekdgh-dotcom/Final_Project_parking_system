@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PolicyScheduler {
+public class    PolicyScheduler {
     private final ParkingFeePolicyRepository parkingFeePolicyRepository;
 
-    @Scheduled(cron = "0 0 0 * * *") //내일 policy id 2번 변경되었는지 확인하기
+    @Scheduled(cron = "0 * * * * *") //내일 policy id 2번 변경되었는지 확인하기
     @Transactional
     public void updatePolicyStatus(){
         log.info("---[scheduler] 요금 정책 상태 업데이트 시작---");
