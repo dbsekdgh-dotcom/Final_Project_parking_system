@@ -3,6 +3,8 @@ package com.example.demo.domain.reservation.repository;
 import com.example.demo.domain.reservation.Reservation;
 import com.example.demo.domain.reservation.enums.Status;
 import com.example.demo.domain.resident.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -132,4 +134,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         """)
     int bulkMarkNoShow(@Param("now") LocalDateTime now);
 
+    //Admin/UserVehicle Page 용
+
+    @Query(
+            value = """
+            SELECT r FROM Reservation r JOIN FETCH r.user u
+            WHERE r.status != 'PENDING'
+            AND (:keyword IS NULL OR r.carNumber LIKE %:keyword% OR u.name LIKE %:keyword%)
+            AND (:status IS NULL OR r.status = :status)
+            ORDER BY r.createdAt DESC
+            """,
+            countQuery = """
+            SELECT COUNT(r) FROM Reservation r JOIN r.user u
+            WHERE r.status != 'PENDING'
+            AND (:keyword IS NULL OR r.carNumber LIKE %:keyword% OR u.name LIKE %:keyword%)
+            AND (:status IS NULL OR r.status = :status)
+"""
+    )
+    Page<Reservation> findAllForAdmin(
+            @Param("keyword") String keyword,
+            @Param("status") Status status,
+            Pageable pageable
+    );
 }

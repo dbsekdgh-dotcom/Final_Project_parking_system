@@ -64,5 +64,10 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 
     long countByStatus(ApprovalStatus status);
 
+    //Admin/UserVehicle Page 용
+    @Query("SELECT a FROM Approval a LEFT JOIN FETCH a.requestUserId u WHERE a.targetId = :vehicleId AND a.approvalType = 'VEHICLE' ORDER BY a.createdAt ASC ")
+    List<Approval> findVehicleRegistrationHistory(@Param("vehicleId") Long vehicleId);
+
+
     List<Approval> findByRequestUserId_UserIdAndStatus(Long userId, ApprovalStatus status);
 }
