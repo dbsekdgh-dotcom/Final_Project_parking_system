@@ -90,4 +90,8 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "AND p.parkingStatus IN ('ENTERED', 'DETECTED', 'EXIT_REQUESTED') " +
             "AND p.parkingTypeSnapshot IN ('RESIDENT', 'SUBSCRIPTION'))")
     boolean existsActiveBenefitLogByVehicleId(@Param("vehicleId") Long vehicleId);
+
+    //특정 기간의 주차요금
+    @Query("select sum(p.fee) from ParkingLog p where p.paidAt between :startDate and : endDate")
+    Long calculateParkingFee(@Param("startDate")LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }
