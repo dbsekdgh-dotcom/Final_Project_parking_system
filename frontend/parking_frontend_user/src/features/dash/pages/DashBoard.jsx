@@ -24,6 +24,7 @@ const DashBoard = () => {
       Swal.fire({
         icon: "success",
         title: "로그인 성공",
+        text: `환영합니다, ${name}님!`,
         confirmButtonText: "확인",
         confirmButtonColor: "#3085d6",
       });

@@ -6,39 +6,18 @@ import PolicyBox from './PolicyBox';
 import { SlPencil, SlShareAlt } from 'react-icons/sl';
 import {TICKET_POLICY_TYPE_LABEL,TICKET_POLICY_STATUS_LABEL} from './../../../shared/constants/parkingLabel'
 import { CiTrash } from "react-icons/ci";
-import {usePolicyMutation} from './../hooks/usePolicyMutation'
 import { confirmAlert} from './confirmPolicy';
 import {addTicketPolicy} from './addTicketPolicy'
+import TicketPolicyBox from './TicketPolicyBox';
 
 const FeePolicy = () => {
   const [isOpen,setIsOpen]=useState(false);
   const [isReservationOpen, setReservationOpen]=useState(false)
-  const {deleteTicketMutationAsync,insertTicketMutationAsync}=usePolicyMutation()
 
   const {data,isError,isLoading}=useQuery({
     queryKey:['feePolicy'],
     queryFn:async()=>await searchFeePolicy(),
   })
-
-  const deleteHandler=(p,type)=>{
-    confirmAlert({
-      title:'할인권 정책 삭제 확인',
-      label:'삭제할 정책',
-      value:`${p.name}(${p.discountValue}${type})`,
-      effectiveDate:'즉시 적용',
-      resultTitle:'할인권 정책 삭제 완료',
-      mutateAsync:deleteTicketMutationAsync,
-      updatePolicy:`${p.ticketPolicyId}`
-    })
-    console.log("deleteTicketMutationAsync:", deleteTicketMutationAsync)                                                                                                                                                                                         
-    console.log("ticketPolicyId:", p.ticketPolicyId)      
-  }
-
-  const insertTicketHandler=()=>{
-    addTicketPolicy({
-      updateMutateAsync:insertTicketMutationAsync
-    })
-  }
 
   return (
     <div className='container'>
@@ -76,33 +55,9 @@ const FeePolicy = () => {
         }
 
         {/* 할인권 정책 */}
-        <div className='section'>
-          <div className='sectionHeader'>
-            <span className='title'>할인권 정책</span>
-            <span className='mainEdit' role='button' onClick={insertTicketHandler}><SlPencil></SlPencil></span> 
-          </div>
-        <div className='gridContainer'>
-          {
-            data?.ticketPolicies && data.ticketPolicies.length>0?
-            (data.ticketPolicies.map(p=>{
-              const typeLabel = TICKET_POLICY_TYPE_LABEL[p.discountType];
-              const type=typeLabel==='비율'?'%':typeLabel==='시간'?'분':typeLabel==='무료'?'무료':'원'
-              return (
-                <div  className='infoBox' key={p.ticketPolicyId}>
-                <div className='editIcon' >
-                  <span className='editIcon' role='button' onClick={()=>deleteHandler(p,type)}><CiTrash/></span>
-                </div>
-                <span className='label'>{p.name}</span>
-                <span className='value'>{type==='무료'?type:p.discountValue.toLocaleString()}{type==='무료'?'':type}</span>
-                <span className='label' role='button' style={{cursor: 'pointer', color:`${p.status==='ACTIVE'?'orange':'grey'}`}}>{TICKET_POLICY_STATUS_LABEL[p.status]}</span>
-              </div>
-            )})
-      
-            ) :(<p>등록된 할인권 정책이 없습니다.</p>)
-          }
-        </div>
-        </div>
-
+        <TicketPolicyBox title="[상가] 할인권 정책" data={data?.storeTicket}/>
+        <TicketPolicyBox title="[관리자] 할인권 정책" data={data?.adminTicket}/>
+        <TicketPolicyBox title="[관리자] 상가 기본지급 할인권 정책" data={data?.monthlyTicket}/>
     </div>
   )
 }

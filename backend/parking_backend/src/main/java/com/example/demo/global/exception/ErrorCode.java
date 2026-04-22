@@ -44,6 +44,17 @@ public enum ErrorCode {
     CAMERA_NOT_FOUND(HttpStatus.NOT_FOUND,"카메라를 찾을 수 없습니다."),
     PARKING_LOG_NOT_FOUND(HttpStatus.NOT_FOUND,"주차 세션을 찾을 수 없습니다."),
 
+    // SUBSCRIPTION (정기권 관련)
+    SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "정기권 정보를 찾을 수 없습니다."),
+    SUBSCRIPTION_SOLD_OUT(HttpStatus.CONFLICT, "해당 기간의 정기권이 모두 매진되었습니다. (선착순 10명)"),
+    ALREADY_HAS_SUBSCRIPTION(HttpStatus.CONFLICT, "이미 해당 기간에 이용 중이거나 예약된 정기권이 있습니다."),
+    INVALID_SUBSCRIPTION_PERIOD(HttpStatus.BAD_REQUEST, "정기권 이용 기간 설정이 올바르지 않습니다."),
+    CANNOT_REFUND_STARTED_SUBSCRIPTION(HttpStatus.BAD_REQUEST, "이미 이용 시작일이 지난 정기권은 환불이 불가능합니다."),
+    SUBSCRIPTION_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소 또는 환불된 정기권입니다."),
+    SUBSCRIPTION_ALREADY_EXPIRED(HttpStatus.BAD_REQUEST, "이미 만료된 정기권은 환불이 불가합니다."),
+    SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, "정기권 관련 시스템 설정(가격, 수량)을 찾을 수 없습니다."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 준비 내역을 찾을 수 없습니다."),
+
     // PAYMENT
     PAYMENT_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "결제가 완료되지 않았습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
@@ -167,7 +178,10 @@ public enum ErrorCode {
     POLICY_NOT_MODIFIABLE(HttpStatus.NOT_MODIFIED,"만료 예정 정책은 수정할 수 없습니다."),
 
     //ParkingSpace
-    CANNOT_BLOCK_OCCUPIED_SPACE(HttpStatus.BAD_REQUEST,"현재 차량이 주차중인 공간은 차단할 수 없습니다.");
+    CANNOT_BLOCK_OCCUPIED_SPACE(HttpStatus.BAD_REQUEST,"현재 차량이 주차중인 공간은 차단할 수 없습니다."),
+
+    //할인권 정책
+    POLICY_IN_USE(HttpStatus.BAD_REQUEST,"상가에서 사용 중인 정책이므로 삭제할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

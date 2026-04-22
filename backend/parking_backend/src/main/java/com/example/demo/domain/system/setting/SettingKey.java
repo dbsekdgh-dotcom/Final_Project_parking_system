@@ -34,7 +34,20 @@ public enum SettingKey {
     OVERTIME_MIN_FEE("OVERTIME_MIN_FEE","100"),
 
     //블랙리스트 등록을 위한 신고 횟수 기준
-    REPORT_BLACKLIST_THRESHOLD("REPORT_BLACKLIST_THRESHOLD","10");
+    REPORT_BLACKLIST_THRESHOLD("REPORT_BLACKLIST_THRESHOLD","10"),
+
+    // 정기권 월별 최대 판매 수량 (선착순)
+    SUB_MAX_COUNT("SUB_MAX_COUNT", "10"),
+
+    // 정기권 30일권 이용 금액
+    SUB_MONTHLY_PRICE("SUB_MONTHLY_PRICE", "100000"),
+
+    // 정기권 기본 이용 기간 (일)
+    SUB_DURATION_DAYS("SUB_DURATION_DAYS", "30"),
+
+    SUBSCRIPTION_PRICE("SUB_MONTHLY_PRICE", "100000"),
+    SUBSCRIPTION_DAYS("SUB_DURATION_DAYS", "30"),
+    SUBSCRIPTION_MAX_COUNT("SUB_MAX_COUNT", "10");
 
 
     private final String key;

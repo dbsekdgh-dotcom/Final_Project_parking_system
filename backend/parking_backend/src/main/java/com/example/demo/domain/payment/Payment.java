@@ -63,4 +63,10 @@ public class Payment {
     @Comment("환불처리된 누적 금액")
     private Long refundedAmount=0L;
 
+
+    public void completePayment(String paymentKey) {
+        this.paymentStatus = PaymentStatus.SUCCESS;
+        this.externalPaymentId = paymentKey;
+    }
+
 }

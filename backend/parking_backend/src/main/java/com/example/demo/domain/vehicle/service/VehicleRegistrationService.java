@@ -13,6 +13,7 @@ import com.example.demo.domain.system.setting.SettingKey;
 import com.example.demo.domain.system.setting.repository.SystemSettingRepository;
 import com.example.demo.domain.resident.User;
 import com.example.demo.domain.resident.UserRepository;
+import com.example.demo.domain.resident.enums.Status;
 import com.example.demo.domain.vehicle.Vehicle;
 import com.example.demo.domain.vehicle.VehicleRepository;
 import com.example.demo.domain.vehicle.enums.VehicleStatus;
@@ -53,9 +54,13 @@ public class VehicleRegistrationService {
     @Transactional
     public void registerVehicle(Long userId, VehicleRegistrationRequestDto requestDto) {
 
-        // 1. 유저 존재 여부 확인
+        // 1. 유저 존재 및 상태 확인
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getStatus() != Status.ACTIVE) {
+            throw new CustomException(ErrorCode.USER_SUSPENDED);
+        }
 
         // 2. 차량 번호 중복 체크 (기존 등록 여부 확인)
         Optional<Vehicle> existingVehicleOpt = vehicleRepository.findByCarNumber(requestDto.getCarNumber());

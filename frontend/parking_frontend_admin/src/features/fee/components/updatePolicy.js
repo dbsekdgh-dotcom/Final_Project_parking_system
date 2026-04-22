@@ -56,7 +56,7 @@ export const updatePolicy=async({title,type,updateMutateAsync})=>{
                     Swal.showValidationMessage("단위/요금 항목은 0보다 커야합니다.");
                     return false;
                 }
-                if(!effectiveFrom){
+                if(!data.effectiveFrom){
                     Swal.showValidationMessage("적용 시점은 내일 자정부터 설정 가능합니다.")
                     return false
                 }

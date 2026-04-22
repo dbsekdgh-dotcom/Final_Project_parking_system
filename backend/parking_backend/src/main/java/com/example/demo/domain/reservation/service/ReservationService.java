@@ -105,6 +105,12 @@ public class ReservationService {
             throw new CustomException(ErrorCode.DAILY_LIMIT_EXCEEDED);
         }
 
+        long monthCount = reservationRepository.countMonthlyReservations(
+                household.getHouseholdId(), getStartOfMonth());
+        if (policy.getMonthlyLimitPerHousehold() != null && monthCount >= policy.getMonthlyLimitPerHousehold()) {
+            throw new CustomException(ErrorCode.MONTHLY_LIMIT_EXCEEDED);
+        }
+
         LocalDateTime visitStartAt = reservationApplyRequestDto.getVisitStartAt();
         int minutesToAdd = (policy.getPermittedMinutes() != null) ? policy.getPermittedMinutes() : 60;
         LocalDateTime visitEndAt = visitStartAt.plusMinutes(minutesToAdd);
@@ -267,6 +273,11 @@ public class ReservationService {
                     getStartOfDate(newVisitDate), getEndOfDate(newVisitDate));
             if (policy.getDailyLimitPerHousehold() != null && visitDateCount >= policy.getDailyLimitPerHousehold()) {
                 throw new CustomException(ErrorCode.DAILY_LIMIT_EXCEEDED);
+            }
+        } else {
+            // 날짜는 그대로지만 당일 이하면 수정 불가 (취소와 동일 기준)
+            if (!oldVisitDate.isAfter(LocalDate.now())) {
+                throw new CustomException(ErrorCode.CANCEL_NOT_TODAY);
             }
         }
 

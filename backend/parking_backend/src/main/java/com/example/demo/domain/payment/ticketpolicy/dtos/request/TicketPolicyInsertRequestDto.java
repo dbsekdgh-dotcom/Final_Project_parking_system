@@ -1,11 +1,10 @@
-package com.example.demo.domain.parking.policy.dtos.request;
+package com.example.demo.domain.payment.ticketpolicy.dtos.request;
 
 import com.example.demo.domain.payment.ticketpolicy.enums.DiscountType;
 import com.example.demo.domain.payment.ticketpolicy.enums.UseType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
