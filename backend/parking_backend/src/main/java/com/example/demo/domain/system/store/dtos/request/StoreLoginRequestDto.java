@@ -6,6 +6,5 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class StoreLoginRequestDto {
-    private Long storeId;
     private String terminalPassword;
 }

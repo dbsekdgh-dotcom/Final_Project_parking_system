@@ -90,4 +90,9 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "AND p.parkingStatus IN ('ENTERED', 'DETECTED', 'EXIT_REQUESTED') " +
             "AND p.parkingTypeSnapshot IN ('RESIDENT', 'SUBSCRIPTION'))")
     boolean existsActiveBenefitLogByVehicleId(@Param("vehicleId") Long vehicleId);
+
+    @Query("SELECT p FROM ParkingLog p " +
+            "WHERE p.carNumberSnapshot LIKE %:query% " +
+            "AND p.exitedAt IS NULL AND p.enteredAt IS NOT NULL")
+    List<ParkingLog> findActiveByCarNumberContaining(@Param("query") String query);
 }

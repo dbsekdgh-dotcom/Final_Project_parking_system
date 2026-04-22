@@ -2,6 +2,8 @@ package com.example.demo.domain.system.store.service;
 
 import com.example.demo.domain.parking.log.ParkingLog;
 import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
+import com.example.demo.domain.payment.ticket.ParkingTicket;
+import com.example.demo.domain.payment.ticket.repository.ParkingTicketRepository;
 import com.example.demo.domain.payment.ticketpolicy.TicketPolicy;
 import com.example.demo.domain.payment.ticketpolicy.enums.UseType;
 import com.example.demo.domain.payment.ticketpolicy.repository.TicketPolicyRepository;
@@ -40,6 +42,7 @@ public class KioskStoreService {
     private final TicketPolicyRepository ticketPolicyRepository;
     private final ParkingLogRepository parkingLogRepository;
     private final AdminJWTUtil adminJWTUtil;
+    private final ParkingTicketRepository parkingTicketRepository;
 
 
     @Transactional(readOnly = true)
@@ -125,13 +128,9 @@ public class KioskStoreService {
 
     @Transactional(readOnly = true)
     public List<StoreCarSearchResponseDto> searchCar(String query) {
-        return parkingLogRepository.getActiveVehicleList(query)
+        return parkingLogRepository.findActiveByCarNumberContaining(query)
                 .stream()
-                .map(dto -> {
-                    ParkingLog log = parkingLogRepository.findByParkingLogId(dto.getParkingLogId())
-                            .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-                    return StoreCarSearchResponseDto.from(log);
-                })
+                .map(StoreCarSearchResponseDto::from)
                 .toList();
     }
 
@@ -153,7 +152,11 @@ public class KioskStoreService {
 
         TicketPolicy policy = wallet.getTicketPolicy();
         for (int i= 0; i<quantity; i++) {
-            parkingLog.applyStoreTicket(policy.getDiscountType(), policy.getDiscountValue());
+            parkingTicketRepository.save(ParkingTicket.builder()
+                    .store(store)
+                    .parkingLog(parkingLog)
+                    .ticketPolicy(policy)
+                    .build());
         }
 
         int before = wallet.getRemainingCount();

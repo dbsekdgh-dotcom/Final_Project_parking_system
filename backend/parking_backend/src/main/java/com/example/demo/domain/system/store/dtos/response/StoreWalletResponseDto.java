@@ -24,6 +24,7 @@ public class StoreWalletResponseDto {
                 .discountType(wallet.getTicketPolicy().getDiscountType().name())
                 .discountValue(wallet.getTicketPolicy().getDiscountValue())
                 .issuedCount(wallet.getIssuedCount())
+                .usedCount(wallet.getUsedCount())
                 .remainingCount(wallet.getRemainingCount())
                 .build();
     }
