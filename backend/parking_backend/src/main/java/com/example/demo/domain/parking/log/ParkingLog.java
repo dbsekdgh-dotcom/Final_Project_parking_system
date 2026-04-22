@@ -8,6 +8,7 @@ import com.example.demo.domain.parking.log.enums.ParkingStatus;
 import com.example.demo.domain.parking.log.enums.ParkingTypeSnapshot;
 import com.example.demo.domain.parking.log.enums.PaymentStatus;
 import com.example.demo.domain.parking.space.ParkingSpace;
+import com.example.demo.domain.payment.ticketpolicy.enums.DiscountType;
 import com.example.demo.domain.vehicle.Vehicle;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -253,6 +254,38 @@ public class ParkingLog {
         this.paidAt=LocalDateTime.now();
         this.freeExitUntil=paidAt.plusMinutes(graceMinutes);
         this.paymentStatus=PaymentStatus.PAID;
+    }
+
+    public void applyStoreTicket(
+            com.example.demo.domain.payment.ticketpolicy.enums.DiscountType discountType, Integer discountValue){
+        switch (discountType){
+            case TIME -> this.totalDiscountMinutes += discountValue;
+            case AMOUNT -> {
+                this.totalDiscountAmount = Math.min(
+                    this.totalDiscountAmount + discountValue,
+                    this.rawFee > 0 ? this.rawFee : Integer.MAX_VALUE);
+                if (this.rawFee > 0){
+                    this.calculatedFee = (long) Math.max(0, this.rawFee - this.totalDiscountAmount);
+                }
+            }
+            case FREE -> {
+                if (this.rawFee > 0) {
+                    this.totalDiscountAmount = this.rawFee;
+                    this.calculatedFee = 0L;
+                }
+            }
+            case RATE -> {
+                if (this.rawFee > 0) {
+                    int amt = this.rawFee * discountValue / 100;
+                    this.totalDiscountAmount = Math.min(
+                            this.totalDiscountAmount + amt, this.rawFee);
+                    this.calculatedFee = (long) Math.max(0, this.rawFee - this.totalDiscountAmount);
+                }
+            }
+        }
+        if (this.rawFee > 0 && this.paymentStatus != PaymentStatus.PAID){
+            this.paymentRequestedAt = null;
+        }
     }
 
 

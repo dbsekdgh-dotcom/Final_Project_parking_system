@@ -10,9 +10,14 @@ import VehicleDeparture from "./features/exit/pages/vehicledeparture/VehicleDepa
 import PaymentConfirm from "./features/exit/pages/paymentconfirm/PaymentConfirm";
 import DepartureComplete from "./features/exit/pages/departurecomplete/DepartureComplete";
 import { PaymentPage } from "./shared/components/paymentPage/PaymentPage";
-import {PaymentSuccessPage} from "./shared/components/paymentPage/PaymentSuccessPage";
+import { PaymentSuccessPage } from "./shared/components/paymentPage/PaymentSuccessPage";
 import { PaymentFailPage } from "./shared/components/paymentPage/PaymentFailPage";
 import PrepaymentResult from "./features/prepayment/pages/PrepaymentResult";
+import StoreLoginPage from "./features/store/pages/StoreLoginPage";
+import StoreMainPage from "./features/store/pages/StoreMainPage";
+import StorePurchaseCompletePage from "./features/store/pages/StorePurchaseCompleatePage";
+import TicketPurchasePage from "./features/store/pages/TicketPuchasePage";
+import TicketApplyPage from "./features/store/pages/TicketApplyPage";
 
 
 function App() {
@@ -37,7 +42,11 @@ function App() {
       <Route path="/payment/success" element={<PaymentSuccessPage/>}></Route>
       <Route path="/payment/fail" element={<PaymentFailPage/>}></Route>
       <Route path="/exit-complete" element={<DepartureComplete onHome={() => navigate("/")}/>}/>
-      <Route path="/store" element={<div style={{ padding: 40 }}>상가 관리 준비 중</div>} />
+      <Route path="/store/login" element={<StoreLoginPage/>}/>
+      <Route path="/store/main" element={<StoreMainPage/>}/>
+      <Route path="/store/purchase" element={<TicketPurchasePage/>}/>
+      <Route path="/store/purchase/complete" element={<StorePurchaseCompletePage/>}/>
+      <Route path="/store/apply" element={<TicketApplyPage/>}/>
       <Route path="/find-car" element={<div style={{ padding: 40 }}>내차 찾기 준비 중</div>} />
 
   </Routes>
