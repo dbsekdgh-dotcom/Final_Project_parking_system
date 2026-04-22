@@ -9,7 +9,7 @@ import SystemSettingPage from "./features/systemsetting/pages/SystemSettingStatu
 import ApprovalLayout from "./features/approval/layout/ApprovalLayout"
 import ApprovalRequestPage from "./features/approval/approval-request/pages/ApprovalRequestPage"
 import ReportPage from "./features/approval/report/pages/ReportPage"
-
+import UserVehicleLayout from "./features/user-vehicle/layout/UserVehicleLayout"
 
 
 function App() {
@@ -33,6 +33,10 @@ function App() {
           <Route path="/admin/approval" element={<ApprovalLayout />}>
             <Route path="approval-request" element={<ApprovalRequestPage />} />
             <Route path="report" element={<ReportPage />} />
+          </Route>
+          {/* 유저/차량: 탭 레이아웃 + 하위페이지 */}
+          <Route path="/admin/user-vehicle" element={<UserVehicleLayout/>}>
+           {/* 페이지 추가 */}
           </Route>
         </Route>
 
