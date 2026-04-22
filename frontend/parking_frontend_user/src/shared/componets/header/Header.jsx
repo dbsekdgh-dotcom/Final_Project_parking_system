@@ -5,7 +5,7 @@ import axios from 'axios';
 export function Header() {
   const [parkingData, setParkingData] = useState({
     totalSpaces: 0,
-    occupiedSpace: 0,
+    occupiedSpaces: 0,
     availableSpaces: 0,
     occupancyRate: 0,
     targetFloor: '-'

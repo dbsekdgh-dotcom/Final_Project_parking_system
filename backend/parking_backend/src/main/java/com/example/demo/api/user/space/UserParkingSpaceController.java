@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user/space")
+@CrossOrigin(origins = "http://localhost:5202")
 public class UserParkingSpaceController {
 
     private final UserParkingSpaceService userParkingSpaceService;

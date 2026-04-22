@@ -7,6 +7,7 @@ import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
 import com.example.demo.domain.parking.space.enums.Floor;
 import com.example.demo.domain.parking.space.enums.SpaceStatus;
 import com.example.demo.domain.payment.subscription.repository.SubscriptionRepository;
+import com.example.demo.domain.system.activitylog.repository.ActivityLogRepository;
 import com.example.demo.domain.vehicle.Vehicle;
 import com.example.demo.domain.vehicle.VehicleRepository;
 import com.example.demo.domain.vehicle.enums.VehicleStatus;
@@ -19,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,45 +35,44 @@ public class DashboardService {
     private final ParkingSpaceRepository parkingSpaceRepository;
     private final VehicleRepository vehicleRepository;
     private final ParkingLogRepository parkingLogRepository;
+    private final ActivityLogRepository activityLogRepository;
 
-    public DashboardResponseDto getUserDashboardData(Long userId){
+    public DashboardResponseDto getUserDashboardData(Long userId) {
 
         //활성 차량 조회( 최근 등록 순)
         Vehicle myVehicle = vehicleRepository.findMainVehicle(userId, VehicleStatus.ACTIVE)
                 .orElse(null);
 
-        String carNumber = (myVehicle != null) ? myVehicle.getCarNumber(): "등록 차량 없음";
+        String carNumber = (myVehicle != null) ? myVehicle.getCarNumber() : "등록 차량 없음";
         String carLocation = "주차 정보 없음";
         String durationStr = "0분";
-        List<DashboardResponseDto.RecentLog> logs = new ArrayList<>();
 
-        if(myVehicle != null){
+        // 주차 위치 계산(myVehicle있을 때만)
+        if (myVehicle != null) {
             //현재 주차 중인 최신 로그 확인( 상태가 ENTERED이고 아직 출차 안함)
             Optional<ParkingLog> activeLog = parkingLogRepository.findFirstByCarNumberSnapshotAndParkingStatus(carNumber, ParkingStatus.ENTERED);
 
-            if (activeLog.isPresent() && activeLog.get().getExitedAt() == null){
+            if (activeLog.isPresent() && activeLog.get().getExitedAt() == null) {
                 ParkingLog log = activeLog.get();
                 //위치정보 (ParkingSpace 엔티티가 ParkingLog안에 연관관계로 있어야 함)
-                if (log.getParkingSpace() != null){
-                    carLocation =log.getParkingSpace().getFloor() + "/" + log.getParkingSpace().getSpaceCode();
+                if (log.getParkingSpace() != null) {
+                    carLocation = log.getParkingSpace().getFloor() + "/" + log.getParkingSpace().getSpaceCode();
                 }
                 //주차시간 계산
-                long diffMinutes = ChronoUnit.MINUTES.between(log.getEntryTime(),LocalDateTime.now());
+                long diffMinutes = ChronoUnit.MINUTES.between(log.getEntryTime(), LocalDateTime.now());
                 durationStr = (diffMinutes >= 60) ? (diffMinutes / 60) + "시간" + (diffMinutes % 60) + "분" : diffMinutes + "분";
             }
-
-            //최근 입출자 내역 리스트 (최신 5개)
-            logs = parkingLogRepository.findTop5ByCarNumberSnapshotOrderByEntryTimeDesc(carNumber).stream()
-                    .map(l -> DashboardResponseDto.RecentLog.builder()
-                            .type(l.getExitedAt() == null ? "입" : "출")
-                            .carNumber(carNumber)
-                            .location(l.getParkingSpace() != null ? l.getParkingSpace().getSpaceCode() : "알 수 없음")
-                            .status(l.getExitedAt() == null ? "입차" : "출차")
-                            .timeAgo(calculateTimeAgo(l.getEntryTime()))
-                            .build())
-                        .toList();
-
         }
+        //최근 입출자 내역 리스트 (최신 5개)
+        List<DashboardResponseDto.RecentLog> logs = activityLogRepository.findRecentActivities(userId).stream()
+                .map(l -> DashboardResponseDto.RecentLog.builder()
+                        .type(l.getActivityType().name())            //"ENTRY","EXIT"등
+                        .status(l.getActivityType().getDescription())//"입차","출차"
+                        .carNumber(l.getCarNumber())
+                        .message(l.getMessage())                     //"입차 완료" 등
+                        .createdAt(l.getCreatedAt())
+                        .build())
+                .toList();
 
 
         //포인트 조회
@@ -82,14 +82,14 @@ public class DashboardService {
 
         //정기권 D-Day 계산
         long dDay = subscriptionRepository.findLatestSubscription(userId)
-                .map(sub -> ChronoUnit.DAYS.between(LocalDateTime.now(),sub.getEndDate()))
+                .map(sub -> ChronoUnit.DAYS.between(LocalDateTime.now(), sub.getEndDate()))
                 .orElse(0L);
 
         //층별 주차 현황 조회
         int b1Available = (int) parkingSpaceRepository.countByFloorAndStatus(Floor.B1, SpaceStatus.AVAILABLE);
         int b2Available = (int) parkingSpaceRepository.countByFloorAndStatus(Floor.B2, SpaceStatus.AVAILABLE);
 
-        int floorTotal =30;
+        int floorTotal = 30;
 
         return DashboardResponseDto.builder()
                 .myPoint(myPoint)
@@ -97,8 +97,8 @@ public class DashboardService {
                 .myCarNumber(carNumber)
                 .myCarLocation(carLocation)
                 .parkingDuration(durationStr)
-                .b1Detail(buildFloorDetail(Floor.B1,b1Available,30))
-                .b2Detail(buildFloorDetail(Floor.B2,b2Available,30))
+                .b1Detail(buildFloorDetail(Floor.B1, b1Available, 30))
+                .b2Detail(buildFloorDetail(Floor.B2, b2Available, 30))
                 .recentLogs(logs)
                 .build();
     }

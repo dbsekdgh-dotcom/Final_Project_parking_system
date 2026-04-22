@@ -3,6 +3,7 @@ package com.example.demo.domain.resident.dashboard.dto;
 import com.example.demo.domain.parking.space.enums.Floor;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -41,7 +42,8 @@ public class DashboardResponseDto {
         private String carNumber;
         private String location;
         private String status;
-        private String timeAgo;
+        private String message;
+        private LocalDateTime createdAt;
     }
 
 }

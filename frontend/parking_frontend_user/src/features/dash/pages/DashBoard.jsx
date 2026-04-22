@@ -18,22 +18,32 @@ const DashBoard = () => {
 
   useEffect(() => {
     //로그인 성공 메시지
-    const name= sessionStorage.getItem("loginSuccess");
-    if (name){
+    const name = sessionStorage.getItem("loginSuccess");
+    
+    if(name){
       sessionStorage.removeItem("loginSuccess");
       Swal.fire({
         icon: "success",
         title: "로그인 성공",
-        confirmButtonText: "확인",
+        text: `${name}님 대시보드 연결 성공!`,
         confirmButtonColor: "#3085d6",
       });
     }
 
     //백엔드 데이터 호출
     const fetchDashboard = async () =>{
-      try {
-        const response = await axios.get("http://localhost:8081/api/dashboard?userId=69");
+       const currentUserId = localStorage.getItem("userId");
+      
+        if(!currentUserId){
+          console.error("세션에 userId가 없네요");
+          setLoading(false);
+          return;
+        }
+
+        try{
+        const response = await axios.get(`http://localhost:8081/api/dashboard?userId=${currentUserId}`); 
         setData(response.data);
+      
       }catch (error){
         console.error("데이터 로드 실패:", error);
       }finally{
@@ -135,7 +145,7 @@ const DashBoard = () => {
               <div className="log-info">
                 <div className="log-car-number">{log.carNumber}</div>
                 <div className="log-sub-info">
-                  {log.location} / {log.timeAgo}
+                  {log.created_at} 
                 </div>
               </div>
             </div>
@@ -150,6 +160,8 @@ const DashBoard = () => {
       </div>
     );
   };
+
+
  
 
 export default DashBoard;

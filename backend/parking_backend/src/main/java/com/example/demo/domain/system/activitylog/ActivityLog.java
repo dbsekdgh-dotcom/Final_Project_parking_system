@@ -42,6 +42,7 @@ public class ActivityLog {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "household_id")
     private Household household;
+    @Getter
     private String message;
     @CreationTimestamp
     private LocalDateTime createdAt;

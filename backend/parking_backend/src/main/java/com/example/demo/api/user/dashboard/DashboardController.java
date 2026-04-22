@@ -15,12 +15,16 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping
-    public ResponseEntity<DashboardResponseDto> getDashboardData(@RequestParam(value = "userId", required = false)Long userId){
-        Long testUserID = (userId != null) ? userId :69L;
+    public ResponseEntity<DashboardResponseDto> getDashboardData(@RequestParam(value = "userId")Long userId){
 
-        DashboardResponseDto response = dashboardService.getUserDashboardData(testUserID);
+        //유저 ID가 없는 경우에 대한 방어 로직
+        if(userId == null){
+            return ResponseEntity.badRequest().build();
+        }
 
-        System.out.println(">>> [API 호출] 유저ID: " + testUserID);
+        DashboardResponseDto response = dashboardService.getUserDashboardData(userId);
+
+        System.out.println(">>> [API 호출] 유저ID: " + userId);
         System.out.println(">>> [데이터 결과] 포인트: " + response.getMyPoint() + ", D-Day: " + response.getSubscriptionDDay());
 
         return ResponseEntity.ok(response);
