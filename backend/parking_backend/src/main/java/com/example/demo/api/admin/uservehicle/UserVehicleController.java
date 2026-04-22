@@ -27,7 +27,7 @@ public class UserVehicleController {
                 adminManagementService.getUsers(keyword, status, isResident, PageRequest.of(page,size))
         );
     }
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<AdminUserDetailResponseDto> getUserDetail(@PathVariable Long userId){
         return ResponseEntity.ok(adminManagementService.getUserDetail(userId));
     }
@@ -50,7 +50,7 @@ public class UserVehicleController {
     }
 
     // 정기권
-    @GetMapping("/subscription")
+    @GetMapping("/subscriptions")
     public ResponseEntity<Page<AdminSubscriptionResponseDto>> getSubscription(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status,
@@ -59,7 +59,7 @@ public class UserVehicleController {
     ){
         return ResponseEntity.ok(adminManagementService.getSubscriptions(keyword,status,PageRequest.of(page,size)));
     }
-    @GetMapping("/subscription/{subscriptionId}")
+    @GetMapping("/subscriptions/{subscriptionId}")
     public ResponseEntity<AdminSubscriptionDetailResponseDto> getSubscriptionDetail(@PathVariable Long subscriptionId){
         return ResponseEntity.ok(adminManagementService.getSubscriptionDetail(subscriptionId));
     }
