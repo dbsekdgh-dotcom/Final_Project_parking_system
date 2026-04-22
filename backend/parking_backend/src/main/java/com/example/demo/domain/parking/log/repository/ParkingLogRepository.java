@@ -90,4 +90,34 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "AND p.parkingStatus IN ('ENTERED', 'DETECTED', 'EXIT_REQUESTED') " +
             "AND p.parkingTypeSnapshot IN ('RESIDENT', 'SUBSCRIPTION'))")
     boolean existsActiveBenefitLogByVehicleId(@Param("vehicleId") Long vehicleId);
+
+    //정상적인 입차완료와 출차완료 상태만 최신순으로 가져오기
+
+    @Query("SELECT p FROM ParkingLog p " +
+            "WHERE (p.vehicle.user.userId = :userId OR " +
+            "       EXISTS (SELECT r FROM Reservation r " +
+            "               WHERE r.vehicle = p.vehicle " +
+            "               AND r.user.userId = :userId)) " +
+            "AND p.parkingStatus IN (com.example.demo.domain.parking.log.enums.ParkingStatus.ENTERED, " +
+            "                        com.example.demo.domain.parking.log.enums.ParkingStatus.EXITED)")
+    Page<ParkingLog> findMyAndReservedLogs(@Param("userId") Long userId, Pageable pageable);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

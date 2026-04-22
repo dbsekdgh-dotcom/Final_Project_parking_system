@@ -8,6 +8,7 @@ public enum PointReason {
     ADMIN_REVOKE;
 
     public boolean isDeduction(){
-        return this==PAYMENT_USE || this==REFUND || this==ADMIN_REVOKE;
-    }
-}
+        // 이제 REFUND는 여기서 뺍니다.
+        // 단순히 적립/차감 여부는 Service에서 호출하는 메서드(earn/use)가 결정하게 둡니다.
+        return this == PAYMENT_USE || this == ADMIN_REVOKE;
+    }}

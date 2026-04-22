@@ -3,12 +3,13 @@ import { SlPencil,SlShareAlt  } from "react-icons/sl";
 import './feePolicy.css'
 import {confirmAlert} from './confirmPolicy'
 import {usePolicyMutation} from './../hooks/usePolicyMutation'
+import { updatePolicy } from './updatePolicy';
 
-const PolicyBox = ({title,data,isUpcoming}) => {
+const PolicyBox = ({title,data,isUpcoming, isLatest}) => {
     const [policy,setPolicy]=useState(data)
     const [editField,setEditField]=useState(null)
     const [tempData,setTempData]=useState("")
-    const {mutateAsync}=usePolicyMutation()
+    const {mutateAsync,updateMutateAsync}=usePolicyMutation()
 
     const fields=[
         {label:"회차시간(분)", value:data?.graceMinutes, name:"graceMinutes"},
@@ -23,7 +24,11 @@ const PolicyBox = ({title,data,isUpcoming}) => {
     },[data])
 
     const changeAllHandler=()=>{
-
+        updatePolicy({
+            title:title,
+            type:data?.parkingType,
+            updateMutateAsync:updateMutateAsync
+        })
     }
 
     const changeHandler=async(label,name)=>{
@@ -32,11 +37,13 @@ const PolicyBox = ({title,data,isUpcoming}) => {
             setTempData("")
             return;
         }
-        //적용 날짜 
-        const now=new Date();
-        const y=now.getFullYear();
-        const m=String(now.getMonth()+1).padStart(2,'0')
-        const d=String(now.getDate()+1).padStart(2,'0')
+        //적용 날짜
+        const tomorrow=new Date();
+        tomorrow.setDate(tomorrow.getDate()+1);
+        tomorrow.setHours(0,0,0,0);
+        const y=tomorrow.getFullYear();
+        const m=String(tomorrow.getMonth()+1).padStart(2,'0')
+        const d=String(tomorrow.getDate()).padStart(2,'0')
         const effectiveDate=`${y}-${m}-${d} 00:00:00`
 
         //적용할 데이터
@@ -87,8 +94,9 @@ const PolicyBox = ({title,data,isUpcoming}) => {
                         </div>
                         :<span className='value'>{Number(f.value).toLocaleString()}</span>
                     }
-
-                    <span className='editIcon' role='button' onClick={()=>setEditField(editField==f.label?null:f.label)}>{editField==f.label?<SlShareAlt />:<SlPencil/>}</span>
+                    {
+                        isLatest && <span className='editIcon' role='button' onClick={()=>setEditField(editField==f.label?null:f.label)}>{editField==f.label?<SlShareAlt />:<SlPencil/>}</span>
+                    }
                 </div>
             )
         }

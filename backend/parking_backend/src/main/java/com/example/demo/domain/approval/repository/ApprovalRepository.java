@@ -4,7 +4,11 @@ import com.example.demo.domain.approval.Approval;
 import com.example.demo.domain.approval.enums.ApprovalStatus;
 import com.example.demo.domain.approval.enums.ApprovalType;
 import com.example.demo.domain.resident.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,4 +35,32 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 
     Optional<Approval> findByTargetIdAndApprovalType(Long targetId, ApprovalType approvalType);
 
+    // Admin 승인관리 부분
+    @Query(
+            value = """
+                SELECT a FROM Approval a
+                LEFT JOIN FETCH a.requestUserId u
+                WHERE (:type IS NULL OR a.approvalType = :type)
+                AND (:status IS NULL OR a.status = :status)
+                AND (:keyword IS NULL OR u.name LIKE %:keyword%)
+                ORDER BY 
+                    CASE WHEN a.status = 'PENDING' THEN 0 ELSE 1 END ASC,
+                    a.createdAt DESC 
+                """,
+            countQuery = """
+                SELECT COUNT(a) FROM Approval a
+                LEFT JOIN a.requestUserId u
+                WHERE (:type IS NULL OR a.approvalType = :type)
+                AND (:status IS NULL OR a.status = :status)
+                AND (:keyword IS NULL OR u.name LIKE %:keyword%)
+"""
+    )
+    Page<Approval> findAllWithFilters(
+            @Param("type") ApprovalType type,
+            @Param("status") ApprovalStatus status,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
+    long countByStatus(ApprovalStatus status);
 }

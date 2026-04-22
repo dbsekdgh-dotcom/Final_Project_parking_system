@@ -7,6 +7,8 @@ import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
 import com.example.demo.domain.parking.space.enums.Floor;
 import com.example.demo.domain.parking.space.enums.SpaceStatus;
 import com.example.demo.domain.payment.subscription.repository.SubscriptionRepository;
+import com.example.demo.domain.resident.dashboard.dto.DashboardRecentLogDto;
+import com.example.demo.domain.system.activitylog.enums.ActivityType;
 import com.example.demo.domain.system.activitylog.repository.ActivityLogRepository;
 import com.example.demo.domain.vehicle.Vehicle;
 import com.example.demo.domain.vehicle.VehicleRepository;
@@ -15,11 +17,16 @@ import com.example.demo.domain.resident.dashboard.dto.DashboardResponseDto;
 import com.example.demo.domain.payment.point.entity.UserPoint;
 import com.example.demo.domain.payment.point.repository.UserPointRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +44,7 @@ public class DashboardService {
     private final ParkingLogRepository parkingLogRepository;
     private final ActivityLogRepository activityLogRepository;
 
-    public DashboardResponseDto getUserDashboardData(Long userId) {
+    public DashboardResponseDto getUserDashboardData(Long userId, int page) {
 
         //활성 차량 조회( 최근 등록 순)
         Vehicle myVehicle = vehicleRepository.findMainVehicle(userId, VehicleStatus.ACTIVE)
@@ -63,17 +70,33 @@ public class DashboardService {
                 durationStr = (diffMinutes >= 60) ? (diffMinutes / 60) + "시간" + (diffMinutes % 60) + "분" : diffMinutes + "분";
             }
         }
-        //최근 입출자 내역 리스트 (최신 5개)
-        List<DashboardResponseDto.RecentLog> logs = activityLogRepository.findRecentActivities(userId).stream()
-                .map(l -> DashboardResponseDto.RecentLog.builder()
-                        .type(l.getActivityType().name())            //"ENTRY","EXIT"등
-                        .status(l.getActivityType().getDescription())//"입차","출차"
-                        .carNumber(l.getCarNumber())
-                        .message(l.getMessage())                     //"입차 완료" 등
-                        .createdAt(l.getCreatedAt())
-                        .build())
-                .toList();
 
+        //최근 입출자 내역 리스트 (최신 5개)
+        //필터링 할 타입의 정의(ENTRY, EXIT만)
+        List<ActivityType> types = Arrays.asList(ActivityType.ENTRY, ActivityType.EXIT);
+
+        // 1. 페이지 설정 (EntryTime 기준 역순 정렬)
+        Pageable pageable = PageRequest.of(page, 5, Sort.by("entryTime").descending());
+
+        // ParkingLog에서 데이터 가져오기
+        Page<DashboardRecentLogDto> logPage = parkingLogRepository.findMyAndReservedLogs(userId, pageable)
+                .map(log -> {
+                    // 소유주 ID를 안전하게 가져오기 (소유주가 없으면 null)
+                    Long ownerId = (log.getVehicle() != null && log.getVehicle().getUser() != null)
+                            ? log.getVehicle().getUser().getUserId()
+                            : null;
+
+                    // 소유주 ID가 로그인한 유저(userId)와 같으면 "내 차량", 아니면 "방문 예약 차량"
+                    String message = (ownerId != null && ownerId.equals(userId)) ? "내 차량" : "방문 예약 차량";
+
+                    return DashboardRecentLogDto.builder()
+                            .parkingLogId(log.getParkingLogId())
+                            .status(log.getParkingStatus().getDescription())
+                            .carNumber(log.getCarNumberSnapshot())
+                            .message(message)
+                            .createdAt(log.getEntryTime())
+                            .build();
+                });
 
         //포인트 조회
         int myPoint = userPointRepository.findById(userId)
@@ -99,7 +122,7 @@ public class DashboardService {
                 .parkingDuration(durationStr)
                 .b1Detail(buildFloorDetail(Floor.B1, b1Available, 30))
                 .b2Detail(buildFloorDetail(Floor.B2, b2Available, 30))
-                .recentLogs(logs)
+                .recentLogs(logPage)
                 .build();
     }
 

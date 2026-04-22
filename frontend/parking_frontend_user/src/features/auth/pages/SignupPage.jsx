@@ -91,8 +91,8 @@ const SignupPage = () => {
                 icon: 'success',
                 title: '회원가입 성공',
                 text: '환영합니다! 로그인을 진행해주세요.',
-                timer: 1500,
-                showConfirmButton: false,
+                confirmButtonText: '확인',
+                confirmButtonColor: '#3085d6',
             }).then(() => navigate("/"));
         },
         onError: async (error) => {

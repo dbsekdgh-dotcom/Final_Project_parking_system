@@ -1,4 +1,4 @@
-package com.example.demo.domain.parking.policy.dtos.response;
+package com.example.demo.domain.payment.ticketpolicy.dtos.response;
 
 import com.example.demo.domain.payment.ticketpolicy.TicketPolicy;
 import com.example.demo.domain.payment.ticketpolicy.enums.DiscountType;
@@ -42,7 +42,6 @@ public class TicketPolicyResponseDto {
                 .discountType(ticketPolicy.getDiscountType())
                 .discountValue(ticketPolicy.getDiscountValue())
                 .useType(ticketPolicy.getUseType())
-                .maxDiscountAmount(ticketPolicy.getMaxDiscountAmount()!=null?ticketPolicy.getMaxDiscountAmount():0)
                 .validDays(ticketPolicy.getValidDays()!=null?ticketPolicy.getValidDays():0)
                 .validMinutes(ticketPolicy.getValidMinutes()!=null?ticketPolicy.getValidMinutes():0)
                 .stackable(ticketPolicy.isStackable())

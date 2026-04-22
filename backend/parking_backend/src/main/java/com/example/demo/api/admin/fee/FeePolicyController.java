@@ -1,7 +1,9 @@
 package com.example.demo.api.admin.fee;
 
 import com.example.demo.domain.parking.policy.dtos.request.ParkingFeePolicyChangeRequestDto;
+import com.example.demo.domain.parking.policy.dtos.request.ParkingFeePolicyUpdateRequestDto;
 import com.example.demo.domain.parking.policy.service.ParkingFeePolicyService;
+import com.example.demo.domain.parking.policy.service.PolicyHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FeePolicyController {
     private final ParkingFeePolicyService parkingFeePolicyService;
+    private final PolicyHistoryService policyHistoryService;
 
     @GetMapping("/fee-policy")
     public Map<String,Object> searchFeePolicy(){
@@ -23,9 +26,19 @@ public class FeePolicyController {
     }
 
     @PostMapping("/fee-policy/change")
-    public ResponseEntity<Long> changeFeePolicy(@RequestBody ParkingFeePolicyChangeRequestDto parkingFeePolicyChangeRequestDto){
-        System.out.println("수정 요청 정책==>"+parkingFeePolicyChangeRequestDto);
-        long policyId=parkingFeePolicyService.changeParkingFeePolicy(parkingFeePolicyChangeRequestDto);
+    public ResponseEntity<Long> changeFeePolicy(@RequestBody ParkingFeePolicyChangeRequestDto dto){
+        System.out.println("수정 요청 정책==>"+dto);
+        long policyId=parkingFeePolicyService.changeParkingFeePolicy(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(policyId);
     }
+
+    @PostMapping("/fee-policy/update")
+    public ResponseEntity<Long> updateFeePolicy(@RequestBody ParkingFeePolicyUpdateRequestDto dto){
+        System.out.println("전체 수정 요청 정책==>"+dto);
+        long policyId=parkingFeePolicyService.updateParkingFeePolicy(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(policyId);
+    }
+
+    @GetMapping("/fee-policy/history")
+    public Map<String,Object> searchFeePolicyHistory(){return policyHistoryService.getPolicyHistory();}
 }

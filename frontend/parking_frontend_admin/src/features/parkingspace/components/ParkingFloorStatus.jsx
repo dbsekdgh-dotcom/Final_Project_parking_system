@@ -13,14 +13,14 @@ const ParkingFloorStatus = ({ summaryData, currentFloor }) => {
         )
     }
 
-    const { b1Total, b2Total, b1Occupied, b2Occupied } = summaryData
+    const { b1Total, b2Total, b1Occupied, b2Occupied, b1Blocked=0, b2Blocked=0 } = summaryData
 
     //현재 층에 따른 데이터 동적 할당
     const isB1 = currentFloor === 'B1'
     const total = isB1 ? b1Total : b2Total
     const occupied = isB1 ? b1Occupied : b2Occupied
-    const avaliable = total - occupied
-    const blocked = 0; //차단 데이터가 API에 추가되면 연결예정
+    const blocked = isB1 ? b1Blocked : b2Blocked
+    const avaliable = total - occupied - blocked
 
     //점유율 계산
     const getRate = (occ, tot) => (tot > 0 ? Math.round((occ / tot) * 100) : 0)
@@ -29,7 +29,7 @@ const ParkingFloorStatus = ({ summaryData, currentFloor }) => {
         <div className='parking-floor-status'>
             {/* 범례 */}
             <div className='status-section'>
-                <h4 className='section-title'>범례</h4>
+                <h4 className='section-title'>범례 - ({currentFloor})</h4>
                 <ul className='legend-list'>
                     <li>
                         <div className='legend-item-left'>
@@ -63,7 +63,7 @@ const ParkingFloorStatus = ({ summaryData, currentFloor }) => {
                     <div className='floor-progress-item'>
                         <div className='floor-info'>
                             <span>B1</span>
-                            <span>{b1Occupied} / {b1Total}</span>
+                            <span>{b1Occupied} / {b1Total} (차단: {b1Blocked})</span>
                         </div>
                         <div className='progress-bar-bg'>
                             <div className='progress-bar-fill' style={{ width: `${getRate(b1Occupied, b1Total)}%` }}></div>
@@ -74,7 +74,7 @@ const ParkingFloorStatus = ({ summaryData, currentFloor }) => {
                     <div className='floor-progress-item'>
                         <div className='floor-info'>
                             <span>B2</span>
-                            <span>{b2Occupied} / {b2Total}</span>
+                            <span>{b2Occupied} / {b2Total} (차단: {b2Blocked})</span>
                         </div>
                         <div className='progress-bar-bg'>
                             <div className='progress-bar-fill' style={{ width: `${getRate(b2Occupied, b2Total)}%` }}></div>

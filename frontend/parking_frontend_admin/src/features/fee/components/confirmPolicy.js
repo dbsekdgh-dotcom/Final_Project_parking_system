@@ -15,9 +15,8 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
         showConfirmButton:true,
         confirmButtonColor:'#3085d6',
         cancelButtonColor: '#aaa',
-        confirmButtonText: '예약 저장',
+        confirmButtonText: '저장',
         cancelButtonText: '취소',
-        reverseButtons: true,
         
         background: '#1e1e1e',
         color: '#ffffff',
@@ -27,7 +26,7 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
     if(result.isConfirmed){
         try{
             const res= await mutateAsync(updatePolicy)
-            if(res.status==201){
+            if(res.status==201 ||res.status==200){
                 await Swal.fire({
                     title:`${resultTitle}`,
                     icon:'success',
@@ -39,9 +38,10 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
                 })
             }
         }catch(error){
+            const errorMsg=error.response?.data?.message  || "정책 수정 중 오류가 발생하였습니다."
             await Swal.fire({
                 title:"정책 수정 실패",
-                text:error.response?.data?.message ||  "정책 수정 중 오류가 발생하였습니다.",
+                text:errorMsg,
                 icon:'error',
                 timer:1500,
                 showConfirmButton:false,

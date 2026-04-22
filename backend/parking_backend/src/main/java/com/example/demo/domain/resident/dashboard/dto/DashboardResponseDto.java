@@ -1,10 +1,7 @@
 package com.example.demo.domain.resident.dashboard.dto;
 
-import com.example.demo.domain.parking.space.enums.Floor;
 import lombok.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 @Getter
 @Setter
@@ -25,7 +22,7 @@ public class DashboardResponseDto {
     private FloorDetail b2Detail;
 
     //최근 입출자 내역
-    private List<RecentLog> recentLogs;
+    private Page<DashboardRecentLogDto> recentLogs;
 
     @Getter@Setter @AllArgsConstructor @Builder
     public static class FloorDetail{
@@ -35,15 +32,4 @@ public class DashboardResponseDto {
         private String floorName;   // B1층 , B2층
         private String description; //외부차량, 입주민/상가전용
     }
-
-    @Getter @Setter @AllArgsConstructor @Builder
-    public static class RecentLog{
-        private String type;
-        private String carNumber;
-        private String location;
-        private String status;
-        private String message;
-        private LocalDateTime createdAt;
-    }
-
 }

@@ -13,7 +13,9 @@ public enum TargetType {
     RESERVATION("예약"),
     SYSTEM_SETTING("시스템설정"),
     STORE("상가"),
-    PARKING_LOG("주차로그");
+    PARKING_LOG("주차로그"),
+    PARKING_SPACE("주차공간"),
+    REPORT("신고");
 
     private final String description;
 }

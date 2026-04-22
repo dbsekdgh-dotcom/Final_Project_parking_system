@@ -7,9 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    List<Payment> findByExternalPaymentId (String externalPaymentId);
+    List<Payment> findByExternalPaymentId(String externalPaymentId);
+
+    Optional<Payment> findFirstByExternalPaymentId(String externalPaymentId);
 
     //특정 주차 로그에 대해 READY / FAILED 상태인 결제내역만 조회
     List<Payment> findAllByParkingLogAndPaymentStatusIn(ParkingLog parkingLog, Collection<PaymentStatus> paymentStatus);
