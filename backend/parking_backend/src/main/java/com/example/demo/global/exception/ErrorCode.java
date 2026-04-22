@@ -99,6 +99,8 @@ public enum ErrorCode {
     // AUTH (회원 탈퇴 관련 추가)
     INVALID_CONFIRM_TEXT(HttpStatus.BAD_REQUEST, "탈퇴 확인 문구가 일치하지 않습니다."),
     WITHDRAW_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
+    WITHDRAW_BLOCKED_ACTIVE_SUBSCRIPTION(HttpStatus.CONFLICT, "활성 정기권이 있어 탈퇴할 수 없습니다. 정기권 해지 후 다시 시도해 주세요."),
+    WITHDRAW_BLOCKED_VEHICLE_IN_PARKING(HttpStatus.CONFLICT, "현재 입차 중이거나 출차 대기 중인 차량이 있어 탈퇴할 수 없습니다. 출차 후 다시 시도해 주세요."),
     RESTORE_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "복구 인증 세션이 만료되었습니다."), // 복구 진행 중 단계가 끊겼을 때
     USER_SUSPENDED(HttpStatus.FORBIDDEN, "제재된 사용자입니다. 관리자에게 문의하세요."),
     // AUTH (계정 복구 관련 추가)

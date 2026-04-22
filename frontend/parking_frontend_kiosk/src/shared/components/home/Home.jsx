@@ -49,10 +49,10 @@ const Home = () => {
 
           {/* 하단 보조 버튼 섹션 */}
           <div className="bottom-section">
-            <button className="bottom-button" onClick={() => navigate('/')}>
+            <button className="bottom-button" onClick={() => navigate('/store/login')}>
               상가 관리
             </button>
-            <button className="bottom-button" onClick={() => navigate('/')}>
+            <button className="bottom-button" onClick={() => navigate('/find-car')}>
               내차 찾기
             </button>
           </div>

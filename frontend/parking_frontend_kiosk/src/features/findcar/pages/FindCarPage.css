@@ -1,0 +1,146 @@
+/* 검색 화면 */
+  .findcar-search-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    min-height: 100vh;
+    background: #fff;
+  }
+
+  .findcar-search-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .findcar-search-label {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .findcar-query-display {
+    font-size: 32px;
+    text-align: center;
+    margin: 16px 0;
+    letter-spacing: 8px;
+  }
+
+  .findcar-search-btn {
+    width: 350px;
+    margin-top: 16px;
+    padding: 14px;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .findcar-search-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  /* 결과 화면 */
+  .findcar-result-wrapper {
+    padding: 40px;
+    min-height: 100vh;
+    background: #fff;
+  }
+
+  .findcar-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .findcar-result-header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .findcar-result-body {
+    display: flex;
+    gap: 32px;
+  }
+
+  .findcar-car-list {
+    flex: 1;
+  }
+
+  .findcar-car-list h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+
+  .findcar-car-item {
+    padding: 16px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .findcar-car-item.selected {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+  }
+
+  .findcar-car-detail {
+    border: 1px solid #000;
+    padding: 24px;
+    min-width: 200px;
+    align-self: flex-start;
+  }
+
+  .findcar-car-detail h4 {
+    font-size: 14px;
+    color: #888;
+    margin: 0 0 12px;
+  }
+
+  .findcar-car-number {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .findcar-space-code {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin: 12px 0;
+  }
+
+  .findcar-entry-time {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+  }
+
+  .findcar-home-btn {
+    width: 100%;
+    margin-top: 40px;
+    padding: 16px;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .btn-back {
+    padding: 10px 20px;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+  }

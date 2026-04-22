@@ -75,6 +75,12 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "                        com.example.demo.domain.parking.log.enums.ParkingStatus.EXIT_REQUESTED)")
     boolean isAlreadyInParkingLot(@Param("carNumber") String carNumber);
 
+    @Query("SELECT COUNT(p) > 0 FROM ParkingLog p " +
+            "WHERE p.carNumberSnapshot IN :carNumbers " +
+            "AND p.parkingStatus IN (com.example.demo.domain.parking.log.enums.ParkingStatus.ENTERED, " +
+            "                        com.example.demo.domain.parking.log.enums.ParkingStatus.EXIT_REQUESTED)")
+    boolean existsActiveByCarNumbers(@Param("carNumbers") List<String> carNumbers);
+
     List<ParkingLog> findTop5ByCarNumberSnapshotOrderByEntryTimeDesc(String carNumber);
 
     //해당 층에 현재 주차중인 차량들 조회
@@ -90,6 +96,15 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "AND p.parkingStatus IN ('ENTERED', 'DETECTED', 'EXIT_REQUESTED') " +
             "AND p.parkingTypeSnapshot IN ('RESIDENT', 'SUBSCRIPTION'))")
     boolean existsActiveBenefitLogByVehicleId(@Param("vehicleId") Long vehicleId);
+
+    //Kiosk 상가 - 내부 차량 찾기
+    @Query("SELECT p FROM ParkingLog p " +
+            "WHERE p.carNumberSnapshot LIKE %:query% " +
+            "AND p.exitedAt IS NULL AND p.enteredAt IS NOT NULL")
+    List<ParkingLog> findActiveByCarNumberContaining(@Param("query") String query);
+
+    @Query("SELECT p FROM ParkingLog p LEFT JOIN FETCH p.parkingSpace WHERE p.carNumberSnapshot LIKE %:query% AND p.exitedAt IS NULL AND p.enteredAt IS NOT NULL ")
+    List<ParkingLog> findActiveWithSpaceByCarNumber(@Param("query") String query);
 
     //특정 기간의 주차요금
     @Query("select sum(p.fee) from ParkingLog p where p.paidAt between :startDate and : endDate")

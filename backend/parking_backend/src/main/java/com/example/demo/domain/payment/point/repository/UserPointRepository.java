@@ -30,4 +30,7 @@ public interface UserPointRepository extends JpaRepository<UserPoint,Long> {
     @Query("select up from UserPoint up where up.user.userId = :userId")
     Optional<UserPoint> findByUserUserIdWithLock(@Param("userId") Long userId);
 
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE UserPoint up SET up.currentPoint = 0 WHERE up.user.userId = :userId")
+    void resetPoint(@Param("userId") Long userId);
 }

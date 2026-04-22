@@ -62,6 +62,18 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
     void incrementActiveReservationCount(@Param("id") Long id);
 
     @Modifying
+    @Query("UPDATE Household h SET h.totalVisitCount = h.totalVisitCount + 1 WHERE h.householdId = :id")
+    void incrementTotalVisitCount(@Param("id") Long id);
+
+    @Modifying
     @Query("UPDATE Household h SET h.activeReservationCount = h.activeReservationCount - 1 WHERE h.householdId = :id AND h.activeReservationCount > 0")
     void decrementActiveReservationCount(@Param("id") Long id);
+
+    @Modifying
+    @Query("UPDATE Household h SET h.todayVisitCount = 0")
+    void resetTodayVisitCount();
+
+    @Modifying
+    @Query("UPDATE Household h SET h.monthlyVisitCount = 0")
+    void resetMonthlyVisitCount();
 }

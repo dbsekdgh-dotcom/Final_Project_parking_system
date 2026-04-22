@@ -63,4 +63,6 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
     );
 
     long countByStatus(ApprovalStatus status);
+
+    List<Approval> findByRequestUserId_UserIdAndStatus(Long userId, ApprovalStatus status);
 }

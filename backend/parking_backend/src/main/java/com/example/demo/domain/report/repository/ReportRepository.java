@@ -58,4 +58,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             Pageable pageable
             );
     long countByStatus(ReportStatus status);
+
+    @Query("SELECT r FROM Report r WHERE r.reporter.userId = :userId AND r.status = :status")
+    List<Report> findByReporterIdAndStatus(@Param("userId") Long userId,
+                                           @Param("status") ReportStatus status);
 }
