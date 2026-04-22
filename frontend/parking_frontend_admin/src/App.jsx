@@ -10,6 +10,11 @@ import ApprovalLayout from "./features/approval/layout/ApprovalLayout"
 import ApprovalRequestPage from "./features/approval/approval-request/pages/ApprovalRequestPage"
 import ReportPage from "./features/approval/report/pages/ReportPage"
 import UserVehicleLayout from "./features/user-vehicle/layout/UserVehicleLayout"
+import UserVehicleUser from "./features/user-vehicle/pages/UserVehicleUser"
+import UserVehicleVehicle from "./features/user-vehicle/pages/UserVehicleVehicle"
+import UserVehicleBlacklist from "./features/user-vehicle/pages/UserVehicleBlacklist"
+import UserVehicleReservation from "./features/user-vehicle/pages/UserVehicleReservation"
+import UservehicleSubscription from "./features/user-vehicle/pages/UservehicleSubscription"
 
 
 function App() {
@@ -37,6 +42,11 @@ function App() {
           {/* 유저/차량: 탭 레이아웃 + 하위페이지 */}
           <Route path="/admin/user-vehicle" element={<UserVehicleLayout/>}>
            {/* 페이지 추가 */}
+            <Route path="/admin/user-vehicle/user" element={<UserVehicleUser/>}/>
+            <Route path="/admin/user-vehicle/vehicle" element={<UserVehicleVehicle/>}/>
+            <Route path="/admin/user-vehicle/blacklist" element={<UserVehicleBlacklist/>}/>
+            <Route path="/admin/user-vehicle/reservation" element={<UserVehicleReservation/>}/>
+            <Route path="/admin/user-vehicle/subscription" element={<UservehicleSubscription/>}/>
           </Route>
         </Route>
 

@@ -99,4 +99,8 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
 
     @Query("SELECT p FROM ParkingLog p LEFT JOIN FETCH p.parkingSpace WHERE p.carNumberSnapshot LIKE %:query% AND p.exitedAt IS NULL AND p.enteredAt IS NOT NULL ")
     List<ParkingLog> findActiveWithSpaceByCarNumber(@Param("query") String query);
+
+    //Admin/UserVehicle Page용
+    @Query("SELECT p FROM ParkingLog p LEFT JOIN FETCH p.parkingSpace WHERE p.carNumberSnapshot = :carNumber AND p.exitedAt IS NULL AND p.enteredAt IS NOT NULL ORDER BY p.enteredAt DESC LIMIT 1")
+    Optional<ParkingLog> findCurrentParkingByCarNumber(@Param("carNumber") String carNumber);
 }
