@@ -18,6 +18,7 @@ import StoreMainPage from "./features/store/pages/StoreMainPage";
 import StorePurchaseCompletePage from "./features/store/pages/StorePurchaseCompleatePage";
 import TicketPurchasePage from "./features/store/pages/TicketPuchasePage";
 import TicketApplyPage from "./features/store/pages/TicketApplyPage";
+import FindCarPage from "./features/findcar/pages/FindCarPage";
 
 
 function App() {
@@ -47,7 +48,7 @@ function App() {
       <Route path="/store/purchase" element={<TicketPurchasePage/>}/>
       <Route path="/store/purchase/complete" element={<StorePurchaseCompletePage/>}/>
       <Route path="/store/apply" element={<TicketApplyPage/>}/>
-      <Route path="/find-car" element={<div style={{ padding: 40 }}>내차 찾기 준비 중</div>} />
+      <Route path="/find-car" element={<FindCarPage/>} />
 
   </Routes>
   );

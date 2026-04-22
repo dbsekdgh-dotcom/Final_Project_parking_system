@@ -28,12 +28,13 @@ public class KioskSecurityConfig {
     @Bean
     public SecurityFilterChain kioskFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/v1/**", "/api/payment/**", "/api/exit/**", "/api/store/**")
+            .securityMatcher("/api/v1/**", "/api/payment/**", "/api/exit/**", "/api/store/**","/api/kiosk/**")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(kioskCorsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.POST, "/api/store/login").permitAll()
+                    .requestMatchers("/api/kiosk/**").permitAll()
                     .requestMatchers("/api/store/**").hasRole("STORE")
                     .anyRequest().permitAll()
             ).addFilterBefore(new KioskJwtFilter(adminJWTUtil),
