@@ -118,6 +118,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         """)
     boolean existsValidReservation(@Param("carNumber") String carNumber);
 
+    @Query("SELECT r FROM Reservation r WHERE r.user.userId = :userId AND r.status IN :statuses")
+    List<Reservation> findByUserIdAndStatusIn(@Param("userId") Long userId,
+                                              @Param("statuses") List<Status> statuses);
+
     // 노쇼 처리: visitEndAt 이 지났는데 RESERVED 또는 PENDING 상태인 예약 → NO_SHOW
     @Modifying
     @Query("""

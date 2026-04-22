@@ -75,6 +75,12 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "                        com.example.demo.domain.parking.log.enums.ParkingStatus.EXIT_REQUESTED)")
     boolean isAlreadyInParkingLot(@Param("carNumber") String carNumber);
 
+    @Query("SELECT COUNT(p) > 0 FROM ParkingLog p " +
+            "WHERE p.carNumberSnapshot IN :carNumbers " +
+            "AND p.parkingStatus IN (com.example.demo.domain.parking.log.enums.ParkingStatus.ENTERED, " +
+            "                        com.example.demo.domain.parking.log.enums.ParkingStatus.EXIT_REQUESTED)")
+    boolean existsActiveByCarNumbers(@Param("carNumbers") List<String> carNumbers);
+
     List<ParkingLog> findTop5ByCarNumberSnapshotOrderByEntryTimeDesc(String carNumber);
 
     //해당 층에 현재 주차중인 차량들 조회

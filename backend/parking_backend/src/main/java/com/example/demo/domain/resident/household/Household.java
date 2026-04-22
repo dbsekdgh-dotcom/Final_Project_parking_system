@@ -39,4 +39,12 @@ public class Household {
     @Column(nullable = false)
     @Builder.Default
     private Integer activeReservationCount=0;
+
+    public void deactivate() {
+        this.isActive = IsActive.INACTIVE;
+        this.totalVisitCount = 0;
+        this.todayVisitCount = 0;
+        this.monthlyVisitCount = 0;
+        this.activeReservationCount = 0;
+    }
 }
