@@ -96,7 +96,7 @@ export default function UservehicleSubscription() {
                   <td className="arp__td--muted">{row.ownerName}</td>
                   <td className="arp__td--mono">{formatDate(row.startDate)}</td>
                   <td className="arp__td--mono">{formatDate(row.endDate)}</td>
-                  <td className="arp__td--mono">{row.amount != null ? `${row.amount.toLocaleString()}원` : '-'}</td>
+                  <td className="arp__td--mono">{row.price != null ? `${row.price.toLocaleString()}원` : '-'}</td>
                   <td>
                     <span className={`arp__status-badge arp__status-badge--${row.status.toLowerCase()}`}>
                       {STATUS_LABEL[row.status] ?? row.status}

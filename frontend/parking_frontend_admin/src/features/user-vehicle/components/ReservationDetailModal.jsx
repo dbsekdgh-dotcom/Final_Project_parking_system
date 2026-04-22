@@ -25,8 +25,8 @@ export default function ReservationDetailModal({ data, onClose }) {
 
       <div className="mgmt-modal__section">
         <div className="mgmt-modal__section-title">신청자 정보</div>
-        <Row label="이름"     value={data.userName} />
-        <Row label="전화번호" value={data.phone} />
+        <Row label="이름"     value={data.requesterName} />
+        <Row label="전화번호" value={data.requesterPhone} />
         {data.unitNo && <Row label="세대번호" value={data.unitNo} />}
       </div>
     </ManagementModal>
