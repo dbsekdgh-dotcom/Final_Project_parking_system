@@ -30,7 +30,7 @@ public class ApprovalResponseDto {
             LocalDateTime visitStartAt,
             LocalDateTime visitEndAt
     ){
-        boolean prosessedBySystem =
+        boolean processedBySystem =
                 approval.getProcessedByAdminId() == null
                 && approval.getStatus() != ApprovalStatus.PENDING;
         String requesterName = (approval.getRequestUserId() != null)
@@ -44,7 +44,7 @@ public class ApprovalResponseDto {
                 .status(approval.getStatus())
                 .createdAt(approval.getCreatedAt())
                 .processedAt(approval.getProcessedAt())
-                .processedBySystem(prosessedBySystem)
+                .processedBySystem(processedBySystem)
                 .rejectReason(approval.getRejectReason())
                 .visitStartAt(visitStartAt)
                 .visitEndAt(visitEndAt)
