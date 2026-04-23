@@ -2,7 +2,7 @@ import React from 'react'
 
 const Stats = () => {
   return (
-    <div>Stats</div>
+    <div>배포 테스트</div>
   )
 }
 
