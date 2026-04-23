@@ -1,7 +1,7 @@
 
 services:
   backend:
-    build: ./backend/parking_backend
+    image: 079092240156.dkr.ecr.ap-northeast-2.amazonaws.com/parking-backend:latest
     container_name: parking-backend
     ports:
       - "8080:8081"
@@ -23,7 +23,7 @@ services:
     restart: always
 
   ai:
-    build: ./ai-service
+    image: 079092240156.dkr.ecr.ap-northeast-2.amazonaws.com/parking-ai:latest
     container_name: parking-ai
     ports:
       - "8000:8000"
