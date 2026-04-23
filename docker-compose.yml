@@ -27,7 +27,7 @@ services:
       - parking-net
 
   backend:
-    build: ./backend/parking_backend
+    image: ./backend/parking_backend
     container_name: parking-backend
     ports:
       - "8081:8081"
@@ -54,7 +54,7 @@ services:
       - parking-net
 
   ai:
-    build: ./ai-service
+    image: ./ai-service
     container_name: parking-ai
     ports:
       - "8000:8000"
