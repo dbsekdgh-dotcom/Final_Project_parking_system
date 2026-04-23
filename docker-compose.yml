@@ -1,10 +1,36 @@
 
 services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: parking-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - TZ=Asia/Seoul
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - parking-net
+
   backend:
     build: ./backend/parking_backend
     container_name: parking-backend
     ports:
-      - "8080:8081"
+      - "8081:8081"
     env_file:
       - .env
     environment:
@@ -17,9 +43,15 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
-      - ai
-      - redis
+      mysql:
+        condition: service_healthy   # MySQL 준비완료까지 대기
+      ai:
+        condition: service_started
+      redis:
+        condition: service_started
     restart: always
+    networks:
+      - parking-net
 
   ai:
     build: ./ai-service
@@ -32,6 +64,8 @@ services:
     restart: always
     depends_on:
       - redis
+    networks:
+      - parking-net
   
   # Redis 서비스
   redis:
@@ -39,4 +73,21 @@ services:
     container_name: parking-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     restart: always
+    networks:
+      - parking-net
+
+
+#볼륨
+volumes:
+  mysql_data:
+    driver: local #볼륨 저장 장소(EC2(호스트) 자체 디스크에 저장)
+  redis_data:
+    driver: local
+
+#네트워크
+networks:
+  parking-net:
+    driver: bridge #같은 호스트 내 컨테이너 여결
