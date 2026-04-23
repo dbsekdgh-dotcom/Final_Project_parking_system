@@ -10,7 +10,7 @@ services:
     environment:
       # 중요: 백엔드에서 AI 서버를 찾을 때 localhost가 아닌 서비스 이름 'ai'를 사용하도록 설정
       - AI_SERVER_URL=http://ai:8000
-      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${DB_URL}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       # 백엔드가 컨테이너 환경에서 Redis를 찾을 수 있도록 설정 (localhost 대신 서비스명 redis 사용)
@@ -19,6 +19,7 @@ services:
     depends_on:
       - ai
       - redis
+      - mysql
     restart: always
 
   ai:
@@ -32,6 +33,7 @@ services:
     restart: always
     depends_on:
       - redis
+      - mysql
   
   # Redis 서비스
   redis:
@@ -39,4 +41,25 @@ services:
     container_name: parking-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
     restart: always
+  
+  mysql:
+    image: mysql:8.0
+    container_name: parking-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+volumes:
+  redis_data:
+  mysql_data:
