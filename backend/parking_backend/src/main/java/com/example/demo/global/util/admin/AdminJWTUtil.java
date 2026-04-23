@@ -2,6 +2,7 @@ package com.example.demo.global.util.admin;
 
 import com.example.demo.domain.resident.User;
 import com.example.demo.domain.auth.user.principal.PrincipalDetails;
+import com.example.demo.global.security.store.StoreAuthDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
@@ -26,15 +27,18 @@ public class AdminJWTUtil {
 
     private final SecretKey key;
     private final SecretKey userKey;
+    private final SecretKey storeKey;
 
     public AdminJWTUtil(@Value("${jwt.admin.secret}") String secretKey,
-                        @Value("${USER_JWT_SECRET}") String userSecretKey) {
+                        @Value("${USER_JWT_SECRET}") String userSecretKey,
+                        @Value("${jwt.kiost.secret}") String storeSecretKey) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         if (userSecretKey == null || userSecretKey.length() < 32) {
             throw new IllegalArgumentException("User JWT Secret Key must be at least 32 characters long!");
         }
         this.userKey = Keys.hmacShaKeyFor(userSecretKey.getBytes(StandardCharsets.UTF_8));
+        this.storeKey = Keys.hmacShaKeyFor(storeSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     // ==================== 관리자 JWT 메서드 ====================
@@ -163,5 +167,40 @@ public class AdminJWTUtil {
         PrincipalDetails principalDetails = new PrincipalDetails(userEntity);
 
         return new UsernamePasswordAuthenticationToken(principalDetails, token, authorities);
+    }
+    // =============kiosk JWT 메서드 ===========
+    public String generateKioskToken(Long storeId, String storeName, int minutes){
+        return Jwts.builder()
+                .header().type("JWT").and()
+                .subject(String.valueOf(storeId))
+                .claim("storeId",storeId)
+                .claim("storeName",storeName)
+                .claim("role","ROLE_STORE")
+                .issuedAt(Date.from(ZonedDateTime.now().toInstant()))
+                .expiration(Date.from(ZonedDateTime.now().plusMinutes(minutes).toInstant()))
+                .signWith(storeKey)
+                .compact();
+    }
+    public Claims validateKioskToken(String token){
+        try{
+            return Jwts.parser()
+                    .verifyWith(storeKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        }catch (ExpiredJwtException e){
+            throw new AdminJWTException("Expired");
+        }catch (JwtException e){
+            throw new AdminJWTException("JWTError");
+        }catch (Exception e){
+            throw new AdminJWTException("Error");
+        }
+    }
+    public Authentication getKioskAuthentication(String token){
+        Claims claims =validateKioskToken(token);
+        Long storeId = ((Number) claims.get("storeId")).longValue();
+        String storeName = (String) claims.get("storeName");
+        StoreAuthDto storeAuthDto = new StoreAuthDto(storeId,storeName);
+        return new UsernamePasswordAuthenticationToken(storeAuthDto, token,storeAuthDto.getAuthorities());
     }
 }

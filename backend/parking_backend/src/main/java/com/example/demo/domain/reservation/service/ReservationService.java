@@ -130,6 +130,7 @@ public class ReservationService {
                 .household(household).message(String.format("[%s] 차량 방문 예약 신청", carNumber)).build());
 
         householdRepository.incrementActiveReservationCount(household.getHouseholdId());
+        householdRepository.incrementTotalVisitCount(household.getHouseholdId());
 
         return ReservationDetailResponseDto.fromEntity(savedReservation);
     }

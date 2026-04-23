@@ -92,6 +92,9 @@ dependencies {
     // Swagger (OpenAPI 3)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
+    // Actuator 추가
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 }
 //  QClass 생성 경로 설정
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile.absolutePath

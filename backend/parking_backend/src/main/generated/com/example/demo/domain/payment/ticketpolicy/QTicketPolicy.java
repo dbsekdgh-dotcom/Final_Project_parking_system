@@ -29,8 +29,6 @@ public class QTicketPolicy extends EntityPathBase<TicketPolicy> {
 
     public final BooleanPath isFreeTicket = createBoolean("isFreeTicket");
 
-    public final NumberPath<Integer> maxDiscountAmount = createNumber("maxDiscountAmount", Integer.class);
-
     public final StringPath name = createString("name");
 
     public final NumberPath<Integer> price = createNumber("price", Integer.class);

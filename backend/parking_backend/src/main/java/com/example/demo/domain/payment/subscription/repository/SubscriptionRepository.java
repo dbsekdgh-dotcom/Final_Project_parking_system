@@ -3,6 +3,8 @@ package com.example.demo.domain.payment.subscription.repository;
 import com.example.demo.domain.payment.subscription.Subscription;
 import com.example.demo.domain.payment.subscription.enums.Status;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -109,6 +111,28 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
             "WHERE s.user.userId = :userId " +
             "ORDER BY s.endDate DESC")
     List<Subscription> findAllByUserIdOrderByEndDateDesc(@Param("userId") Long userId);
+
+    //Admin/UserVehicle Page 용
+
+    @Query(
+            value = """
+            SELECT s FROM Subscription s
+            JOIN FETCH s.user u JOIN FETCH s.vehicle v LEFT JOIN FETCH s.payment p
+            WHERE (:keyword IS NULL OR u.name LIKE %:keyword% OR v.carNumber LIKE %:keyword%)
+            AND (:status IS NULL OR s.status = :status)
+            ORDER BY s.createdAt DESC
+            """,
+            countQuery = """
+            SELECT COUNT(s) FROM Subscription s
+            JOIN s.user u JOIN s.vehicle v
+            WHERE (:keyword IS NULL OR u.name LIKE %:keyword% OR v.carNumber LIKE %:keyword%)
+            AND (:status IS NULL OR s.status = :status)
+            """)
+    Page<Subscription> findAllForAdmin(
+            @Param("keyword") String keyword,
+            @Param("status") Status status,
+            Pageable pageable
+    );
 
 }
 

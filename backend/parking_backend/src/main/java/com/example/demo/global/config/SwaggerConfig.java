@@ -54,5 +54,23 @@ public class SwaggerConfig {
                 .addOpenApiCustomizer(sortTagsAlphabetically)
                 .build();
     }
+    @Bean
+    public GroupedOpenApi adminGroupApi(OpenApiCustomizer sortTagsAlphabetically){
+        return GroupedOpenApi.builder()
+                .group("2. 관리자용 (Admin)")
+                .pathsToMatch("/api/admin/**")
+                .addOpenApiCustomizer(sortTagsAlphabetically)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi kioskGroupApi(OpenApiCustomizer sortTagsAlphabetically){
+        return GroupedOpenApi.builder()
+                .group("3. 키오스크용 (Kiosk)")
+                .pathsToMatch("/**") //모든 주소 포함
+                .pathsToExclude("/api/user/**","/api/admin/**") //유저,관리자 주소 제외
+                .addOpenApiCustomizer(sortTagsAlphabetically)
+                .build();
+    }
 
 }

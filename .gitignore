@@ -54,6 +54,7 @@ backend/**/build/
 backend/**/.gradle/
 backend/**/*.jar
 backend/**/*.war
+front_store
 
 ##################################################
 # Frontend (React / Vite)
