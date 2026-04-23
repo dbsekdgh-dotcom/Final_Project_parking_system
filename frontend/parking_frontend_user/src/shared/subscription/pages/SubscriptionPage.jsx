@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import { useQuery } from '@tanstack/react-query';
 import { useMySubscriptions } from '../hooks/useSubscription';
 import { vehicleApi } from '../../../features/vehicle/api/vehicleApi';
@@ -75,7 +76,16 @@ export default function SubscriptionPage() {
 
                 <SubscriptionBuyCard
                     onClick={() => {
-                        if (!hasActiveVehicle) return alert('활성화된 차량이 없습니다. 차량을 먼저 등록해주세요.');
+                        if (!hasActiveVehicle) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '차량 등록 필요',
+                                text: '활성화된 차량이 없습니다. 차량을 먼저 등록해주세요.',
+                                confirmButtonText: '확인',
+                                confirmButtonColor: '#3085d6',
+                            });
+                            return;
+                        }
                         setModalOpen(true);
                     }}
                 />

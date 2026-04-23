@@ -6,6 +6,7 @@ export const useUnitStatus = () => {
     return useQuery({
         queryKey: ['unitStatus'],
         queryFn: fetchUnitStatus,
+        select: (data) => (Array.isArray(data) ? data : []),
     });
 };
 

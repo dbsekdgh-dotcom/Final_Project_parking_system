@@ -63,7 +63,7 @@ const VehicleRegisterModal = ({ isOpen, onClose }) => {
                     idCardRawName: result.name || '',
                     idCardRawBirth: normalizedBirth, // 정규화된 6자리로 저장 (birth와 동일 기준)
                 }));
-                Swal.fire('인증 성공', `신분증 인증이 완료되었습니다.`, 'success');
+                Swal.fire({ icon: 'success', title: '인증 성공', text: '신분증 인증이 완료되었습니다.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
             } else {
                 // 차량등록증 OCR → carNumber/vehicleName(표시용) + ocrRaw(비교용)
                 const result = await vehicleApi.uploadRegistration(file);
@@ -76,7 +76,7 @@ const VehicleRegisterModal = ({ isOpen, onClose }) => {
                     ocrRawCarNumber: result.carNumber || '',     // OCR 원본 차량번호
                     ocrRawVehicleName: result.vehicleName || '', // OCR 원본 차종
                 }));
-                Swal.fire('추출 성공', '차량 정보가 입력되었습니다.', 'success');
+                Swal.fire({ icon: 'success', title: '추출 성공', text: '차량 정보가 입력되었습니다.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
             }
             setStep('main');
         } catch (error) {
@@ -118,6 +118,7 @@ const VehicleRegisterModal = ({ isOpen, onClose }) => {
                 icon: 'warning',
                 title: '신분증 인증 필요',
                 text: '신분증 인증을 먼저 완료해주세요.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
             return;
@@ -127,6 +128,7 @@ const VehicleRegisterModal = ({ isOpen, onClose }) => {
                 icon: 'warning',
                 title: '차량등록증 인증 필요',
                 text: '차량등록증 인증을 먼저 완료해주세요.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
             return;
