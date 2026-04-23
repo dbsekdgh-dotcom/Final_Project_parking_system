@@ -61,10 +61,8 @@ export default function ApprovalRequestPage() {
       const params = new URLSearchParams({ page, size: 10});
       if (filterType) params.append('type', filterType);
       if (filterStatus) params.append('status', filterStatus);
-      if (searchText.trim) params.append('keyword', searchText.trim());
+      if (searchText.trim()) params.append('keyword', searchText.trim());
 
-      const res = await fetch(`/api/admin/approvals?${params}`, { credentials:'include'});
-      setRows(data.content ?? []);
       const res = await fetch(`/api/admin/approvals?${params}`, {
         credentials:'include',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
@@ -110,7 +108,6 @@ export default function ApprovalRequestPage() {
 
   //  승인 
   const handleApprove = async(approvalId) => {
-    await fetch(`/api/admin/approvals/${approvalId}/approve`,{ method : 'POST', credentials:'include'});
     await fetch(`/api/admin/approvals/${approvalId}/approve`,{
        method : 'POST',
        credentials:'include',
