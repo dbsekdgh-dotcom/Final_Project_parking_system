@@ -61,9 +61,9 @@ export default function ApprovalRequestPage() {
       const params = new URLSearchParams({ page, size: 10});
       if (filterType) params.append('type', filterType);
       if (filterStatus) params.append('status', filterStatus);
-      if (searchText.trim) params.append('keyword', searchText.trim());
+      if (searchText.trim()) params.append('keyword', searchText.trim());
 
-      const res = await fetch(`/api/admin/approvals?${params}`, { 
+      const res = await fetch(`/api/admin/approvals?${params}`, {
         credentials:'include',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
       });

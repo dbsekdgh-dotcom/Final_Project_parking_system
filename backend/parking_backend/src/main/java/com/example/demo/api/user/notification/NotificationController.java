@@ -1,9 +1,11 @@
 package com.example.demo.api.user.notification;
 
+import com.example.demo.domain.auth.user.principal.PrincipalDetails;
 import com.example.demo.domain.notification.dtos.NotificationResponseDto;
 import com.example.demo.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,8 @@ public class NotificationController {
 
     //유저별 알림 목록 조회
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<NotificationResponseDto>> getNotification(@PathVariable Long userId){
-        List<NotificationResponseDto> list = notificationService.getNotifications(userId);
+    public ResponseEntity<List<NotificationResponseDto>> getNotification(@AuthenticationPrincipal PrincipalDetails principalDetails){
+        List<NotificationResponseDto> list = notificationService.getNotifications(principalDetails.getUser().getUserId());
         return ResponseEntity.ok(list);
     }
 

@@ -1,7 +1,7 @@
 package com.example.demo.domain.approval.service;
 
 import com.example.demo.domain.approval.Approval;
-import com.example.demo.domain.approval.dtos.response.AppprovalPageResponseDto;
+import com.example.demo.domain.approval.dtos.response.ApprovalPageResponseDto;
 import com.example.demo.domain.approval.dtos.response.ApprovalResponseDto;
 import com.example.demo.domain.approval.dtos.response.ApprovalStatsDto;
 import com.example.demo.domain.approval.enums.ApprovalStatus;
@@ -111,7 +111,7 @@ public class AdminApprovalService {
         return String.format("{\"status\":\"%s\"}", status);
     }
     //목록조회
-    public AppprovalPageResponseDto getApprovals(
+    public ApprovalPageResponseDto getApprovals(
             ApprovalType type,
             ApprovalStatus status,
             String keyword,
@@ -128,7 +128,7 @@ public class AdminApprovalService {
                 .approvedCount(approvalRepository.countByStatus(ApprovalStatus.APPROVED))
                 .rejectedCount(approvalRepository.countByStatus(ApprovalStatus.REJECTED))
                 .build();
-        return AppprovalPageResponseDto.builder()
+        return ApprovalPageResponseDto.builder()
                 .content(content)
                 .totalPages(page.getTotalPages())
                 .totalElements(page.getTotalElements())
