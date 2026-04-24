@@ -1,11 +1,15 @@
 package com.example.demo.api.user.dashboard;
 
+import com.example.demo.domain.auth.user.principal.PrincipalDetails;
 import com.example.demo.domain.resident.dashboard.dto.DashboardResponseDto;
 import com.example.demo.domain.resident.dashboard.service.DashboardService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
@@ -15,19 +19,16 @@ public class DashboardController {
 
     @GetMapping
     public ResponseEntity<DashboardResponseDto> getDashboardData(
-            @RequestParam(value = "userId")Long userId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestParam(value = "page", defaultValue = "0") int page){
 
-        //유저 ID가 없는 경우에 대한 방어 로직
-        if(userId == null){
-            return ResponseEntity.badRequest().build();
-        }
+        Long currentUserId = principalDetails.getUserId();
 
-        DashboardResponseDto response = dashboardService.getUserDashboardData(userId, page);
+        log.info(">>> [보안 검증 완료] 접속 유저 ID: {}, 페이지: {}", currentUserId, page);
 
-        System.out.println(">>> [API 호출] 유저ID: " + userId + ", 페이지:" + page);
-        System.out.println(">>> [데이터 결과] 포인트: " + response.getMyPoint() + ", D-Day: " + response.getSubscriptionDDay());
+        DashboardResponseDto response = dashboardService.getUserDashboardData(currentUserId, page);
 
+        log.info(">>>[데이터 결과] 포인트: {}, D-Day: {}",response.getMyPoint(), response.getSubscriptionDDay());
         return ResponseEntity.ok(response);
     }
 }

@@ -36,7 +36,7 @@ public class AdminActionLogController {
                 )
         );
     }
-    @PostMapping("{actionId}/revert")
+    @PostMapping("/{actionId}/revert")
     public ResponseEntity<Void> revert(@PathVariable Long actionId){
         adminActionLogQueryService.revert(actionId);
         return ResponseEntity.ok().build();
