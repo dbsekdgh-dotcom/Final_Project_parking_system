@@ -19,6 +19,7 @@ const OAuthRedirectPage = () => {
             // 한글 이름 깨짐 방지 및 데이터 추출
             const rawName = searchParams.get("name");
             const name = rawName ? decodeURIComponent(rawName) : null;
+            const userId = searchParams.get("userId");
             const email = searchParams.get("email");
             const userStatus = searchParams.get("userStatus");
             const unitNo = searchParams.get("unitNo");
@@ -51,6 +52,9 @@ const OAuthRedirectPage = () => {
                 isprocessed.current = true;
 
                 // UI용 사용자 정보만 localStorage에 저장 (토큰 제외)
+                if (userId) {
+                    localStorage.setItem("userId", userId);
+                }
                 if (name) {
                     localStorage.setItem("userName", name);
                 }

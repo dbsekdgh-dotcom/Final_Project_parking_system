@@ -16,6 +16,9 @@ import com.example.demo.domain.parking.policy.repository.ParkingFeePolicyReposit
 import com.example.demo.domain.parking.space.ParkingSpace;
 import com.example.demo.domain.parking.space.enums.SpaceStatus;
 import com.example.demo.domain.parking.space.repository.ParkingSpaceRepository;
+import com.example.demo.domain.system.store.Store;
+import com.example.demo.domain.system.store.enums.Status;
+import com.example.demo.domain.system.store.repository.StoreRepository;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.security.admin.AdminAuthDto;
@@ -40,6 +43,7 @@ public class AdminActionLogQueryService {
     private final ParkingSpaceRepository parkingSpaceRepository;
     private final ParkingLogRepository parkingLogRepository;
     private final ObjectMapper objectMapper;
+    private final StoreRepository storeRepository;
 
 
     //헬퍼
@@ -65,6 +69,13 @@ public class AdminActionLogQueryService {
         ParkingLog log = parkingLogRepository.findById(targetId)
                 .orElseThrow(()->new BusinessException(ErrorCode.INVALID_REQUEST));
         log.setParkingStatus(ParkingStatus.valueOf(before.get("parkingStatus").asText()));
+    }
+    private void revertStore(Long targetId, JsonNode before){
+        Store store = storeRepository.findByStoreId(targetId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+        if (before.has("name")) store.updateName(before.get("name").asText());
+        if (before.has("terminalPassword")) store.updateTerminalPassword(before.get("terminalPassword").asText());
+        if (before.has("status")) store.updateStatus(Status.valueOf(before.get("status").asText()));
     }
 
     @Transactional(readOnly = true)
@@ -97,6 +108,7 @@ public class AdminActionLogQueryService {
                 case POLICY -> revertPolicy(log.getTargetId(),before);
                 case PARKING_SPACE -> revertParkingSpace(log.getTargetId(), before);
                 case PARKING_LOG -> revertParkingLog(log.getTargetId(), before);
+                case STORE -> revertStore(log.getTargetId(),before);
                 default -> throw new BusinessException(ErrorCode.INVALID_REQUEST);
             }
         } catch (BusinessException e){

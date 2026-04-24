@@ -3,10 +3,7 @@ package com.example.demo.domain.system.store;
 import com.example.demo.domain.auth.admin.entity.Admin;
 import com.example.demo.domain.system.store.enums.Status;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString(exclude = {"createdBy","updatedBy"})
 @Getter
+@Setter
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,4 +38,18 @@ public class Store {
     @JoinColumn(name = "updated_by")
     @ManyToOne(fetch = FetchType.LAZY)
     private Admin updatedBy;
+
+    public void updateName(String name){
+        this.name = name;
+    }
+    public void updateTerminalPassword(String terminalPassword){
+        this.terminalPassword = terminalPassword;
+    }
+    public void updateStatus(Status status){
+        this.status = status;
+    }
+    public void updateUpdatedBy(Admin admin){
+        this.updatedBy = admin;
+    }
+
 }
