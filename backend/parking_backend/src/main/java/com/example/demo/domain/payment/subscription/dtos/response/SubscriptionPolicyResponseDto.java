@@ -8,8 +8,8 @@ import lombok.Getter;
 public class SubscriptionPolicyResponseDto {
 
     private long price;
-    private int days;
+    private int durationDays;
     private int maxCount;
     private long activeCount;
-    private long remaining;
+    private long remainCount;
 }

@@ -43,11 +43,14 @@ public class MyPageDashboardService {
             userStatus = "일반 회원";
         }
 
+        Integer unitNo = (user.getHousehold() != null) ? user.getHousehold().getUnitNo() : null;
+
         return new MyPageDashboardResponseDto(
                 user.getName(),
                 user.getPhone(),
                 user.getBirth(),
-                userStatus
+                userStatus,
+                unitNo
         );
     }
 

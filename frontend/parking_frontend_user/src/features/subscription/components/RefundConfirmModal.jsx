@@ -14,8 +14,17 @@ export default function RefundConfirmModal({ subscription, onClose }) {
     const start = new Date(subscription.startDate);
     const end = new Date(subscription.endDate);
     const totalDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-    const remainDays = Math.max(0, Math.floor((end - now) / (1000 * 60 * 60 * 24)));
-    const ratio = totalDays > 0 ? remainDays / totalDays : 0;
+
+    let ratio;
+    let displayRemainDays;
+    if (now < start) {
+        ratio = 1.0;
+        displayRemainDays = totalDays;
+    } else {
+        const remainDays = Math.max(0, Math.floor((end - now) / (1000 * 60 * 60 * 24)));
+        ratio = totalDays > 0 ? remainDays / totalDays : 0;
+        displayRemainDays = remainDays;
+    }
 
     const paidAmount  = subscription.paidAmount ?? subscription.price;
     const usedPoint   = subscription.usedPoint ?? 0;
@@ -52,7 +61,7 @@ export default function RefundConfirmModal({ subscription, onClose }) {
     };
 
     return (
-        <div className="refund-modal__overlay" onClick={onClose}>
+        <div className="refund-modal__overlay">
             <div className="refund-modal" onClick={e => e.stopPropagation()}>
                 <h3 className="refund-modal__title">정기권 환불 안내</h3>
 
@@ -60,7 +69,7 @@ export default function RefundConfirmModal({ subscription, onClose }) {
                 <div className="refund-modal__summary">
                     <div className="refund-modal__row">
                         <span className="refund-modal__label">잔여 일수</span>
-                        <span className="refund-modal__value">{remainDays}일 / {totalDays}일</span>
+                        <span className="refund-modal__value">{displayRemainDays}일 / {totalDays}일</span>
                     </div>
                     <div className="refund-modal__row">
                         <span className="refund-modal__label">예정 환불금</span>

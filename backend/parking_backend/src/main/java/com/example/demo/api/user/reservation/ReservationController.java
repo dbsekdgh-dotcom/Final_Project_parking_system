@@ -23,7 +23,7 @@ import java.util.List;
 @Tag(name = "5. 방문 예약 (Reservation)", description = "입주민 방문 차량 예약 신청, 조회, 수정, 취소 및 예약 정책 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user/reservation")
+@RequestMapping("/api/user/reservations")
 public class ReservationController {
 
     private final ReservationService reservationService;

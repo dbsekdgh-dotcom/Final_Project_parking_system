@@ -20,4 +20,5 @@ public class VehicleReportController {
         VehicleReportStat stat = vehicleReportService.getStatCarNumber(carNumber);
         return ResponseEntity.ok(stat);
     }
+
 }

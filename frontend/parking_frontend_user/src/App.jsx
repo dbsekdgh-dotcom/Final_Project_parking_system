@@ -13,9 +13,9 @@ import OAuthRedirectPage from './features/auth/pages/OAuthRedirectPage.jsx';
 import ReportPage from './features/report/ReportPage.jsx';
 import MyPage from './features/mypage/pages/MyPage.jsx';
 import ReservationPage from './features/reservation/pages/ReservationPage.jsx';
-import SubscriptionPage from './shared/subscription/pages/SubscriptionPage.jsx';
-import SubscriptionSuccessPage from './shared/subscription/pages/SubscriptionSuccessPage.jsx';
-import SubscriptionFailPage from './shared/subscription/pages/SubscriptionFailPage.jsx';
+import SubscriptionPage from './features/subscription/pages/SubscriptionPage.jsx';
+import SubscriptionSuccessPage from './features/subscription/pages/SubscriptionSuccessPage.jsx';
+import SubscriptionFailPage from './features/subscription/pages/SubscriptionFailPage.jsx';
 
 function App() {
   return (

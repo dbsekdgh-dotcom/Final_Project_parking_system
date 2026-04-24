@@ -15,8 +15,8 @@
 
 .status-card__body {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
     gap: 16px;
 }
 
@@ -48,6 +48,14 @@
     border: 1px solid #d9ddef;
 }
 
+.status-card__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
 .status-card__desc {
     margin: 6px 0 0;
     font-size: 0.88rem;
@@ -56,7 +64,9 @@
 }
 
 .status-card__actions {
-    align-self: flex-end;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .btn-cancel {

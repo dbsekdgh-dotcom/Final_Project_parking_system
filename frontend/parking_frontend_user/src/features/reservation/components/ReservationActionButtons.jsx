@@ -13,10 +13,11 @@ const ReservationActionButtons = ({ status, visitStartAt, onCancel, onEdit }) =>
     if (!['PENDING', 'RESERVED'].includes(status)) return null;
 
     const showCancel = !isTodayOrPast(visitStartAt);
+    const showEdit = status === 'PENDING' && !isTodayOrPast(visitStartAt);
 
     return (
         <div className="res-action-buttons">
-            {status === 'PENDING' && (
+            {showEdit && (
                 <button className="btn-edit-res" type="button" onClick={onEdit}>
                     수정
                 </button>

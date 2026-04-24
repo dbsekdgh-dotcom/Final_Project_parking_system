@@ -14,6 +14,8 @@ public class VehicleResponseDto {
 
     private Long vehicleId;
 
+    private Long approvalId;
+
     private String carNumber;
 
     private String vehicleName;
