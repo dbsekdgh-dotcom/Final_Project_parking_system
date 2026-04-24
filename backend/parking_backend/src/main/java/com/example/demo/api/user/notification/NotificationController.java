@@ -1,6 +1,7 @@
-package com.example.demo.api.user.notification;
+package com.example.demo.domain.notification.controller;
 
 import com.example.demo.domain.auth.user.principal.PrincipalDetails;
+
 import com.example.demo.domain.notification.dtos.NotificationResponseDto;
 import com.example.demo.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -10,32 +11,39 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private  final NotificationService notificationService;
 
-    //유저별 알림 목록 조회
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<NotificationResponseDto>> getNotification(@AuthenticationPrincipal PrincipalDetails principalDetails){
-        List<NotificationResponseDto> list = notificationService.getNotifications(principalDetails.getUser().getUserId());
-        return ResponseEntity.ok(list);
+    //현재 로그인한 유저의 알림 목록 조회
+    @GetMapping
+    public ResponseEntity<List<NotificationResponseDto>> getNotifications(
+            @AuthenticationPrincipal PrincipalDetails principalDetails){
+
+        Long userId = principalDetails.getUser().getUserId();
+        List<NotificationResponseDto> notifications = notificationService.getNotifications(userId);
+
+        return ResponseEntity.ok(notifications);
+
     }
 
-    //알림 읽음 처리(확인 시간 기록)
+    //알림 읽은 처리
     @PatchMapping("/{notificationId}/read")
-    public ResponseEntity<Void> readNotification(@PathVariable Long notificationId) {
+    public ResponseEntity<Void> readNotification(@PathVariable Long notificationId){
         notificationService.readNotification(notificationId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    //알림 개별 삭제
+    //알림 삭제 처리
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId){
         notificationService.deleteNotification(notificationId);
         return ResponseEntity.noContent().build();
+
     }
+
 }

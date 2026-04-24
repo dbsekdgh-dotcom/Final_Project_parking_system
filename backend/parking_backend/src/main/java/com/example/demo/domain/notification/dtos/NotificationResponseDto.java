@@ -36,7 +36,5 @@ public class NotificationResponseDto {
                 .isRead(notification.getReadAt() != null)
                 .build();
     }
-
-
 }
 
