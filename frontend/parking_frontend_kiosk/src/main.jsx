@@ -8,7 +8,7 @@ const queryClient=new QueryClient();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter basename="/koisk">
+    <BrowserRouter basename="/kiosk">
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>
