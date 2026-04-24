@@ -11,7 +11,7 @@ const mainNav = [
   { to: '/admin/fee', label: '요금 설정/조회', id: 'fee' },
   { to: '/admin/approval/approval-request', label: '승인 관리', id: 'approval', badge: 4, activeMatch: '/admin/approval' },
   { to: '/admin/user-vehicle/user', label: '사용자 / 차량', id: 'user-vehicle' },
-  { to: '/admin/realtime-io', label: '관리자 활동 내역', id: 'realtime-io' },
+  { to: '/admin/action-log', label: '관리자 활동 내역', id: 'realtime-io' },
 ]
 
 const bottomNav = [
