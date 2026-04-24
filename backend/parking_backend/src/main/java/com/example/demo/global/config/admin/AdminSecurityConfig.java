@@ -60,9 +60,6 @@ AdminSecurityConfig {
 
         // 권한 설정 (인가)
         http.authorizeHttpRequests(auth -> auth
-                // 1. 강제 출차 API만 누구나 접근 가능하게 맨 위에 추가 (임시)
-//                .requestMatchers(HttpMethod.POST, "/admin/parking/logs/*/force-exit").permitAll()
-
                 // 최상단에 로그아웃을 가장 먼저 배치
                 .requestMatchers(HttpMethod.POST,"/api/admin/logout").permitAll()
                 .requestMatchers("/api/admin/login","/api/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
