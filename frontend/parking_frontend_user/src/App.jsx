@@ -19,7 +19,7 @@ import SubscriptionFailPage from './shared/subscription/pages/SubscriptionFailPa
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/user">
       <Routes>
         {/* 1. 공개 경로: 로그인, 회원가입 */}
         <Route 

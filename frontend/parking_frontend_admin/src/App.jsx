@@ -21,7 +21,7 @@ function App() {
 
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/admin">
       <Routes>
         {/* 1. 레이아웃이 없는 독립 페이지(로그인) */}
         <Route path="/admin" element={<LoginPage />}/>
