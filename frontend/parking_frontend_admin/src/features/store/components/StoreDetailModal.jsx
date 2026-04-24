@@ -24,7 +24,7 @@ export default function StoreDetailModal({ store, onClose, onRefresh}){
             }
         };
         load();
-    });
+    },[]);
 
     const handleUpdate = async () => {
         if (!editName.trim()) return;
@@ -46,6 +46,12 @@ export default function StoreDetailModal({ store, onClose, onRefresh}){
         if (!window.confirm(`[${detail.name}] 상가를 입주 처리하시겠습니까?`)) return;
         setActioning(true);
         try{
+            const dto ={};
+            if(editName.trim() && editName.trim() !== detail) dto.name = editName.trim();
+            if(editPassword.trim()) dto.terminalPassword = editPassword.trim();
+            if(Object.keys(dto).length > 0){
+                await updateStore(store.storeId, dto);
+            }
             await activateStore(store.storeId);
             onRefresh();
         }finally{
@@ -155,5 +161,5 @@ export default function StoreDetailModal({ store, onClose, onRefresh}){
   function formatDate(isoStr) {
       if (!isoStr) return '–';
       const d = new Date(isoStr);
-      return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   }
