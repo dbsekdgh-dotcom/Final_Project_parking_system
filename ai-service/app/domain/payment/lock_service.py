@@ -4,7 +4,7 @@ from fastapi import HTTPException
 
 # 1. Redis 연결 (도커로 띄운 Redis 서버와 통신)
 # decode_responses=True: 데이터를 가져올 때 바이트가 아닌 '문자열'로 받기 위해 필수
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")                                                                                                                                                                                                                                                  
+REDIS_HOST = os.getenv("REDIS_HOST", "redis")                                                                                                                                                                                                                                                  
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))          
                                                                                                                                                                                                                                         
 redis_client=redis.Redis(host=REDIS_HOST,port=REDIS_PORT,db=0,decode_responses=True) 
