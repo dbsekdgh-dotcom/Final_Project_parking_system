@@ -6,8 +6,8 @@ import com.example.demo.domain.system.activitylog.repository.ActivityLogReposito
 import com.example.demo.domain.approval.Approval;
 import com.example.demo.domain.approval.enums.ApprovalStatus;
 import com.example.demo.domain.approval.enums.ApprovalType;
-import com.example.demo.domain.approval.repository.ApprovalRepository;
 import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
+import com.example.demo.domain.approval.repository.ApprovalRepository;
 import com.example.demo.domain.payment.subscription.repository.SubscriptionRepository;
 import com.example.demo.domain.system.setting.SettingKey;
 import com.example.demo.domain.system.setting.repository.SystemSettingRepository;
@@ -176,13 +176,24 @@ public class VehicleRegistrationService {
      */
     public VehicleResponseDto getMyVehicle(Long userId) {
         return vehicleRepository.findCurrentVehicle(userId)
-                .map(vehicle -> VehicleResponseDto.builder()
-                        .vehicleId(vehicle.getId())
-                        .carNumber(vehicle.getCarNumber())
-                        .vehicleName(vehicle.getVehicleName())
-                        .status(vehicle.getStatus())
-                        .createdAt(vehicle.getCreatedAt())
-                        .build())
+                .map(vehicle -> {
+                    Long approvalId = null;
+                    if (vehicle.getStatus() == VehicleStatus.PENDING) {
+                        approvalId = approvalRepository
+                                .findTopByTargetIdAndApprovalTypeAndStatusOrderByCreatedAtDesc(
+                                        vehicle.getId(), ApprovalType.VEHICLE, ApprovalStatus.PENDING)
+                                .map(Approval::getApprovalId)
+                                .orElse(null);
+                    }
+                    return VehicleResponseDto.builder()
+                            .vehicleId(vehicle.getId())
+                            .approvalId(approvalId)
+                            .carNumber(vehicle.getCarNumber())
+                            .vehicleName(vehicle.getVehicleName())
+                            .status(vehicle.getStatus())
+                            .createdAt(vehicle.getCreatedAt())
+                            .build();
+                })
                 .orElse(null);
     }
 
@@ -203,9 +214,15 @@ public class VehicleRegistrationService {
             throw new CustomException(ErrorCode.INVALID_VEHICLE_STATUS);
         }
 
-        Approval approval = approvalRepository.findByTargetIdAndApprovalType(vehicle.getId(), ApprovalType.VEHICLE)
-                .filter(a -> a.getStatus() == ApprovalStatus.PENDING)
+        Approval approval = approvalRepository.findById(requestDto.getApprovalId())
                 .orElseThrow(() -> new CustomException(ErrorCode.APPROVAL_NOT_FOUND));
+
+        if (!approval.getRequestUserId().getUserId().equals(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED_VEHICLE);
+        }
+        if (approval.getStatus() != ApprovalStatus.PENDING) {
+            throw new CustomException(ErrorCode.APPROVAL_NOT_FOUND);
+        }
 
         approval.cancel();
         vehicle.softDelete();
@@ -228,7 +245,7 @@ public class VehicleRegistrationService {
             throw new CustomException(ErrorCode.ACCESS_DENIED_VEHICLE);
         }
 
-        // 주차 베네핏 적용 여부 확인
+        // 입주민 혜택으로 입차 중인 경우 삭제 차단 (퇴차 시 무료 처리 꼬임 방지)
         if (parkingLogRepository.existsActiveBenefitLogByVehicleId(vehicleId)) {
             throw new CustomException(ErrorCode.CANNOT_DELETE_VEHICLE_IN_PARKING);
         }

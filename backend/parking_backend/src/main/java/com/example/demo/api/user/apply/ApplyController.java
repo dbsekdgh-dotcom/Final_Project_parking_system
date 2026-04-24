@@ -81,4 +81,13 @@ public class ApplyController {
         return ResponseEntity.ok(residentApplyService.cancel(userId, approvalId));
     }
 
+    @Operation(summary = "퇴거", description = "입주민이 세대에서 퇴거합니다. 입차 중인 차량이 있으면 퇴거 불가합니다.", security = @SecurityRequirement(name = "jwtAuth"))
+    @DeleteMapping("/resident")
+    public ResponseEntity<Void> leaveResident(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        residentApplyService.leave(principalDetails.getUserId());
+        return ResponseEntity.ok().build();
+    }
+
 }

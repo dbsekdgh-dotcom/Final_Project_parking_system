@@ -11,4 +11,7 @@ import lombok.NoArgsConstructor;
 public class VehicleCancelRequestDto {
     @NotNull(message = "취소할 차량의 ID는 필수입니다.")
     private Long vehicleId;
+
+    @NotNull(message = "취소할 승인 ID는 필수입니다.")
+    private Long approvalId;
 }

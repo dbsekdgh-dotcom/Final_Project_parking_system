@@ -1,252 +1,156 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useMyVehicle } from '../../vehicle/hooks/useVehicle';
-import { useReadySubscription, useSubscriptionPolicy } from '../hooks/useSubscription';
-import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
-import Swal from 'sweetalert2';
+import { useState } from 'react';
+import { useSubscriptionPolicy, useMyPoint } from '../hooks/useSubscription';
+import SubscriptionPeriodInfo from './SubscriptionPeriodInfo';
+import SubscriptionPriceInfo from './SubscriptionPriceInfo';
+import PointInput from './PointInput';
+import TossPaymentWidget from './TossPaymentWidget';
 import './SubscriptionPurchaseModal.css';
 
-const TOSS_CLIENT_KEY = import.meta.env.VITE_TOSS_CLIENT_KEY;
+export default function SubscriptionPurchaseModal({ vehicle, activeSubscriptions = [], onClose }) {
+    const [selectedDate, setSelectedDate] = useState('');
+    const [overlapError, setOverlapError] = useState('');
+    const [usedPoint, setUsedPoint] = useState(0);
+    const [showToss, setShowToss] = useState(false);
 
-const SubscriptionPurchaseModal = ({ isOpen, onClose }) => {
-    const { data: vehicle, isLoading: isVehicleLoading } = useMyVehicle();
-    const [startDate, setStartDate] = useState('');
-    const [step, setStep] = useState(1);
-    const [widgetsReady, setWidgetsReady] = useState(false);
-    const widgetsRef = useRef(null);
-    const pendingReadyData = useRef(null);
+    const startDate = selectedDate ? new Date(selectedDate) : null;
+    const { data: policy } = useSubscriptionPolicy(startDate);
+    const { data: myPoint = 0 } = useMyPoint();
 
-    const { mutate: ready, isLoading } = useReadySubscription();
+    const price = policy?.price ?? 0;
+    const days = policy?.durationDays ?? 30;
+    const remaining = policy?.remainCount ?? 0;
+    const paidAmount = Math.max(0, price - usedPoint);
 
-    const startDateTime = startDate ? `${startDate}T00:00:00` : null;
-    const { data: policy, isFetching: isPolicyFetching } = useSubscriptionPolicy(startDateTime);
+    const isOverlapping = (dateStr) => {
+        if (!dateStr || activeSubscriptions.length === 0) return false;
+        const sel = new Date(dateStr);
+        const selEnd = new Date(sel);
+        selEnd.setDate(selEnd.getDate() + (days || 30));
+        return activeSubscriptions.some(sub => {
+            const subStart = new Date(sub.startDate);
+            const subEnd = new Date(sub.endDate);
+            return sel < subEnd && selEnd > subStart;
+        });
+    };
 
-    // 모달 닫힐 때 상태 초기화
-    useEffect(() => {
-        if (!isOpen) {
-            setStep(1);
-            setStartDate('');
-            setWidgetsReady(false);
-            widgetsRef.current = null;
-            pendingReadyData.current = null;
-        }
-    }, [isOpen]);
+    const handleGoToss = () => {
+        window.__subOrderId = crypto.randomUUID();
+        localStorage.setItem('sub_vehicleId', vehicle.vehicleId);
+        localStorage.setItem('sub_usedPoint', usedPoint);
+        localStorage.setItem('sub_paidAmount', paidAmount);
+        localStorage.setItem('sub_orderId', window.__subOrderId);
+        localStorage.setItem('sub_startDate', startDate?.toISOString() ?? '');
+        setShowToss(true);
+    };
 
-    // step 2 진입 시 Toss 위젯 초기화 및 렌더링
-    useEffect(() => {
-        if (step !== 2 || !pendingReadyData.current) return;
-
-        setWidgetsReady(false);
-        let cancelled = false;
-
-        (async () => {
-            try {
-                const customerEmail = localStorage.getItem('userEmail') || undefined;
-                const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
-                const widgets = tossPayments.widgets({ customerKey: customerEmail || ANONYMOUS });
-                await widgets.setAmount({ currency: 'KRW', value: Number(pendingReadyData.current.amount) });
-
-                await Promise.all([
-                    widgets.renderPaymentMethods({ selector: '#toss-payment-method', variantKey: 'DEFAULT' }),
-                    widgets.renderAgreement({ selector: '#toss-agreement', variantKey: 'AGREEMENT' }),
-                ]);
-
-                if (!cancelled) {
-                    widgetsRef.current = widgets;
-                    setWidgetsReady(true);
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    Swal.fire({ icon: 'error', title: '결제 초기화 실패', text: err.message, confirmButtonColor: '#d33' });
-                    setStep(1);
-                }
-            }
-        })();
-
-        return () => { cancelled = true; };
-    }, [step]);
-
-    if (!isOpen) return null;
+    const handlePointOnly = () => {
+        localStorage.setItem('sub_vehicleId', vehicle.vehicleId);
+        localStorage.setItem('sub_usedPoint', usedPoint);
+        localStorage.setItem('sub_paidAmount', 0);
+        localStorage.setItem('sub_orderId', '');
+        localStorage.setItem('sub_paymentKey', '');
+        localStorage.setItem('sub_startDate', startDate?.toISOString() ?? '');
+        window.location.href = '/subscription/success?pointOnly=true';
+    };
 
     const today = new Date().toISOString().split('T')[0];
 
-    if (!isVehicleLoading && (!vehicle || vehicle.status !== 'ACTIVE')) {
-        return (
-            <div className="modal-overlay">
-                <div className="modal-card">
-                    <div className="modal-header">
-                        <h2 className="modal-header__title">정기권 구매</h2>
-                        <button className="modal-close-btn" onClick={onClose}>&times;</button>
-                    </div>
-                    <div className="modal-body">
-                        <div className="sub-purchase-no-vehicle">
-                            <p>승인된 차량이 없습니다.</p>
-                            <p className="sub-purchase-no-vehicle__sub">차량 등록 승인 후 정기권을 구매할 수 있습니다.</p>
-                        </div>
-                    </div>
-                    <div className="modal-footer">
-                        <button className="btn-modal-cancel" onClick={onClose}>닫기</button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const handleReady = () => {
-        if (!startDate) {
-            Swal.fire({ icon: 'warning', title: '입력 확인', text: '시작일을 선택해주세요.', confirmButtonColor: '#3085d6' });
-            return;
-        }
-        if (!policy) {
-            Swal.fire({ icon: 'warning', title: '정책 확인 중', text: '잠시 후 다시 시도해주세요.', confirmButtonColor: '#3085d6' });
-            return;
-        }
-        if (policy.remainCount <= 0) {
-            Swal.fire({ icon: 'error', title: '잔여 수량 없음', text: '선택한 날짜의 정기권이 모두 판매되었습니다.', confirmButtonColor: '#d33' });
-            return;
-        }
-
-        ready(
-            { carNumber: vehicle.carNumber, startDate: startDateTime, amount: policy.price },
-            {
-                onSuccess: (data) => {
-                    localStorage.setItem('sub_pending', JSON.stringify({
-                        carNumber: data.carNumber,
-                        startDate: data.startDate,
-                        endDate: data.endDate,
-                    }));
-                    pendingReadyData.current = data;
-                    setStep(2);
-                },
-            }
-        );
-    };
-
-    const handlePay = async () => {
-        if (!widgetsReady || !widgetsRef.current) {
-            Swal.fire({ icon: 'warning', title: '결제 준비 중', text: '잠시 후 다시 시도해주세요.', confirmButtonColor: '#3085d6' });
-            return;
-        }
-        try {
-            const data = pendingReadyData.current;
-            await widgetsRef.current.requestPayment({
-                orderId: data.orderId,
-                orderName: data.orderName,
-                customerName: localStorage.getItem('userName') || '사용자',
-                customerEmail: localStorage.getItem('userEmail') || undefined,
-                successUrl: `${window.location.origin}/subscription`,
-                failUrl: `${window.location.origin}/subscription?fail=1`,
-            });
-        } catch (err) {
-            localStorage.removeItem('sub_pending');
-            Swal.fire({
-                icon: 'error',
-                title: '결제창 오류',
-                text: err.message || '결제창을 열 수 없습니다. 다시 시도해주세요.',
-                confirmButtonColor: '#d33',
-            });
-        }
-    };
-
-    const isPolicyReady = startDate && !isPolicyFetching && policy;
-
     return (
         <div className="modal-overlay">
-            <div className="modal-card">
-                <div className="modal-header">
-                    <h2 className="modal-header__title">정기권 구매</h2>
-                    <button className="modal-close-btn" onClick={onClose}>&times;</button>
+            <div className="sub-modal-card" onClick={e => e.stopPropagation()}>
+                <div className="sub-modal-header">
+                    <h2 className="sub-modal-title">정기권 구매</h2>
+                    <button className="sub-modal-close" onClick={onClose}>✕</button>
                 </div>
 
-                <div className="modal-body">
-                    {step === 1 ? (
+                <div className="sub-modal-body">
+                    {/* 차량 정보 */}
+                    <div className="sub-modal-section">
+                        <label className="sub-modal-label">차량</label>
+                        <div className="sub-modal-period">{vehicle?.carNumber} ({vehicle?.vehicleName})</div>
+                    </div>
+
+                    {/* 시작일 선택 */}
+                    <div className="sub-modal-section">
+                        <label className="sub-modal-label">시작일 선택</label>
+                        <input
+                            type="date"
+                            className={`sub-modal-select${overlapError ? ' sub-modal-select--error' : ''}`}
+                            min={today}
+                            value={selectedDate}
+                            onChange={e => {
+                                const val = e.target.value;
+                                if (isOverlapping(val)) {
+                                    setOverlapError('보유 중인 정기권 기간과 겹칩니다. 다른 날짜를 선택해주세요.');
+                                    setSelectedDate('');
+                                } else {
+                                    setOverlapError('');
+                                    setSelectedDate(val);
+                                }
+                                setUsedPoint(0);
+                                setShowToss(false);
+                            }}
+                        />
+                        {overlapError && <p className="sub-modal-error">{overlapError}</p>}
+                    </div>
+
+                    {/* 날짜 선택 후 정책 표시 */}
+                    {selectedDate && policy && (
                         <>
-                            <div className="sub-purchase-vehicle">
-                                <span className="sub-purchase-vehicle__label">등록 차량</span>
-                                <span className="sub-purchase-vehicle__number">{vehicle?.carNumber}</span>
-                            </div>
+                            <SubscriptionPeriodInfo days={days} startDate={startDate} />
+                            <SubscriptionPriceInfo price={price} remaining={remaining} />
 
-                            <div className="modal-field">
-                                <label className="modal-label">시작일</label>
-                                <input
-                                    className="modal-input"
-                                    type="date"
-                                    value={startDate}
-                                    min={today}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                />
-                            </div>
+                            {!showToss && (
+                                <>
+                                    <PointInput myPoint={myPoint} price={price} onApply={setUsedPoint} />
 
-                            <div className="sub-purchase-info">
-                                {isPolicyFetching ? (
-                                    <p className="sub-purchase-info__loading">정책 정보 확인 중...</p>
-                                ) : (
-                                    <>
-                                        <div className="sub-purchase-info__row">
-                                            <span className="sub-purchase-info__label">이용 기간</span>
-                                            <span className="sub-purchase-info__value">
-                                                {policy ? `${policy.durationDays}일` : '시작일을 선택해주세요'}
-                                            </span>
+                                    <div className="sub-modal-total">
+                                        {usedPoint > 0 && (
+                                            <div className="sub-modal-price-row sub-modal-discount">
+                                                <span>포인트 할인</span>
+                                                <span>- {usedPoint.toLocaleString()}P</span>
+                                            </div>
+                                        )}
+                                        <div className="sub-modal-price-row sub-modal-final">
+                                            <span>최종 결제금액</span>
+                                            <span>{paidAmount.toLocaleString()}원</span>
                                         </div>
-                                        <div className="sub-purchase-info__row">
-                                            <span className="sub-purchase-info__label">잔여 수량</span>
-                                            <span className={`sub-purchase-info__value ${policy?.remainCount <= 0 ? 'sub-purchase-info__soldout' : ''}`}>
-                                                {policy ? `${policy.remainCount}개` : '-'}
-                                            </span>
-                                        </div>
-                                        <div className="sub-purchase-info__row">
-                                            <span className="sub-purchase-info__label">결제 금액</span>
-                                            <span className="sub-purchase-info__value sub-purchase-info__price">
-                                                {policy ? `${policy.price.toLocaleString()}원` : '-'}
-                                            </span>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </>
-                    ) : (
-                        <div className="sub-purchase-payment-widget">
-                            {!widgetsReady && (
-                                <p className="sub-purchase-info__loading">결제 수단 로딩 중...</p>
+                                    </div>
+
+                                    <div className="sub-modal-footer">
+                                        {remaining <= 0 ? (
+                                            <button className="sub-modal-btn-primary" disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>
+                                                잔여 수량 없음
+                                            </button>
+                                        ) : paidAmount === 0 ? (
+                                            <button className="sub-modal-btn-primary" onClick={handlePointOnly}>포인트로 구매하기</button>
+                                        ) : (
+                                            <button className="sub-modal-btn-primary" onClick={handleGoToss}>결제하기</button>
+                                        )}
+                                    </div>
+                                </>
                             )}
-                            <div id="toss-payment-method" />
-                            <div id="toss-agreement" />
-                        </div>
-                    )}
-                </div>
 
-                <div className="modal-footer">
-                    {step === 1 ? (
-                        <>
-                            <button
-                                className="btn-modal-submit"
-                                onClick={handleReady}
-                                disabled={isLoading || isPolicyFetching || !isPolicyReady}
-                            >
-                                {isLoading ? '확인 중...' : '다음'}
-                            </button>
-                            <button className="btn-modal-cancel" onClick={onClose}>취소</button>
+                            {showToss && (
+                                <TossPaymentWidget
+                                    paidAmount={paidAmount}
+                                    days={days}
+                                    orderId={window.__subOrderId}
+                                    onReady={() => {}}
+                                />
+                            )}
                         </>
-                    ) : (
-                        <>
-                            <button
-                                className="btn-modal-submit"
-                                onClick={handlePay}
-                                disabled={!widgetsReady}
-                            >
-                                {widgetsReady ? '결제하기' : '로딩 중...'}
-                            </button>
-                            <button
-                                className="btn-modal-cancel"
-                                onClick={() => { setStep(1); pendingReadyData.current = null; sessionStorage.removeItem('sub_pending'); }}
-                            >
-                                이전
-                            </button>
-                        </>
+                    )}
+
+                    {selectedDate && !policy && (
+                        <p style={{ color: '#888', fontSize: '0.9rem' }}>정책 정보를 불러오는 중...</p>
+                    )}
+
+                    {!selectedDate && (
+                        <p style={{ color: '#aaa', fontSize: '0.88rem' }}>시작일을 선택하면 정기권 정보가 표시됩니다.</p>
                     )}
                 </div>
             </div>
         </div>
     );
-};
-
-export default SubscriptionPurchaseModal;
+}

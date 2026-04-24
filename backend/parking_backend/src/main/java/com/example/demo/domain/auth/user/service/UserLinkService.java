@@ -37,7 +37,7 @@ public class UserLinkService {
             throw new AuthException(ErrorCode.PASSWORD_MISMATCH);
         }
 
-        if( user.getPassword() != null) {
+        if(user.getPassword() != null) {
             throw new AuthException(ErrorCode.ALREADY_LINKED_LOCAL);
         }
 

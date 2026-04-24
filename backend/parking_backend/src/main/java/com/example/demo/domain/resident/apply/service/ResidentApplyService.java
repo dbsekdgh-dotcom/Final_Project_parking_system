@@ -7,18 +7,20 @@ import com.example.demo.domain.approval.Approval;
 import com.example.demo.domain.approval.enums.ApprovalStatus;
 import com.example.demo.domain.approval.enums.ApprovalType;
 import com.example.demo.domain.approval.repository.ApprovalRepository;
+import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
+import com.example.demo.domain.resident.household.Household;
 import com.example.demo.domain.resident.household.enums.IsActive;
 import com.example.demo.domain.resident.household.repository.HouseholdRepository;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
 import com.example.demo.domain.resident.User;
 import com.example.demo.domain.resident.UserRepository;
 import com.example.demo.domain.resident.enums.Status;
+import com.example.demo.domain.vehicle.VehicleRepository;
+import com.example.demo.domain.vehicle.enums.VehicleStatus;
 import com.example.demo.domain.resident.apply.dtos.request.ResidentApplyRequestDto;
 import com.example.demo.domain.resident.apply.dtos.response.ResidentApplyCancelResponseDto;
 import com.example.demo.domain.resident.apply.dtos.response.ResidentApplyResponseDto;
 import com.example.demo.domain.resident.apply.dtos.response.UserStatusResponseDto;
-import com.example.demo.domain.auth.user.principal.PrincipalDetails;
-import com.example.demo.domain.reservation.dtos.response.ReservationListResponseDto;
 import com.example.demo.global.exception.CustomException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,9 @@ public class ResidentApplyService {
     private final HouseholdRepository householdRepository;
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
-    // 🚩 추가된 부분: 방문 예약 데이터를 다루기 위한 레포지토리
     private final ReservationRepository reservationRepository;
+    private final VehicleRepository vehicleRepository;
+    private final ParkingLogRepository parkingLogRepository;
 
     /**
      * [입주 신청 등록]
@@ -120,6 +123,45 @@ public class ResidentApplyService {
         // 취소 상태로 변경 (더티 체킹)
         approval.setStatus(ApprovalStatus.CANCELLED);
         return new ResidentApplyCancelResponseDto(approval);
+    }
+
+    /**
+     * [퇴거]
+     */
+    @Transactional
+    public void leave(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getHousehold() == null) {
+            throw new CustomException(ErrorCode.NOT_RESIDENT_USER);
+        }
+
+        // 입차 중인 차량 있으면 차단
+        List<String> carNumbers = vehicleRepository
+                .findByUser_UserIdAndStatus(userId, VehicleStatus.ACTIVE)
+                .stream()
+                .map(v -> v.getCarNumber())
+                .toList();
+
+        if (carNumbers.stream().anyMatch(parkingLogRepository::isAlreadyInParkingLot)) {
+            throw new CustomException(ErrorCode.CANNOT_LEAVE_VEHICLE_IN_PARKING);
+        }
+
+        // 방문 예약 자동 취소
+        reservationRepository
+                .findByUserIdAndStatusIn(userId, List.of(
+                        com.example.demo.domain.reservation.enums.Status.PENDING,
+                        com.example.demo.domain.reservation.enums.Status.RESERVED))
+                .forEach(r -> {
+                    r.cancel(com.example.demo.domain.reservation.enums.Status.CANCELLED);
+                    householdRepository.decrementActiveReservationCount(user.getHousehold().getHouseholdId());
+                });
+
+        // 세대 해제
+        Household household = user.getHousehold();
+        household.deactivate();
+        user.setHousehold(null);
     }
 
     /**

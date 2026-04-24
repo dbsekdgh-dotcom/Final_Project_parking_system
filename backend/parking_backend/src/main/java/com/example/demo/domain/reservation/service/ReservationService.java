@@ -215,7 +215,7 @@ public class ReservationService {
         reservation.cancel(CANCELLED);
         householdRepository.decrementActiveReservationCount(user.getHousehold().getHouseholdId());
 
-        approvalRepository.findByTargetIdAndApprovalType(reservationId, ApprovalType.RESERVATION)
+        approvalRepository.findTopByTargetIdAndApprovalTypeAndStatusOrderByCreatedAtDesc(reservationId, ApprovalType.RESERVATION, ApprovalStatus.PENDING)
                 .ifPresent(approval -> {
                     if (approval.getStatus() == ApprovalStatus.PENDING)
                         approval.updateStatus(ApprovalStatus.CANCELLED);
@@ -239,6 +239,9 @@ public class ReservationService {
         var RESERVED = com.example.demo.domain.reservation.enums.Status.RESERVED;
         if (reservation.getStatus() != PENDING) {
             throw new CustomException(ErrorCode.RESERVATION_CANNOT_EDIT_STATUS);
+        }
+        if (!reservation.getVisitStartAt().toLocalDate().isAfter(LocalDate.now())) {
+            throw new CustomException(ErrorCode.EDIT_NOT_TODAY);
         }
 
         String newCarNumber = reservationApplyRequestDto.getCarNumber();

@@ -1,6 +1,6 @@
 .sub-page {
     padding: 28px 32px;
-    max-width: 700px;
+    max-width: 900px;
 }
 
 .sub-page__title {
@@ -10,15 +10,109 @@
     color: #32324d;
 }
 
-.sub-page__restricted {
-    margin-top: 80px;
+.sub-page__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.sub-page__full-width {
+    grid-column: 1 / -1;
+}
+
+.sub-page__history-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888;
+    margin: 0 0 12px 0;
+}
+
+.sub-page__history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sub-page__no-vehicle {
+    background: #fff4f4;
+    border: 1px solid #f5c6cb;
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: #e05c5c;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sub-page__no-vehicle button {
+    background: none;
+    border: 1px solid #e05c5c;
+    color: #e05c5c;
+    border-radius: 8px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 0.82rem;
+}
+
+.resident-only-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.resident-only-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 28px 28px;
+    width: 100%;
+    max-width: 340px;
     text-align: center;
-    color: #9e9eb8;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.resident-only-modal__icon {
+    font-size: 2.4rem;
+    margin-bottom: 12px;
+}
+
+.resident-only-modal__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 10px;
+}
+
+.resident-only-modal__desc {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0 0 24px;
+}
+
+.resident-only-modal__btn {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 10px;
+    background: #4f7af8;
+    color: #fff;
     font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.resident-only-modal__btn:hover {
+    opacity: 0.88;
 }
 
 @media (max-width: 640px) {
-    .sub-page {
-        padding: 20px 16px;
-    }
+    .sub-page { padding: 20px 16px; }
+    .sub-page__grid { grid-template-columns: 1fr; }
+    .sub-page__full-width { grid-column: auto; }
 }

@@ -37,7 +37,7 @@ const VehicleCard = () => {
                                 <span className="vehicle-badge vehicle-badge--pending">승인 대기 중</span>
                                 <button
                                     className="btn-vehicle btn-vehicle--gray"
-                                    onClick={() => cancelVehicle(vehicle.vehicleId)}
+                                    onClick={() => cancelVehicle({ vehicleId: vehicle.vehicleId, approvalId: vehicle.approvalId })}
                                 >
                                     신청 취소
                                 </button>

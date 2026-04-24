@@ -30,8 +30,8 @@ export const vehicleApi = {
      * @param {Long} vehicleId - 취소할 차량 PK
      * @returns {Promise<String>} 성공 메시지
      */
-    cancelRegistration: async (vehicleId) => {
-        const response = await api.post('/api/user/vehicles/cancel', { vehicleId });
+    cancelRegistration: async ({ vehicleId, approvalId }) => {
+        const response = await api.post('/api/user/vehicles/cancel', { vehicleId, approvalId });
         return response.data;
     },
 
