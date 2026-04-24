@@ -10,7 +10,10 @@ public enum ErrorCode {
     // COMMON
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "데이터를 찾을 수 없습니다."),
-
+    // STORE
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND,"상가를 찾을 수 없습니다."),
+    STORE_ALREADY_ACTIVE(HttpStatus.CONFLICT,"이미 입주 중인 상가입니다."),
+    STORE_ALREADY_INACTIVE(HttpStatus.CONFLICT,"이미 퇴거된 상가입니다."),
     // VEHICLE
     VEHICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 차량이 없습니다."),
     DUPLICATE_VEHICLE(HttpStatus.CONFLICT, "이미 등록된 차량입니다."),
