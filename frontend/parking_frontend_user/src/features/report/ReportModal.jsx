@@ -34,7 +34,7 @@ const ReportModal = ({ onClose }) => {
 
      //자바 백엔드로 최종 데이터 보내기
      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081"
-     const token = localStorage.getItem("accessToken");
+    //  const token = localStorage.getItem("accessToken");
 
      const params = new URLSearchParams();
      params.append("carNumber", carNumber);
@@ -43,8 +43,9 @@ const ReportModal = ({ onClose }) => {
      params.append("report_s3path",s3Path); //파이썬이 준 주소를 자바에 전달
 
      await axios.post(`${baseUrl}/api/report`, params, {
+      withCredentials: true,
         headers: {
-            "Authorization" : `Bearer ${token}`
+            //"Authorization" : `Bearer ${token}`
          }
       });
     

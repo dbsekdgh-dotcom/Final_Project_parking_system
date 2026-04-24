@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class AppprovalPageResponseDto {
+public class ApprovalPageResponseDto {
     private List<ApprovalResponseDto> content;
     private int totalPages;
     private long totalElements;

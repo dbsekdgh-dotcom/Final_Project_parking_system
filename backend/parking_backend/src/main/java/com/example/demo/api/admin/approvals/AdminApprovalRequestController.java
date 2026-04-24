@@ -1,7 +1,7 @@
 package com.example.demo.api.admin.approvals;
 
 import com.example.demo.domain.approval.dtos.request.ApprovalRejectRequestDto;
-import com.example.demo.domain.approval.dtos.response.AppprovalPageResponseDto;
+import com.example.demo.domain.approval.dtos.response.ApprovalPageResponseDto;
 import com.example.demo.domain.approval.enums.ApprovalStatus;
 import com.example.demo.domain.approval.enums.ApprovalType;
 import com.example.demo.domain.approval.service.AdminApprovalService;
@@ -17,7 +17,7 @@ public class AdminApprovalRequestController {
     private final AdminApprovalService adminApprovalService;
 
     @GetMapping
-    public ResponseEntity<AppprovalPageResponseDto> getApprovals(
+    public ResponseEntity<ApprovalPageResponseDto> getApprovals(
             @RequestParam(required = false) ApprovalType type,
             @RequestParam(required = false) ApprovalStatus status,
             @RequestParam(required = false) String keyword,

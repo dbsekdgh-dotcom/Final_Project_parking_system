@@ -14,12 +14,29 @@ const DashBoard = () => {
   //상태 관리 (데이터, 로딩)
   const[data,setData]= useState(null);
   const[loading, setLoading]= useState(true);
+  const[page, setPage] = useState(0);
   const navigate = useNavigate();
+  
+  const getStatusConfig = (status) => {
+  if (!status) return { label: "기", color: "#ccc" };
+  
+  // "입차완료", "입차" 등 '입차'라는 글자가 포함된 경우
+  if (status.includes("입차")) {
+    return { label: "입", color: "#4CAF50" }; // 초록색
+  }
+  // "출차완료", "출차", "강제출차" 등 '출차'라는 글자가 포함된 경우
+  if (status.includes("출차")) {
+    return { label: "출", color: "#F44336" }; // 빨간색
+  }
+  
+  return { label: "기", color: "#9E9E9E" }; // 기타 상태 (회색)
+};
 
   useEffect(() => {
     //로그인 성공 메시지
-    const name= sessionStorage.getItem("loginSuccess");
-    if (name){
+    const name = sessionStorage.getItem("loginSuccess");
+
+    if(name){
       sessionStorage.removeItem("loginSuccess");
       Swal.fire({
         icon: "success",
@@ -32,9 +49,19 @@ const DashBoard = () => {
 
     //백엔드 데이터 호출
     const fetchDashboard = async () =>{
-      try {
-        const response = await axios.get("http://localhost:8081/api/dashboard?userId=69");
+       const currentUserId = localStorage.getItem("userId");
+
+        if(!currentUserId){
+          console.error("세션에 userId가 없네요");
+          setLoading(false);
+          return;
+        }
+
+        try{
+        const response = await axios.get(
+          `http://localhost:8081/api/dashboard?userId=${currentUserId}&page=${page}`);
         setData(response.data);
+
       }catch (error){
         console.error("데이터 로드 실패:", error);
       }finally{
@@ -43,7 +70,7 @@ const DashBoard = () => {
     };
  
     fetchDashboard();
-  },[]);
+  },[page]);
 
   //메뉴클릭 시 페이지 이동 함수
     const handleMenuClick = (menu) => {
@@ -116,37 +143,68 @@ const DashBoard = () => {
         </div>
       </div>
 
-        {/* 최근 입출차 내역 */}
-        <div className="recent-logs">
-          <div className="logs-header">
-            <h3>최근 입출차 내역</h3>
-            <span className="live-badge">● 실시간</span>
-          </div>
-        {data.recentLogs.map((log, idx) => (
-          <div key={idx} className="log-item">
-            {/* 왼쪽 섹션: 아이콘과 정보를 바짝 붙입니다 */}
-            <div className="log-left-section">
-              <div 
-                className="log-icon" 
-                style={{ backgroundColor: typeColor[log.status] || '#ccc' }}
-              >
-                {log.status === "입차" ? "입" : log.status === "출차" ? "출" : "예"}
-              </div>
-              
-              <div className="log-info">
-                <div className="log-car-number">{log.carNumber}</div>
-                <div className="log-sub-info">
-                  {log.location} / {log.timeAgo}
-                </div>
-              </div>
+          {/* 최근 입출차 내역 */}
+          <div className="recent-logs">
+            <div className="logs-header">
+              <h3>최근 입출차 내역</h3>
+              <span className="live-badge">● 실시간</span>
             </div>
 
-            {/* 오른쪽 상태: 얘는 여전히 젤 우측 끝에! */}
-            <div className="log-status-text" style={{ color: typeColor[log.status] }}>
-              {log.status}
-            </div>
+            {data.recentLogs && data.recentLogs.content && data.recentLogs.content.length > 0 ? (
+              data.recentLogs.content.map((log) => {
+              const config = getStatusConfig(log.status);
+
+                return (
+                  <div key={log.parkingLogId || log.createdAt} className="log-item">
+                    <div className="log-left-section">
+                      {/* 왼쪽 동그라미 아이콘 */}
+                      <div
+                        className="log-icon"
+                        style={{ backgroundColor: config.color }}
+                      >
+                        {config.label}
+                      </div>
+
+                      <div className="log-info">
+                        <div className="log-car-number">{log.carNumber || "번호 없음"}</div>
+                        <div className="log-sub-info">
+                          {/* location 대신 message, timeAgo 대신 createdAt 사용 */}
+                          {log.message || log.location} / {log.createdAt ? new Date(log.createdAt).toLocaleString() : "시간 정보 없음"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className="log-status-text"
+                      style={{ color: typeColor[log.status] }}
+                    >
+                      {log.status}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              /* 데이터가 없을 때 표시될 문구 */
+              <div className="no-data" style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                표시할 입출차 내역이 없습니다. (총 {data.recentLogs?.totalElements || 0}건)
+              </div>
+            )}
+
+          <div className="pagination-controlls" style={{display: 'flex',justifyContent: 'center', gap: '20px', marginTop: '20px'}}>
+            <button onClick={() => setPage(prev =>Math.max(0, prev -1 ))}
+            disabled={data.recentLogs.first} style={{cursor: data.recentLogs.first ? 'default' : 'pointer'}}>
+              이전
+            </button>
+
+            <span style={{ fontWeight: 'bold'}}>
+              {data.recentLogs.totalElements === 0 ?0 : page +1} / {data.recentLogs.totalPages || 0}
+            </span>
+
+            <button onClick={()=> setPage(page +1)}
+            disabled={data.recentLogs.last} style={{cursor: data.recentLogs.last ? 'default' : 'pointer'}}>
+              다음
+            </button>
           </div>
-        ))}
         </div>
       </div>
     );
