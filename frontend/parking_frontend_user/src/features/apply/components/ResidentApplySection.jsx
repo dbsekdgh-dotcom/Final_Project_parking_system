@@ -23,7 +23,8 @@ const ResidentApplySection = ({ memberStatus }) => {
         return () => document.removeEventListener('mousedown', handleOutsideClick);
     }, []);
 
-    const { data: unitStatuses = [], isLoading } = useUnitStatus();
+    const { data, isLoading } = useUnitStatus();
+    const unitStatuses = Array.isArray(data) ? data : [];
     const applyMutation = useApplyResident(() => setSelectedUnit(null));
 
     const isAlreadyApplied = memberStatus === 'PENDING' || memberStatus === 'RESIDENT';

@@ -9,11 +9,9 @@ const mainNav = [
   { to: '/admin/parking-space', label: '주차공간', id: 'parking-space' },
   { to: '/admin/entry-exit', label: '입출차 기록', id: 'entry-exit' },
   { to: '/admin/fee', label: '요금 설정/조회', id: 'fee' },
-  { to: '/admin/live-video', label: '실시간영상', id: 'live-video' },
-  { to: '/admin/video-records', label: '영상 기록', id: 'video-records' },
-  { to: '/admin/realtime-io', label: '실시간 입출차', id: 'realtime-io' },
   { to: '/admin/approval/approval-request', label: '승인 관리', id: 'approval', badge: 4, activeMatch: '/admin/approval' },
-  { to: '/admin/user-vehicle', label: '사용자 / 차량', id: 'user-vehicle' },
+  { to: '/admin/user-vehicle/user', label: '사용자 / 차량', id: 'user-vehicle' },
+  { to: '/admin/action-log', label: '관리자 활동 내역', id: 'realtime-io' },
 ]
 
 const bottomNav = [

@@ -1,5 +1,6 @@
 import React from 'react'
 import { usePolicyMutation } from '../hooks/usePolicyMutation'
+import { addTicketPolicy } from './addTicketPolicy'
 import { SlPencil } from 'react-icons/sl'
 import { CiTrash } from 'react-icons/ci'
 import { confirmAlert } from './confirmPolicy'

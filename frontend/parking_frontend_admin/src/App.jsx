@@ -15,6 +15,7 @@ import UserVehicleVehicle from "./features/user-vehicle/pages/UserVehicleVehicle
 import UserVehicleBlacklist from "./features/user-vehicle/pages/UserVehicleBlacklist"
 import UserVehicleReservation from "./features/user-vehicle/pages/UserVehicleReservation"
 import UservehicleSubscription from "./features/user-vehicle/pages/UservehicleSubscription"
+import ActionLogPage from "./features/action-log/pages/ActionLogPage"
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/admin/entry-exit" element={<ParkingLogPage />} />
           <Route path="/admin/fee" element={<Fee/>}/>
           <Route path="/admin/system-setting" element={<SystemSettingPage/>}/>
+          <Route path="/admin/action-log" element={<ActionLogPage/>}/>
 
           {/* 승인 관리: 탭 레이아웃 + 하위 페이지 */}
           <Route path="/admin/approval" element={<ApprovalLayout />}>

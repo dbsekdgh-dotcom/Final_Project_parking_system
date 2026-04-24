@@ -113,4 +113,15 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     //특정 기간의 주차요금
     @Query("select sum(p.fee) from ParkingLog p where p.paidAt between :startDate and : endDate")
     Long calculateParkingFee(@Param("startDate")LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    //정상적인 입차완료와 출차완료 상태만 최신순으로 가져오기
+
+    @Query("SELECT p FROM ParkingLog p " +
+            "WHERE (p.vehicle.user.userId = :userId OR " +
+            "       EXISTS (SELECT r FROM Reservation r " +
+            "               WHERE r.vehicle = p.vehicle " +
+            "               AND r.user.userId = :userId)) " +
+            "AND p.parkingStatus IN (com.example.demo.domain.parking.log.enums.ParkingStatus.ENTERED, " +
+            "                        com.example.demo.domain.parking.log.enums.ParkingStatus.EXITED)")
+    Page<ParkingLog> findMyAndReservedLogs(@Param("userId") Long userId, Pageable pageable);
 }
