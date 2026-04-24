@@ -45,7 +45,16 @@ public class KioskSecurityConfig {
     @Bean
     public CorsConfigurationSource kioskCorsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5203"));
+        //configuration.setAllowedOrigins(List.of("http://localhost:5203"));
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:5201",
+                "http://localhost:5202",
+                "http://localhost:5203",
+                "https://d2rkjg49e7w39t.cloudfront.net",   // CloudFront 배포
+                "https://parking-system.shop",              // 구매한 도메인
+                "https://www.parking-system.shop",          // www 서브도메인
+                "https://*.cloudfront.net"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

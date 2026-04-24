@@ -117,7 +117,11 @@ AdminSecurityConfig {
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5201",
                 "http://localhost:5202", //윤진추가 삭제예정
-                "http://localhost:5203"//윤진추가 삭제예정
+                "http://localhost:5203",//윤진추가 삭제예정
+                "https://d2rkjg49e7w39t.cloudfront.net",   // CloudFront 배포
+                "https://parking-system.shop",              // 구매한 도메인
+                "https://www.parking-system.shop",          // www 서브도메인
+                "https://*.cloudfront.net"                  // 다른 CloudFront 배포도 허용 (선택)
         ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"));

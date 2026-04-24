@@ -96,7 +96,15 @@ public class UserSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // [중요] 쿠키 통신을 위해 프론트엔드 도메인을 명확히 명시 (와일드카드 * 사용 불가)
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5202"));
+        //configuration.setAllowedOrigins(Arrays.asList("http://localhost:5202"));
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:5201",
+                "http://localhost:5202",
+                "http://localhost:5203",
+                "https://d2rkjg49e7w39t.cloudfront.net",
+                "https://parking-system.shop",
+                "https://www.parking-system.shop"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         // [중요] 모든 헤더를 허용하되, 인증 관련 헤더를 브라우저가 신뢰할 수 있도록 설정
