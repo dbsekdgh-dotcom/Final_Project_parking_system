@@ -16,7 +16,7 @@ export function Header() {
       try{
         //test용
         const userType = 'RESIDENT';
-        const response = await axios.get(`http://localhost:8081/api/user/space/summary?userType=${userType}`);
+        const response = await axios.get(`/api/user/space/summary?userType=${userType}`);
 
         if (response.data){
           setParkingData(response.data);

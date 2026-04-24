@@ -44,7 +44,7 @@ export default function AuthAccountLinkWidget({ metaText, badge }) {
   };
 
   const handleLinkSocial = (provider) => {
-    window.location.href = `http://localhost:8081/oauth2/authorization/${provider}`;
+    window.location.href = `/oauth2/authorization/${provider}`;
   };
 
   return (

@@ -59,7 +59,7 @@ const DashBoard = () => {
 
         try{
         const response = await axios.get(
-          `http://localhost:8081/api/dashboard?userId=${currentUserId}&page=${page}`);
+          `/api/dashboard?userId=${currentUserId}&page=${page}`);
         setData(response.data);
 
       }catch (error){

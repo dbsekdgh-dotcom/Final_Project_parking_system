@@ -33,7 +33,7 @@ const ReportModal = ({ onClose }) => {
      console.log("파이썬에서 받은 s3 주소:" ,s3Path);
 
      //자바 백엔드로 최종 데이터 보내기
-     const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081"
+     const baseUrl = import.meta.env.VITE_API_BASE_URL || ""
     //  const token = localStorage.getItem("accessToken");
 
      const params = new URLSearchParams();

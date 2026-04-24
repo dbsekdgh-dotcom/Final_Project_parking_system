@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://localhost:8081/api/exit";
+const BASE = "/api/exit";
 
 //출차 요청 : ENTERED -> EXIT_REQUESTED
 // data 반환 값 : VehiclePaymentResponseDto

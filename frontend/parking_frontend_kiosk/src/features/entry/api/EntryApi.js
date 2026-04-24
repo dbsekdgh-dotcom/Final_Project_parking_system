@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://localhost:8081/api/v1/entry";
+const BASE = "/api/v1/entry";
 
 
 export const createEntry = async ({ plateNumber, s3path, cameraId }) => {
