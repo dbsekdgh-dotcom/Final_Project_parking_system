@@ -47,4 +47,26 @@ public class Notification {
     @Comment("알림 삭제 일시")
     private LocalDateTime deletedAt;
 
+    //알림 읽음 처리
+    public void markAsRead(){
+        if(this.readAt == null){
+            this.readAt = LocalDateTime.now();
+        }
+    }
+
+    //알림 삭제 처리
+    public void markDeleted(){
+        this.status = Status.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    //현재 읽지 않은 활성 알림인지 확인
+    public boolean isUnread(){
+        return this.readAt == null && this.status == Status.ACTIVE;
+
+
+
+    }
+
+
 }

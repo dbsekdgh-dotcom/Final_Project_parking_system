@@ -66,7 +66,7 @@ public class UserSecurityConfig {
                                 "/api/user/auth/local/find-email", "/api/user/auth/local/send-code", "/api/user/auth/local/verify-code",
                                 "/api/user/auth/local/reset-password", "/api/user/auth/local/send-recover-code",
                                 "/api/user/auth/local/verify-recover-code", "/api/user/auth/local/recover",
-                                "/api/user/auth/social-recover", "/api/user/ai/naver/**").permitAll()
+                                "/api/user/auth/social-recover", "/api/user/ai/naver/**","/api/user/space/**").permitAll()
 
                         .requestMatchers("/api/user/apply/**").authenticated()
                         .requestMatchers("/api/report/**").authenticated()

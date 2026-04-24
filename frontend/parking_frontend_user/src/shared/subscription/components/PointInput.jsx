@@ -1,13 +1,23 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 export default function PointInput({ myPoint, price, onApply }) {
     const [input, setInput] = useState('');
 
     const handleApply = () => {
         const val = parseInt(input, 10);
-        if (isNaN(val) || val < 100) return alert('최소 100포인트부터 사용 가능합니다.');
-        if (val > myPoint) return alert('보유 포인트가 부족합니다.');
-        if (val > price) return alert('정기권 가격을 초과할 수 없습니다.');
+        if (isNaN(val) || val < 100) {
+            Swal.fire({ icon: 'warning', title: '포인트 사용 불가', text: '최소 100포인트부터 사용 가능합니다.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
+            return;
+        }
+        if (val > myPoint) {
+            Swal.fire({ icon: 'warning', title: '포인트 부족', text: '보유 포인트가 부족합니다.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
+            return;
+        }
+        if (val > price) {
+            Swal.fire({ icon: 'warning', title: '한도 초과', text: '정기권 가격을 초과할 수 없습니다.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
+            return;
+        }
         onApply(val);
     };
 
