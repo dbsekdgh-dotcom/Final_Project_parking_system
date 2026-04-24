@@ -58,7 +58,7 @@ AdminSecurityConfig {
             sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS); //세션 생성하지 않기
         });
 
-        // 권한 설정  (인가)
+        // 권한 설정 (인가)
         http.authorizeHttpRequests(auth -> auth
                 // 최상단에 로그아웃을 가장 먼저 배치
                 .requestMatchers(HttpMethod.POST,"/api/admin/logout").permitAll()
@@ -68,7 +68,7 @@ AdminSecurityConfig {
                 .anyRequest().permitAll()
         );
 
-        // 로그인 설정(핸들러 연결)
+        // 로그인 설정 (핸들러 연결)
         http.formLogin(form->form
                 .loginProcessingUrl("/api/admin/login") // 리액트에서 보낼 로그인 엔드포인트
                 .usernameParameter("loginId")
