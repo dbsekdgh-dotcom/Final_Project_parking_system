@@ -16,9 +16,6 @@ public interface StoreRepository extends JpaRepository<Store,Long> {
     List<Store> findAdminStoreByKeyword(@Param("keyword") String keyword, @Param("status")Status status);
 
     // KIOSK STORE
-    Optional<Store> findByStoreIdAndTerminalPassword(Long storeId, String terminalPassword);
-    Optional<Store> findByStoreIdAndStatus(Long storeId, Status status);
-
     Optional<Store> findByStoreId(Long storeId);
 
     Optional<Store> findByTerminalPassword(String terminalPassword);
