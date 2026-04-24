@@ -58,7 +58,7 @@ AdminSecurityConfig {
             sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS); //세션 생성하지 않기
         });
 
-        // 권한 설정(인가)
+        // 권한 설정  (인가)
         http.authorizeHttpRequests(auth -> auth
                 // 최상단에 로그아웃을 가장 먼저 배치
                 .requestMatchers(HttpMethod.POST,"/api/admin/logout").permitAll()
