@@ -2,8 +2,8 @@ services:
   mysql:
     image: mysql:8.0
     container_name: parking-mysql
-    profiles:             # ← 추가
-      - with-db           # ← 추가
+    profiles:            
+      - with-db           
     ports:
       - "3306:3306"
     environment:
@@ -28,6 +28,9 @@ services:
 
   backend:
     image: 706877673423.dkr.ecr.ap-northeast-2.amazonaws.com/parking-backend
+    build:                          
+      context: ./backend            
+      dockerfile: Dockerfile        
     container_name: parking-backend
     ports:
       - "8081:8081"
@@ -40,7 +43,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    depends_on:           # ← mysql 제거!
+    depends_on:         
       ai:
         condition: service_started
       redis:
@@ -51,6 +54,9 @@ services:
 
   ai:
     image: 706877673423.dkr.ecr.ap-northeast-2.amazonaws.com/parking-ai
+    build:                         
+      context: ./ai-service       
+      dockerfile: Dockerfile       
     container_name: parking-ai
     ports:
       - "8000:8000"
