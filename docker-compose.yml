@@ -29,7 +29,7 @@ services:
   backend:
     image: 706877673423.dkr.ecr.ap-northeast-2.amazonaws.com/parking-backend
     build:                          
-      context: ./backend            
+      context: ./backend/parking_backend            
       dockerfile: Dockerfile        
     container_name: parking-backend
     ports:
