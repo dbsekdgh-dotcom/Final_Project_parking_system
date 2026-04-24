@@ -1,30 +1,23 @@
 services:
   backend:
-    image: 706877673423.dkr.ecr.ap-northeast-2.amazonaws.com/parking-backend
-    build:
-      context: ./backend/parking_backend
-      dockerfile: Dockerfile
+    image: 706877673423.dkr.ecr.ap-northeast-2.amazonaws.com/parking-backend:latest
     container_name: parking-backend
     ports:
       - "8081:8081"
     env_file:
       - .env
     environment:
-      - AI_SERVER_URL=http://ai:8000
-      - SPRING_DATASOURCE_URL=${DB_URL}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PORT=${REDIS_PORT}
     restart: always
-    networks:
-      - parking-net
+    networks: [parking-net]
 
   ai:
-    image: 706877673423.dkr.ecr.ap-northeast-2.amazonaws.com/parking-ai
-    build:
-      context: ./ai-service
-      dockerfile: Dockerfile
+    image: 706877673423.dkr.ecr.ap-northeast-2.amazonaws.com/parking-ai:latest
     container_name: parking-ai
     ports:
       - "8000:8000"
@@ -32,10 +25,9 @@ services:
       - .env
     environment:
       - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PORT=${REDIS_PORT}
     restart: always
-    networks:
-      - parking-net
+    networks: [parking-net]
 
 networks:
   parking-net:
