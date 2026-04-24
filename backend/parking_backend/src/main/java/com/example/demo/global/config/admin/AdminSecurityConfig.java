@@ -68,7 +68,7 @@ AdminSecurityConfig {
                 .anyRequest().permitAll()
         );
 
-        // 로그인 설정 (핸들러 연결)
+        // 로그인 설정(핸들러 연결)
         http.formLogin(form->form
                 .loginProcessingUrl("/api/admin/login") // 리액트에서 보낼 로그인 엔드포인트
                 .usernameParameter("loginId")
