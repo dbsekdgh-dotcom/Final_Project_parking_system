@@ -160,6 +160,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // 리다이렉트 URL에는 UI용 정보만 포함 (토큰 제외)
         UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
+                .queryParam("userId", user.getUserId())
                 .queryParam("name", name)
                 .queryParam("email", email)
                 .queryParam("userStatus", userStatus);
