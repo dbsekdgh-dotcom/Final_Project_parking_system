@@ -1,9 +1,9 @@
-
 services:
-
   mysql:
     image: mysql:8.0
     container_name: parking-mysql
+    profiles:             # ← 추가
+      - with-db           # ← 추가
     ports:
       - "3306:3306"
     environment:
@@ -34,17 +34,13 @@ services:
     env_file:
       - .env
     environment:
-      # 중요: 백엔드에서 AI 서버를 찾을 때 localhost가 아닌 서비스 이름 'ai'를 사용하도록 설정
       - AI_SERVER_URL=http://ai:8000
       - SPRING_DATASOURCE_URL=${DB_URL}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      # 백엔드가 컨테이너 환경에서 Redis를 찾을 수 있도록 설정 (localhost 대신 서비스명 redis 사용)
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    depends_on:
-      mysql:
-        condition: service_healthy   # MySQL 준비완료까지 대기
+    depends_on:           # ← mysql 제거!
       ai:
         condition: service_started
       redis:
@@ -60,14 +56,12 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    # AI 서버 내에서도 RDS 정보를 써야 한다면 env_file이 이미 해결해줍니다.
     restart: always
     depends_on:
       - redis
     networks:
       - parking-net
-  
-  # Redis 서비스
+
   redis:
     image: redis:latest
     container_name: parking-redis
@@ -79,15 +73,12 @@ services:
     networks:
       - parking-net
 
-
-#볼륨
 volumes:
   mysql_data:
-    driver: local #볼륨 저장 장소(EC2(호스트) 자체 디스크에 저장)
+    driver: local
   redis_data:
     driver: local
 
-#네트워크
 networks:
   parking-net:
-    driver: bridge #같은 호스트 내 컨테이너 여결
+    driver: bridge
