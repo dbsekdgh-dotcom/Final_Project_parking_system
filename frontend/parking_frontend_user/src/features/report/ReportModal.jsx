@@ -21,7 +21,7 @@ const ReportModal = ({ onClose }) => {
      pythonFormData.append("file",file);
 
      //파이썬 서버주소
-     const pythonUrl = "http://localhost:8000/api/v1/parking/report";
+     const pythonUrl = "/api/v1/parking/report";
 
      console.log("파이썬을 사진 전송 중...");
      const pythonRes = await axios.post(pythonUrl, pythonFormData, {
