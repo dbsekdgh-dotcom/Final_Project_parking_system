@@ -21,4 +21,8 @@ public interface ReservationEventPolicyRepository extends JpaRepository<Reservat
             "ORDER BY r.id DESC LIMIT 1")
     Optional<ReservationEventPolicy> findActivePolicy(@Param("now") LocalDateTime now);
 
+    Optional<Object> findTopByIdLessThanOrderByIdDesc(Long idIsLessThan);
+
+    @Query("SELECT r FROM ReservationEventPolicy  r WHERE r.id < :id ORDER BY r.id DESC LIMIT 1")
+    Optional<ReservationEventPolicy> findPreviousPolicy(@Param("id") Long id);
 }

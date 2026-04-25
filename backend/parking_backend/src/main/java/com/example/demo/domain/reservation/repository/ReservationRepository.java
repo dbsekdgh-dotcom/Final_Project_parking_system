@@ -1,6 +1,7 @@
 package com.example.demo.domain.reservation.repository;
 
 import com.example.demo.domain.reservation.Reservation;
+import com.example.demo.domain.reservation.enums.Purpose;
 import com.example.demo.domain.reservation.enums.Status;
 import com.example.demo.domain.resident.User;
 import org.springframework.data.domain.Page;
@@ -155,5 +156,55 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("keyword") String keyword,
             @Param("status") Status status,
             Pageable pageable
+    );
+
+    //AdminReservaion 관리
+    @Query(
+            value = """
+      SELECT r FROM Reservation r
+      JOIN FETCH r.user u
+      LEFT JOIN FETCH u.household h
+      WHERE (:keyword IS NULL
+             OR r.carNumber LIKE %:keyword%
+             OR u.name LIKE %:keyword%
+             OR CAST(h.unitNo AS string) LIKE %:keyword%)
+      AND (:status IS NULL OR r.status = :status)
+      AND (:purpose IS NULL OR r.purpose = :purpose)
+      AND (:startDate IS NULL OR r.visitStartAt >= :startDate)
+      AND (:endDate IS NULL OR r.visitStartAt <= :endDate)
+      ORDER BY r.createdAt DESC
+      """,
+            countQuery = """
+      SELECT COUNT(r) FROM Reservation r
+      JOIN r.user u
+      LEFT JOIN u.household h
+      WHERE (:keyword IS NULL
+             OR r.carNumber LIKE %:keyword%
+             OR u.name LIKE %:keyword%
+             OR CAST(h.unitNo AS string) LIKE %:keyword%)
+      AND (:status IS NULL OR r.status = :status)
+      AND (:purpose IS NULL OR r.purpose = :purpose)
+      AND (:startDate IS NULL OR r.visitStartAt >= :startDate)
+      AND (:endDate IS NULL OR r.visitStartAt <= :endDate)
+      """
+    )
+    Page<Reservation> findAllForAdminFull(
+            @Param("keyword") String keyword,
+            @Param("status") Status status,
+            @Param("purpose") Purpose purpose,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+    // 통계용 오늘 예약 건수 status 별 집계
+    @Query("""
+      SELECT r.status, COUNT(r)
+      FROM Reservation r
+      WHERE r.createdAt >= :startOfDay AND r.createdAt <= :endOfDay
+      GROUP BY r.status
+      """)
+    List<Object[]> countTodayByStatus(
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay
     );
 }
