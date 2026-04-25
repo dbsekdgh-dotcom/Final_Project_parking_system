@@ -46,7 +46,6 @@ public class AdminReservationPolicyService {
                 .admin(admin)
                 .eventName(dto.getEventName())
                 .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
                 .dailyLimitPerHousehold(dto.getDailyLimitPerHousehold())
                 .monthlyLimitPerHousehold(dto.getMonthlyLimitPerHousehold())
                 .maxActiveReservations(dto.getMaxActiveReservations())
@@ -81,7 +80,6 @@ public class AdminReservationPolicyService {
 
         policy.setEventName(dto.getEventName());
         policy.setStartDate(dto.getStartDate());
-        policy.setEndDate(dto.getEndDate());
         policy.setDailyLimitPerHousehold(dto.getDailyLimitPerHousehold());
         policy.setMonthlyLimitPerHousehold(dto.getMonthlyLimitPerHousehold());
         policy.setMaxActiveReservations(dto.getMaxActiveReservations());

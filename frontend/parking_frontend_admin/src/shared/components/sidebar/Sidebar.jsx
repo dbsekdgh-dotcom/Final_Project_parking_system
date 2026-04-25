@@ -17,7 +17,7 @@ const mainNav = [
 
 const bottomNav = [
   { to: '#admin', label: '관리자', id: 'admin' },
-  { to: '/admin/system-setting', label: '시스템 설정', id: 'settings' },
+  { to: '/admin/system-setting/status', label: '시스템 설정', id: 'settings', activeMatch: '/admin/system-setting' },
 ]
 
 function IconHome() {

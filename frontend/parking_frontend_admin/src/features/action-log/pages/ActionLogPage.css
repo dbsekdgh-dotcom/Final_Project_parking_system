@@ -151,6 +151,7 @@
   .aal__target--report      { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
   .aal__target--parking-space { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
   .aal__target--system-setting { background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200); }
+  .aal__target--reservation-policy { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
 
   /* 작업 유형 배지 */
   .aal__action--create   { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }

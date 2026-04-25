@@ -488,7 +488,7 @@ activity_type ENUM(
 'RESERVATION_CANCELLED',
 
 'VEHICLE_REGISTERED',   -- 차량 등록
-’RESIDENT_REGISTERED’, — 입주민 등록
+'RESIDENT_REGISTERED’, — 입주민 등록
 'PASS_PURCHASED',       -- 정기권 구매
 
 'COUPON_PURCHASED',     -- 상가 할인권 구매

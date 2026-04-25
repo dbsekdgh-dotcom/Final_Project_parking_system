@@ -16,6 +16,7 @@ const TARGET_OPTIONS =[
     { value : 'PARKING_LOG', label : '주차 로그' },
     { value : 'PARKING_SPACE', label : '주차공간' },
     { value : 'REPORT', label : '신고' },
+    { value : 'RESERVATION_POLICY', label : '방문예약정책' },
 ];
 
 const ACTION_OPTIONS = [
@@ -41,6 +42,7 @@ export const TARGET_LABEL = {
     USER: '사용자', VEHICLE: '차량', PAYMENT: '결제', POLICY: '정책',
     RESERVATION: '예약', SYSTEM_SETTING: '시스템 설정', STORE: '상가',
     PARKING_LOG: '주차 로그', PARKING_SPACE: '주차공간', REPORT: '신고',
+    RESERVATION_POLICY: '방문예약정책',
 }
 export const ACTION_LABEL ={
     CREATE: '생성', UPDATE: '수정', DELETE: '삭제', APPROVE: '승인', REJECT: '거절',

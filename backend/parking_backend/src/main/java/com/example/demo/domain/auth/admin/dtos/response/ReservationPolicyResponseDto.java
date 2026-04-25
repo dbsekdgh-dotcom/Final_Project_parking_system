@@ -11,7 +11,6 @@ public class ReservationPolicyResponseDto {
     private final String adminLoginId;
     private final String eventName;
     private final LocalDateTime startDate;
-    private final LocalDateTime endDate;
     private final Integer dailyLimitPerHousehold;
     private final Integer monthlyLimitPerHousehold;
     private final Integer maxActiveReservations;
@@ -25,7 +24,6 @@ public class ReservationPolicyResponseDto {
         this.adminLoginId             = p.getAdmin().getLoginId();
         this.eventName                = p.getEventName();
         this.startDate                = p.getStartDate();
-        this.endDate                  = p.getEndDate();
         this.dailyLimitPerHousehold   = p.getDailyLimitPerHousehold();
         this.monthlyLimitPerHousehold = p.getMonthlyLimitPerHousehold();
         this.maxActiveReservations    = p.getMaxActiveReservations();
@@ -35,7 +33,7 @@ public class ReservationPolicyResponseDto {
     }
     private String calcStatus(ReservationEventPolicy p, LocalDateTime now){
         if (now.isBefore(p.getStartDate())) return "SCHEDULED";
-        if (p.getEndDate() == null) return "PENDING";
+        if (p.getEndDate() == null) return "PERMANENT";
         if (now.isAfter(p.getEndDate())) return "EXPIRED";
         return "ACTIVE";
     }
