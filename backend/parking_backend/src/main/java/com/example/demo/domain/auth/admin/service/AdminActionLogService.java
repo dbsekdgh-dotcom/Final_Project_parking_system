@@ -33,6 +33,19 @@ public class AdminActionLogService {
                 .beforeData(beforeData).afterData(afterData).isReverted(false).build();
         adminActionLogRepository.save(adminActionLog);
     }
+    // reservation 용
+    public void insertAdminlog(Admin admin, ActionType actionType, TargetType targetType, long targetId, String beforeData, String afterData){
+        AdminActionLog log = AdminActionLog.builder()
+                .admin(admin)
+                .targetType(targetType)
+                .actionType(actionType)
+                .targetId(targetId)
+                .beforeData(beforeData)
+                .afterData(afterData)
+                .isReverted(false)
+                .build();
+        adminActionLogRepository.save(log);
+    }
     public String toJson(Object obj){
         try{
             return objectMapper.writeValueAsString(obj);

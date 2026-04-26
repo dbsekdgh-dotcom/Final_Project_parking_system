@@ -46,6 +46,7 @@ public enum ErrorCode {
     PARKING_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND,"정책을 찾을 수 없습니다."),
     CAMERA_NOT_FOUND(HttpStatus.NOT_FOUND,"카메라를 찾을 수 없습니다."),
     PARKING_LOG_NOT_FOUND(HttpStatus.NOT_FOUND,"주차 세션을 찾을 수 없습니다."),
+    POLICY_ACTIVE_CANNOT_DELETE(HttpStatus.BAD_REQUEST,"활성화 중인 정책은 삭제 불가능 합니다."),
 
     // SUBSCRIPTION (정기권 관련)
     SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "정기권 정보를 찾을 수 없습니다."),
@@ -143,6 +144,8 @@ public enum ErrorCode {
     INVALID_RESERVATION_TIME(HttpStatus.BAD_REQUEST, "예약 시간 설정이 올바르지 않습니다."),
     CANNOT_CANCEL_RESERVATION(HttpStatus.BAD_REQUEST, "현재 상태에서는 예약을 취소할 수 없습니다."),
     RESERVATION_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 예약입니다."),
+    RESERVATION_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "방문 예약 정책을 찾을 수 없습니다.."),
+    RESERVATION_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 예약입니다."),
     RESERVATION_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 입차된 예약은 취소할 수 없습니다."),
     RESERVATION_NOT_OWNER(HttpStatus.FORBIDDEN, "본인의 예약만 취소할 수 있습니다."),
     RESERVATION_STATUS_MISMATCH(HttpStatus.BAD_REQUEST, "취소 가능한 상태의 예약이 아닙니다."),
