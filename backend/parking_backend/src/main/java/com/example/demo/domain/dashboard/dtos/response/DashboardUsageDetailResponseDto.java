@@ -10,7 +10,7 @@ import java.util.List;
 public class DashboardUsageDetailResponseDto {
     private List<DetailRow> content;
     private int totalPages;
-    private long totlaElements;
+    private long totalElements;
 
     @Getter
     @AllArgsConstructor

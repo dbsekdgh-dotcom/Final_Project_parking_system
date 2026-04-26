@@ -4,5 +4,5 @@ public interface UsageDailyProjection {
     String getDate();
     String getCategory();
     Long getUsageCount();
-    Long getTracsactionCount();
+    Long getTransactionCount();
 }

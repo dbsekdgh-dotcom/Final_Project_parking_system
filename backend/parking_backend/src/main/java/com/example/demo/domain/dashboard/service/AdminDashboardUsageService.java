@@ -12,6 +12,8 @@ import com.example.demo.domain.reservation.repository.ReservationRepository;
 import com.example.demo.domain.resident.household.repository.HouseholdRepository;
 import com.example.demo.domain.system.store.transaction.repository.StoreTicketTransactionRepository;
 import com.example.demo.domain.vehicle.VehicleRepository;
+import com.example.demo.domain.parking.space.enums.SpaceStatus;
+import com.example.demo.domain.resident.household.enums.IsActive;
 import com.example.demo.domain.vehicle.enums.VehicleStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,7 @@ public class AdminDashboardUsageService {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("M월");
 
         for (int i = 5; i >= 0; i--){
-            LocalDateTime monthStart = now.minusMonths(1)
+            LocalDateTime monthStart = now.minusMonths(i)
                     .withDayOfMonth(1)
                     .withHour(0).withMinute(0).withSecond(0).withNano(0);
             LocalDateTime monthEnd = monthStart.plusMonths(1);
@@ -62,6 +64,11 @@ public class AdminDashboardUsageService {
             case "SUBSCRIPTION" -> subscriptionRepository.countActivatedBetween(start, end);
             case "RESERVATION" -> reservationRepository.countCompletedBetween(start, end);
             case "POINT" -> pointLogRepository.countUsedBetween(start, end);
+            case "TOTAL" -> parkingLogRepository.countExitedBetween(start, end)
+                    + storeTicketTransactionRepository.countUsedBetween(start, end)
+                    + subscriptionRepository.countActivatedBetween(start, end)
+                    + reservationRepository.countCompletedBetween(start, end)
+                    + pointLogRepository.countUsedBetween(start, end);
             default -> 0L;
         };
     }
@@ -79,18 +86,21 @@ public class AdminDashboardUsageService {
                         p.getDate(),
                         p.getCategory(),
                         p.getUsageCount(),
-                        p.getTracsactionCount()
+                        p.getTransactionCount()
                 ))
                 .collect(Collectors.toList());
     }
     public DashboardSummaryResponseDto getSummary(){
-        long housegoldCount = householdRepository.count();
+        long householdCount = householdRepository.countByIsActive(IsActive.ACTIVE);
+        long totalHouseholdCount = householdRepository.count();
         long vehicleCount = vehicleRepository.countByStatus(VehicleStatus.ACTIVE);
+        long occupiedParkingSpaceCount = parkingSpaceRepository.countByStatus(SpaceStatus.OCCUPIED);
         long parkingSpaceCount = parkingSpaceRepository.count();
         long totalRevenue = paymentRepository
                 .sumAmountByPaymentTypeAndStatus(PaymentType.PARKING, PaymentStatus.SUCCESS);
 
-        return new DashboardSummaryResponseDto(housegoldCount,vehicleCount,parkingSpaceCount,totalRevenue);
+        return new DashboardSummaryResponseDto(householdCount, totalHouseholdCount, vehicleCount,
+                occupiedParkingSpaceCount, parkingSpaceCount, totalRevenue);
     }
 
     public DashboardUsageResponseDto getUsage(String type){

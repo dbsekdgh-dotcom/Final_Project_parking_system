@@ -9,7 +9,7 @@ export default function DashHighlightCards() {
 
     useEffect(() =>{
         getRevenue('TOTAL').then(setRevenue).catch(()=>{});
-        getUsage('PARKING').then(setUsage).catch(()=>{});
+        getUsage('TOTAL').then(setUsage).catch(()=>{});
     }, [])
      return (
       <div className="dash__highlights">

@@ -144,7 +144,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
             "SELECT DATE_FORMAT(s.activated_at, '%Y-%m-%d') AS date," +
                     "'정기권' AS category, " +
                     "COUNT(*) AS usageCount, " +
-                    "COUNT(*) AS transactionCount" +
+                    "COUNT(*) AS transactionCount " +
                     "FROM subscription s "+
                     "WHERE s.activated_at BETWEEN :from AND :to "+
                     "GROUP BY DATE(s.activated_at) " +

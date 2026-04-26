@@ -210,7 +210,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     );
     //Admin Dashboard 사용량
     @Query("SELECT COUNT(r) FROM Reservation r " +
-            "WHERE r.visitStartAt BETWEEN :start AND :end " +
+            "WHERE r.createdAt BETWEEN :start AND :end " +
             "AND r.status IN " +
             "  (com.example.demo.domain.reservation.enums.Status.COMPLETED, " +
             "   com.example.demo.domain.reservation.enums.Status.ENTERED)")
@@ -219,15 +219,15 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("end")   LocalDateTime end);
 
     @Query(value =
-            "SELECT DATE_FORMAT(r.visit_start_at, '%Y-%m-%d') AS date, " +
+            "SELECT DATE_FORMAT(r.created_at, '%Y-%m-%d') AS date, " +
                     "'방문예약' AS category, " +
                     "COUNT(*) AS usageCount, " +
                     "COUNT(*) AS transactionCount " +
                     "FROM reservation r " +
-                    "WHERE r.visit_start_at BETWEEN :from AND :to " +
+                    "WHERE r.created_at BETWEEN :from AND :to " +
                     "  AND r.status IN ('COMPLETED', 'ENTERED') " +
-                    "GROUP BY DATE(r.visit_start_at) " +
-                    "ORDER BY DATE(r.visit_start_at) DESC",
+                    "GROUP BY DATE(r.created_at) " +
+                    "ORDER BY DATE(r.created_at) DESC",
             nativeQuery = true)
     List<UsageDailyProjection> findDailyCompletedRows(
             @Param("from") LocalDateTime from,
