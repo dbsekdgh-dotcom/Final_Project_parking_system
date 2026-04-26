@@ -64,7 +64,7 @@
       <div className="dash__panel">
         {/* 패널 헤더: 제목 + 현재 탭 기준 합계 */}
         <div className="dash__panel-header">
-          <span className="dash__panel-title">매출 현황</span>
+          <span className="dash__panel-title">순매출 현황</span>
           {/* totalAmount가 있을 때만 합계 표시, 없으면 숨김 */}
           {data?.totalAmount != null && (
             <span className="dash__panel-sub">

@@ -20,7 +20,7 @@ export default function DashHighlightCards() {
          * revenue.changePercent : 전월 대비 % (양수=증가, 음수=감소)
          */}
         <HighlightCard
-          label="총 매출액"
+          label="순 매출액"
           value={
             revenue?.totalAmount != null
               ? `₩${revenue.totalAmount.toLocaleString()}`

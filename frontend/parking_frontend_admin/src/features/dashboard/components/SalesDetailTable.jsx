@@ -47,7 +47,7 @@ export default function SalesDetailTable({ activeTab }) {
       <div className="dash__panel">
         {/* 패널 헤더: 제목 + 현재 선택된 탭 이름 */}
         <div className="dash__panel-header">
-          <span className="dash__panel-title">매출 상세 현황</span>
+          <span className="dash__panel-title">순매출 상세 현황</span>
           {/* CATEGORY_LABEL에 없는 값이면 activeTab 그대로 표시 */}
           <span className="dash__panel-sub">
             {CATEGORY_LABEL[activeTab] ?? activeTab}
