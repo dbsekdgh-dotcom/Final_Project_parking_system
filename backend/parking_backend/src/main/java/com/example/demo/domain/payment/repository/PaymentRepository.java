@@ -2,6 +2,7 @@ package com.example.demo.domain.payment.repository;
 
 import com.example.demo.domain.parking.log.ParkingLog;
 import com.example.demo.domain.payment.Payment;
+import com.example.demo.domain.payment.enums.PaymentType;
 import com.example.demo.domain.payment.statistics.dtos.response.DailyDetailDto;
 import com.example.demo.domain.payment.statistics.dtos.response.SummaryStatsDto;
 import com.example.demo.domain.payment.enums.PaymentStatus;
@@ -70,4 +71,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     //parking log 결제 내역
     @Query("select p from Payment p where p.parkingLog.parkingLogId in :parkingLogIds and p.paymentStatus in :paymentStatus")
     List<Payment> findPaymentsByParkinglogId(@Param("parkingLogIds") List<Long> parkingLogIds, @Param("paymentStatus") List<PaymentStatus> paymentStatus);
+
+    //Admin Dashboard 사용량
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentType = :type AND p.paymentStatus = :status")
+    long sumAmountByPaymentTypeAndStatus(@Param("type")PaymentType type,
+                                         @Param("status") PaymentStatus status);
 }

@@ -1,5 +1,6 @@
 package com.example.demo.domain.payment.subscription.repository;
 
+import com.example.demo.domain.dashboard.dtos.response.UsageDailyProjection;
 import com.example.demo.domain.payment.subscription.Subscription;
 import com.example.demo.domain.payment.subscription.enums.Status;
 import jakarta.persistence.LockModeType;
@@ -133,6 +134,24 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
             @Param("status") Status status,
             Pageable pageable
     );
+    // Admin Dashboard 사용량
+    @Query("SELECT COUNT(s) FROM Subscription s " +
+            "WHERE s.activatedAt BETWEEN :start AND :end")
+    long countActivatedBetween(@Param("start") LocalDateTime start,
+                               @Param("end") LocalDateTime end);
+
+    @Query(value =
+            "SELECT DATE_FORMAT(s.activated_at, '%Y-%m-%d') AS date," +
+                    "'정기권' AS category, " +
+                    "COUNT(*) AS usageCount, " +
+                    "COUNT(*) AS transactionCount" +
+                    "FROM subscription s "+
+                    "WHERE s.activated_at BETWEEN :from AND :to "+
+                    "GROUP BY DATE(s.activated_at) " +
+                    "ORDER BY DATE(s.activated_at) DESC"
+            ,nativeQuery = true)
+    List<UsageDailyProjection> findDailyActivatedRows(@Param("from") LocalDateTime from,
+                                                      @Param("to") LocalDateTime to);
 
 }
 

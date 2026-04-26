@@ -1,5 +1,6 @@
 package com.example.demo.domain.parking.log.repository;
 
+import com.example.demo.domain.dashboard.dtos.response.UsageDailyProjection;
 import com.example.demo.domain.payment.dtos.internal.PaymentUserInfoResult;
 import com.example.demo.domain.parking.log.ParkingLog;
 import com.example.demo.domain.parking.log.dtos.response.ParkingLogSettlementDto;
@@ -126,4 +127,22 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "where p.exitedAt >= :start and p.exitedAt < :end and p.enteredAt is not null")
     List<ParkingLog> findParkingLogWithPolicy(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
+    //Admin Dashboard 사용량
+    @Query("SELECT COUNT(p) FROM ParkingLog p WHERE p.exitedAt BETWEEN :start AND :end AND p.parkingStatus IN (com.example.demo.domain.parking.log.enums.ParkingStatus.EXITED, com.example.demo.domain.parking.log.enums.ParkingStatus.FORCE_EXITED)")
+    long countExitedBetween(@Param("start")LocalDateTime start,
+                            @Param("end")LocalDateTime end);
+
+    @Query(value =
+            "SELECT DATE_FORMAT(p.exited_at, '%Y-%m-%d') AS date, " +
+                    "'주차장' AS category, " +
+                    "COUNT(*) AS usageCount, " +
+                    "COUNT(*) AS transactionCount " +
+                    "FROM parking_log p " +
+                    "WHERE p.exited_at BETWEEN :from AND :to " +
+                    "  AND p.parking_status IN ('EXITED', 'FORCE_EXITED') " +
+                    "GROUP BY DATE(p.exited_at) " +
+                    "ORDER BY DATE(p.exited_at) DESC",
+            nativeQuery = true)
+    List<UsageDailyProjection> findDailyExitedRows(@Param("from") LocalDateTime from,
+                                                   @Param("to") LocalDateTime to);
 }
