@@ -3,6 +3,7 @@ package com.example.demo.domain.payment.repository;
 import com.example.demo.domain.parking.log.ParkingLog;
 import com.example.demo.domain.payment.Payment;
 import com.example.demo.domain.payment.enums.PaymentType;
+import com.example.demo.domain.payment.statistics.dtos.internal.DailyRevenueByTypeDto;
 import com.example.demo.domain.payment.statistics.dtos.response.DailyDetailDto;
 import com.example.demo.domain.payment.statistics.dtos.response.SummaryStatsDto;
 import com.example.demo.domain.payment.enums.PaymentStatus;
@@ -10,7 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.demo.domain.payment.enums.PaymentStatus;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -71,6 +71,33 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     //parking log 결제 내역
     @Query("select p from Payment p where p.parkingLog.parkingLogId in :parkingLogIds and p.paymentStatus in :paymentStatus")
     List<Payment> findPaymentsByParkinglogId(@Param("parkingLogIds") List<Long> parkingLogIds, @Param("paymentStatus") List<PaymentStatus> paymentStatus);
+
+    //타입별 매출액
+    @Query(value = "select " +
+            "date(p.paid_at) as date, " +
+            "sum(case when p.payment_type=:paymentType then p.amount else 0 end) as revenue, " +
+            "sum(case when p.payment_type=:paymentType then p.refunded_amount else 0 end) as refund " +
+            "from payment p " +
+            "where p.payment_status in (:successStatus,:refundedStatus) and p.paid_at between :start and :end " +
+            "group by date(p.paid_at)", nativeQuery = true)
+    List<DailyRevenueByTypeDto> dailyStatsByType(@Param("start") LocalDateTime start,
+                                          @Param("end") LocalDateTime end,
+                                          @Param("paymentType") String paymentType,
+                                          @Param("successStatus") String successStatus,
+                                          @Param("refundedStatus") String refundedStatus);
+
+    //총 매출액
+    @Query(value = "select " +
+            "date(p.paid_at) as date, " +
+            "sum(p.amount) as revenue, " +
+            "sum(p.refunded_amount) as refund " +
+            "from payment p " +
+            "where p.payment_status in (:successStatus,:refundedStatus) and p.paid_at between :start and :end " +
+            "group by date(p.paid_at)", nativeQuery = true)
+    List<DailyRevenueByTypeDto> dailyStatsTotal(@Param("start") LocalDateTime start,
+                                                 @Param("end") LocalDateTime end,
+                                                 @Param("successStatus") String successStatus,
+                                                 @Param("refundedStatus") String refundedStatus);
 
     //Admin Dashboard 사용량
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentType = :type AND p.paymentStatus = :status")
