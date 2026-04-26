@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 const CARDS = [
     {
         key: 'householdCount',
-        label: '전체 세대수',
+        totalKey: 'totalHouseholdCount',
+        label: '입주 세대수',
         Icon: FiHome,
         color: 'blue',
         unit: '세대',
+        isFraction: true,
     },
     {
         key: 'vehicleCount',
@@ -18,11 +20,13 @@ const CARDS = [
         unit: '대',
     },
     {
-        key: 'parkingSpaceCount',
+        key: 'occupiedParkingSpaceCount',
+        totalKey: 'parkingSpaceCount',
         label: '주차 공간',
         Icon: FiGrid,
         color: 'orange',
         unit: '칸',
+        isFraction: true,
     },
     {
         key: 'totalRevenue',
@@ -44,11 +48,12 @@ export default function DashSummaryCards() {
       <div className="dash__stats">
         {CARDS.map(c => {
           const raw = data?.[c.key];
+          const total = data?.[c.totalKey];
 
-          // 데이터 없으면 '–', 금액이면 ₩ 포맷, 아니면 숫자 + 단위
           const display =
             raw == null ? '–'
             : c.isAmount ? `₩${raw.toLocaleString()}`
+            : c.isFraction ? `${raw.toLocaleString()} / ${total?.toLocaleString() ?? '?'} ${c.unit}`
             : `${raw.toLocaleString()} ${c.unit}`;
 
           return (

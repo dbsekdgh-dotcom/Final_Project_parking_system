@@ -1,5 +1,6 @@
 package com.example.demo.domain.reservation.repository;
 
+import com.example.demo.domain.dashboard.dtos.response.UsageDailyProjection;
 import com.example.demo.domain.reservation.Reservation;
 import com.example.demo.domain.reservation.enums.Purpose;
 import com.example.demo.domain.reservation.enums.Status;
@@ -206,5 +207,30 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Object[]> countTodayByStatus(
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay
+    );
+    //Admin Dashboard 사용량
+    @Query("SELECT COUNT(r) FROM Reservation r " +
+            "WHERE r.createdAt BETWEEN :start AND :end " +
+            "AND r.status IN " +
+            "  (com.example.demo.domain.reservation.enums.Status.COMPLETED, " +
+            "   com.example.demo.domain.reservation.enums.Status.ENTERED)")
+    long countCompletedBetween(
+            @Param("start") LocalDateTime start,
+            @Param("end")   LocalDateTime end);
+
+    @Query(value =
+            "SELECT DATE_FORMAT(r.created_at, '%Y-%m-%d') AS date, " +
+                    "'방문예약' AS category, " +
+                    "COUNT(*) AS usageCount, " +
+                    "COUNT(*) AS transactionCount " +
+                    "FROM reservation r " +
+                    "WHERE r.created_at BETWEEN :from AND :to " +
+                    "  AND r.status IN ('COMPLETED', 'ENTERED') " +
+                    "GROUP BY DATE(r.created_at) " +
+                    "ORDER BY DATE(r.created_at) DESC",
+            nativeQuery = true)
+    List<UsageDailyProjection> findDailyCompletedRows(
+            @Param("from") LocalDateTime from,
+            @Param("to")   LocalDateTime to
     );
 }

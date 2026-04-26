@@ -90,14 +90,17 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query(value = "select " +
             "date(p.paid_at) as date, " +
             "sum(p.amount) as revenue, " +
-            "sum(p.refunded_amount) as refund, " +
-            "p.payment_type " +
+            "sum(p.refunded_amount) as refund " +
             "from payment p " +
             "where p.payment_status in (:successStatus,:refundedStatus) and p.paid_at between :start and :end " +
-            "group by date(p.paid_at), p.payment_type ", nativeQuery = true)
+            "group by date(p.paid_at)", nativeQuery = true)
     List<DailyRevenueByTypeDto> dailyStatsTotal(@Param("start") LocalDateTime start,
                                                  @Param("end") LocalDateTime end,
                                                  @Param("successStatus") String successStatus,
                                                  @Param("refundedStatus") String refundedStatus);
 
+    //Admin Dashboard 사용량
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentType = :type AND p.paymentStatus = :status")
+    long sumAmountByPaymentTypeAndStatus(@Param("type")PaymentType type,
+                                         @Param("status") PaymentStatus status);
 }

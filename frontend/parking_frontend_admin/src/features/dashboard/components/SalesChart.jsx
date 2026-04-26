@@ -97,7 +97,7 @@
             <div className="dash__empty">데이터 없음</div>
           ) : (
             // ResponsiveContainer: 부모 너비에 맞게 차트 자동 리사이즈
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" >
               <BarChart
                 data={monthly} // [{ month, amount }] 배열
                 margin={{ top: 4, right: 4, left: 0, bottom: 0 }}

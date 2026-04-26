@@ -64,27 +64,33 @@ public class DashboardRevenueStats {
     public List<DashboardMonthlyRevenueDto> getMonthlyRevenue(String type){
         //타입별 payments
         LocalDate today=LocalDate.now();
-        LocalDateTime firstDay=today.with(TemporalAdjusters.firstDayOfYear()).atStartOfDay();
+        LocalDateTime firstDay=today.minusMonths(5).withDayOfMonth(1).atStartOfDay();
         LocalDateTime lastDay=today.atTime(LocalTime.MAX);
         List<DailyRevenueByTypeDto> dailyPayments=getPaymentsByType(type,firstDay,lastDay);
 
+        List<String> months=new ArrayList<>();
+        for(int i=0;i<6;i++){
+            months.add(today.minusMonths(i).format(DateTimeFormatter.ofPattern("yyyy-M")));
+        }
         //월별 집계
-        Map<String,List<DailyRevenueByTypeDto>> map=dailyPayments.stream().collect(Collectors.groupingBy(p->p.getDate().format(DateTimeFormatter.ofPattern("M"))));
+        Map<String,List<DailyRevenueByTypeDto>> map=dailyPayments.stream().collect(Collectors.groupingBy(p->p.getDate().format(DateTimeFormatter.ofPattern("yyyy-M"))));
         List<DashboardMonthlyRevenueDto> result=new ArrayList<>();
-
-        for(String month: map.keySet()){
-            List<DailyRevenueByTypeDto> list=map.get(month);
-            long amount=0;
-            for(DailyRevenueByTypeDto dto:list){
-                amount+=(dto.getRevenue()-dto.getRefund());
+        for(String month: months){
+            long amount = 0;
+            if(map.containsKey(month)){
+                List<DailyRevenueByTypeDto> list=map.get(month);
+                for (DailyRevenueByTypeDto dto : list) {
+                    amount += (dto.getRevenue() - dto.getRefund());
+                }
             }
-             DashboardMonthlyRevenueDto monthlyRevenue=DashboardMonthlyRevenueDto.builder()
-                    .month(month+"월")
+            DashboardMonthlyRevenueDto monthlyRevenue = DashboardMonthlyRevenueDto.builder()
+                    .month(month.split("-")[1] + "월")
                     .amount(amount)
                     .build();
             result.add(monthlyRevenue);
         }
-        result.sort(Comparator.comparing(DashboardMonthlyRevenueDto::getMonth).reversed());
+        result.sort(Comparator.comparing(DashboardMonthlyRevenueDto::getMonth));
+
         return result;
     }
 
@@ -126,6 +132,7 @@ public class DashboardRevenueStats {
                 amount+=(dto.getRevenue()-dto.getRefund());
                 count+=1;
             }
+            if (amount <= 0) continue;
             DashboardRevenueDetailDto detailByDay=DashboardRevenueDetailDto.builder()
                     .date(day)
                     .category(paymentType)
