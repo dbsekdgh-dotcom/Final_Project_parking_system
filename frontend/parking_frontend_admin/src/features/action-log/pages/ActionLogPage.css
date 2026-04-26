@@ -289,3 +289,21 @@
     transition: all 0.15s;
   }
   .aal-modal__btn-revert:hover { background: #fef3c7; border-color: #fcd34d; }
+   /* 메시지 컬럼 */
+  .aal__td--gray { color: var(--gray-400); font-size: 12px; }
+
+  /* 활동유형 배지 */
+  .aal__activity--entry                  { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
+  .aal__activity--exit                   { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+  .aal__activity--payment-pre            { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+  .aal__activity--payment-exit           { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+  .aal__activity--payment-cancel         { background: var(--danger-light);  color: var(--danger);  border: 1px solid var(--danger-border);  }
+  .aal__activity--reservation-created    { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+  .aal__activity--reservation-cancelled  { background: var(--danger-light);  color: var(--danger);  border: 1px solid var(--danger-border);  }
+  .aal__activity--resident-registered    { background: var(--purple-light);  color: var(--purple);  border: 1px solid var(--purple-border);  }
+  .aal__activity--vehicle-registered     { background: var(--purple-light);  color: var(--purple);  border: 1px solid var(--purple-border);  }
+  .aal__activity--pass-purchased         { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .aal__activity--coupon-purchased       { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .aal__activity--coupon-used            { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .aal__activity--admin-force-exit       { background: var(--gray-100); color: var(--gray-700); border: 1px solid var(--gray-300); }
+  .aal__activity--refunded               { background: var(--danger-light);  color: var(--danger);  border: 1px solid var(--danger-border);  }
