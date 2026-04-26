@@ -27,7 +27,10 @@
   font-size: 1.1rem;
   font-weight: bold;
 }
-/* HistoryBox.css */
+
+.table{
+    margin-top: 20px;
+}
 
 /* 1. 테이블과 모든 셀의 배경을 투명으로 강제 고정 */
 .custom-history-table, 
@@ -101,4 +104,54 @@
 
 .date button:hover {
     background-color: #1d4ed8;
+}
+
+/* 요약 카드 그리드 (사진처럼 4개 배치) */
+.summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.summaryCard {
+    background-color: #333333;
+    border: 1px solid #555;
+    border-radius: 12px;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 순이익 카드에만 살짝 포인트를 주고 싶을 때 */
+.summaryCard.highlight {
+    border-color: #666;
+    background-color: #3a3a3a;
+}
+
+.cardLabel {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 500;
+}
+
+.cardValue {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+/* 차트가 들어갈 공간 확보 */
+.chartContainer {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 30px;
+    min-height: 250px; /* 차트 넣기 전까지 공간 확보 */
+}
+.msg{
+    color: grey;
+    margin-left: 10px;
 }

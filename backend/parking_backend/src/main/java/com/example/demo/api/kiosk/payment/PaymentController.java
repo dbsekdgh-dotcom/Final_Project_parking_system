@@ -12,7 +12,6 @@ import com.example.demo.domain.parking.log.service.ParkingLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,7 +41,7 @@ public class PaymentController {
         @ApiResponse(responseCode = "400", description = "vehicleNumber 누락", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
     })
-    @RequestBody(description = "검색할 차량 번호 (뒤 4자리 또는 전체)", required = true,
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "검색할 차량 번호 (뒤 4자리 또는 전체)", required = true,
         content = @Content(schema = @Schema(example = "{\"vehicleNumber\": \"3456\"}")))
     @PostMapping("/search-car")
     public List<ParkingLogSettlementDto> searchPrepayCar(@RequestBody Map<String,String> request){

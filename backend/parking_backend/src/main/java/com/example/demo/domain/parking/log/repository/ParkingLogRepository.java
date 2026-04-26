@@ -110,12 +110,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     @Query("SELECT p FROM ParkingLog p LEFT JOIN FETCH p.parkingSpace WHERE p.carNumberSnapshot = :carNumber AND p.exitedAt IS NULL AND p.enteredAt IS NOT NULL ORDER BY p.enteredAt DESC LIMIT 1")
     Optional<ParkingLog> findCurrentParkingByCarNumber(@Param("carNumber") String carNumber);
 
-    //특정 기간의 주차요금
-    @Query("select sum(p.fee) from ParkingLog p where p.paidAt between :startDate and : endDate")
-    Long calculateParkingFee(@Param("startDate")LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-
     //정상적인 입차완료와 출차완료 상태만 최신순으로 가져오기
-
     @Query("SELECT p FROM ParkingLog p " +
             "WHERE (p.vehicle.user.userId = :userId OR " +
             "       EXISTS (SELECT r FROM Reservation r " +
@@ -124,4 +119,11 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "AND p.parkingStatus IN (com.example.demo.domain.parking.log.enums.ParkingStatus.ENTERED, " +
             "                        com.example.demo.domain.parking.log.enums.ParkingStatus.EXITED)")
     Page<ParkingLog> findMyAndReservedLogs(@Param("userId") Long userId, Pageable pageable);
+
+
+    //기간별 로그
+    @Query("select p from ParkingLog p " +
+            "where p.exitedAt >= :start and p.exitedAt < :end and p.enteredAt is not null")
+    List<ParkingLog> findParkingLogWithPolicy(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
 }
