@@ -11,12 +11,13 @@ const mainNav = [
   { to: '/admin/fee', label: '요금 설정/조회', id: 'fee' },
   { to: '/admin/approval/approval-request', label: '승인 관리', id: 'approval', badge: 4, activeMatch: '/admin/approval' },
   { to: '/admin/user-vehicle/user', label: '사용자 / 차량', id: 'user-vehicle' },
-  { to: '/admin/action-log', label: '관리자 활동 내역', id: 'realtime-io' },
+  { to: '/admin/action-log', label: '모든 활동 내역', id: 'realtime-io' },
+  { to: '/admin/store', label: '상가 관리', id: 'store'},
 ]
 
 const bottomNav = [
   { to: '#admin', label: '관리자', id: 'admin' },
-  { to: '/admin/system-setting', label: '시스템 설정', id: 'settings' },
+  { to: '/admin/system-setting/status', label: '시스템 설정', id: 'settings', activeMatch: '/admin/system-setting' },
 ]
 
 function IconHome() {
@@ -127,6 +128,7 @@ function IconSettings() {
 const iconsById = {
   dashboard: IconHome,
   'parking-space': IconBuilding,
+  'store': IconBuilding,
   'entry-exit': IconList,
   fee: IconTag,
   'live-video': IconPlay,

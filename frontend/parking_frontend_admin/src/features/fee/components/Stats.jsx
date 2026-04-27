@@ -1,8 +1,13 @@
 import React from 'react'
+import StatsBox from './StatsBox';
+import RevenueAnalysisBox from './RevenueAnalysisBox';
 
 const Stats = () => {
   return (
-    <div>배포 테스트</div>
+    <div className='container'>
+      <StatsBox title="날짜별 현금흐름"/>
+      <RevenueAnalysisBox  title="주차요금 매출 분석"/>
+    </div>
   )
 }
 

@@ -71,6 +71,7 @@ public class KioskStoreService {
         Store store = getLoginStore();
         return walletRepository.findByStore_StoreId(store.getStoreId())
                 .stream()
+                .filter(w -> w.getRemainingCount() > 0)
                 .map(StoreWalletResponseDto::from)
                 .toList();
     }

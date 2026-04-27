@@ -47,7 +47,9 @@ public enum SettingKey {
 
     SUBSCRIPTION_PRICE("SUB_MONTHLY_PRICE", "100000"),
     SUBSCRIPTION_DAYS("SUB_DURATION_DAYS", "30"),
-    SUBSCRIPTION_MAX_COUNT("SUB_MAX_COUNT", "10");
+    SUBSCRIPTION_MAX_COUNT("SUB_MAX_COUNT", "10"),
+
+    PG_COMMISSION_RATE("PG_COMMISSION_RATE","0.033");
 
 
     private final String key;
@@ -56,5 +58,7 @@ public enum SettingKey {
     public int getDefaultIntValue(){
         return Integer.parseInt(this.defaultValue);
     }
-
+    public double getDefaultDoubleValue(){
+        return Double.parseDouble(this.defaultValue);
+    }
 }

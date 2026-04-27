@@ -42,7 +42,7 @@ public class PaymentController {
         @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "검색할 차량 번호 (뒤 4자리 또는 전체)", required = true,
-            content = @Content(schema = @Schema(example = "{\"vehicleNumber\": \"3456\"}")))
+        content = @Content(schema = @Schema(example = "{\"vehicleNumber\": \"3456\"}")))
     @PostMapping("/search-car")
     public List<ParkingLogSettlementDto> searchPrepayCar(@RequestBody Map<String,String> request){
         //extieAt 값이 없는 parking_log 데이터 반환

@@ -152,6 +152,7 @@
   border: 1px solid #4d4d4d;
   transition: all 0.2s;
   cursor:pointer;
+  margin-top: 20px;
 }
 
 .upcomingToggle:hover {

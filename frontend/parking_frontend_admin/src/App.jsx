@@ -16,6 +16,11 @@ import UserVehicleBlacklist from "./features/user-vehicle/pages/UserVehicleBlack
 import UserVehicleReservation from "./features/user-vehicle/pages/UserVehicleReservation"
 import UservehicleSubscription from "./features/user-vehicle/pages/UservehicleSubscription"
 import ActionLogPage from "./features/action-log/pages/ActionLogPage"
+import StorePage from "./features/store/pages/StorePage"
+import SystemSettingLayout from "./features/systemsetting/layout/SystemSettingLayout"
+import ReservationPolicyPage from "./features/systemsetting/reservation-policy/pages/ReservationPolicyPage"
+import ActionLogLayout from "./features/action-log/layout/ActionLogLayout"
+import ActivityLogPage from "./features/action-log/pages/ActivityLogPage"
 
 
 function App() {
@@ -33,8 +38,17 @@ function App() {
           <Route path="/admin/parking-space" element={<ParkingSpace />} />
           <Route path="/admin/entry-exit" element={<ParkingLogPage />} />
           <Route path="/admin/fee" element={<Fee/>}/>
-          <Route path="/admin/system-setting" element={<SystemSettingPage/>}/>
-          <Route path="/admin/action-log" element={<ActionLogPage/>}/>
+          <Route path="/admin/system-setting" element={<SystemSettingLayout/>}>
+            <Route index element={<Navigate to="/admin/system-setting/status" replace/>}/>
+            <Route path="status" element={<SystemSettingPage/>}/>
+            <Route path="reservation-policy" element={<ReservationPolicyPage/>}/>
+          </Route>
+          <Route path="/admin/action-log" element={<ActionLogLayout/>}>
+            <Route index element={<Navigate to="/admin/action-log/admin" replace/>}/>
+            <Route path="admin" element={<ActionLogPage/>}/>
+            <Route path="user" element={<ActivityLogPage/>}/>
+          </Route>
+          <Route path="/admin/store" element={<StorePage/>}/>
 
           {/* 승인 관리: 탭 레이아웃 + 하위 페이지 */}
           <Route path="/admin/approval" element={<ApprovalLayout />}>

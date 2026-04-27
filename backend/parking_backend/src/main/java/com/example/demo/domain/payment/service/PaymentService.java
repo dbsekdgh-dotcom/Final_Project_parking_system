@@ -308,18 +308,15 @@ public class PaymentService {
         //주차 시간 계산(화면 표시용)
         LocalDateTime exitTime=LocalDateTime.now();;
         long parkingTime=Duration.between(parkingLog.getEnteredAt(),exitTime).toMinutes();
-
         //타입이 방문인 경우 입차확인&무료요금&방문예약일이 경과했는지 체크
         if (parkingTypeSnapshot.equals(ParkingTypeSnapshot.RESERVATION)) {
             if (reservationRepository.getCountbyCarNumber(carNumber, Status.ENTERED, true)<=0){
                 //방문예약시간이 초과한 경우 만료 시간 이후부터 과금
                 calculationStartTime=parkingLog.getFreeExitUntil();
             }
-
         }
         //주차 시간 계산(요금 계산용)
         long totalDurationForCalculation=Duration.between(calculationStartTime,exitTime).toMinutes();//방문예약시간을 초과한 경우를 고려하여 parkingLog.getEnteredAt()대신 사용
-
         // 기본 요금 계산
         FeeCalculationResponseDto feeCalculationResponseDto=settlementFee(parkingLog,parkingFeePolicyId,totalDurationForCalculation);
         if(feeCalculationResponseDto==null || feeCalculationResponseDto.getCalculatedFee()<=0)    {

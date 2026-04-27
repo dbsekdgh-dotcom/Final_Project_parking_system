@@ -27,14 +27,12 @@ public class TossPaymentService {
     private String toss;
     public static final String CODE_ALREADY_PROCESSED = "ALREADY_PROCESSED_PAYMENT";
     public static final String STATUS_DONE = "DONE";
-
     //toss secret key 변환
     private String authorization(){
         Base64.Encoder encoder = Base64.getEncoder();
         byte[] encodedBytes = encoder.encode((toss + ":").getBytes(StandardCharsets.UTF_8));
         return  "Basic " + new String(encodedBytes);
     }
-
     //결제 승인 요청
     public ResponseEntity<JSONObject> confirmPayment(@RequestBody PaymentConfirmRequestDto dto) {
         try {
@@ -44,9 +42,7 @@ public class TossPaymentService {
             body.put("orderId", dto.getOrderId());
             body.put("amount", dto.getAmount());
             body.put("paymentKey", dto.getPaymentKey());
-
             return sendRequest(urlStr,"POST",body);
-
         }catch(IOException e){
             //2. 통신장애 발생이 요청상태 재확인 :get요청
             try {
@@ -65,7 +61,6 @@ public class TossPaymentService {
         throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
     public ResponseEntity<JSONObject> sendRequest(String urlStr, String method,JSONObject body) throws IOException,ParseException{
-
             URL url=new URL(urlStr);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Authorization", authorization());
@@ -106,7 +101,7 @@ public class TossPaymentService {
             throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
         }
     }
-    //부분환불 // 테스트 안해봤습니다..
+    //부분환불
     public ResponseEntity<JSONObject> refundPayment(String paymentKey,String cancelReason,int amount){
         try{
             String urlStr="https://api.tosspayments.com/v1/payments/"+paymentKey+"/cancel";

@@ -10,7 +10,10 @@ public enum ErrorCode {
     // COMMON
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "데이터를 찾을 수 없습니다."),
-
+    // STORE
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND,"상가를 찾을 수 없습니다."),
+    STORE_ALREADY_ACTIVE(HttpStatus.CONFLICT,"이미 입주 중인 상가입니다."),
+    STORE_ALREADY_INACTIVE(HttpStatus.CONFLICT,"이미 퇴거된 상가입니다."),
     // VEHICLE
     VEHICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 차량이 없습니다."),
     DUPLICATE_VEHICLE(HttpStatus.CONFLICT, "이미 등록된 차량입니다."),
@@ -43,6 +46,7 @@ public enum ErrorCode {
     PARKING_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND,"정책을 찾을 수 없습니다."),
     CAMERA_NOT_FOUND(HttpStatus.NOT_FOUND,"카메라를 찾을 수 없습니다."),
     PARKING_LOG_NOT_FOUND(HttpStatus.NOT_FOUND,"주차 세션을 찾을 수 없습니다."),
+    POLICY_ACTIVE_CANNOT_DELETE(HttpStatus.BAD_REQUEST,"활성화 중인 정책은 삭제 불가능 합니다."),
 
     // SUBSCRIPTION (정기권 관련)
     SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "정기권 정보를 찾을 수 없습니다."),
@@ -140,6 +144,8 @@ public enum ErrorCode {
     INVALID_RESERVATION_TIME(HttpStatus.BAD_REQUEST, "예약 시간 설정이 올바르지 않습니다."),
     CANNOT_CANCEL_RESERVATION(HttpStatus.BAD_REQUEST, "현재 상태에서는 예약을 취소할 수 없습니다."),
     RESERVATION_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 예약입니다."),
+    RESERVATION_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "방문 예약 정책을 찾을 수 없습니다.."),
+    RESERVATION_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 예약입니다."),
     RESERVATION_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 입차된 예약은 취소할 수 없습니다."),
     RESERVATION_NOT_OWNER(HttpStatus.FORBIDDEN, "본인의 예약만 취소할 수 있습니다."),
     RESERVATION_STATUS_MISMATCH(HttpStatus.BAD_REQUEST, "취소 가능한 상태의 예약이 아닙니다."),
@@ -175,8 +181,8 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요."),
 
     //Admin
-    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다"),
-
+    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다."),
+    ACTIVITY_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행동 로그를 찾을 수 없습니다."),
     POLICY_NOT_MODIFIABLE(HttpStatus.NOT_MODIFIED,"만료 예정 정책은 수정할 수 없습니다."),
 
     //ParkingSpace

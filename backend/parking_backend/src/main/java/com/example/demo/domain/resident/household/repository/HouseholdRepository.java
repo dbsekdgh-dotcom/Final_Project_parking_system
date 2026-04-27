@@ -16,6 +16,8 @@ public interface HouseholdRepository extends JpaRepository<Household, Long> {
 
     List<Household> findByIsActive(IsActive isActive);
 
+    long countByIsActive(IsActive isActive);
+
     default List<Household> findEmptyHouseholds() {
         return findByIsActive(IsActive.INACTIVE);
     }
