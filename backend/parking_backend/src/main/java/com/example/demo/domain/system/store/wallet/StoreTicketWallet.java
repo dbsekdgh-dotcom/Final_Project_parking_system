@@ -52,4 +52,11 @@ public class StoreTicketWallet {
         this.usedCount += quantity;
         this.remainingCount -= quantity;
     }
+
+    // 지갑 전체 초기화
+    public void reset(){
+        this.issuedCount = 0;
+        this.usedCount = 0;
+        this.remainingCount = 0;
+    }
 }

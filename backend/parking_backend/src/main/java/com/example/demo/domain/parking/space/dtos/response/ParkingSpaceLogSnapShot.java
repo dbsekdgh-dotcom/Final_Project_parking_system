@@ -1,6 +1,7 @@
 package com.example.demo.domain.parking.space.dtos.response;
 
 import com.example.demo.domain.parking.space.ParkingSpace;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,7 +10,9 @@ import lombok.Getter;
 public class ParkingSpaceLogSnapShot {
     private String spaceCode;
     private String status;
+    @JsonProperty("isDisabled")
     private boolean isDisabled;
+    @JsonProperty("isEvCharge")
     private boolean isEvCharge;
 
     // Entity를 Dto로 변환

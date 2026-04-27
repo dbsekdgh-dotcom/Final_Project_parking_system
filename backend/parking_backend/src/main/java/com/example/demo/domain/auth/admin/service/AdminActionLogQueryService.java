@@ -56,14 +56,21 @@ public class AdminActionLogQueryService {
     private void revertPolicy(Long targetId, JsonNode before){
         ParkingFeePolicy policy = parkingFeePolicyRepository.findById(targetId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.INVALID_REQUEST));
-        policy.setEffectiveTo(LocalDateTime.parse(before.get("effectiveTo").asText()));
+        JsonNode effectiveToNode = before.get("effectiveTo");
+        if (effectiveToNode == null || effectiveToNode.isNull()){
+            policy.setEffectiveTo(null);
+        }else {
+            policy.setEffectiveTo(LocalDateTime.parse(effectiveToNode.asText()));
+        }
     }
     private void revertParkingSpace(Long targetId, JsonNode before){
         ParkingSpace space = parkingSpaceRepository.findById(targetId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.INVALID_REQUEST));
         space.setStatus(SpaceStatus.valueOf(before.get("status").asText()));
-        space.setIsDisabled(before.get("isDisabled").asBoolean());
-        space.setIsEvCharge(before.get("isEvCharge").asBoolean());
+        JsonNode disabledNode = before.has("isDisabled") ? before.get("isDisabled") : before.get("disabled");
+        JsonNode evChargeNode = before.has("isEvCharge") ? before.get("isEvCharge") : before.get("evCharge");
+        space.setIsDisabled(disabledNode != null && disabledNode.asBoolean());
+        space.setIsEvCharge(evChargeNode != null && evChargeNode.asBoolean());
     }
     private void revertParkingLog(Long targetId, JsonNode before){
         ParkingLog log = parkingLogRepository.findById(targetId)
