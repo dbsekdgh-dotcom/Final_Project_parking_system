@@ -57,7 +57,7 @@ pipeline {
                             aws ssm send-command \
                                 --instance-ids ${SERVER_2_ID} \
                                 --document-name "AWS-RunShellScript" \
-                                --parameters '{"commands":["export HOME=/root && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY} && docker compose pull && docker compose up -d && docker image prune -f"]}' \
+                                --parameters '{"commands":["export HOME=/root && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY} && docker compose pull && docker rm -f parking-backend && docker compose up -d && docker image prune -f"]}' \
                                 --region ${AWS_REGION}
                         """
                     }
@@ -103,7 +103,7 @@ pipeline {
                             aws ssm send-command \
                                 --instance-ids ${SERVER_1_ID} \
                                 --document-name "AWS-RunShellScript" \
-                                --parameters '{"commands":["export HOME=/root && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY} && docker compose pull && docker compose up -d && docker image prune -f"]}' \
+                                --parameters '{"commands":["export HOME=/root && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY} && docker compose pull && docker rm -f parking-backend && docker compose up -d && docker image prune -f"]}' \
                                 --region ${AWS_REGION}
                         """
                     }
