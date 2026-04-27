@@ -34,7 +34,7 @@ pipeline {
         stage('Build & Push Backend') {
             steps {
                 sh """
-                    docker build -t ${BACKEND_IMAGE}:latest ./backend/parking_backend
+                    docker build --no-cache -t ${BACKEND_IMAGE}:latest ./backend/parking_backend
                     docker push ${BACKEND_IMAGE}:latest
                 """
             }
