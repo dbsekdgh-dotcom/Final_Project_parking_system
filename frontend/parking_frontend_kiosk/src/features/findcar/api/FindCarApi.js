@@ -1,8 +1,7 @@
-import axios from "axios";
+import kioskApi from "../../../shared/api/KioskApi";
 
-const host = (import.meta.env.VITE_API_BASE_URL || '') + '/api/kiosk';
 
 export const findCar = async (query) =>{
-    const res = await axios.get(`${host}/find-car`,{ params:{query}});
+    const res = await kioskApi.get(`/api/kiosk/find-car`,{ params:{query}});
     return res.data;
 }
