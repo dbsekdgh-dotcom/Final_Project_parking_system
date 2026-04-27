@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 1. OPTIONS 메서드는 CORS 처리를 위해 doFilterInternal에서 처리하도록 필터를 통과시킴
         if (method.equals("OPTIONS")) {
-            return false;
+            return true;
         }
 
         // 2. 인증 불필요 경로 정의
