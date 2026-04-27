@@ -70,17 +70,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
-        // [CORS 강제 해결] 브라우저 프리플라이트 요청 응답
-        if ("OPTIONS".equalsIgnoreCase(method)) {
-            System.out.println(">>> [OPTIONS 응답] CORS 헤더 강제 주입 중...");
-            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5202");
-            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-            response.setHeader("Access-Control-Allow-Headers", "*");
-            response.setHeader("Access-Control-Allow-Credentials", "true");
-            response.setStatus(HttpServletResponse.SC_OK);
-            return;
-        }
-
         System.out.println(">>> [필터 내부] 로직 실행 시작: " + path);
 
         if (path.startsWith("/api/admin") || path.startsWith("/admin")) {
