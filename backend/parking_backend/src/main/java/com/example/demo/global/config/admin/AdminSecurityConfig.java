@@ -117,7 +117,8 @@ AdminSecurityConfig {
                 "http://localhost:5203",//윤진추가 삭제예정
                 "https://admin.parking-system.store",
                 "https://user.parking-system.store",
-                "https://kiosk.parking-system.store"
+                "https://kiosk.parking-system.store",
+                "https://d38mwgr1ab20cw.cloudfront.net"
         ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"));
