@@ -1,4 +1,4 @@
-import kioskApi from "./KioskApi";
+import kioskApi from "./kioskApi";
 
 
 //keypay로 입력한 차량번호 네글자로 차량 리스트 조회
@@ -16,13 +16,13 @@ export const requestPayment=async(selectedVehicle)=>{
 
 //결제정보로 결제 요청->백엔드에 확인 요청 
 export const requestBeforePayment=async(settlementPayload)=>{
-    const res=await kioskApi.post(`/api/payemnt/request-ready-payment`,settlementPayload)
+    const res=await kioskApi.post(`/api/payment/request-ready-payment`,settlementPayload)
     console.log("res==>"+res.data);
     return res.data;
 }
 //결제 완료된 경우
 export const requestAfterPayment=async(settlementConfirmPayload)=>{
-    const res=await kioskApi.post(`/api/payemnt/request-after-payment`,settlementConfirmPayload)
+    const res=await kioskApi.post(`/api/payment/request-after-payment`,settlementConfirmPayload)
     console.log("결제 후 후속처리 요청 정보==>"+res.data)
     return res.data;
 }

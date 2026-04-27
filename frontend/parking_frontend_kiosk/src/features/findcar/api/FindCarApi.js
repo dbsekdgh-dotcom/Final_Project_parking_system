@@ -1,4 +1,4 @@
-import kioskApi from "../../../shared/api/KioskApi";
+import kioskApi from "../../../shared/api/kioskApi";
 
 
 export const findCar = async (query) =>{

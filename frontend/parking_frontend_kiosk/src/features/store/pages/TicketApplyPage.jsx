@@ -132,7 +132,10 @@ export default function TicketApplyPage(){
 
     return (
         <div className="apply-search-wrapper">
-            <h2>할인권 적용</h2>
+            <div className="apply-search-header">
+                <h2>할인권 적용</h2>
+                <button className="btn-outline" onClick={() => navigate('/store/main')}>뒤로가기</button>
+            </div>
             <p>차량번호 4자리를 입력하세요</p>
             <div className="apply-query-display">{query || '_ _ _ _'}</div>
             <Keypad onKeyClick={handleKey} onDeleteClick={handleDelete} onClearClick={handleClear} />
