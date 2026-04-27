@@ -114,7 +114,10 @@ AdminSecurityConfig {
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5201",
                 "http://localhost:5202", //윤진추가 삭제예정
-                "http://localhost:5203"//윤진추가 삭제예정
+                "http://localhost:5203",//윤진추가 삭제예정
+                "https://admin.parking-system.store",
+                "https://user.parking-system.store",
+                "https://kiosk.parking-system.store"
         ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"));
