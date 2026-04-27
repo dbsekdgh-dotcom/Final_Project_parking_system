@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import RejectModal from '../../components/RejectModal';
 import './ApprovalRequestPage.css';
 import Pagination from '../../../../shared/components/pagination/Pagination';
+import { getApprovals, approveApproval, rejectApproval } from '../api/approvalRequestApi';
 
   
 // ─── 상수 ────────────────────────────────────────────────────────────
@@ -58,16 +59,12 @@ export default function ApprovalRequestPage() {
   const fetchApprovals = useCallback(async ()=>{
     setLoading(true);
     try{
-      const params = new URLSearchParams({ page, size: 10});
-      if (filterType) params.append('type', filterType);
-      if (filterStatus) params.append('status', filterStatus);
-      if (searchText.trim()) params.append('keyword', searchText.trim());
+      const params = { page, size: 10 };
+      if (filterType) params.type = filterType;
+      if (filterStatus) params.status = filterStatus;
+      if (searchText.trim()) params.keyword = searchText.trim();
 
-      const res = await fetch(`/api/admin/approvals?${params}`, {
-        credentials:'include',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
-      });
-      const data = await res.json();
+      const data = await getApprovals(params);
       setRows(data.content ?? []);
       setTotalPages(data.totalPages);
       setTotalElements(data.totalElements);
@@ -106,14 +103,15 @@ export default function ApprovalRequestPage() {
     setFilterStatus('');
   };
 
-  //  승인 
+  //  승인
   const handleApprove = async(approvalId) => {
-    await fetch(`/api/admin/approvals/${approvalId}/approve`,{
-       method : 'POST',
-       credentials:'include',
-       headers : { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
-      });
-    fetchApprovals();
+    try {
+      await approveApproval(approvalId);
+      fetchApprovals();
+    } catch (e) {
+      const msg = e?.response?.data?.message;
+      alert(msg ?? '이미 처리된 항목이거나 처리할 수 없는 요청입니다.');
+    }
   };
 
  // 거절 모달
@@ -122,16 +120,14 @@ export default function ApprovalRequestPage() {
 
   const confirmReject = async () => {
     if (!rejectReason.trim()) return;
-    await fetch(`/api/admin/approvals/${rejectTarget.approvalId}/reject`,{
-      method : 'POST',
-      headers : { 'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body : JSON.stringify({ rejectReason: rejectReason.trim() }),
-      credentials : 'include',
-    });
-    closeReject();
-    fetchApprovals();
+    try {
+      await rejectApproval(rejectTarget.approvalId, rejectReason.trim());
+      closeReject();
+      fetchApprovals();
+    } catch (e) {
+      const msg = e?.response?.data?.message;
+      alert(msg ?? '이미 처리된 항목이거나 처리할 수 없는 요청입니다.');
+    }
   };
 
  

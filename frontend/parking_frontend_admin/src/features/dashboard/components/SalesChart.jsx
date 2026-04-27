@@ -90,7 +90,7 @@
         </div>
 
         {/* 차트 영역: 고정 높이 220px */}
-        <div style={{ height: 220 }}>
+        <div style={{ width: '100%', height: 220 }}>
           {loading ? (
             <div className="dash__empty">불러오는 중...</div>
           ) : monthly.length === 0 ? (
