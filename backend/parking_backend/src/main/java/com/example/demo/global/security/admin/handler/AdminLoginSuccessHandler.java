@@ -60,7 +60,7 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
         // jakarta.servlet.http.Cookie 대신 Spring의 ResponseCookie를 쓰면 설정이 더 편함.
         String cookieString = org.springframework.http.ResponseCookie.from("refreshToken",refreshToken)
                 .httpOnly(true) // JS 접근 차단(XSS방어)
-                .secure(false) // 로컬 테스트(http) 중이면 false, 배포시 true
+                .secure(true) // 로컬 테스트(http) 중이면 false, 배포시 true
                 .path("/") // 모든 경로에서 사용가능
                 .maxAge(24 * 60 * 60) // 쿠키 수명(24시간)
                 .sameSite("Lax") // CSRF 방어

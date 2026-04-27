@@ -105,14 +105,14 @@ public class UserLoginService {
             ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                     .path("/")
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .sameSite("Lax")
                     .build();
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .path("/")
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .sameSite("Lax")
                     .build();
 
