@@ -1,27 +1,23 @@
-const BASE = '/api/admin/management';
+import adminApi from '../../../shared/api/adminApi';
 
-const get = (url) =>
-  fetch(url, {
-    credentials: 'include',
-    headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-  }).then((r) => r.json());
+const BASE = '/management';
 
-const buildParams = (obj) => {
-  const p = new URLSearchParams();
-  Object.entries(obj).forEach(([k, v]) => {
-    if (v !== '' && v !== null && v !== undefined) p.append(k, v);
-  });
-  return p.toString();
-};
+const clean = (obj) =>
+  Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+  );
 
-export const fetchUsers              = (p)  => get(`${BASE}/users?${buildParams(p)}`);
+const get = (url, params) =>
+  adminApi.get(url, { params: clean(params ?? {}) }).then((r) => r.data);
+
+export const fetchUsers              = (p)  => get(`${BASE}/users`, p);
 export const fetchUserDetail         = (id) => get(`${BASE}/users/${id}`);
 
-export const fetchVehicles           = (p)  => get(`${BASE}/vehicles?${buildParams(p)}`);
+export const fetchVehicles           = (p)  => get(`${BASE}/vehicles`, p);
 export const fetchVehicleDetail      = (id) => get(`${BASE}/vehicles/${id}`);
 
-export const fetchSubscriptions      = (p)  => get(`${BASE}/subscriptions?${buildParams(p)}`);
+export const fetchSubscriptions      = (p)  => get(`${BASE}/subscriptions`, p);
 export const fetchSubscriptionDetail = (id) => get(`${BASE}/subscriptions/${id}`);
 
-export const fetchReservations       = (p)  => get(`${BASE}/reservations?${buildParams(p)}`);
+export const fetchReservations       = (p)  => get(`${BASE}/reservations`, p);
 export const fetchReservationDetail  = (id) => get(`${BASE}/reservations/${id}`);

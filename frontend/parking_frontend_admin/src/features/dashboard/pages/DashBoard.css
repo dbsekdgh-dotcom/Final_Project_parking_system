@@ -1,0 +1,181 @@
+ @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');                    
+   
+  /* ── 페이지 루트 ─────────────────────────────────────────── */                                                                                         
+  .dash {         
+    padding: 20px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #111111;
+    min-height: 100%;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #f9fafb;
+  }
+
+  /* ── 상단 통계 카드 4개 ───────────────────────────────────── */
+  .dash__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .dash__stat-card {
+    background: #1e1e1e;
+    border: 1px solid #2e2e2e;
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  /* 아이콘 박스 */
+  .dash__stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .dash__stat-icon--blue   { background: rgba(37,99,235,.15);  color: #2563eb; }
+  .dash__stat-icon--green  { background: rgba(22,163,74,.15);  color: #16a34a; }
+  .dash__stat-icon--orange { background: rgba(217,119,6,.15);  color: #d97706; }
+  .dash__stat-icon--purple { background: rgba(124,58,237,.15); color: #7c3aed; }
+
+  .dash__stat-body  { display: flex; flex-direction: column; gap: 3px; }
+  .dash__stat-label { font-size: 12px; color: #9ca3af; font-weight: 500; }
+  .dash__stat-value { font-size: 20px; font-weight: 700; color: #f9fafb; line-height: 1.2; }
+
+  /* ── 총 매출액 / 총 사용량 하이라이트 카드 ───────────────── */
+  .dash__highlights {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .dash__highlight-card {
+    background: #1e1e1e;
+    border: 1px solid #2e2e2e;
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dash__highlight-label {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .dash__highlight-value {
+    font-size: 30px;
+    font-weight: 700;
+    color: #f9fafb;
+    line-height: 1.2;
+  }
+  .dash__highlight-change {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+  }
+  .dash__highlight-change--up   { color: #16a34a; }
+  .dash__highlight-change--down { color: #dc2626; }
+
+  /* ── 차트 2열 ────────────────────────────────────────────── */
+  .dash__charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── 테이블 2열 ──────────────────────────────────────────── */
+  .dash__tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── 공용 패널 (차트/테이블 공통 래퍼) ─────────────────── */
+  .dash__panel {
+    background: #1e1e1e;
+    border: 1px solid #2e2e2e;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .dash__panel-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .dash__panel-title { font-size: 14px; font-weight: 600; color: #f9fafb; }
+  .dash__panel-sub   { font-size: 12px; color: #9ca3af; }
+
+  /* ── 패널 안 탭 바 ───────────────────────────────────────── */
+  .dash__tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #2e2e2e;
+    margin-bottom: 4px;
+  }
+
+  .dash__tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+    margin-bottom: -1px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .dash__tab:hover      { color: #d1d5db; }
+  .dash__tab--active    { color: #2563eb; border-bottom-color: #2563eb; }
+
+  /* ── 패널 안 테이블 ─────────────────────────────────────── */
+  .dash__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .dash__table thead tr  { border-bottom: 1px solid #2e2e2e; }
+  .dash__table th {
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .dash__table td {
+    padding: 11px 10px;
+    border-bottom: 1px solid #2e2e2e;
+    color: #f9fafb;
+  }
+  .dash__table tbody tr:last-child td { border-bottom: none; }
+
+  .dash__td--mono   { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #9ca3af; }
+  .dash__td--muted  { color: #9ca3af; }
+  .dash__td--amount { font-weight: 600; color: #f9fafb; }
+
+  /* ── 빈 상태 / 로딩 ─────────────────────────────────────── */
+  .dash__empty {
+    padding: 40px;
+    text-align: center;
+    color: #4b5563;
+    font-size: 13px;
+  }

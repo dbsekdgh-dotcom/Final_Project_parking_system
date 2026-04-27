@@ -34,5 +34,4 @@ public class TicketPolicyController {
         log.info("비활성화 요청 정책 id==>{}",map.get("ticketPolicyId"));
         ticketPolicyService.inactivatePolicy(map.get("ticketPolicyId"));
     }
-
 }
