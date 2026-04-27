@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios"; // axios가 설치되어 있어야 해!
+import api from "../auth/api/axios";
 
 const ReportModal = ({ onClose }) => {
   // 1. 입력값 상태 관리
@@ -21,7 +22,7 @@ const ReportModal = ({ onClose }) => {
      pythonFormData.append("file",file);
 
      //파이썬 서버주소
-     const pythonUrl = "http://localhost:8000/api/v1/parking/report";
+     const pythonUrl = `${import.meta.env.VITE_AI_SERVER_URL}/api/v1/parking/report`
 
      console.log("파이썬을 사진 전송 중...");
      const pythonRes = await axios.post(pythonUrl, pythonFormData, {
@@ -33,8 +34,6 @@ const ReportModal = ({ onClose }) => {
      console.log("파이썬에서 받은 s3 주소:" ,s3Path);
 
      //자바 백엔드로 최종 데이터 보내기
-     const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081"
-    //  const token = localStorage.getItem("accessToken");
 
      const params = new URLSearchParams();
      params.append("carNumber", carNumber);
@@ -42,12 +41,7 @@ const ReportModal = ({ onClose }) => {
      params.append("reportType", reportType); 
      params.append("report_s3path",s3Path); //파이썬이 준 주소를 자바에 전달
 
-     await axios.post(`${baseUrl}/api/report`, params, {
-      withCredentials: true,
-        headers: {
-            //"Authorization" : `Bearer ${token}`
-         }
-      });
+     await api.post('/api/report', params);
     
       alert("신고가 정상적으로 접수되었습니다!");
       onClose(); // 성공하면 모달 닫기

@@ -1,19 +1,45 @@
-/* 검색 화면 */
-.apply-search-wrapper {
-  padding: 40px;
-  min-height: 100vh;
+/* ── 공통 박스 레이아웃 ─────────────────────────── */
+.apply-car-list-wrapper,
+.apply-ticket-wrapper,
+.apply-no-result,
+.apply-done-wrapper {
+  max-width: 420px;
+  margin: 60px auto;
+  padding: 40px 32px;
+  border: 2px solid #000;
   background: #fff;
+}
+
+/* ── 검색 화면 — 키패드 중앙 정렬 박스 ─────────── */
+.apply-search-wrapper {
+  max-width: 420px;
+  margin: 60px auto;
+  padding: 40px 32px;
+  border: 2px solid #000;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.apply-search-header {
+  width: 350px; /* 키패드 너비와 동일하게 맞춤 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .apply-search-wrapper h2 {
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
 .apply-search-wrapper > p {
   color: #888;
   margin-bottom: 24px;
+  font-size: 14px;
 }
 
 .apply-query-display {
@@ -24,7 +50,7 @@
 }
 
 .apply-search-btn {
-  width: 100%;
+  width: 350px;
   margin-top: 16px;
   padding: 14px;
   color: #fff;
@@ -39,13 +65,11 @@
   cursor: not-allowed;
 }
 
-/* 결과 없음 */
+/* ── 결과 없음 ───────────────────────────────────── */
 .apply-no-result {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
   gap: 16px;
 }
 
@@ -60,11 +84,7 @@
   margin: 0;
 }
 
-/* 차량 목록 */
-.apply-car-list-wrapper {
-  padding: 40px;
-}
-
+/* ── 차량 목록 ───────────────────────────────────── */
 .apply-car-list-wrapper h3 {
   font-size: 20px;
   font-weight: bold;
@@ -93,11 +113,7 @@
   margin-top: 4px;
 }
 
-/* 할인권 선택 */
-.apply-ticket-wrapper {
-  padding: 40px;
-}
-
+/* ── 할인권 선택 ─────────────────────────────────── */
 .apply-ticket-wrapper h3 {
   font-size: 20px;
   font-weight: bold;
@@ -172,14 +188,13 @@
   margin-top: 16px;
 }
 
-/* 완료 화면 */
+/* ── 완료 화면 ───────────────────────────────────── */
 .apply-done-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
   gap: 16px;
+  text-align: center;
 }
 
 .apply-done-icon {
@@ -192,7 +207,7 @@
   margin: 0;
 }
 
-/* 공통 버튼 */
+/* ── 공통 버튼 ───────────────────────────────────── */
 .btn-black {
   background: #000;
   color: #fff;

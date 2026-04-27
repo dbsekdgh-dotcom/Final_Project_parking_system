@@ -10,7 +10,7 @@ const VehicleList = ({vehicles,onSelect}) => {
         <div>
             {
                 vehicles.map((v,index)=> {
-                return <div className='vehicle-card' onClick={()=>onSelect(v)} ontouchstart={()=>{}} key={index}>
+                return <div className='vehicle-card' onClick={()=>onSelect(v)} onTouchStart={()=>{}} key={index}>
                     <span type='button'  className='vehicle-number'>{v.vehicleNumber}</span>
                     <span className='arrow-icon'>→</span>
                     </div>
