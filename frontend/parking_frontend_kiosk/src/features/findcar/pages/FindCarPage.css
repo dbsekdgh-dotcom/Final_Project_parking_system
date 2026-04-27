@@ -10,10 +10,27 @@
     background: #fff;
   }
 
+  .findcar-search-header {
+    width: 350px; /* 키패드 너비와 동일 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
   .findcar-search-title {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin: 0;
+  }
+
+  .btn-back {
+    padding: 8px 14px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    font-size: 13px;
+    cursor: pointer;
   }
 
   .findcar-search-label {
