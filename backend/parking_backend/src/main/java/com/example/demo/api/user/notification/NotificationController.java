@@ -4,6 +4,7 @@ import com.example.demo.domain.auth.user.principal.PrincipalDetails;
 
 import com.example.demo.domain.notification.dtos.NotificationResponseDto;
 import com.example.demo.domain.notification.service.NotificationService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,11 +27,7 @@ public class NotificationController {
     public ResponseEntity<List<NotificationResponseDto>> getNotifications(
             @AuthenticationPrincipal PrincipalDetails principalDetails){
 
-//        Long userId = principalDetails.getUser().getUserId();
-//
-//        List<NotificationResponseDto> notifications = notificationService.getNotifications(userId);
-//
-//        return ResponseEntity.ok(notifications);
+
 //       보안체크
         if (principalDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -39,13 +36,11 @@ public class NotificationController {
         // 로그인된 유저의 실제 Id 추출
         Long userId = principalDetails.getUser().getUserId();
 
-        System.out.println("로그인 정보가 없어 임시로 1번 유저 데이터를 사용합니다.");
+        System.out.println("로그인 유저 확인됨:"+ userId);
 
         // 해당 유저의 알림 목록 조회
         List<NotificationResponseDto> notifications = notificationService.getNotifications(userId);
-
         return ResponseEntity.ok(notifications);
-
 
     }
 
@@ -62,6 +57,20 @@ public class NotificationController {
         notificationService.deleteNotification(notificationId);
         return ResponseEntity.noContent().build();
 
+    }
+    //안 읽은 알림 갯수
+    @GetMapping("/unread-count")
+    public ResponseEntity<Long> getUnreadCount(
+            @AuthenticationPrincipal PrincipalDetails principalDetails){
+
+        //보안 체크: 인증되지 않은 사용자는 0개반환
+        if(principalDetails == null){
+            return ResponseEntity.ok(0L);
+        }
+        Long userId = principalDetails.getUser().getUserId();
+        Long count = notificationService.getUnreadCount(userId);
+
+        return ResponseEntity.ok(count);
     }
 
 }
