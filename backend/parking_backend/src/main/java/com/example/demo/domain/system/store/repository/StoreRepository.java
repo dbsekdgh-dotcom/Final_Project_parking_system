@@ -2,6 +2,8 @@ package com.example.demo.domain.system.store.repository;
 
 import com.example.demo.domain.system.store.Store;
 import com.example.demo.domain.system.store.enums.Status;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,10 +16,19 @@ public interface StoreRepository extends JpaRepository<Store,Long> {
     List<Store> findAdminStoreByKeyword(@Param("keyword") String keyword, @Param("status")Status status);
 
     // KIOSK STORE
-    Optional<Store> findByStoreIdAndTerminalPassword(Long storeId, String terminalPassword);
-    Optional<Store> findByStoreIdAndStatus(Long storeId, Status status);
-
     Optional<Store> findByStoreId(Long storeId);
 
     Optional<Store> findByTerminalPassword(String terminalPassword);
+
+    // ADMIN STORE
+    @Query("""
+    SELECT s FROM Store s
+    WHERE (:keyword IS NULL OR s.name LIKE %:keyword%)
+        AND (:status IS NULL OR s.status = :status)
+            ORDER BY s.storeId ASC 
+    """)
+    Page<Store>findAllWithFilters(@Param("keyword")String keyword,
+                                  @Param("status") Status status,
+                                  Pageable pageable);
+
 }

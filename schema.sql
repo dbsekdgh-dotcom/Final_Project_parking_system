@@ -381,7 +381,7 @@ CONSTRAINT fk_rep_admin FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
 CREATE TABLE admin_action_log (
 action_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '로그 고유 번호',
 admin_id BIGINT NOT NULL COMMENT '행위를 수행한 관리자 ID',
-target_type ENUM('USER', 'VEHICLE', 'PAYMENT', 'POLICY', 'RESERVATION','SYSTEM_SETTING','STORE','PARKING_LOG') NOT NULL COMMENT '대상 도메인 (유저, 차량, 결제, 정책, 예약, 시스템설정)',
+target_type ENUM('USER', 'VEHICLE', 'PAYMENT', 'POLICY', 'RESERVATION','SYSTEM_SETTING','STORE','PARKING_LOG','REPORT','RESERVATION_POLICY') NOT NULL COMMENT '대상 도메인 (유저, 차량, 결제, 정책, 예약, 시스템설정)',
 action_type ENUM('CREATE', 'UPDATE', 'DELETE', 'APPROVE', 'REJECT', 'REFUND', 'REPORT', 'BLACKLIST') NOT NULL COMMENT '수행 작업 유형',
 target_id BIGINT,
 before_data JSON NOT NULL,
@@ -488,7 +488,7 @@ activity_type ENUM(
 'RESERVATION_CANCELLED',
 
 'VEHICLE_REGISTERED',   -- 차량 등록
-’RESIDENT_REGISTERED’, — 입주민 등록
+'RESIDENT_REGISTERED’, — 입주민 등록
 'PASS_PURCHASED',       -- 정기권 구매
 
 'COUPON_PURCHASED',     -- 상가 할인권 구매

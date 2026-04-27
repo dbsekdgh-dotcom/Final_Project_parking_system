@@ -44,3 +44,15 @@ export const searchPolicyHistory=async()=>{
     console.log("요금정책이력==>",res.data)
     return res.data
 }
+//현금흐름 자료 불러오기
+export const getStats=async(payload)=>{
+    const res=await adminApi.get(`/stats`,{params:payload})
+    console.log("현금흐름자료==> ",res.data)
+    return res.data
+}
+//매출 분석 자료 불러오기
+export const getAnalysis=async(payload)=>{
+    const res=await adminApi.get(`/stats/analysis`,{params:payload})
+    console.log("매출 분석 자료==>",res.data)
+    return res.data
+}

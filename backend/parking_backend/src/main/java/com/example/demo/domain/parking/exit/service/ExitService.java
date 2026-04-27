@@ -32,6 +32,7 @@ public class ExitService {
     private final ActivityLogRepository activityLogRepository;
     private final UserPointRepository userPointRepository;
     private final FreeExitExpirationService freeExitExpirationService;
+    private final FreeExitRedisService freeExitRedisService;
     private final ReservationRepository reservationRepository;
 
     //출차 대기
@@ -85,6 +86,7 @@ public class ExitService {
         parkingLog.setParkingStatus(ParkingStatus.EXITED);
         parkingLog.setExitedAt(LocalDateTime.now());
         parkingLogRepository.save(parkingLog);
+        freeExitRedisService.delete(parkingLogId);
         Household household=(parkingLog.getVehicle()!=null&&parkingLog.getVehicle().getUser()!=null)
                 ? parkingLog.getVehicle().getUser().getHousehold() : null;
         activityLogRepository.save(ActivityLog.ofExit(parkingLog,household));

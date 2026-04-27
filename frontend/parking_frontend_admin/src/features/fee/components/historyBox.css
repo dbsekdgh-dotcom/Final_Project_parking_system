@@ -73,3 +73,32 @@
     text-overflow: ellipsis; /* 글자가 너무 길면 ... 처리 */
     white-space: nowrap;    /* 아까 설정한 줄바꿈 방지 유지 */
 }
+/* 날짜 조회 컨트롤 영역 */
+.date {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.date input[type='date'] {
+    background-color: #4d4d4d;
+    border: 1px solid #666;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 6px;
+    outline: none;
+}
+
+.date button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 6px 18px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.date button:hover {
+    background-color: #1d4ed8;
+}
