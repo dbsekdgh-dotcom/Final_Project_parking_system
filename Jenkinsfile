@@ -109,7 +109,8 @@ pipeline {
                                 aws ssm wait command-executed \
                                     --command-id ${cmdId} \
                                     --instance-id ${SERVER_2_ID} \
-                                    --region ${AWS_REGION}
+                                    --region ${AWS_REGION} \
+                                    --cli-read-timeout 600
                             """
                         }
                     }
@@ -184,7 +185,8 @@ pipeline {
                                 aws ssm wait command-executed \
                                     --command-id ${cmdId} \
                                     --instance-id ${SERVER_1_ID} \
-                                    --region ${AWS_REGION}
+                                    --region ${AWS_REGION} \
+                                    --cli-read-timeout 600
                             """
                         }
                     }
