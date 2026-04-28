@@ -159,6 +159,14 @@ pipeline {
         
         stage('Deploy to Server 1') {
             steps {
+                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                    sh """
+                        aws elbv2 register-targets \
+                            --target-group-arn ${TG_ARN} \
+                            --targets Id=${SERVER_1_ID} \
+                            --region ${AWS_REGION}
+                    """
+                }
                 withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         script {
@@ -226,7 +234,15 @@ pipeline {
             echo '배포 성공!'
         }
         failure {
-            echo '배포 실패!'
+            withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+            sh """
+                aws elbv2 register-targets \
+                    --target-group-arn ${TG_ARN} \
+                    --targets Id=${SERVER_1_ID} \
+                    --region ${AWS_REGION}
+            """
+            }
+            echo '배포 실패! Server 1을 대상 그룹에 복구했습니다.'
         }
     }
 }
