@@ -230,6 +230,9 @@ pipeline {
     }
     
     post {
+        always {
+            sh 'docker system prune -f'
+        }
         success {
             echo '배포 성공!'
         }
