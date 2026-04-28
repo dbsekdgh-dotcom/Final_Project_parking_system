@@ -89,11 +89,9 @@ export default function SubscriptionPage() {
                     }}
                 />
 
-                {history.length > 0 && (
-                    <div className="sub-page__full-width">
-                        <SubscriptionHistoryCard history={history} />
-                    </div>
-                )}
+                <div className="sub-page__full-width">
+                    <SubscriptionHistoryCard history={history} />
+                </div>
             </div>
 
             {modalOpen && (
