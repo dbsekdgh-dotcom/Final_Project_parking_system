@@ -2,6 +2,9 @@
   .arp__status-badge--active    { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
   .arp__status-badge--active::before    { background:#16a34a; }
 
+  .arp__status-badge--released  { background:#f9fafb; color:#6b7280; border:1px solid #d1d5db; }
+  .arp__status-badge--released::before  { background:#6b7280; }
+
   .arp__status-badge--deleted   { background:#f9fafb; color:#6b7280; border:1px solid #d1d5db; }
   .arp__status-badge--deleted::before   { background:#6b7280; }
 

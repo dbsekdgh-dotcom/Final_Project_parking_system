@@ -42,4 +42,9 @@ public class NotificationService {
         notification.markDeleted();
     }
 
+    @Transactional(readOnly = true)
+    public Long getUnreadCount(Long userId){
+        return notificationRepository.countUnreadNotifications(userId);
+    }
+
 }

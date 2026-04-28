@@ -1,3 +1,4 @@
+import React, {useState} from 'react'
 import { NavLink } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import './sidebar-css.css'
@@ -6,6 +7,10 @@ import LogoutButton from '../../../features/auth/components/LogoutButton'
 // [추가] 회원 탈퇴 버튼 임포트 (auth/components 폴더 내 위치)
 import WithdrawButton from '../../../features/auth/components/WithdrawButton'
 import { fetchUserStatus } from '../../../features/apply/api/applyApi'
+import Noti from "../../../features/notification/Notification";
+import { fetchUnreadCount } from '../../../features/notification/api/notificationApi'; 
+import api from '../../../features/auth/api/axios';
+
 
 const navItems = [
   { to: '/dashboard', label: '홈', end: true, icon: HomeIcon },
@@ -22,10 +27,28 @@ const BADGE_CONFIG = {
 };
 
 export function Sidebar() {
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
+  //유저 상태 정보
   const { data: statusData } = useQuery({
     queryKey: ["userStatus"],
     queryFn: fetchUserStatus,
   });
+
+  //안 읽은 알림 갯수 쿼리
+  const { data: unreadCount = 0, refetch: refetchCount } = useQuery({
+    queryKey: ["unreadNotificationCount"],
+    queryFn: async () =>{
+      const response = await api.get('/api/user/notifications/unread-count');
+      return response.data;
+    },
+    refetchOnWindowFocus: true,
+  });
+
+  const handleBellClick =(e) => {
+    e.stopPropagation();
+    setIsNotiOpen(!isNotiOpen);
+  }
+
 
   // 쿼리 데이터 우선, 없으면 localStorage 폴백 (로그인 직후 캐시 없을 때)
   const memberStatus = statusData?.userStatus ?? localStorage.getItem("userStatus") ?? "NONE";
@@ -36,9 +59,38 @@ export function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar__brand">
-        <CarIcon className="sidebar__brand-icon" />
-        <span className="sidebar__brand-title">Smart Parking</span>
+     <div className="sidebar__brand" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <CarIcon className="sidebar__brand-icon" />
+          <span className="sidebar__brand-title">Smart Parking</span>
+        </div>
+
+        {/* 🔔 [추가] 알림 버튼 위치 */}
+        <div style={{ position: 'relative', marginRight: '10px' }}>
+          <button 
+            onClick={(e) => { e.stopPropagation(); setIsNotiOpen(!isNotiOpen)}}
+            className="sidebar__noti-btn" >
+            🔔
+            {unreadCount > 0 && (
+              <span className="sidebar__noti-badge">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+        </button>
+          
+          {/* 알림창: 사이드바 옆으로 튀어나오게 설정 */}
+          {isNotiOpen && (
+          <div 
+            style={{ position: 'absolute', left: '100%', top: '0', marginLeft: '10px', zIndex: 999 }}
+            onClick={(e) => e.stopPropagation()} // 👈 알림창 내부 클릭 시에도 닫히지 않게 보호!
+          >
+            <Noti 
+              onMutationSuccess={refetchCount} 
+              onClose={() => setIsNotiOpen(false)} 
+            />
+         </div>
+          )}
+        </div>
       </div>
 
       <div className="sidebar__user">

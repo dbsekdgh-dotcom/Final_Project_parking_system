@@ -63,10 +63,5 @@ public class Notification {
     //현재 읽지 않은 활성 알림인지 확인
     public boolean isUnread(){
         return this.readAt == null && this.status == Status.ACTIVE;
-
-
-
     }
-
-
 }

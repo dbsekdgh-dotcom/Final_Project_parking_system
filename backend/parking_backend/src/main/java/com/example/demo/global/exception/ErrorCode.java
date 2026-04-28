@@ -191,7 +191,12 @@ public enum ErrorCode {
     CANNOT_BLOCK_OCCUPIED_SPACE(HttpStatus.BAD_REQUEST,"현재 차량이 주차중인 공간은 차단할 수 없습니다."),
 
     //할인권 정책
-    POLICY_IN_USE(HttpStatus.BAD_REQUEST,"상가에서 사용 중인 정책이므로 삭제할 수 없습니다.");
+    POLICY_IN_USE(HttpStatus.BAD_REQUEST,"상가에서 사용 중인 정책이므로 삭제할 수 없습니다."),
+
+    // BLACKLIST
+    BLACKLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "블랙리스트 내역을 찾을 수 없습니다."),
+    BLACKLIST_ALREADY_ACTIVE(HttpStatus.CONFLICT, "이미 차단 중인 차량입니다."),
+    BLACKLIST_ALREADY_RELEASED(HttpStatus.CONFLICT, "이미 해제된 블랙리스트입니다.");
 
     private final HttpStatus status;
     private final String message;
