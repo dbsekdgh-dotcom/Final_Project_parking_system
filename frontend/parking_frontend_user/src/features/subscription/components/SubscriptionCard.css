@@ -10,13 +10,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    padding: 32px 24px;
+    gap: 6px;
+    padding: 40px 24px;
+}
+
+.sub-card__empty-icon {
+    font-size: 36px;
+    opacity: 0.45;
+    margin-bottom: 4px;
 }
 
 .sub-card__empty-text {
-    color: #888;
+    color: #32324d;
     font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.sub-card__empty-sub {
+    color: #9e9eb8;
+    font-size: 0.82rem;
     margin: 0;
 }
 

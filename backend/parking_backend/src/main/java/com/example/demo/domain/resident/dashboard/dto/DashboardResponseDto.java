@@ -15,7 +15,7 @@ public class DashboardResponseDto {
     private String myCarNumber;
     private String myCarLocation;
     private String parkingDuration;
-    private long subscriptionDDay;
+    private Long subscriptionDDay; // null = 활성 정기권 없음
 
     //층별 상세 현황
     private FloorDetail b1Detail;

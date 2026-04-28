@@ -10,13 +10,61 @@ const typeColor = {
   예약: "#FFC107",
 };
 
+const QUICK_MENUS = [
+  {
+    label: "정기권",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+        <path d="M13 5v2" /><path d="M13 17v2" /><path d="M13 11v2" />
+      </svg>
+    ),
+  },
+  {
+    label: "방문 예약",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+    ),
+  },
+  {
+    label: "마이페이지",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    ),
+  },
+  {
+    label: "민원신고",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+        <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+  },
+];
+
+const CACHE_KEY = "dashboardCache_p0";
+
+const loadingToast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 2000,
+  timerProgressBar: true,
+});
+
 const DashBoard = () => {
-  //상태 관리 (데이터, 로딩)
-  const[data,setData]= useState(null);
-  const[loading, setLoading]= useState(true);
+  const cached = sessionStorage.getItem(CACHE_KEY);
+  const[data,setData]= useState(cached ? JSON.parse(cached) : null);
   const[page, setPage] = useState(0);
   const navigate = useNavigate();
-  
+
   const getStatusConfig = (status) => {
   if (!status) return { label: "기", color: "#ccc" };
   
@@ -35,7 +83,6 @@ const DashBoard = () => {
   useEffect(() => {
     //로그인 성공 메시지
     const name = sessionStorage.getItem("loginSuccess");
-
     if(name){
       sessionStorage.removeItem("loginSuccess");
       Swal.fire({
@@ -47,28 +94,22 @@ const DashBoard = () => {
       });
     }
 
-    //백엔드 데이터 호출
-    const fetchDashboard = async () =>{
-       const currentUserId = localStorage.getItem("userId");
+    //캐시 없을 때만 토스트 표시
+    const isFirstLoad = page === 0 && !sessionStorage.getItem(CACHE_KEY);
+    if (isFirstLoad) {
+      loadingToast.fire({ icon: "info", title: "데이터를 불러오는 중..." });
+    }
 
-        if(!currentUserId){
-          console.error("세션에 userId가 없네요");
-          setLoading(false);
-          return;
-        }
-
-        try{
-        const response = await api.get(
-          `/api/user/dashboard?userId=${currentUserId}&page=${page}`);
+    const fetchDashboard = async () => {
+      try {
+        const response = await api.get(`/api/user/dashboard?page=${page}`);
         setData(response.data);
-
-      }catch (error){
+        if (page === 0) sessionStorage.setItem(CACHE_KEY, JSON.stringify(response.data));
+      } catch (error) {
         console.error("데이터 로드 실패:", error);
-      }finally{
-        setLoading(false);
       }
     };
- 
+
     fetchDashboard();
   },[page]);
 
@@ -80,9 +121,7 @@ const DashBoard = () => {
       else if (menu === "민원신고") navigate("/report");
     };
 
-  // 로딩 처리
-    if (loading) return <div className="loading">데이터를 불러오는 중...</div>;
-    if (!data) return <div className="error">데이터를 표시할 수 없습니다.</div>;
+  if (!data) return null;
 
     return (
       <div className="dashboard">
@@ -93,12 +132,17 @@ const DashBoard = () => {
               <div className="floor-name">{floor.floorName}</div>
               <div className="floor-type">{floor.description}</div>
               <div className="floor-availability">
-                <span className="available">{floor.available}</span> / {floor.total} 
+                <span className="available">{floor.total - floor.available}</span> / {floor.total}
               </div>
               <div className="progress-bar">
                 <div
                   className="progress"
-                  style={{ width: `${floor.occupancyRate}%` }} //점유율반영
+                  style={{
+                    width: `${floor.occupancyRate}%`,
+                    background: floor.occupancyRate >= 80 ? "#f44336"
+                              : floor.occupancyRate >= 50 ? "#ff9800"
+                              : "#4caf50",
+                  }}
                 ></div>
               </div>
             </div>
@@ -107,9 +151,10 @@ const DashBoard = () => {
 
       {/* 빠른 메뉴 */}
       <div className="quick-menu">
-        {["정기권", "방문 예약", "마이페이지", "민원신고"].map((item) => (
-          <div key={item} className="menu-item" onClick={() =>handleMenuClick(item)} style={{cursor: 'pointer'}} >
-            {item}
+        {QUICK_MENUS.map(({ label, icon }) => (
+          <div key={label} className="menu-item" onClick={() => handleMenuClick(label)}>
+            <span className="menu-item__icon">{icon}</span>
+            <span className="menu-item__label">{label}</span>
           </div>
         ))}
       </div>
@@ -128,7 +173,9 @@ const DashBoard = () => {
           {/* 2. 중앙 차량 정보 */}
           <div className="status-card center">
             <div className="car-plate">{data.myCarNumber}</div>
-            <div className="status-title">현재 주차 중</div>
+            <div className="status-title">
+              {data.myCarLocation !== "주차 정보 없음" ? "현재 주차 중" : "현재 미주차"}
+            </div>
             <div className="status-detail">
               {data.myCarLocation} · {data.parkingDuration}
             </div>
@@ -137,8 +184,12 @@ const DashBoard = () => {
           {/* 3. 정기권 */}
           <div className="status-card">
             <div className="status-icon">🛡️</div>
-            <div className="status-value">D-{data.subscriptionDDay}</div>
-            <div className="status-label">정기권 만료</div>
+            <div className="status-value">
+              {data.subscriptionDDay != null ? `D-${data.subscriptionDDay}` : "없음"}
+            </div>
+            <div className="status-label">
+              {data.subscriptionDDay != null ? "정기권 만료" : "정기권 없음"}
+            </div>
           </div>
         </div>
       </div>
@@ -147,64 +198,61 @@ const DashBoard = () => {
           <div className="recent-logs">
             <div className="logs-header">
               <h3>최근 입출차 내역</h3>
-              <span className="live-badge">● 실시간</span>
             </div>
 
             {data.recentLogs && data.recentLogs.content && data.recentLogs.content.length > 0 ? (
               data.recentLogs.content.map((log) => {
-              const config = getStatusConfig(log.status);
-
+                const config = getStatusConfig(log.status);
                 return (
                   <div key={log.parkingLogId || log.createdAt} className="log-item">
                     <div className="log-left-section">
-                      {/* 왼쪽 동그라미 아이콘 */}
-                      <div
-                        className="log-icon"
-                        style={{ backgroundColor: config.color }}
-                      >
+                      <div className="log-icon" style={{ backgroundColor: config.color }}>
                         {config.label}
                       </div>
-
                       <div className="log-info">
                         <div className="log-car-number">{log.carNumber || "번호 없음"}</div>
                         <div className="log-sub-info">
-                          {/* location 대신 message, timeAgo 대신 createdAt 사용 */}
                           {log.message || log.location} / {log.createdAt ? new Date(log.createdAt).toLocaleString() : "시간 정보 없음"}
                         </div>
                       </div>
                     </div>
-
-                    <div
-                      className="log-status-text"
-                      style={{ color: typeColor[log.status] }}
-                    >
+                    <div className="log-status-text" style={{ color: typeColor[log.status] }}>
                       {log.status}
                     </div>
                   </div>
                 );
               })
             ) : (
-              /* 데이터가 없을 때 표시될 문구 */
-              <div className="no-data" style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                표시할 입출차 내역이 없습니다. (총 {data.recentLogs?.totalElements || 0}건)
+              <div className="dash-no-data">
+                <div className="dash-no-data__icon">🚗</div>
+                <p className="dash-no-data__text">입출차 내역이 없습니다.</p>
+                <p className="dash-no-data__sub">입출차 기록이 여기에 표시됩니다.</p>
               </div>
             )}
 
-          <div className="pagination-controlls" style={{display: 'flex',justifyContent: 'center', gap: '20px', marginTop: '20px'}}>
-            <button onClick={() => setPage(prev =>Math.max(0, prev -1 ))}
-            disabled={data.recentLogs.first} style={{cursor: data.recentLogs.first ? 'default' : 'pointer'}}>
-              이전
-            </button>
+          {data.recentLogs.totalPages > 1 && (
+            <div className="dash-pagination">
+              <button
+                className="dash-page-btn"
+                onClick={() => setPage(prev => Math.max(0, prev - 1))}
+                disabled={data.recentLogs.first}
+              >이전</button>
 
-            <span style={{ fontWeight: 'bold'}}>
-              {data.recentLogs.totalElements === 0 ?0 : page +1} / {data.recentLogs.totalPages || 0}
-            </span>
+              {Array.from({ length: data.recentLogs.totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  className={`dash-page-btn${i === page ? " dash-page-btn--active" : ""}`}
+                  onClick={() => setPage(i)}
+                >{i + 1}</button>
+              ))}
 
-            <button onClick={()=> setPage(page +1)}
-            disabled={data.recentLogs.last} style={{cursor: data.recentLogs.last ? 'default' : 'pointer'}}>
-              다음
-            </button>
-          </div>
+              <button
+                className="dash-page-btn"
+                onClick={() => setPage(prev => Math.min(data.recentLogs.totalPages - 1, prev + 1))}
+                disabled={data.recentLogs.last}
+              >다음</button>
+            </div>
+          )}
         </div>
       </div>
     );
