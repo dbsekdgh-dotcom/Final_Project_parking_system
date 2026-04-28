@@ -128,6 +128,7 @@ public class UserAuthSocialController {
 
         return ResponseEntity.ok(Map.of(
                 "message", "계정이 복구되어 로그인되었습니다.",
+                "userId", user.getUserId(),
                 "email", user.getEmail(),
                 "name", user.getName()
         ));

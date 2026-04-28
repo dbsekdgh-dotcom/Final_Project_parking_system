@@ -515,11 +515,18 @@ export const handleSocialRecover = async (data, onComplete) => {
         try {
             const res = await api.post("/api/user/auth/social-recover", data);
             // 토큰은 HttpOnly 쿠키로 자동 저장, UI 데이터만 localStorage에 저장
+            if (res.data.userId) localStorage.setItem("userId", String(res.data.userId));
             localStorage.setItem("userName", res.data.name || "");
             localStorage.setItem("userEmail", res.data.email || "");
             sessionStorage.setItem("sessionActive", "true");
 
-            await Swal.fire({ icon: 'success', title: '복구 완료!', timer: 1500, showConfirmButton: false });
+            await Swal.fire({
+                icon: 'success',
+                title: '복구 완료!',
+                text: '계정이 복구되었습니다. 대시보드로 이동합니다.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#3085d6'
+            });
             window.location.href = "/dashboard";
         } catch (error) {
             Swal.fire('실패', error.response?.data?.message || '복구 중 오류 발생', 'error');

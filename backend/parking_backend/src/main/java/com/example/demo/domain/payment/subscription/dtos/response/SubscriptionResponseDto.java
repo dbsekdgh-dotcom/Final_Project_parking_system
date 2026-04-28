@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @Builder
@@ -17,15 +18,23 @@ public class SubscriptionResponseDto {
     private Status status;
     private int price;
     private int earnedPoint;
-    private int paidAmount;        // 현금 결제분
-    private int usedPoint;         // 포인트 결제분
-    private LocalDateTime createdAt;    // 결제일
-    private LocalDateTime cancelledAt;  // 환불일 (REFUNDED) / 취소일 (CANCELLED)
+    private int paidAmount;
+    private int usedPoint;
+    private int remainingDays;
+    private LocalDateTime createdAt;
+    private LocalDateTime cancelledAt;
 
     public static SubscriptionResponseDto from(Subscription subscription, int earnedPoint) {
         int paid = subscription.getPayment() != null
                 ? subscription.getPayment().getAmount().intValue() : 0;
         int used = subscription.getPrice() - paid;
+
+        int remainingDays = 0;
+        if (subscription.getStatus() == Status.ACTIVE && subscription.getEndDate() != null) {
+            long days = ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getEndDate());
+            remainingDays = (int) Math.max(0, days);
+        }
+
         return SubscriptionResponseDto.builder()
                 .subscriptionId(subscription.getSubscriptionId())
                 .carNumber(subscription.getVehicle().getCarNumber())
@@ -36,6 +45,7 @@ public class SubscriptionResponseDto {
                 .earnedPoint(earnedPoint)
                 .paidAmount(paid)
                 .usedPoint(used)
+                .remainingDays(remainingDays)
                 .createdAt(subscription.getCreatedAt())
                 .cancelledAt(subscription.getCancelledAt())
                 .build();

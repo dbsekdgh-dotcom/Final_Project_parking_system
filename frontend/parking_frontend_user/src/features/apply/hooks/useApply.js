@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
-import { fetchUnitStatus, applyResident, cancelResidentApply } from '../api/applyApi';
+import { fetchUnitStatus, applyResident, cancelResidentApply, leaveResident } from '../api/applyApi';
 
 export const useUnitStatus = () => {
     return useQuery({
@@ -61,6 +61,32 @@ export const useCancelApply = () => {
                 icon: 'error',
                 title: '취소 실패',
                 text: error.response?.data?.message || '취소 중 오류가 발생했습니다.',
+            });
+        },
+    });
+};
+
+export const useLeaveResident = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: leaveResident,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['userStatus'] });
+            queryClient.invalidateQueries({ queryKey: ['unitStatus'] });
+            queryClient.invalidateQueries({ queryKey: ['myInfo'] });
+            Swal.fire({
+                icon: 'success',
+                title: '퇴거 완료',
+                text: '세대에서 퇴거 처리되었습니다.',
+                confirmButtonColor: '#3085d6',
+            });
+        },
+        onError: (error) => {
+            Swal.fire({
+                icon: 'error',
+                title: '퇴거 실패',
+                text: error.response?.data?.message || '퇴거 처리 중 오류가 발생했습니다.',
             });
         },
     });

@@ -2,6 +2,7 @@ package com.example.demo.domain.payment.ticketpolicy.dtos.request;
 
 import com.example.demo.domain.payment.ticketpolicy.enums.DiscountType;
 import com.example.demo.domain.payment.ticketpolicy.enums.UseType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,5 +20,6 @@ public class TicketPolicyInsertRequestDto {
     private int validMinutes;
     private int validDays;
     private boolean stackable;
+    @JsonProperty("isFreeTicket")
     private boolean isFreeTicket;
 }

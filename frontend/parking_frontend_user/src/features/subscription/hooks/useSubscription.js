@@ -1,101 +1,62 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-    getMySubscription,
-    getSubscriptionHistory,
-    getSubscriptionPolicy,
-    readySubscription,
-    confirmSubscription,
-    refundSubscription,
-} from '../api/subscriptionApi';
+import { getMyPointForSubscription, getSubscriptionPolicy, getMySubscriptions, purchaseSubscription, cancelSubscription } from '../api/subscriptionApi';
 import Swal from 'sweetalert2';
 
-// 1. 현재 활성 정기권 조회
-export const useMySubscription = () => {
+export const useMyPoint = () => {
     return useQuery({
-        queryKey: ['mySubscription'],
-        queryFn: getMySubscription,
+        queryKey: ['subscriptionMyPoint'],
+        queryFn: getMyPointForSubscription,
     });
 };
 
-// 2. 정기권 구매 이력 조회
-export const useSubscriptionHistory = () => {
+export const useSubscriptionPolicy = (startDate = null) => {
     return useQuery({
-        queryKey: ['subscriptionHistory'],
-        queryFn: getSubscriptionHistory,
-    });
-};
-
-// 3. 정기권 정책 조회 (가격, 이용기간, 잔여 슬롯) - startDate 선택 시 호출
-// startDate: "2025-05-01T00:00:00" 형식
-export const useSubscriptionPolicy = (startDate) => {
-    return useQuery({
-        queryKey: ['subscriptionPolicy', startDate],
+        queryKey: ['subscriptionPolicy', startDate?.toISOString()],
         queryFn: () => getSubscriptionPolicy(startDate),
         enabled: !!startDate,
-        staleTime: 1000 * 60, // 1분간 캐시 유지
     });
 };
 
-// 5. 정기권 구매 준비 (orderId, amount, 기간 반환)
-export const useReadySubscription = () => {
-    return useMutation({
-        mutationFn: readySubscription,
-        onError: (error) => {
-            Swal.fire({
-                icon: 'error',
-                title: '구매 준비 실패',
-                text: error.response?.data?.message || '정기권 구매 준비 중 오류가 발생했습니다.',
-                confirmButtonColor: '#d33',
-            });
-        },
+export const useMySubscriptions = () => {
+    return useQuery({
+        queryKey: ['subscriptions'],
+        queryFn: getMySubscriptions,
     });
 };
 
-// 6. 정기권 결제 확정 (토스 승인 후 호출)
-export const useConfirmSubscription = () => {
+export const usePurchaseSubscription = () => {
     const queryClient = useQueryClient();
-
     return useMutation({
-        mutationFn: confirmSubscription,
+        mutationFn: purchaseSubscription,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['mySubscription'] });
-            queryClient.invalidateQueries({ queryKey: ['subscriptionHistory'] });
-
-            Swal.fire({
-                icon: 'success',
-                title: '정기권 발급 완료',
-                text: '정기권이 정상적으로 발급되었습니다.',
-                confirmButtonColor: '#3085d6',
-            });
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscriptionMyPoint'] });
         },
         onError: (error) => {
             Swal.fire({
                 icon: 'error',
-                title: '결제 확정 실패',
-                text: error.response?.data?.message || '결제 확정 중 오류가 발생했습니다.',
+                title: '구매 실패',
+                text: error.response?.data?.message || '정기권 구매 중 오류가 발생했습니다.',
                 confirmButtonColor: '#d33',
             });
         },
     });
 };
 
-// 7. 정기권 환불
-export const useRefundSubscription = () => {
+export const useCancelSubscription = () => {
     const queryClient = useQueryClient();
-
     return useMutation({
-        mutationFn: refundSubscription,
+        mutationFn: cancelSubscription,
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ['mySubscription'] });
-            queryClient.invalidateQueries({ queryKey: ['subscriptionHistory'] });
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
             queryClient.invalidateQueries({ queryKey: ['subscriptionMyPoint'] });
 
-            const lines = [`현금 환불: ${(data?.cashRefundAmount ?? 0).toLocaleString()}원`];
-            if (data?.pointRefundAmount > 0)
+            const lines = [`현금 환불: ${data.cashRefundAmount.toLocaleString()}원`];
+            if (data.pointRefundAmount > 0)
                 lines.push(`포인트 반환: ${data.pointRefundAmount.toLocaleString()}P`);
-            if (data?.revokedPoint > 0)
+            if (data.revokedPoint > 0)
                 lines.push(`적립 포인트 회수: ${data.revokedPoint.toLocaleString()}P`);
-            if (data?.pointDeductedAsCash > 0)
+            if (data.pointDeductedAsCash > 0)
                 lines.push(`포인트 잔고 부족으로 ${data.pointDeductedAsCash.toLocaleString()}원 추가 공제`);
 
             Swal.fire({

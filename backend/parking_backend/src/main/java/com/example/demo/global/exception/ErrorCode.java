@@ -105,6 +105,7 @@ public enum ErrorCode {
     WITHDRAW_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
     WITHDRAW_BLOCKED_ACTIVE_SUBSCRIPTION(HttpStatus.CONFLICT, "활성 정기권이 있어 탈퇴할 수 없습니다. 정기권 해지 후 다시 시도해 주세요."),
     WITHDRAW_BLOCKED_VEHICLE_IN_PARKING(HttpStatus.CONFLICT, "현재 입차 중이거나 출차 대기 중인 차량이 있어 탈퇴할 수 없습니다. 출차 후 다시 시도해 주세요."),
+    CANNOT_LEAVE_VEHICLE_IN_PARKING(HttpStatus.CONFLICT, "현재 입차 중인 차량이 있습니다. 출차 완료 후 퇴거 신청이 가능합니다."),
     RESTORE_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "복구 인증 세션이 만료되었습니다."), // 복구 진행 중 단계가 끊겼을 때
     USER_SUSPENDED(HttpStatus.FORBIDDEN, "제재된 사용자입니다. 관리자에게 문의하세요."),
     // AUTH (계정 복구 관련 추가)
@@ -156,6 +157,7 @@ public enum ErrorCode {
     SYSTEM_RESERVATION_DISABLED(HttpStatus.FORBIDDEN, "현재 시스템 설정에 의해 방문 예약 서비스가 중단되었습니다."),
     RESERVATION_NOT_TODAY(HttpStatus.BAD_REQUEST, "방문 예약은 최소 방문일 하루 전까지 신청 가능합니다."),
     CANCEL_NOT_TODAY(HttpStatus.BAD_REQUEST, "방문 당일에는 예약을 취소할 수 없습니다."),
+    EDIT_NOT_TODAY(HttpStatus.BAD_REQUEST, "방문 당일에는 예약을 수정할 수 없습니다."),
     CANNOT_EDIT_RESERVATION(HttpStatus.BAD_REQUEST, "이미 승인되었거나 처리 중인 예약은 수정할 수 없습니다."),
     RESERVATION_CANNOT_EDIT_STATUS(HttpStatus.BAD_REQUEST, "대기(PENDING) 상태인 예약만 수정이 가능합니다."),
     RESERVATION_NOT_OWNER_EDIT(HttpStatus.FORBIDDEN, "본인의 예약만 수정할 수 있습니다."),

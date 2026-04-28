@@ -14,4 +14,6 @@ public interface TicketPolicyRepository extends JpaRepository<TicketPolicy,Long>
     //특정 status가 아닌 내역 조회
     List<TicketPolicy> findByStatusIsNot(Status status);
 
+    List<TicketPolicy> findByIsFreeTicketTrueAndStatusAndUseType(Status status, UseType useType);
+
 }

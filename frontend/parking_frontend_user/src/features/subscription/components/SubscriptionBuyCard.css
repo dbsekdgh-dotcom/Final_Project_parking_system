@@ -1,6 +1,6 @@
 .sub-buy-card {
-    background: linear-gradient(135deg, #eef3ff 0%, #dce8ff 100%);
-    border: 1px solid #c5d8ff;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
+    border: 1px solid #d9e4ff;
     border-radius: 16px;
     padding: 24px 20px;
     display: flex;
@@ -29,22 +29,23 @@
 }
 
 .sub-buy-card__remain strong {
-    color: #4f7af8;
+    color: #233b6e;
 }
 
 .sub-buy-card__btn {
     margin-top: 6px;
     padding: 10px 28px;
-    background: #4f7af8;
-    color: #fff;
+    background: #cfe0ff;
+    color: #233b6e;
     border: none;
     border-radius: 10px;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     width: 100%;
+    transition: filter 120ms;
 }
 
 .sub-buy-card__btn:hover {
-    background: #3a66e0;
+    filter: brightness(0.94);
 }

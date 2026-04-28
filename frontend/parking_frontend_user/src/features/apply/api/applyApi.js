@@ -16,3 +16,7 @@ export const fetchUserStatus = () =>
 // 입주민 신청 취소
 export const cancelResidentApply = (approvalId) =>
     api.patch(`/api/user/apply/resident/${approvalId}/cancel`).then(r => r.data);
+
+// 퇴거
+export const leaveResident = () =>
+    api.delete('/api/user/apply/resident').then(r => r.data);

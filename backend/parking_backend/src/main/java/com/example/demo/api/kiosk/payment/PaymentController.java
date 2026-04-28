@@ -26,7 +26,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
-@Tag(name = "01. 결제 (Payment)", description = "키오스크 사전 정산 관련 API — 차량 조회·요금 계산·결제 처리")
+@Tag(name = "1. 결제 (Payment)", description = "키오스크 사전 정산 관련 API — 차량 조회·요금 계산·결제 처리")
 public class PaymentController {
     private final ParkingLogService parkinglogService;
     private final PaymentFacade paymentFacade;
