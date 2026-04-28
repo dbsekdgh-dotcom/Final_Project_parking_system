@@ -105,13 +105,28 @@ pipeline {
                                     --output text
                             """, returnStdout: true).trim()
                             
-                            sh """
-                                aws ssm wait command-executed \
-                                    --command-id ${cmdId} \
-                                    --instance-id ${SERVER_2_ID} \
-                                    --region ${AWS_REGION} \
-                                    --cli-read-timeout 600
-                            """
+                            // 최대 20분 대기 (30초 간격으로 40번)
+                            def maxAttempts = 40
+                            def attempt = 0
+                            def status = 'InProgress'
+                            
+                            while (attempt < maxAttempts && status == 'InProgress') {
+                                sleep 30
+                                status = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_2_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'Status' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                echo "SSM 상태: ${status} (시도 ${attempt + 1}/${maxAttempts})"
+                                attempt++
+                            }
+                            
+                            if (status != 'Success') {
+                                error "SSM 명령 실패: ${status}"
+                            }
                         }
                     }
                 }
@@ -181,13 +196,28 @@ pipeline {
                                     --output text
                             """, returnStdout: true).trim()
                             
-                            sh """
-                                aws ssm wait command-executed \
-                                    --command-id ${cmdId} \
-                                    --instance-id ${SERVER_1_ID} \
-                                    --region ${AWS_REGION} \
-                                    --cli-read-timeout 600
-                            """
+                            // 최대 20분 대기 (30초 간격으로 40번)
+                            def maxAttempts = 40
+                            def attempt = 0
+                            def status = 'InProgress'
+                            
+                            while (attempt < maxAttempts && status == 'InProgress') {
+                                sleep 30
+                                status = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_1_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'Status' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                echo "SSM 상태: ${status} (시도 ${attempt + 1}/${maxAttempts})"
+                                attempt++
+                            }
+                            
+                            if (status != 'Success') {
+                                error "SSM 명령 실패: ${status}"
+                            }
                         }
                     }
                 }
