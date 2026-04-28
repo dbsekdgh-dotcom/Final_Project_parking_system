@@ -38,7 +38,7 @@ export function Sidebar() {
   const { data: unreadCount = 0, refetch: refetchCount } = useQuery({
     queryKey: ["unreadNotificationCount"],
     queryFn: async () =>{
-      const response = await api.get('/api/notifications/unread-count');
+      const response = await api.get('/api/user/notifications/unread-count');
       return response.data;
     },
     refetchOnWindowFocus: true,
