@@ -111,7 +111,7 @@ public class PaymentService {
         int prepaid=(prepaidFee>0)?prepaidFee:0;
 
         // 4. rawFee
-        String overTimeFee=systemSettingRepository.findBySettingKey(SettingKey.OVERTIME_MIN_FEE.name()).map(SystemSetting::getSettingValue).orElse(SettingKey.OVERTIME_MIN_FEE.name());
+        String overTimeFee=systemSettingRepository.findBySettingKey(SettingKey.OVERTIME_MIN_FEE.name()).map(SystemSetting::getSettingValue).orElse(SettingKey.OVERTIME_MIN_FEE.getDefaultValue());
         int rawFee=calculatedrawFee(billableTime,dailyMaxFee,unitMinutes,unitFee,baseFee);
         if(request.getFreeExitUntil()!=null && request.getFreeExitUntil().isBefore(LocalDateTime.now())){
             int minFee=Integer.parseInt(overTimeFee);
@@ -150,7 +150,7 @@ public class PaymentService {
             }
         }
 
-        // 7. 할인 가능한 금액
+        // 7.할인가능한 금액
         int currentBalance=timeDiscountedRawFee-prepaid;
 
         // 8. 할인권 (discount_type==free 인 경우)

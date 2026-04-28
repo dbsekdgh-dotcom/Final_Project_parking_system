@@ -101,3 +101,6 @@ temp/
 #QParkingLog.java 
 #####################################################
 /build/generated/
+
+docker-compose.local.yml
+.env.local

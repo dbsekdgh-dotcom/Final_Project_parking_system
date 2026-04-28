@@ -32,7 +32,6 @@ adminApi.interceptors.response.use(
         if(error.response?.status === 401 && !originalRequest._retry){
             originalRequest._retry = true; // 무한루프 방지용 플래그
             console.log("Access Token 만료 감지, 재발급 시도 중..");
-
             try{
                 // 백엔드의  /admin/refresh 호출 (재발급 API)
                 // 주의: 인스턴스(adminApi)가 아닌 생 axios를 써야 재귀 호출을 피함.
@@ -40,11 +39,9 @@ adminApi.interceptors.response.use(
                     withCredentials: true,
                     headers: {Authorization: `Bearer ${localStorage.getItem('accessToken')}`}
                 });
-
                 //새 토큰 저장
                 const {accessToken} = res.data;
                 localStorage.setItem('accessToken',accessToken);
-
                 //원래 요청에 새 토큰 갈아 끼우고 다시 쏘기
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 return axios(originalRequest);

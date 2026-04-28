@@ -151,9 +151,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 토큰을 HttpOnly 쿠키로 설정 (URL에서 제거)
         // maxAge 미설정 → 세션 쿠키 (브라우저 종료 시 자동 삭제)
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                .path("/").httpOnly(true).secure(false).sameSite("Lax").build();
+                .path("/").httpOnly(true).secure(true).sameSite("Lax").build();
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-                .path("/").httpOnly(true).secure(false).sameSite("Lax").build();
+                .path("/").httpOnly(true).secure(true).sameSite("Lax").build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
