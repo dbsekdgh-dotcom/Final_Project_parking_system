@@ -126,7 +126,7 @@ pipeline {
                             aws elbv2 describe-target-health \
                                 --target-group-arn ${TG_ARN} \
                                 --region ${AWS_REGION} \
-                                --query 'TargetHealthDescriptions[?Target.Id==\\"${SERVER_2_ID}\\"].TargetHealth.State' \
+                                --query "TargetHealthDescriptions[?Target.Id=='${SERVER_2_ID}'].TargetHealth.State" \
                                 --output text
                         """, returnStdout: true).trim()
                         
@@ -193,7 +193,7 @@ pipeline {
                             aws elbv2 describe-target-health \
                                 --target-group-arn ${TG_ARN} \
                                 --region ${AWS_REGION} \
-                                --query 'TargetHealthDescriptions[?Target.Id==\\"${SERVER_1_ID}\\"].TargetHealth.State' \
+                                --query "TargetHealthDescriptions[?Target.Id=='${SERVER_1_ID}'].TargetHealth.State" \
                                 --output text
                         """, returnStdout: true).trim()
                         
