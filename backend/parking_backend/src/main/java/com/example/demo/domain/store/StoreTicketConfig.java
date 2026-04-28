@@ -37,4 +37,9 @@ public class StoreTicketConfig {
     @Column(nullable = false)
     @Builder.Default
     private int monthlyQuota = 0;
+
+    public void update(TicketPolicy newPolicy, int newQuota){
+        this.ticketPolicy = newPolicy;
+        this.monthlyQuota = newQuota;
+    }
 }
