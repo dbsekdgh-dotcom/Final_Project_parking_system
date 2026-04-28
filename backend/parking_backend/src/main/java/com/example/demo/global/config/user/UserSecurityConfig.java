@@ -69,6 +69,7 @@ public class UserSecurityConfig {
                                 "/api/user/auth/local/verify-recover-code", "/api/user/auth/local/recover",
                                 "/api/user/auth/social-recover", "/api/user/ai/naver/**","/api/user/space/**").permitAll()
 
+                        .requestMatchers("/api/notofocations/**").authenticated()
                         .requestMatchers("/api/user/dashboard/**").authenticated()
                         .requestMatchers("/api/user/apply/**").authenticated()
                         .requestMatchers("/api/user/report/**").authenticated()
