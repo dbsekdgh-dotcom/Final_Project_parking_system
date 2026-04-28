@@ -1,0 +1,133 @@
+/*  알림창 전체  */
+.noti-dropdown {
+    position: absolute;
+    top: 45px;          
+    left: 50% !important;
+    transform: translateX(-50%);
+    width: 350px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid #eee;
+    z-index: 9999; /* 알림창 계층 */
+    overflow: hidden; /* 둥근 모서리 유지 */
+    display: flex;
+    flex-direction: column;
+}
+
+/*  헤더 (색상 포인트) */
+.noti-header {
+    background: #007AFF; /* 깔끔한 블루 */
+    padding: 12px 16px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/*  알림창 맨 아래 푸터 영역 */
+.noti-footer {
+    padding: 12px;
+    text-align: center;
+    /* 헤더와 어울리는 아주 연한 하늘색 배경 */
+    background-color: #f0f7ff; 
+    border-top: 1px solid #e0eefb;
+    /* 글자 스타일 */
+    font-size: 12px;
+    color: #007AFF; /* 글자색을 헤더의 파란색과 맞춤 */
+    font-weight: 600;
+    /* 둥근 모서리 유지 */
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+/* (선택사항) 푸터에 마우스를 올렸을 때 살짝 변하는 효과 */
+.noti-footer:hover {
+    background-color: #e5f1ff;
+    transition: background 0.2s;
+}
+
+/* 스크롤 영역 */
+.noti-list {
+    max-height: 400px !important;
+    overflow-y: auto !important;
+    padding: 0;
+    margin: 0;
+    background-color: white;
+    /* 리스트 마지막 아이템이 푸터와 너무 붙지 않게 */
+    border-bottom: none; 
+}
+
+/* 알림 아이템 */
+.noti-item {
+    display: flex !important;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.noti-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* 안 읽은 알림 강조 */
+.noti-item.unread {
+    background-color: #f0f7ff;
+    border-left: 4px solid #007aff;
+}
+
+.noti-message {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    white-space: normal; /* 글자 줄바꿈 허용 */
+    word-break: break-all;
+}
+
+/* 삭제 버튼 */
+.delete-noti-btn {
+    flex-shrink: 0;
+    margin-left: 10px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #ff4d4f;
+    background: #fff1f0;
+    border: 1px solid #ffccc7;
+    border-radius: 4px;
+}
+
+/* 상세 보기 모달 (알림창보다 무조건 위로!) */
+.noti-modal-overlay {
+    position: fixed; /* 화면 전체 고정 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001; /* 알림창(9999)보다 높아서 위로 뜸 */
+}
+
+.noti-modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* 스크롤바 디자인 */
+.noti-list::-webkit-scrollbar {
+    width: 5px;
+}
+.noti-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}

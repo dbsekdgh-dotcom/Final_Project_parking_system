@@ -21,4 +21,9 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
 
     //읽지 않은 알림이 몇 개인지 알려주는 기능
     long countByUser_UserIdAndReadAtIsNullAndStatus(Long userId, Status status);
+
+    //안 읽은 데이터만 카운트하는 기능
+    @Query("SELECT COUNT (n) FROM Notification n WHERE n.user.userId = :userId AND n.readAt IS NULL AND n.status = 'ACTIVE'")
+    Long countUnreadNotifications(@Param("userId")Long userId);
+
 }
