@@ -48,25 +48,18 @@ AdminSecurityConfig {
         log.info("----------- [Admin Security Configuration Loading] -----------");
 
         http.securityMatcher("/api/admin/**");
-
         // cors 설정 (리액트와 통신을 위해, 가장 선순위로 설정해줘야함)
         http.cors(cors->cors.configurationSource(corsConfigurationSource()));
-
         // 세션 및 csrf 비활성화
         http.csrf(csrf->csrf.disable());
         http.sessionManagement(sessionConfig ->{
             sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS); //세션 생성하지 않기
         });
-
         // 권한 설정 (인가)
         http.authorizeHttpRequests(auth -> auth
-                // 1. 강제 출차 API만 누구나 접근 가능하게 맨 위에 추가 (임시)
-//                .requestMatchers(HttpMethod.POST, "/admin/parking/logs/*/force-exit").permitAll()
-
                 // 최상단에 로그아웃을 가장 먼저 배치
                 .requestMatchers(HttpMethod.POST,"/api/admin/logout").permitAll()
                 .requestMatchers("/api/admin/login","/api/admin/refresh").permitAll() // 로그인 경로는 누구나 접근 가능
-
                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // 나머지 관리자 APT는 권한 필요
                 .anyRequest().permitAll()
         );
@@ -117,7 +110,11 @@ AdminSecurityConfig {
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5201",
                 "http://localhost:5202", //윤진추가 삭제예정
-                "http://localhost:5203"//윤진추가 삭제예정
+                "http://localhost:5203",//윤진추가 삭제예정
+                "https://admin.parking-system.store",
+                "https://user.parking-system.store",
+                "https://kiosk.parking-system.store",
+                "https://d38mwgr1ab20cw.cloudfront.net"
         ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"));

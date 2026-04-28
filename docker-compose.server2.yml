@@ -1,0 +1,29 @@
+services:
+  backend:
+    image: 079092240156.dkr.ecr.ap-northeast-2.amazonaws.com/parking-backend:latest
+    container_name: parking-backend
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    environment:
+      - AI_SERVER_URL=http://ai:8000
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=10.0.10.173
+      - REDIS_PORT=6379
+    depends_on:
+      - ai
+    restart: always
+  ai:
+    image: 079092240156.dkr.ecr.ap-northeast-2.amazonaws.com/parking-ai:latest
+    container_name: parking-ai
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=10.0.10.173
+      - REDIS_PORT=6379
+    restart: always

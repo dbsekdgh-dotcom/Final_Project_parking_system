@@ -86,7 +86,7 @@ public class AdminAuthController {
 
             ResponseCookie newCookie = ResponseCookie.from("refreshToken",newRefreshToken)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .maxAge(24*60*60)
                     .sameSite("Lax")
@@ -151,7 +151,7 @@ public class AdminAuthController {
         // 브라우저의 쿠키 무효화 (Max-Age를 0으로 설정) - ID유무과 상관없음
         ResponseCookie cookie = ResponseCookie.from("refreshToken","")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0) //즉시만료
                 .build();

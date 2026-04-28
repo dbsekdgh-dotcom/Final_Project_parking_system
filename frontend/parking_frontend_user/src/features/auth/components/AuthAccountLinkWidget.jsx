@@ -44,7 +44,7 @@ export default function AuthAccountLinkWidget({ metaText, badge }) {
   };
 
   const handleLinkSocial = (provider) => {
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/${provider}`;
+    window.location.href = `/oauth2/authorization/${provider}`;
   };
 
   return (
