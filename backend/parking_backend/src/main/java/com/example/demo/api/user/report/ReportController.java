@@ -10,14 +10,21 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Tag(name = "11. 신고 (Report)", description = "불법 주차 신고 접수, 내 신고 내역, 받은 신고 조회 및 신고 취소 API")
 @RestController
@@ -26,6 +33,26 @@ import java.time.LocalDateTime;
 public class ReportController {
 
     private final ReportService reportService;
+    private final RestTemplate restTemplate;
+
+    @Value("${AI_SERVER_URL}")
+    private String aiServerUrl;
+
+    @PostMapping("/upload")
+    public ResponseEntity<Map> uploadReportImage(@RequestParam("file") MultipartFile file) throws Exception {
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        ByteArrayResource resource = new ByteArrayResource(file.getBytes()) {
+            @Override
+            public String getFilename() { return file.getOriginalFilename(); }
+        };
+        body.add("file", resource);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        return restTemplate.postForEntity(aiServerUrl + "/api/v1/parking/report", request, Map.class);
+    }
 
     @Operation(summary = "신고 접수", description = "차량번호·신고 유형·설명·이미지 S3 경로를 받아 신고를 접수합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     //신고 생성

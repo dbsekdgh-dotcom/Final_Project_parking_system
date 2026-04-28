@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import axios from "axios";
 import api from "../auth/api/axios";
 import { alertValidation, alertReportSuccess, alertReportError } from "./components/ReportAlerts";
 
@@ -54,8 +53,7 @@ export default function ReportModal({ onClose }) {
       const pythonFormData = new FormData();
       pythonFormData.append("file", file);
 
-      const pythonUrl = `${import.meta.env.VITE_AI_SERVER_URL}/api/v1/parking/report`;
-      const pythonRes = await axios.post(pythonUrl, pythonFormData, {
+      const pythonRes = await api.post(`/api/user/report/upload`, pythonFormData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
