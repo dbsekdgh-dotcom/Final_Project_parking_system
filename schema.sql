@@ -166,6 +166,7 @@ store_ticket_config_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 store_id BIGINT NOT NULL,
 ticket_policy_id BIGINT NOT NULL,
 monthly_quota INT DEFAULT 0 NOT NULL,
+last_issued_at DATETIME NULL,
 CONSTRAINT fk_stc_store FOREIGN KEY (store_id) REFERENCES Store(store_id),
 CONSTRAINT fk_stc_ticket_policy FOREIGN KEY (ticket_policy_id) REFERENCES ticket_policy(ticket_policy_id ),
 

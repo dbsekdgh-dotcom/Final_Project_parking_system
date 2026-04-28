@@ -1,18 +1,25 @@
 package com.example.demo.api.admin.store;
 
+import com.example.demo.domain.management.store.dtos.request.StoreActivateRequestDto;
+import com.example.demo.domain.management.store.dtos.request.StoreTicketConfigRequestDto;
 import com.example.demo.domain.management.store.dtos.request.StoreUpdateRequestDto;
 import com.example.demo.domain.management.store.dtos.response.StoreDetailResponseDto;
 import com.example.demo.domain.management.store.dtos.response.StoreListResponseDto;
+import com.example.demo.domain.management.store.dtos.response.StoreTicketConfigResponseDto;
 import com.example.demo.domain.management.store.service.AdminStoreService;
 import com.example.demo.domain.system.store.enums.Status;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @Tag(name = "13. 상가 관리 (Store)", description = "상가 목록/상세 조회, 정보 수정, 입주·퇴거 처리 API")
 @RestController
@@ -49,8 +56,9 @@ public class AdminStoreController {
     }
     @Operation(summary = "상가 입주 처리", description = "INACTIVE 상가를 ACTIVE로 전환합니다. 새 비밀번호 설정 및 deleted_at 초기화가 함께 처리됩니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PostMapping("/{storeId}/activate")
-    public ResponseEntity<Void> activate(@PathVariable Long storeId){
-        adminStoreService.activate(storeId);
+    public ResponseEntity<Void> activate(@PathVariable Long storeId,
+                                         @RequestBody@Valid StoreActivateRequestDto dto){
+        adminStoreService.activate(storeId, dto);
         return ResponseEntity.ok().build();
     }
     @Operation(summary = "상가 퇴거 처리", description = "ACTIVE 상가를 INACTIVE로 전환합니다. deleted_at 설정 및 지갑 잔량이 전부 0으로 초기화됩니다.", security = @SecurityRequirement(name = "jwtAuth"))
@@ -58,5 +66,29 @@ public class AdminStoreController {
     public ResponseEntity<Void> deactivate(@PathVariable Long storeId){
         adminStoreService.deactivate(storeId);
         return ResponseEntity.ok().build();
+    }
+    @Operation(summary = "할인권 월 무료 발급 설정 조회", description = "상가의 월 무료 발급 할인권 설정을 조회 합니다.")
+    @GetMapping("/{storeId}/ticket-config")
+    public ResponseEntity<StoreTicketConfigResponseDto> getTicketConfig(@PathVariable Long storeId){
+        return adminStoreService.getTicketConfig(storeId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+    @Operation(summary = "할인권 월 무료 발급 설정 저장/수정", description = "상가의 월 무료 발급 할인권의 설정을 저장 및 수정 합니다.")
+    @PutMapping("/{storeId}/ticket-config")
+    public ResponseEntity<Void> setTicketConfig(@PathVariable Long storeId,
+                                                @RequestBody @Valid StoreTicketConfigRequestDto dto){
+        adminStoreService.setTicketConfig(storeId,dto);
+        return ResponseEntity.ok().build();
+    }
+    @Operation(summary = "무료 할인권 정책 목록", description = "관리자가 선택할 할인권 정책 목록 드롭다운에 출력할 정책 조회")
+    @GetMapping("/free-ticket-policies")
+    public ResponseEntity<List<Map<String,Object>>> getFreeTicketPolicies(){
+        List<Map<String ,Object>> list = adminStoreService.getFreeTicketPolicies().stream()
+                .map(p -> Map.<String, Object>of(
+                        "ticketPolicyId",p.getTicketPolicyId(),
+                        "name", p.getName()))
+                .toList();
+        return ResponseEntity.ok(list);
     }
 }
