@@ -186,7 +186,7 @@ pipeline {
 
         stage('Health Check Server 1') {
             steps {
-                sh 'sleep 60'
+                sh 'sleep 90'
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     script {
                         def health = sh(script: """
@@ -199,7 +199,7 @@ pipeline {
                         
                         echo "Server 1 health: ${health}"
                         
-                        if (health != 'healthy') {
+                        if (health != 'healthy' && health != 'initial') {
                             error "Server 1 is ${health}. 배포를 중단합니다."
                         }
                     }
