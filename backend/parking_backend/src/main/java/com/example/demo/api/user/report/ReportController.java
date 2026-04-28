@@ -6,6 +6,9 @@ import com.example.demo.domain.report.entity.Report;
 import com.example.demo.domain.report.entity.ReportStatus;
 import com.example.demo.domain.report.entity.ReportType;
 import com.example.demo.domain.report.service.ReportService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,13 +19,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+@Tag(name = "11. 신고 (Report)", description = "불법 주차 신고 접수, 내 신고 내역, 받은 신고 조회 및 신고 취소 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/report")
+@RequestMapping("/api/user/report")
 public class ReportController {
 
     private final ReportService reportService;
 
+    @Operation(summary = "신고 접수", description = "차량번호·신고 유형·설명·이미지 S3 경로를 받아 신고를 접수합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     //신고 생성
     @PostMapping
     public ResponseEntity<String> create(
@@ -42,6 +47,7 @@ public class ReportController {
         return ResponseEntity.ok("신고 접수 완료!");
     }
 
+    @Operation(summary = "내가 신고한 내역 조회", description = "로그인한 사용자가 접수한 신고 목록을 페이징 조회합니다. CANCELLED 상태 제외.", security = @SecurityRequirement(name = "jwtAuth"))
     //내가 신고한 내역
     @GetMapping("/my")
     public Page<ReportResponseDto> myReports(
@@ -51,6 +57,7 @@ public class ReportController {
         return reportService.getMyReports(principalDetails.getUsername(), pageable);
     }
 
+    @Operation(summary = "내가 받은 신고 조회", description = "로그인한 사용자의 차량에 접수된 신고 목록을 페이징 조회합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     //내가 받은 신고
     @GetMapping("/received")
     public Page<ReportResponseDto> receivedReports(
@@ -61,6 +68,7 @@ public class ReportController {
 
     }
 
+    @Operation(summary = "신고 취소", description = "본인이 접수한 신고를 취소합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     //신고 취소
     @PatchMapping("/{reportId}/cancel")
     public void cancel(
@@ -70,6 +78,7 @@ public class ReportController {
         reportService.cancelReport(reportId, principalDetails.getUsername());
     }
 
+    @Operation(summary = "기간별 신고 검색", description = "시작일~종료일 범위로 본인의 신고 내역을 페이징 검색합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     //기간 검색
     @GetMapping("/search")
     public Page<ReportResponseDto> search(
@@ -81,14 +90,4 @@ public class ReportController {
         return reportService.searchReports(principalDetails.getUsername(), startDate, endDate, pageable);
     }
 
-    //신고 승인관련 (어드민)
-    @PatchMapping("/{reportId}/status")
-    public ResponseEntity<String> updateStatus(
-            @PathVariable Long reportId,
-            @RequestParam ReportStatus status,
-            @RequestParam(required = false) Long adminId){
-
-        reportService.updateReportStatus(reportId, status, adminId);
-        return ResponseEntity.ok("신고 상태가 " + status + "로 변경되었습니다.");
-    }
 }

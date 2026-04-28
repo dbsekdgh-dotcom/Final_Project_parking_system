@@ -59,7 +59,7 @@ const DashBoard = () => {
 
         try{
         const response = await api.get(
-          `/api/dashboard?userId=${currentUserId}&page=${page}`);
+          `/api/user/dashboard?userId=${currentUserId}&page=${page}`);
         setData(response.data);
 
       }catch (error){

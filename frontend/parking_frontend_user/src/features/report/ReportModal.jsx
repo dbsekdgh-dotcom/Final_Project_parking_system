@@ -41,7 +41,7 @@ const ReportModal = ({ onClose }) => {
      params.append("reportType", reportType); 
      params.append("report_s3path",s3Path); //파이썬이 준 주소를 자바에 전달
 
-     await api.post('/api/report', params);
+     await api.post('/api/user/report', params);
     
       alert("신고가 정상적으로 접수되었습니다!");
       onClose(); // 성공하면 모달 닫기

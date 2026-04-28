@@ -7,6 +7,9 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.Map;
 
+@Tag(name = "1. 인증 (Auth)", description = "관리자 JWT 토큰 갱신 및 로그아웃 API")
 @RestController
 @RequiredArgsConstructor
 @Log4j2
@@ -24,6 +28,7 @@ public class AdminAuthController {
     private final AdminJWTUtil adminJWTUtil;
     private final RedisService redisService;
 
+    @Operation(summary = "Access 토큰 갱신", description = "만료된 Access 토큰을 Refresh 토큰 쿠키로 재발급합니다. Refresh 토큰이 1시간 미만 남았으면 쿠키도 함께 갱신됩니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PostMapping("/refresh")
     public Map<String,Object> refresh(@RequestHeader(value = HttpHeaders.AUTHORIZATION,required = false)String authHeader,
                                       HttpServletRequest request,
@@ -110,6 +115,7 @@ public class AdminAuthController {
         return leftMin < 60;
     }
 
+    @Operation(summary = "로그아웃", description = "Redis에서 Refresh 토큰을 삭제하고 쿠키를 즉시 만료시킵니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PostMapping("/logout")
     public Map<String, String> adminLogout(HttpServletRequest request, HttpServletResponse response){
         String loginId =null;

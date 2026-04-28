@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { useCancelVehicle, useDeleteVehicle, useMyVehicle } from '../hooks/useVehicle';
 import VehicleRegisterModal from './VehicleRegisterModal';
 import './VehicleCard.css';
@@ -9,6 +10,22 @@ const VehicleCard = () => {
 
     const { mutate: cancelVehicle } = useCancelVehicle();
     const { mutate: deleteVehicle } = useDeleteVehicle();
+
+    const handleDeleteVehicle = async (vehicleId) => {
+        const result = await Swal.fire({
+            title: '차량을 삭제하시겠습니까?',
+            text: '삭제된 차량은 복구할 수 없습니다.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소',
+        });
+        if (result.isConfirmed) {
+            deleteVehicle(vehicleId);
+        }
+    };
 
     if (isLoading) return <div className="vehicle-card"><p className="vehicle-card__model">로딩 중...</p></div>;
 
@@ -47,7 +64,7 @@ const VehicleCard = () => {
                                 <span className="vehicle-badge vehicle-badge--active">등록 완료</span>
                                 <button
                                     className="btn-vehicle btn-vehicle--red"
-                                    onClick={() => deleteVehicle(vehicle.vehicleId)}
+                                    onClick={() => handleDeleteVehicle(vehicle.vehicleId)}
                                 >
                                     차량 삭제
                                 </button>
