@@ -55,17 +55,23 @@ export function PaymentSuccessPage() {
           return;
       }
 
-      const parkingLogId = localStorage.getItem("pendingParkingLogId");
-      const payload = { paymentKey, orderId, amount, parkingLogId };
+      const parkingLogIdRaw = localStorage.getItem("pendingParkingLogId");
+      const payload = { paymentKey, orderId, amount, parkingLogId: parkingLogIdRaw };
 
       if (flowType === "EXIT_GATE") {
-          const afterResponse = await requestAfterPayment(payload);
+          const exitPayload ={
+            paymentKey,
+            orderId,
+            amount: Number(amount),
+            parkingLogId: Number(parkingLogIdRaw)
+          };
+          const afterResponse = await requestAfterPayment(exitPayload);
           localStorage.removeItem("paymentFlow");
-          navigate("/exit-departure", {
-              state: {
-                  parkingLogId: Number(parkingLogId),
-                  message: afterResponse.message
-              }
+          navigate("/exit-departure",{
+            state: {
+              parkingLogId : Number(parkingLogIdRaw),
+              message: afterResponse.message
+            }
           });
           return;
       }
