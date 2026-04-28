@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import useStoreStore from "../../../store/useStoreStore";
 import { useEffect } from "react";
-import { getStoreMe, getWallets } from "../api/storeApi";
+import { getStoreMe, getWallets } from "../api/StoreApi";
 import './StoreMainPage.css';
 
 export default function StoreMainPage() {

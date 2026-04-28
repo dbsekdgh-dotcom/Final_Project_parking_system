@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import useVehicleStore from "../../../store/useVehicleStore";
 import useStoreStore from "../../../store/useStoreStore";
 import { useEffect, useState } from "react";
-import { getTicketPolicies, getWallets, purchaseReady } from "../api/storeApi";
+import { getTicketPolicies, getWallets, purchaseReady } from "../api/StoreApi";
 import './TicketPuchasePage.css';
 
 export default function TicketPurchasePage(){
