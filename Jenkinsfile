@@ -99,7 +99,7 @@ pipeline {
                                 aws ssm send-command \
                                     --instance-ids ${SERVER_2_ID} \
                                     --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose pull && sudo docker rm -f parking-backend && sudo docker compose up -d && sudo docker image prune -f"]}' \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose pull && sudo docker rm -f parking-backend && sudo docker compose up -d && sudo docker image prune -f"]}' \
                                     --region ${AWS_REGION} \
                                     --query 'Command.CommandId' \
                                     --output text
@@ -156,7 +156,7 @@ pipeline {
                                 aws ssm send-command \
                                     --instance-ids ${SERVER_1_ID} \
                                     --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose pull && sudo docker rm -f parking-backend && sudo docker compose up -d && sudo docker image prune -f"]}' \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git new-branch-bokyung && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose pull && sudo docker rm -f parking-backend && sudo docker compose up -d && sudo docker image prune -f"]}' \
                                     --region ${AWS_REGION} \
                                     --query 'Command.CommandId' \
                                     --output text
