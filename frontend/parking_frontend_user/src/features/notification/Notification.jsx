@@ -57,7 +57,7 @@ const handleDelete = async (id, e) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     try{
-        await axios.delete(`${baseUrl}/api/notifications/${id}`,{
+        await axios.delete(`${baseUrl}/api/user/notifications/${id}`,{
                 withCredentials: true
             });
 
@@ -81,12 +81,12 @@ return (
                 position: 'fixed',
                 top: 0, left: 0, width: '100vw', height: '100vh',
                 background: 'transparent',
-                zIndex: 990
+                zIndex: 9999
             }}
         /> 
 
         {/*  알림 드롭다운 */}
-        <div className="noti-dropdown" style={{ zIndex: 1000 }}>
+        <div className="noti-dropdown" style={{ zIndex: 10000 }}>
             <div className="noti-header">
                 <span>최신 알림</span>
                 {notifications.length > 0 && (
