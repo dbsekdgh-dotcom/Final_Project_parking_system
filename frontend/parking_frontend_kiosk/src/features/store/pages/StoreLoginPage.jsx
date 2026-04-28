@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Keypad from '../../../shared/components/keypad/Keypad'
 import { useNavigate } from 'react-router-dom'
 import useStoreStore from '../../../store/useStoreStore';
-import { storeLogin, getWallets } from '../api/StoreApi';
+import { storeLogin, getWallets } from '../api/storeApi';
 import './StoreLoginPage.css';
 
 export default function StoreLoginPage() {

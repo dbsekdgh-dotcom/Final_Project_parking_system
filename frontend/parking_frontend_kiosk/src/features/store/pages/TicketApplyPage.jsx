@@ -2,7 +2,7 @@ import Keypad from '../../../shared/components/keypad/Keypad'
 import { useNavigate } from "react-router-dom";
 import useStoreStore from "../../../store/useStoreStore";
 import { useEffect, useState } from "react";
-import { applyTicket, getWallets, searchStoreCar } from "../api/StoreApi";
+import { applyTicket, getWallets, searchStoreCar } from "../api/storeApi";
 import './TicketApplyPage.css';
 
 export default function TicketApplyPage(){

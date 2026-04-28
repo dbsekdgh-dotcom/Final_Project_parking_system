@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePayment } from "../../hooks/usePaymentMutation";
 import useVehicleStore from "../../../store/useVehicleStore";
 import { requestAfterPayment } from "../../api/VehicleApi";
-import { purchaseConfirm } from "../../../features/store/api/StoreApi";
+import { purchaseConfirm } from "../../../features/store/api/storeApi";
 
 export function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();

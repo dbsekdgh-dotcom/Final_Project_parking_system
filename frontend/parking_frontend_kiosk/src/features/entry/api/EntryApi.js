@@ -1,4 +1,4 @@
-import kioskApi from "../../../shared/api/KioskApi";
+import kioskApi from "../../../shared/api/kioskApi";
 
 const BASE = "/api/v1/entry";
 
