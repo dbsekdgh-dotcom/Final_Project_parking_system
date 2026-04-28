@@ -51,11 +51,8 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
         Map<String,Object> claims = adminAuthDto.getClaims();
         String accessToken=adminJWTUtil.generateToken(claims,30); //30분
         String refreshToken=adminJWTUtil.generateToken(claims,60*24); //24시간
-
-        //Redis에 Refresh Token 저장
-        redisService.saveRefreshToken(loginId,refreshToken,60*24);
+        redisService.saveRefreshToken(loginId,refreshToken,60*24); //Redis에 Refresh Token 저장
         log.info(">>>>>>>>>> Redis템플릿에 [{}]의 Refresh Token 기록 완료",loginId);
-
         // Refresh Token을 위한 HttpOnly 쿠키 생성
         // jakarta.servlet.http.Cookie 대신 Spring의 ResponseCookie를 쓰면 설정이 더 편함.
         String cookieString = org.springframework.http.ResponseCookie.from("refreshToken",refreshToken)
@@ -66,8 +63,7 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
                 .sameSite("Lax") // CSRF 방어
                 .build()
                 .toString();
-        // 응답 헤더에 쿠키 추가
-        response.addHeader(HttpHeaders.SET_COOKIE, cookieString);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieString); // 응답 헤더에 쿠키 추가
 
         // responseDto에 담기
         AdminLoginResponse loginResponse = AdminLoginResponse.builder()
