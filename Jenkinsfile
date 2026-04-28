@@ -59,10 +59,11 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     sh """
-                        export PATH=~/.nvm/versions/node/v20.20.2/bin:$PATH
+                        export PATH=/var/lib/jenkins/.nvm/versions/node/v20.20.2/bin:\$PATH
 
                         # Admin 빌드 및 배포
                         cd ./frontend/parking_frontend_admin
+                        rm -rf node_modules
                         npm ci
                         npm run build
                         aws s3 sync dist/ s3://${ADMIN_BUCKET} --delete
@@ -71,6 +72,7 @@ pipeline {
 
                         # User 빌드 및 배포
                         cd ./frontend/parking_frontend_user
+                        rm -rf node_modules
                         npm ci
                         npm run build
                         aws s3 sync dist/ s3://${USER_BUCKET} --delete
@@ -79,6 +81,7 @@ pipeline {
 
                         # Kiosk 빌드 및 배포
                         cd ./frontend/parking_frontend_kiosk
+                        rm -rf node_modules
                         npm ci
                         npm run build
                         aws s3 sync dist/ s3://${KIOSK_BUCKET} --delete
