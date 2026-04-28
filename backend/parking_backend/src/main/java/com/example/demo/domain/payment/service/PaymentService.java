@@ -150,7 +150,7 @@ public class PaymentService {
             }
         }
 
-        // 7.할인가능한 금액
+        // 7 -- 할인가능한 금액
         int currentBalance=timeDiscountedRawFee-prepaid;
 
         // 8. 할인권 (discount_type==free 인 경우)
