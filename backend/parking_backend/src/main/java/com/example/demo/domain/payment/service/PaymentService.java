@@ -111,7 +111,7 @@ public class PaymentService {
         int prepaid=(prepaidFee>0)?prepaidFee:0;
 
         // 4. rawFee
-        String overTimeFee=systemSettingRepository.findBySettingKey(SettingKey.OVERTIME_MIN_FEE.name()).map(SystemSetting::getSettingValue).orElse(SettingKey.OVERTIME_MIN_FEE.name());
+        String overTimeFee=systemSettingRepository.findBySettingKey(SettingKey.OVERTIME_MIN_FEE.name()).map(SystemSetting::getSettingValue).orElse(SettingKey.OVERTIME_MIN_FEE.getDefaultValue());
         int rawFee=calculatedrawFee(billableTime,dailyMaxFee,unitMinutes,unitFee,baseFee);
         if(request.getFreeExitUntil()!=null && request.getFreeExitUntil().isBefore(LocalDateTime.now())){
             int minFee=Integer.parseInt(overTimeFee);
