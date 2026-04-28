@@ -14,6 +14,7 @@ import com.example.demo.domain.management.store.dtos.response.StoreDetailRespons
 import com.example.demo.domain.management.store.dtos.response.StoreListResponseDto;
 import com.example.demo.domain.management.store.dtos.response.StoreLogSnapshot;
 import com.example.demo.domain.management.store.dtos.response.StoreTicketConfigResponseDto;
+import com.example.demo.domain.payment.ticket.service.FreeTicketProvideService;
 import com.example.demo.domain.payment.ticketpolicy.TicketPolicy;
 import com.example.demo.domain.payment.ticketpolicy.repository.TicketPolicyRepository;
 import com.example.demo.domain.store.StoreTicketConfig;
@@ -50,6 +51,7 @@ public class AdminStoreService {
     private final StoreTicketWalletRepository storeTicketWalletRepository;
     private final StoreTicketConfigRepository storeTicketConfigRepository;
     private final TicketPolicyRepository ticketPolicyRepository;
+    private final FreeTicketProvideService freeTicketProvideService;
 
     //헬퍼
     private Store findStore(Long storeId){
@@ -135,6 +137,7 @@ public class AdminStoreService {
         storeTicketWalletRepository.findByStore_StoreId(storeId)
                 .forEach(wallet -> wallet.reset());
         storeTicketConfigRepository.deleteByStore_StoreId(storeId);
+        freeTicketProvideService.cancel(storeId);
         saveActionLog(admin, storeId, ActionType.INACTIVE, before, StoreLogSnapshot.from(store));
     }
     @Transactional(readOnly = true)
@@ -145,16 +148,20 @@ public class AdminStoreService {
 
     public void setTicketConfig(Long storeId, StoreTicketConfigRequestDto dto){
         Store store = findStore(storeId);
+        Admin admin = getLoginAdmin();
 
         storeTicketConfigRepository.findByStore_StoreId(storeId)
                 .ifPresentOrElse(
                         config -> {
+                            StoreTicketConfigResponseDto before = StoreTicketConfigResponseDto.from(config);
                             // 정책 미선택 시 기존 정책 유지
                             TicketPolicy policy = dto.getTicketPolicyId() != null
                                     ? ticketPolicyRepository.findById(dto.getTicketPolicyId())
                                             .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST))
                                     : config.getTicketPolicy();
                             config.update(policy, dto.getMonthlyQuota());
+                            saveActionLog(admin, storeId, ActionType.UPDATE, before, StoreTicketConfigResponseDto.from(config));
+                            freeTicketProvideService.provideAndSchedule(storeId);
                         },
                         () -> {
                             // 신규 생성 시 정책 필수
@@ -163,11 +170,13 @@ public class AdminStoreService {
                             }
                             TicketPolicy policy = ticketPolicyRepository.findById(dto.getTicketPolicyId())
                                     .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-                            storeTicketConfigRepository.save(StoreTicketConfig.builder()
+                            StoreTicketConfig saved = storeTicketConfigRepository.save(StoreTicketConfig.builder()
                                     .store(store)
                                     .ticketPolicy(policy)
                                     .monthlyQuota(dto.getMonthlyQuota())
                                     .build());
+                            saveActionLog(admin, storeId, ActionType.CREATE, null, StoreTicketConfigResponseDto.from(saved));
+                            freeTicketProvideService.provideAndSchedule(storeId);
                         });
     }
     @Transactional(readOnly = true)

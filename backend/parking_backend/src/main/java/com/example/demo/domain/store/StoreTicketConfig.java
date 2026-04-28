@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(
     name = "store_ticket_config",
@@ -38,8 +40,15 @@ public class StoreTicketConfig {
     @Builder.Default
     private int monthlyQuota = 0;
 
+    @Column(name = "last_issued_at")
+    private LocalDateTime lastIssuedAt;
+
     public void update(TicketPolicy newPolicy, int newQuota){
         this.ticketPolicy = newPolicy;
         this.monthlyQuota = newQuota;
+    }
+
+    public void markIssued(){
+        this.lastIssuedAt = LocalDateTime.now();
     }
 }
