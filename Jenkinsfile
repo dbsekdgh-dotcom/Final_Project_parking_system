@@ -59,7 +59,7 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     sh """
-                        export PATH=/var/lib/jenkins/.nvm/versions/node/v20.20.2/bin:\$PATH
+                        export PATH=/home/ssm-user/.nvm/versions/node/v20.20.2/bin:\$PATH
 
                         # Admin 빌드 및 배포
                         cd ./frontend/parking_frontend_admin
