@@ -21,3 +21,10 @@ export const fetchSubscriptionDetail = (id) => get(`${BASE}/subscriptions/${id}`
 
 export const fetchReservations       = (p)  => get(`${BASE}/reservations`, p);
 export const fetchReservationDetail  = (id) => get(`${BASE}/reservations/${id}`);
+
+export const fetchBlacklist       = (p)  => get(`${BASE}/blacklist`, p);
+export const fetchBlacklistDetail = (id) => get(`${BASE}/blacklist/${id}`);
+export const registerBlacklist    = (dto) =>
+    adminApi.post(`${BASE}/blacklist`, dto).then((r) => r.data);
+export const releaseBlacklist     = (id) =>
+    adminApi.patch(`${BASE}/blacklist/${id}/release`).then((r) => r.data);
