@@ -35,7 +35,7 @@ public class UserSecurityConfig {
     @Bean
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/user/**", "/api/report/**", "/api/dashboard/**", "/login/**", "/oauth2/**", "/", "/oauth-redirect/**")
+                .securityMatcher("/api/user/**", "/login/**", "/oauth2/**", "/", "/oauth-redirect/**")
 
                 // 1. CSRF 설정: 쿠키 방식을 쓸 때는 CSRF 공격에 취약할 수 있으므로 나중에 방어 로직이 필요할 수 있습니다.
                 // 현재는 개발 편의를 위해 disable 유지합니다.
@@ -68,9 +68,9 @@ public class UserSecurityConfig {
                                 "/api/user/auth/local/verify-recover-code", "/api/user/auth/local/recover",
                                 "/api/user/auth/social-recover", "/api/user/ai/naver/**","/api/user/space/**").permitAll()
 
-                        .requestMatchers("/api/dashboard/**").authenticated()
+                        .requestMatchers("/api/user/dashboard/**").authenticated()
                         .requestMatchers("/api/user/apply/**").authenticated()
-                        .requestMatchers("/api/report/**").authenticated()
+                        .requestMatchers("/api/user/report/**").authenticated()
                         .requestMatchers("/api/user/reservations/**").authenticated()
                         .requestMatchers("/api/user/subscriptions/**").authenticated()
                         .requestMatchers("/api/user/auth/local/logout").authenticated()
