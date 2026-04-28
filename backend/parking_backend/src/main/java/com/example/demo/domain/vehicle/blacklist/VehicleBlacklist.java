@@ -90,7 +90,9 @@ public class VehicleBlacklist {
     }
 
     public void release() {
+        LocalDateTime now = LocalDateTime.now();
         this.status = BlacklistStatus.RELEASED;
-        this.releasedAt = LocalDateTime.now();
+        this.releasedAt = now;
+        this.endDate = now;
     }
 }
