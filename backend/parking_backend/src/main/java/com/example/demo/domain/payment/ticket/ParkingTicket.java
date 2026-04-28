@@ -26,9 +26,11 @@ public class ParkingTicket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_policy_id",nullable = false)
     private TicketPolicy ticketPolicy;
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status",nullable = false)
     private Status status=Status.STORE;
+    @Builder.Default
     @Column(name = "applied_amount",nullable = false)
     private Integer appliedAmount = 0;
 

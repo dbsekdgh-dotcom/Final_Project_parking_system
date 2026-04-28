@@ -1,6 +1,8 @@
 .ticket-purchase-wrapper {
-  padding: 40px;
-  min-height: 100vh;
+  max-width: 480px;
+  margin: 60px auto;
+  padding: 40px 32px;
+  border: 2px solid #000;
   background: #fff;
 }
 
@@ -12,16 +14,13 @@
 }
 
 .ticket-purchase-header h2 {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   margin: 0;
 }
 
 .ticket-purchase-card {
-  border: 1px solid #000;
-  padding: 24px;
-  max-width: 480px;
-  margin: 0 auto;
+  padding: 0;
 }
 
 .ticket-purchase-card h3 {
@@ -105,10 +104,10 @@
 }
 
 .btn-back {
-  padding: 10px 20px;
-  background: #000;
-  color: #fff;
-  border: none;
-  font-size: 14px;
+  padding: 8px 14px;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  font-size: 13px;
   cursor: pointer;
 }

@@ -1,10 +1,10 @@
-import axios from "axios";
+import kioskApi from "../../../shared/api/KioskApi";
 
-const BASE = "http://localhost:8081/api/v1/entry";
+const BASE = "/api/v1/entry";
 
 
 export const createEntry = async ({ plateNumber, s3path, cameraId }) => {
-  const res = await axios.post(BASE,null,{
+  const res = await kioskApi.post(BASE,null,{
     params:{ plateNumber,s3path,cameraId }
   });
   return res.data; 
@@ -12,25 +12,25 @@ export const createEntry = async ({ plateNumber, s3path, cameraId }) => {
 
 // 차번호로 현재 ENTERED 상태인지 조회 → { isEntered, parkingLogId }
 export const checkVehicleEntered = async (carNumber) => {
-  const res = await axios.get(`${BASE}/check`, { params: { carNumber } });
+  const res = await kioskApi.get(`${BASE}/check`, { params: { carNumber } });
   return res.data;
 };
 
 // ENTRY 카메라 목록 조회
 export const fetchEntryCameras = async () => {
-  const res = await axios.get(`${BASE}/cameras`);
+  const res = await kioskApi.get(`${BASE}/cameras`);
   return res.data;
 };
 
 // EXIT 카메라 목록 조회
 export const fetchExitCameras = async () => {
-  const res = await axios.get(`${BASE}/cameras/exit`);
+  const res = await kioskApi.get(`${BASE}/cameras/exit`);
   return res.data;
 };
 
 // 자리 선택 + 입차 확정: DETECTED → ENTERED (하나의 트랜잭션)
 export const confirmEnter = async ({ parkingLogId, spaceId }) => {
-  const res = await axios.patch(`${BASE}/${parkingLogId}/enter`, null, {
+  const res = await kioskApi.patch(`${BASE}/${parkingLogId}/enter`, null, {
     params: { spaceId },
   });
   return res.data;
@@ -38,18 +38,18 @@ export const confirmEnter = async ({ parkingLogId, spaceId }) => {
 
 // parkingLog의 타입(RESIDENT/VISIT/USER/RESERVATION) 조회
 export const fetchParkingLogType = async (parkingLogId) => {
-  const res = await axios.get(`${BASE}/${parkingLogId}/type`);
+  const res = await kioskApi.get(`${BASE}/${parkingLogId}/type`);
   return res.data; // { parkingTypeSnapshot }
 };
 
 // 층별 주차 공간 목록 조회
 export const fetchEntrySpace = async (floor) => {
-  const res = await axios.get(`${BASE}/space`, { params: { floor } });
+  const res = await kioskApi.get(`${BASE}/space`, { params: { floor } });
   return res.data;
 };
 
 // DETECTED → ENTRY_CANCELLED (회차 버튼)
 export const cancelEntry = async (parkingLogId) => {
-  const res = await axios.patch(`${BASE}/${parkingLogId}/cancel`);
+  const res = await kioskApi.patch(`${BASE}/${parkingLogId}/cancel`);
   return res.data;
 };

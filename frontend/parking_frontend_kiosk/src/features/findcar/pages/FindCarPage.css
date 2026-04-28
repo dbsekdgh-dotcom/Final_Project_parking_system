@@ -3,15 +3,34 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px;
-    min-height: 100vh;
+    max-width: 420px;
+    margin: 60px auto;
+    padding: 40px 32px;
+    border: 2px solid #000;
     background: #fff;
+  }
+
+  .findcar-search-header {
+    width: 350px; /* 키패드 너비와 동일 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
   }
 
   .findcar-search-title {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin: 0;
+  }
+
+  .btn-back {
+    padding: 8px 14px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    font-size: 13px;
+    cursor: pointer;
   }
 
   .findcar-search-label {
@@ -45,8 +64,10 @@
 
   /* 결과 화면 */
   .findcar-result-wrapper {
-    padding: 40px;
-    min-height: 100vh;
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 40px 32px;
+    border: 2px solid #000;
     background: #fff;
   }
 
