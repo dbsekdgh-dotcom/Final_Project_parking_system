@@ -21,7 +21,16 @@ const getBadgeClass = (s) => {
 export default function SubscriptionHistoryCard({ history }) {
     const [page, setPage] = useState(0);
 
-    if (!history || history.length === 0) return null;
+    if (!history || history.length === 0) return (
+        <div className="sub-history-card">
+            <h4 className="sub-history-card__title">구매 이력</h4>
+            <div className="sub-history-card__empty">
+                <div className="sub-history-card__empty-icon">🎫</div>
+                <p className="sub-history-card__empty-text">구매 이력이 없습니다.</p>
+                <p className="sub-history-card__empty-sub">정기권을 구매하면 이력이 여기에 표시됩니다.</p>
+            </div>
+        </div>
+    );
 
     // 결제일(createdAt) 최신순 정렬
     const sorted = [...history].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));

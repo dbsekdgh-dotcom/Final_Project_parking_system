@@ -15,7 +15,7 @@
   justify-content: space-between;
   gap: 1.5rem 2rem;
   padding: 1.75rem 2rem 1.75rem 2.25rem;
-  margin: 1.25rem 1.25rem 0 0;
+  margin: 0 1.25rem 0 0;
   background: var(--hdr-bg);
   border-radius: 0 24px 24px 0;
   box-shadow: var(--hdr-shadow);
@@ -25,16 +25,14 @@
 
 .dashboard-header__intro {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-.dashboard-header__eyebrow {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--hdr-label);
+.dashboard-header__car-icon {
+  color: var(--hdr-title);
+  flex-shrink: 0;
 }
 
 .dashboard-header__title {

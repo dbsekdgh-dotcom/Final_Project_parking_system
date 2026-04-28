@@ -16,8 +16,8 @@ const ResidentRestrictedModal = ({ onClose }) => (
             <div className="resident-only-modal__icon">🅿️</div>
             <h3 className="resident-only-modal__title">입주민 전용 주차 구역 운영</h3>
             <p className="resident-only-modal__desc">
-                정기권은 방문 차량 전용 서비스입니다.<br />
-                입주민 회원께는 전용 주차 구역이<br />별도 제공됩니다.
+                입주민 회원은 정기권 없이<br />
+                전용 주차 구역을 이용하실 수 있습니다.
             </p>
             <button className="resident-only-modal__btn" onClick={onClose}>
                 확인

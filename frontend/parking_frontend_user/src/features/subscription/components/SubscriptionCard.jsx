@@ -10,7 +10,9 @@ export default function SubscriptionCard({ subscription }) {
     if (!subscription) {
         return (
             <div className="sub-card sub-card--empty">
+                <div className="sub-card__empty-icon">🛡️</div>
                 <p className="sub-card__empty-text">활성화된 정기권이 없습니다.</p>
+                <p className="sub-card__empty-sub">정기권을 구매하면 여기에 표시됩니다.</p>
             </div>
         );
     }
