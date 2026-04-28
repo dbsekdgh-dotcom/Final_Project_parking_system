@@ -10,11 +10,13 @@
   --sb-badge-bg: #334155;
   --sb-badge-text: #f8fafc;
 
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   width: min(280px, 26vw);
   min-width: 240px;
-  min-height: 100vh;
   background: var(--sb-bg);
   border-right: 1px solid var(--sb-border);
   box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04);
@@ -132,6 +134,7 @@
   flex-direction: column;
   gap: 0.35rem;
   flex: 1;
+  overflow-y: auto;
 }
 
 .sidebar__link {

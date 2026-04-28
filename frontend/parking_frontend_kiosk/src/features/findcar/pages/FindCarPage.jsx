@@ -66,7 +66,10 @@ export default function FindCarPage() {
     );
      return (
           <div className="findcar-search-wrapper">
-              <h2 className="findcar-search-title">번호판 입력</h2>
+              <div className="findcar-search-header">
+                  <h2 className="findcar-search-title">번호판 입력</h2>
+                  <button className="btn-back" onClick={() => navigate('/')}>돌아가기</button>
+              </div>
               <p className="findcar-search-label">차량 번호</p>
               <div className="findcar-query-display">{query || '- - - -'}</div>
               <Keypad onKeyClick={handleKey} onDeleteClick={handleDelete} onClearClick={handleClear} />

@@ -25,6 +25,13 @@ const UserInfoCard = ({ userInfo }) => {
                 <span className="info-label">생년월일</span>
                 <span className="info-value">{userInfo?.birth ?? "-"}</span>
             </div>
+
+            {userInfo?.unitNo != null && (
+                <div className="info-row">
+                    <span className="info-label">거주 세대</span>
+                    <span className="info-value">{userInfo.unitNo}호</span>
+                </div>
+            )}
         </div>
     );
 };

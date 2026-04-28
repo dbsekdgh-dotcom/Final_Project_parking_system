@@ -34,7 +34,7 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptionService.getMyPoint(principal.getUserId()));
     }
 
-    @Operation(summary = "정기권 정책 조회", description = "정기권 가격, 적용 기간 등 현재 단지 정기권 정책을 반환합니다. startDate를 넘기면 해당 시점 기준 정책을 계산합니다.")
+    @Operation(summary = "정기권 정책 조회", description = "정기권 가격, 적용 기간 등 현재 단지 정기권 정책을 반환합니다.")
     @SecurityRequirement(name = "jwtAuth")
     @GetMapping("/policy")
     public ResponseEntity<SubscriptionPolicyResponseDto> getPolicy(
@@ -43,15 +43,15 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptionService.getPolicy(startDate));
     }
 
-    @Operation(summary = "내 정기권 목록 조회", description = "현재 로그인한 사용자가 구매한 정기권 전체 이력을 반환합니다.")
+    @Operation(summary = "내 정기권 목록 조회", description = "전체 정기권 구매 이력을 반환합니다. 프론트에서 ACTIVE 필터링합니다.")
     @SecurityRequirement(name = "jwtAuth")
     @GetMapping("/my")
     public ResponseEntity<List<SubscriptionResponseDto>> getMySubscriptions(
             @AuthenticationPrincipal PrincipalDetails principal) {
-        return ResponseEntity.ok(subscriptionService.getMySubscriptions(principal.getUserId()));
+        return ResponseEntity.ok(subscriptionService.getAllSubscriptions(principal.getUserId()));
     }
 
-    @Operation(summary = "정기권 구매", description = "포인트를 사용해 정기권을 구매합니다. 보유 포인트가 부족하거나 이미 유효한 정기권이 있는 경우 구매가 제한됩니다.")
+    @Operation(summary = "정기권 구매", description = "포인트 혼합 결제 또는 토스 결제 후 정기권을 등록합니다.")
     @SecurityRequirement(name = "jwtAuth")
     @PostMapping
     public ResponseEntity<SubscriptionResponseDto> purchase(
@@ -60,7 +60,7 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptionService.purchase(principal.getUserId(), dto));
     }
 
-    @Operation(summary = "정기권 환불", description = "구매한 정기권을 취소하고 포인트를 환불합니다. 이미 사용 중(입차 기록 있음)이거나 만료된 정기권은 환불이 불가합니다.")
+    @Operation(summary = "정기권 환불", description = "남은 기간 비례 환불. 시작 전이면 전액, 시작 후면 일할 환불됩니다.")
     @SecurityRequirement(name = "jwtAuth")
     @PostMapping("/{subscriptionId}/cancel")
     public ResponseEntity<SubscriptionRefundResponseDto> cancel(

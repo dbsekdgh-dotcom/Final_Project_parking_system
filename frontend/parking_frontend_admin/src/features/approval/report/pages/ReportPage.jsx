@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
   import RejectModal from '../../components/RejectModal';
   import Pagination from '../../../../shared/components/pagination/Pagination';
   import './ReportPage.css';
+  import { getReports, approveReport, rejectReport } from '../api/reportApi';
 
   const TYPE_OPTIONS = [
     { value: '',                label: '유형 전체'  },
@@ -57,24 +58,16 @@ import { useState, useCallback, useEffect } from 'react';
     const [rejectTarget, setRejectTarget] = useState(null);
     const [rejectReason, setRejectReason] = useState('');
 
-    const token = localStorage.getItem('accessToken');
-    const authHeader = { 'Authorization': `Bearer ${token}` };
-
     // ── 목록 조회 ──────────────────────────────────────────────
     const fetchReports = useCallback(async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams({ page, size: 10 });
-        if (filterType)          params.append('type',    filterType);
-        if (filterStatus)        params.append('status',  filterStatus);
-        if (searchText.trim())   params.append('keyword', searchText.trim());
+        const params = { page, size: 10 };
+        if (filterType)        params.type    = filterType;
+        if (filterStatus)      params.status  = filterStatus;
+        if (searchText.trim()) params.keyword = searchText.trim();
 
-        const res  = await fetch(`/api/admin/reports?${params}`, {
-          credentials: 'include',
-          headers: authHeader,
-        });
-        const data = await res.json();
-
+        const data = await getReports(params);
         setRows(data.content ?? []);
         setTotalPages(data.totalPages);
         setTotalElements(data.totalElements);
@@ -94,11 +87,7 @@ import { useState, useCallback, useEffect } from 'react';
 
     // ── 승인 ──────────────────────────────────────────────────
     const handleApprove = async (reportId) => {
-      await fetch(`/api/admin/reports/${reportId}/approve`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeader,
-      });
+      await approveReport(reportId);
       setDetailTarget(null);
       fetchReports();
     };
@@ -109,12 +98,7 @@ import { useState, useCallback, useEffect } from 'react';
 
     const confirmReject = async () => {
       if (!rejectReason.trim()) return;
-      await fetch(`/api/admin/reports/${rejectTarget.reportId}/reject`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { ...authHeader, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rejectReason: rejectReason.trim() }),
-      });
+      await rejectReport(rejectTarget.reportId, rejectReason.trim());
       closeReject();
       setDetailTarget(null);
       fetchReports();

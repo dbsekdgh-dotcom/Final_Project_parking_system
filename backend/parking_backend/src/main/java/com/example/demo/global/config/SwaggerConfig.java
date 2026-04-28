@@ -16,13 +16,19 @@ import java.util.stream.Collectors;
 public class SwaggerConfig {
 
 
-    // ✅ 태그를 숫자/알파벳 순으로 정렬해주는 커스텀 빈
+    // ✅ 태그 이름 앞 숫자를 추출해 수치 순으로 정렬 (1, 2, ..., 10, 11... 올바른 순서 보장)
     @Bean
     public OpenApiCustomizer sortTagsAlphabetically() {
         return openApi -> {
             if (openApi.getTags() != null) {
                 openApi.setTags(openApi.getTags().stream()
-                        .sorted(Comparator.comparing(io.swagger.v3.oas.models.tags.Tag::getName))
+                        .sorted(Comparator.comparingInt(tag -> {
+                            try {
+                                return Integer.parseInt(tag.getName().split("\\.")[0].trim());
+                            } catch (NumberFormatException e) {
+                                return Integer.MAX_VALUE;
+                            }
+                        }))
                         .collect(Collectors.toList()));
             }
         };
@@ -34,7 +40,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("사용자 전용 주차 시스템 API")
+                        .title("주차 시스템 API")
                         .description("인증이 필요한 API는 우측 상단 자물쇠를 이용하세요.")
                         .version("1.0.0"))
                 .components(new Components()

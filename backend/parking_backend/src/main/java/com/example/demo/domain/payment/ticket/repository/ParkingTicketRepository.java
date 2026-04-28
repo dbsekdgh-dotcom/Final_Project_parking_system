@@ -16,4 +16,7 @@ public interface ParkingTicketRepository extends JpaRepository<ParkingTicket,Lon
     @Query("select t from ParkingTicket t " +
             "left join fetch t.ticketPolicy where t.parkingLog.parkingLogId=:parkingLogId and t.ticketPolicy.status=:status")
     List<ParkingTicket> getValidTickets(@Param("parkingLogId") Long parkingLogId, @Param("status") Status status);
+
+
+
 }

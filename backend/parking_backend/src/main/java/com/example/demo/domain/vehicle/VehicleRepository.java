@@ -53,4 +53,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle,Long> {
 
     List<Vehicle> findByUser_UserId(Long userUserId);
 
+    //Admin Dashbaord 사용량
+    long countByStatus(VehicleStatus status);
+
 }

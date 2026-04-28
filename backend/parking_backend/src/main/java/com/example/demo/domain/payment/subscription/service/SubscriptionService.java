@@ -14,8 +14,11 @@ import com.example.demo.domain.system.activitylog.repository.ActivityLogReposito
 import com.example.demo.domain.payment.repository.PaymentRepository;
 import com.example.demo.domain.payment.service.TossPaymentService;
 import com.example.demo.domain.payment.subscription.Subscription;
+import com.example.demo.domain.payment.subscription.dtos.request.SubscriptionConfirmRequestDto;
 import com.example.demo.domain.payment.subscription.dtos.request.SubscriptionPurchaseRequestDto;
+import com.example.demo.domain.payment.subscription.dtos.request.SubscriptionReadyRequestDto;
 import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionPolicyResponseDto;
+import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionReadyResponseDto;
 import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionRefundResponseDto;
 import com.example.demo.domain.payment.subscription.dtos.response.SubscriptionResponseDto;
 import com.example.demo.domain.payment.subscription.enums.Status;
@@ -37,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 정기권 구매 및 환불 업무를 담당하는 서비스 레이어입니다.
@@ -209,6 +213,164 @@ public class SubscriptionService {
     }
 
     /**
+     * 현재 활성 정기권 단건 조회 (SubscriptionCard용)
+     * findMyActiveSubscription 쿼리 대신 전체 이력에서 Java 레벨 필터링으로 안정적으로 조회
+     */
+    @Transactional(readOnly = true)
+    public SubscriptionResponseDto getMyActiveSubscription(Long userId) {
+        return subscriptionRepository.findAllByUserIdOrderByEndDateDesc(userId)
+                .stream()
+                .filter(s -> s.getStatus() == Status.ACTIVE
+                          && s.getEndDate() != null
+                          && !LocalDateTime.now().isAfter(s.getEndDate()))
+                .findFirst()
+                .map(s -> SubscriptionResponseDto.from(s, 0))
+                .orElse(null);
+    }
+
+    /**
+     * 전체 구매 이력 조회 (SubscriptionHistoryList용)
+     */
+    @Transactional(readOnly = true)
+    public List<SubscriptionResponseDto> getAllSubscriptions(Long userId) {
+        return subscriptionRepository.findAllByUserIdOrderByEndDateDesc(userId)
+                .stream().map(s -> SubscriptionResponseDto.from(s, 0)).toList();
+    }
+
+    /**
+     * 정기권 구매 준비 — 검증 후 Toss 결제창용 orderId 반환
+     */
+    public SubscriptionReadyResponseDto ready(Long userId, SubscriptionReadyRequestDto dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+
+        if (user.getStatus() != com.example.demo.domain.resident.enums.Status.ACTIVE) {
+            throw new BusinessException(ErrorCode.USER_SUSPENDED);
+        }
+
+        Vehicle vehicle = vehicleRepository.findByCarNumber(dto.getCarNumber())
+                .filter(v -> v.getUser().getUserId().equals(userId))
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+
+        if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_STATUS);
+        }
+
+        int subscriptionPrice = getSetting(SettingKey.SUBSCRIPTION_PRICE);
+        int subscriptionDays  = getSetting(SettingKey.SUBSCRIPTION_DAYS);
+
+        if (!dto.getAmount().equals((long) subscriptionPrice)) {
+            throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
+
+        LocalDateTime start = (dto.getStartDate() != null) ? dto.getStartDate() : LocalDateTime.now();
+        LocalDateTime end   = start.plusDays(subscriptionDays);
+
+        if (start.toLocalDate().isBefore(java.time.LocalDate.now())) {
+            throw new BusinessException(ErrorCode.INVALID_SUBSCRIPTION_PERIOD);
+        }
+
+        if (vehicleBlacklistRepository.isCurrentlyBlacklisted(vehicle.getCarNumber(), LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        if (subscriptionRepository.hasActiveSubscription(vehicle.getCarNumber(), LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        if (subscriptionRepository.hasOverlappingSubscriptionForUser(userId, Status.ACTIVE, start, end)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        String orderId = "SUB_" + UUID.randomUUID().toString().replace("-", "");
+
+        return SubscriptionReadyResponseDto.builder()
+                .orderId(orderId)
+                .orderName("주차장 정기권 " + subscriptionDays + "일")
+                .amount((long) subscriptionPrice)
+                .carNumber(vehicle.getCarNumber())
+                .startDate(start)
+                .endDate(end)
+                .build();
+    }
+
+    /**
+     * 정기권 결제 확정 — Toss 승인 후 정기권 생성 및 포인트 적립
+     */
+    public SubscriptionResponseDto confirm(Long userId, SubscriptionConfirmRequestDto dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+
+        if (user.getStatus() != com.example.demo.domain.resident.enums.Status.ACTIVE) {
+            throw new BusinessException(ErrorCode.USER_SUSPENDED);
+        }
+
+        Vehicle vehicle = vehicleRepository.findByCarNumber(dto.getCarNumber())
+                .filter(v -> v.getUser().getUserId().equals(userId))
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+
+        if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_STATUS);
+        }
+
+        if (vehicleBlacklistRepository.isCurrentlyBlacklisted(vehicle.getCarNumber(), LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        if (subscriptionRepository.hasActiveSubscription(vehicle.getCarNumber(), LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        int subscriptionPrice = getSetting(SettingKey.SUBSCRIPTION_PRICE);
+
+        PaymentConfirmRequestDto confirmDto = PaymentConfirmRequestDto.builder()
+                .paymentKey(dto.getPaymentKey())
+                .orderId(dto.getOrderId())
+                .amount(dto.getAmount().intValue())
+                .parkingLogId(0L)
+                .build();
+
+        var tossResult = tossPaymentService.confirmAndAnalyze(confirmDto);
+        if (!tossResult.isSuccess()) {
+            throw new BusinessException(ErrorCode.PG_PROVIDER_ERROR);
+        }
+
+        Payment payment = Payment.builder()
+                .vehicle(vehicle)
+                .amount(dto.getAmount())
+                .priceSnapshot((long) subscriptionPrice)
+                .paymentMethod(PaymentMethod.PAY)
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentType(PaymentType.SUBSCRIPTION)
+                .externalPaymentId(dto.getOrderId())
+                .paidAt(LocalDateTime.now())
+                .build();
+        paymentRepository.save(payment);
+
+        Subscription subscription = new Subscription(
+                null, user, vehicle,
+                dto.getStartDate(), dto.getEndDate(),
+                Status.ACTIVE, payment,
+                subscriptionPrice, LocalDateTime.now(), LocalDateTime.now(), null);
+        subscriptionRepository.save(subscription);
+
+        int earnRate    = getSetting(SettingKey.PAYMENT_POINT_EARN_RATE);
+        int earnedPoint = dto.getAmount().intValue() * earnRate / 100;
+        pointService.earnPoints(userId, payment.getPaymentId(),
+                earnedPoint, "정기권 구매 포인트 적립");
+
+        activityLogRepository.save(ActivityLog.builder()
+                .activityType(ActivityType.PASS_PURCHASED)
+                .user(user)
+                .payment(payment)
+                .carNumber(vehicle.getCarNumber())
+                .message("정기권 구매 완료")
+                .build());
+
+        return SubscriptionResponseDto.from(subscription, earnedPoint);
+    }
+
+    /**
      * 유저의 현재 보유 포인트를 조회합니다.
      */
     @Transactional(readOnly = true)
@@ -236,10 +398,10 @@ public class SubscriptionService {
 
         return SubscriptionPolicyResponseDto.builder()
                 .price(price)
-                .days(days)
+                .durationDays(days)
                 .maxCount(maxCount)
                 .activeCount(activeCount)
-                .remaining(remaining)
+                .remainCount(remaining)
                 .build();
     }
 
@@ -267,10 +429,15 @@ public class SubscriptionService {
         }
 
         // 3. 남은 기간 비례 환불 비율 계산
-        long totalDays = java.time.temporal.ChronoUnit.DAYS.between(subscription.getStartDate(), subscription.getEndDate());
-        long remainDays = java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getEndDate());
-        if (remainDays < 0) remainDays = 0;
-        double ratio = totalDays > 0 ? (double) remainDays / totalDays : 0;
+        double ratio;
+        if (LocalDateTime.now().isBefore(subscription.getStartDate())) {
+            ratio = 1.0;
+        } else {
+            long totalDays = java.time.temporal.ChronoUnit.DAYS.between(subscription.getStartDate(), subscription.getEndDate());
+            long remainDays = java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getEndDate());
+            if (remainDays < 0) remainDays = 0;
+            ratio = totalDays > 0 ? (double) remainDays / totalDays : 0;
+        }
 
         Payment payment = subscription.getPayment();
         int paidAmount  = payment.getAmount().intValue();

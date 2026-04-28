@@ -1,6 +1,7 @@
 import React from "react";
 import "./UserStatusCard.css";
 import ResidentCancelButton from "../../apply/components/ResidentCancelButton";
+import ResidentLeaveButton from "../../apply/components/ResidentLeaveButton";
 
 /**
  * 백엔드 statusCode에 따른 UI 설정
@@ -29,8 +30,8 @@ const STATUS_CONFIG = {
 const MemberStatusCard = ({ userStatus, approvalId }) => {
     const config = STATUS_CONFIG[userStatus] || STATUS_CONFIG["NONE"];
 
-    // 3. 현재 신청 대기 중(PENDING)인지 확인
     const isPending = userStatus === "PENDING";
+    const isResident = userStatus === "RESIDENT";
 
     return (
         <div className="status-card">
@@ -51,10 +52,15 @@ const MemberStatusCard = ({ userStatus, approvalId }) => {
                     </p>
                 </div>
 
-                {/* 4. 신청 대기 중이고 취소할 ID가 있을 때만 취소 버튼 노출 */}
                 {isPending && approvalId && (
                     <div className="status-card__actions">
                         <ResidentCancelButton approvalId={approvalId} />
+                    </div>
+                )}
+
+                {isResident && (
+                    <div className="status-card__actions">
+                        <ResidentLeaveButton />
                     </div>
                 )}
             </div>

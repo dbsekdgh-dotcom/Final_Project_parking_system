@@ -103,16 +103,16 @@ public class DashboardService {
                 .map(UserPoint::getCurrentPoint)
                 .orElse(0);
 
-        //정기권 D-Day 계산
-        long dDay = subscriptionRepository.findLatestSubscription(userId)
+        //정기권 D-Day 계산 (ACTIVE + 만료 안 된 정기권만, 없으면 null)
+        Long dDay = subscriptionRepository.findMyActiveSubscription(userId, LocalDateTime.now())
                 .map(sub -> ChronoUnit.DAYS.between(LocalDateTime.now(), sub.getEndDate()))
-                .orElse(0L);
+                .orElse(null);
 
         //층별 주차 현황 조회
+        int b1Total     = (int) parkingSpaceRepository.countByFloor(Floor.B1);
+        int b2Total     = (int) parkingSpaceRepository.countByFloor(Floor.B2);
         int b1Available = (int) parkingSpaceRepository.countByFloorAndStatus(Floor.B1, SpaceStatus.AVAILABLE);
         int b2Available = (int) parkingSpaceRepository.countByFloorAndStatus(Floor.B2, SpaceStatus.AVAILABLE);
-
-        int floorTotal = 30;
 
         return DashboardResponseDto.builder()
                 .myPoint(myPoint)
@@ -120,8 +120,8 @@ public class DashboardService {
                 .myCarNumber(carNumber)
                 .myCarLocation(carLocation)
                 .parkingDuration(durationStr)
-                .b1Detail(buildFloorDetail(Floor.B1, b1Available, 30))
-                .b2Detail(buildFloorDetail(Floor.B2, b2Available, 30))
+                .b1Detail(buildFloorDetail(Floor.B1, b1Available, b1Total))
+                .b2Detail(buildFloorDetail(Floor.B2, b2Available, b2Total))
                 .recentLogs(logPage)
                 .build();
     }
@@ -135,10 +135,12 @@ public class DashboardService {
     }
 
     private DashboardResponseDto.FloorDetail buildFloorDetail(Floor floor, int available, int total){
+        int occupied = total - available;
+        int occupancyRate = total > 0 ? (int)((double) occupied / total * 100) : 0;
         return DashboardResponseDto.FloorDetail.builder()
                 .available(available)
                 .total(total)
-                .occupancyRate((int)(((double)(total - available)/ total)*100))
+                .occupancyRate(occupancyRate)
                 .floorName(floor.name() + "층")
                 .description(floor == Floor.B1 ? "외부 차량 가능" : "입주민 전용")
                 .build();

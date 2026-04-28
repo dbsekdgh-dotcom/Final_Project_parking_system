@@ -32,6 +32,7 @@ public class ExitService {
     private final ActivityLogRepository activityLogRepository;
     private final UserPointRepository userPointRepository;
     private final FreeExitExpirationService freeExitExpirationService;
+    private final FreeExitRedisService freeExitRedisService;
     private final ReservationRepository reservationRepository;
 
     //출차 대기
@@ -44,8 +45,11 @@ public class ExitService {
             throw new BusinessException(ErrorCode.ALREADY_EXITED);
         }
         // Blacklist 한번더 확인
-        if (Boolean.TRUE.equals(parkingLog.getIsBlacklist())){
-            throw new BusinessException(ErrorCode.BLACKLIST_VEHICLE);
+        if (parkingLog.getParkingTypeSnapshot() != ParkingTypeSnapshot.SUBSCRIPTION
+                && parkingLog.getParkingTypeSnapshot() != ParkingTypeSnapshot.RESERVATION) {
+            if (Boolean.TRUE.equals(parkingLog.getIsBlacklist())) {
+                throw new BusinessException(ErrorCode.BLACKLIST_VEHICLE);
+            }
         }
         // 상태 변화 및 저장 ENTERED -> EXIT_REQUESTED
         parkingLog.exitRequested(exitCameraId,imagePath);
@@ -85,6 +89,7 @@ public class ExitService {
         parkingLog.setParkingStatus(ParkingStatus.EXITED);
         parkingLog.setExitedAt(LocalDateTime.now());
         parkingLogRepository.save(parkingLog);
+        freeExitRedisService.delete(parkingLogId);
         Household household=(parkingLog.getVehicle()!=null&&parkingLog.getVehicle().getUser()!=null)
                 ? parkingLog.getVehicle().getUser().getHousehold() : null;
         activityLogRepository.save(ActivityLog.ofExit(parkingLog,household));

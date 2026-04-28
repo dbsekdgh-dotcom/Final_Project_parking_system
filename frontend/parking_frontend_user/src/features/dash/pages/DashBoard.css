@@ -1,7 +1,7 @@
 .dashboard {
   font-family: 'Noto Sans KR', sans-serif;
   padding: 20px;
-  background: #f8f9fa;
+  background: #f1f5f9;
 }
 
 /* 상단 요약 영역 */
@@ -58,16 +58,34 @@
 .menu-item {
   flex: 1;
   background: #fff;
-  padding: 12px;
-  text-align: center;
+  padding: 16px 12px;
   border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .menu-item:hover {
+  background: rgba(226, 232, 240, 0.65);
   transform: translateY(-2px);
+}
+
+.menu-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.menu-item__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.01em;
 }
 
 /* 내 현황 섹션 컨테이너 */
@@ -217,4 +235,72 @@
   font-size: 0.9rem;
   text-align: right;
   min-width: 50px; /* 고정 폭을 주어 정렬 유지 */
+}
+
+/* 입출차 내역 없을 때 */
+.dash-no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 6px;
+}
+
+.dash-no-data__icon {
+  font-size: 32px;
+  opacity: 0.45;
+  margin-bottom: 4px;
+}
+
+.dash-no-data__text {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #32324d;
+}
+
+.dash-no-data__sub {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #9e9eb8;
+}
+
+/* 페이지네이션 */
+.dash-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.dash-page-btn {
+  border: 1px solid #d9ddef;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f7f7fb;
+  color: #6f708b;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+
+.dash-page-btn:hover:not(:disabled) {
+  background: #e8f2ff;
+  border-color: #90c0ff;
+  color: #233b6e;
+}
+
+.dash-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dash-page-btn--active {
+  background: #cfe0ff;
+  border-color: #90c0ff;
+  color: #233b6e;
+  font-weight: 700;
 }

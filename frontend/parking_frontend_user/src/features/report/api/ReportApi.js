@@ -1,6 +1,6 @@
 import api from "../../auth/api/axios";
 
-const BASE = "/api/report";
+const BASE = "/api/user/report";
 
 // 내가 신고한 내역 (CANCELLED 제외)
 export const fetchMyReports = async (page = 0, size = 5) => {

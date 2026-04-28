@@ -1,533 +1,176 @@
-
-  ---
-  주요 변경점 요약
-
-  ┌────────────────┬─────────────────────────┬──────────────────────────────────────────────────────┐
-  │      항목      │          이전           │                         이후                         │
-  ├────────────────┼─────────────────────────┼──────────────────────────────────────────────────────┤
-  │ 데이터 소스    │ 더미 INITIAL_DATA       │ /api/admin/approvals GET                             │
-  ├────────────────┼─────────────────────────┼──────────────────────────────────────────────────────┤
-  │ 필터링         │ 클라이언트 useMemo      │ 서버 파라미터로 전달                                 │
-  ├────────────────┼─────────────────────────┼──────────────────────────────────────────────────────┤
-  │ 페이지네이션   │ 없음                    │ Pagination 컴포넌트 사용                             │
-  ├────────────────┼─────────────────────────┼──────────────────────────────────────────────────────┤
-  │ 필드명         │ row.id, row.type 소문자 │ row.approvalId, row.approvalType 대문자              │
-  ├────────────────┼─────────────────────────┼──────────────────────────────────────────────────────┤
-  │ 처리 완료 표시 │ "처리 완료" 고정        │ processedBySystem 따라 "시스템 처리" / "관리자 처리" │
-  ├────────────────┼─────────────────────────┼──────────────────────────────────────────────────────┤
-  │ 방문 예약 일시 │ 없음                    │ RESERVATION 타입에 visitStartAt~visitEndAt 표시      │
-  ├────────────────┼─────────────────────────┼──────────────────────────────────────────────────────┤
-  │ 통계 카드      │ 현재 페이지 rows 기준   │ totalElements + 백엔드 stats 기준                    │
-  └────────────────┴─────────────────────────┴──────────────────────────────────────────────────────┘
-
-  ---
-  통계 카드 관련해서 백엔드 응답에 stats 객체를 포함시킬지, 별도 API를 쓸지는 팀원과 맞춰야 합니다. 위 코드는 data.stats가 있으면 쓰고 없으면
-  totalElements만 쓰는 방어 로직으로 작성했습니다.
-
-✻ Crunched for 44s
-
-❯ 다음꺼                                                                                                                                           
-         
-● 어느 쪽 "다음"인지 확인이 필요합니다.                                                                                                            
-                                                                                                                                                 
-  1. 백엔드 API — GET /api/admin/approvals, POST approve/reject, 서비스 로직                                                                       
-  2. 다른 프론트 컴포넌트 — ReportPage나 다른 화면                                                                                                 
-                                                                                                                
-  어느 쪽인가요?                                                                                                                                   
-                                                                                                                                                   
-❯ 백엔드 쪽                                                                                                                                        
-                                                                                                                                                   
-● 기존 백엔드 구조 먼저 파악하겠습니다.                                                                                                            
-                                                                                                                                                   
-● Explore(Explore backend admin approval structure)                                                                                                
-  ⎿  Done (27 tool uses · 51.6k tokens · 1m 6s)                                                                                                    
-  (ctrl+o to expand)                                                                                                                               
-                                                                                                                                                   
-● 구조 파악됐습니다. 생성해야 할 파일 목록부터 보여드리겠습니다.                
-                                                                                                                                                   
-  ---                                                                                                                                              
-  생성할 파일 구조                                                                                                                                 
-                                                                                                                                                   
-  admin/management/approval/                                                                                                                       
-  ├── controller/AdminApprovalController.java                                                                                                      
-  ├── service/AdminApprovalService.java                                                                                                            
-  └── dtos/                                                                                                                                        
-      ├── request/ApprovalRejectRequestDto.java                                                                                                    
-      └── response/
-          ├── ApprovalResponseDto.java
-          ├── ApprovalStatsDto.java
-          └── ApprovalPageResponseDto.java
-
-  shared/approval/repository/ApprovalRepository.java  ← 신규
-
-  ---
-  1. ApprovalRepository.java
-
-  package com.example.demo.domain.shared.approval.repository;
-
-  import com.example.demo.domain.shared.approval.Approval;
-  import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
-  import com.example.demo.domain.shared.approval.enums.ApprovalType;
-  import org.springframework.data.domain.Page;
-  import org.springframework.data.domain.Pageable;
-  import org.springframework.data.jpa.repository.JpaRepository;
-  import org.springframework.data.jpa.repository.Query;
-  import org.springframework.data.repository.query.Param;
-
-  public interface ApprovalRepository extends JpaRepository<Approval, Long> {
-
-      @Query(
-          value = """
-              SELECT a FROM Approval a
-              LEFT JOIN FETCH a.requestUserId u
-              WHERE (:type IS NULL OR a.approvalType = :type)
-              AND (:status IS NULL OR a.status = :status)
-              AND (:keyword IS NULL OR u.name LIKE %:keyword%)
-              ORDER BY
-                  CASE WHEN a.status = 'PENDING' THEN 0 ELSE 1 END ASC,
-                  a.createdAt DESC
-              """,
-          countQuery = """
-              SELECT COUNT(a) FROM Approval a
-              LEFT JOIN a.requestUserId u
-              WHERE (:type IS NULL OR a.approvalType = :type)
-              AND (:status IS NULL OR a.status = :status)
-              AND (:keyword IS NULL OR u.name LIKE %:keyword%)
-              """
-      )
-      Page<Approval> findAllWithFilters(
-          @Param("type")    ApprovalType    type,
-          @Param("status")  ApprovalStatus  status,
-          @Param("keyword") String          keyword,
-          Pageable pageable
-      );
-
-      long countByStatus(ApprovalStatus status);
-  }
-
-  FETCH JOIN과 Page를 같이 쓸 때 countQuery를 분리해야 Hibernate가 에러 없이 페이징합니다. PENDING을 항상 위로 정렬해서 처리할 것들이 먼저 보이도록
-   했습니다.
-
-  ---
-  2. ApprovalRejectRequestDto.java
-
-  package com.example.demo.domain.admin.management.approval.dtos.request;
-
-  import lombok.Getter;
-  import lombok.NoArgsConstructor;
-
-  @Getter
-  @NoArgsConstructor
-  public class ApprovalRejectRequestDto {
-      private String rejectReason;
-  }
-
-  ---
-  3. ApprovalStatsDto.java
-
-  package com.example.demo.domain.admin.management.approval.dtos.response;
-
-  import lombok.Builder;
-  import lombok.Getter;
-
-  @Getter
-  @Builder
-  public class ApprovalStatsDto {
-      private long pendingCount;
-      private long approvedCount;
-      private long rejectedCount;
-  }
-
-  ---
-  4. ApprovalResponseDto.java
-
-  package com.example.demo.domain.admin.management.approval.dtos.response;
-
-  import com.example.demo.domain.shared.approval.Approval;
-  import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
-  import com.example.demo.domain.shared.approval.enums.ApprovalType;
-  import lombok.Builder;
-  import lombok.Getter;
-
-  import java.time.LocalDateTime;
-
-  @Getter
-  @Builder
-  public class ApprovalResponseDto {
-
-      private Long          approvalId;
-      private ApprovalType  approvalType;
-      private Long          targetId;
-      private String        requestUserName;
-      private String        content;
-      private ApprovalStatus status;
-      private LocalDateTime createdAt;
-      private LocalDateTime processedAt;
-      private boolean       processedBySystem;
-      private String        rejectReason;
-      private LocalDateTime visitStartAt;   // RESERVATION 타입만 사용
-      private LocalDateTime visitEndAt;     // RESERVATION 타입만 사용
-
-      public static ApprovalResponseDto from(
-              Approval approval,
-              String content,
-              LocalDateTime visitStartAt,
-              LocalDateTime visitEndAt) {
-
-          boolean processedBySystem =
-                  approval.getProcessedByAdminId() == null
-                  && approval.getStatus() != ApprovalStatus.PENDING;
-
-          String requesterName = (approval.getRequestUserId() != null)
-                  ? approval.getRequestUserId().getName()
-                  : "알 수 없음";
-
-          return ApprovalResponseDto.builder()
-                  .approvalId(approval.getApprovalId())
-                  .approvalType(approval.getApprovalType())
-                  .targetId(approval.getTargetId())
-                  .requestUserName(requesterName)
-                  .content(content)
-                  .status(approval.getStatus())
-                  .createdAt(approval.getCreatedAt())
-                  .processedAt(approval.getProcessedAt())
-                  .processedBySystem(processedBySystem)
-                  .rejectReason(approval.getRejectReason())
-                  .visitStartAt(visitStartAt)
-                  .visitEndAt(visitEndAt)
-                  .build();
-      }
-  }
-
-  ---
-  5. ApprovalPageResponseDto.java
-
-  package com.example.demo.domain.admin.management.approval.dtos.response;
-
-  import lombok.Builder;
-  import lombok.Getter;
-
-  import java.util.List;
-
-  @Getter
-  @Builder
-  public class ApprovalPageResponseDto {
-      private List<ApprovalResponseDto> content;
-      private int  totalPages;
-      private long totalElements;
-      private int  number;
-      private ApprovalStatsDto stats;
-  }
-
-  ---
-  6. AdminApprovalService.java
-
-  package com.example.demo.domain.admin.management.approval.service;
-
-  import com.example.demo.domain.admin.entity.Admin;
-  import com.example.demo.domain.admin.entity.AdminActionLog;
-  import com.example.demo.domain.admin.enums.ActionType;
-  import com.example.demo.domain.admin.enums.AdminStatus;
-  import com.example.demo.domain.admin.enums.TargetType;
-  import com.example.demo.domain.admin.management.approval.dtos.response.ApprovalPageResponseDto;
-  import com.example.demo.domain.admin.management.approval.dtos.response.ApprovalResponseDto;
-  import com.example.demo.domain.admin.management.approval.dtos.response.ApprovalStatsDto;
-  import com.example.demo.domain.admin.repository.AdminActionLogRepository;
-  import com.example.demo.domain.admin.repository.AdminRepository;
-  import com.example.demo.domain.shared.approval.Approval;
-  import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
-  import com.example.demo.domain.shared.approval.enums.ApprovalType;
-  import com.example.demo.domain.shared.approval.repository.ApprovalRepository;
-  import com.example.demo.domain.shared.reservation.Reservation;
-  import com.example.demo.domain.shared.reservation.enums.Status;
-  import com.example.demo.domain.shared.reservation.repository.ReservationRepository;
-  import com.example.demo.domain.shared.vehicle.Vehicle;
-  import com.example.demo.domain.shared.vehicle.enums.VehicleStatus;
-  import com.example.demo.domain.shared.vehicle.repository.VehicleRepository;
-  import com.example.demo.domain.shared.household.Household;
-  import com.example.demo.domain.shared.household.repository.HouseholdRepository;
-  import com.example.demo.domain.shared.user.User;
-  import com.example.demo.domain.shared.user.repository.UserRepository;
-  import com.example.demo.global.exception.BusinessException;
-  import com.example.demo.global.exception.ErrorCode;
-  import com.example.demo.global.security.admin.AdminAuthDto;
-  import lombok.RequiredArgsConstructor;
-  import org.springframework.data.domain.Page;
-  import org.springframework.data.domain.Pageable;
-  import org.springframework.security.core.context.SecurityContextHolder;
-  import org.springframework.stereotype.Service;
-  import org.springframework.transaction.annotation.Transactional;
-
-  import java.time.LocalDateTime;
-  import java.util.List;
-
-  @Service
-  @RequiredArgsConstructor
-  @Transactional
-  public class AdminApprovalService {
-
-      private final ApprovalRepository      approvalRepository;
-      private final AdminRepository         adminRepository;
-      private final AdminActionLogRepository adminActionLogRepository;
-      private final VehicleRepository       vehicleRepository;
-      private final ReservationRepository   reservationRepository;
-      private final UserRepository          userRepository;
-      private final HouseholdRepository     householdRepository;
-
-      // ── 목록 조회 ──────────────────────────────────────────────────────
-      @Transactional(readOnly = true)
-      public ApprovalPageResponseDto getApprovals(
-              ApprovalType type, ApprovalStatus status,
-              String keyword, Pageable pageable) {
-
-          String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
-          Page<Approval> page = approvalRepository.findAllWithFilters(type, status, kw, pageable);
-
-          List<ApprovalResponseDto> content = page.getContent().stream()
-                  .map(this::toResponseDto)
-                  .toList();
-
-          ApprovalStatsDto stats = ApprovalStatsDto.builder()
-                  .pendingCount(approvalRepository.countByStatus(ApprovalStatus.PENDING))
-                  .approvedCount(approvalRepository.countByStatus(ApprovalStatus.APPROVED))
-                  .rejectedCount(approvalRepository.countByStatus(ApprovalStatus.REJECTED))
-                  .build();
-
-          return ApprovalPageResponseDto.builder()
-                  .content(content)
-                  .totalPages(page.getTotalPages())
-                  .totalElements(page.getTotalElements())
-                  .number(page.getNumber())
-                  .stats(stats)
-                  .build();
-      }
-
-      // ── 승인 ───────────────────────────────────────────────────────────
-      public void approve(Long approvalId) {
-          Admin admin       = getLoginAdmin();
-          Approval approval = findPendingApproval(approvalId);
-          String beforeData = buildStatusJson(approval.getStatus().name());
-
-          switch (approval.getApprovalType()) {
-              case RESIDENT    -> approveResident(approval);
-              case VEHICLE     -> approveVehicle(approval);
-              case RESERVATION -> approveReservation(approval);
-          }
-
-          approval.updateStatus(ApprovalStatus.APPROVED);
-          approval.setProcessedAt(LocalDateTime.now());
-          approval.setProcessedByAdminId(admin.getAdminId());
-
-          saveActionLog(admin, approval, ActionType.APPROVE,
-                  beforeData, buildStatusJson("APPROVED"));
-      }
-
-      // ── 거절 ───────────────────────────────────────────────────────────
-      public void reject(Long approvalId, String rejectReason) {
-          Admin admin       = getLoginAdmin();
-          Approval approval = findPendingApproval(approvalId);
-          String beforeData = buildStatusJson(approval.getStatus().name());
-
-          switch (approval.getApprovalType()) {
-              case VEHICLE     -> rejectVehicle(approval);
-              case RESERVATION -> rejectReservation(approval);
-              case RESIDENT    -> {} // 별도 처리 없음
-          }
-
-          approval.updateStatus(ApprovalStatus.REJECTED);
-          approval.setProcessedAt(LocalDateTime.now());
-          approval.setProcessedByAdminId(admin.getAdminId());
-          approval.setRejectReason(rejectReason);
-
-          saveActionLog(admin, approval, ActionType.REJECT,
-                  beforeData,
-                  String.format("{\"status\":\"REJECTED\",\"rejectReason\":\"%s\"}", rejectReason));
-      }
-
-      // ── 유형별 승인 처리 ────────────────────────────────────────────────
-      private void approveResident(Approval approval) {
-          User user = userRepository.findById(approval.getTargetId())
-                  .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-
-          Household household = householdRepository.findById(
-                  user.getHouseholdId())  // 등록 신청 시 이미 세팅된 household_id
-                  .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-
-          household.activate();   // is_active=ACTIVE, 카운트 0 초기화 (아래 참고)
-      }
-
-      private void approveVehicle(Approval approval) {
-          Vehicle vehicle = vehicleRepository.findById(approval.getTargetId())
-                  .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-          vehicle.setStatus(VehicleStatus.ACTIVE);
-      }
-
-      private void approveReservation(Approval approval) {
-          Reservation reservation = reservationRepository.findById(approval.getTargetId())
-                  .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-          reservation.setStatus(Status.RESERVED);
-      }
-
-      // ── 유형별 거절 처리 ────────────────────────────────────────────────
-      private void rejectVehicle(Approval approval) {
-          Vehicle vehicle = vehicleRepository.findById(approval.getTargetId())
-                  .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-          vehicle.setStatus(VehicleStatus.DELETED);
-      }
-
-      private void rejectReservation(Approval approval) {
-          Reservation reservation = reservationRepository.findById(approval.getTargetId())
-                  .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-          reservation.setStatus(Status.REJECTED);
-      }
-
-      // ── 내부 헬퍼 ──────────────────────────────────────────────────────
-      private Approval findPendingApproval(Long approvalId) {
-          Approval approval = approvalRepository.findById(approvalId)
-                  .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-          if (approval.getStatus() != ApprovalStatus.PENDING) {
-              throw new BusinessException(ErrorCode.INVALID_REQUEST);
-          }
-          return approval;
-      }
-
-      private Admin getLoginAdmin() {
-          AdminAuthDto principal = (AdminAuthDto)
-                  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-          return adminRepository
-                  .findByLoginIdAndStatus(principal.getUsername(), String.valueOf(AdminStatus.ACTIVE))
-                  .orElseThrow(() -> new BusinessException(ErrorCode.ADMIN_NOT_FOUND));
-      }
-
-      private void saveActionLog(Admin admin, Approval approval,
-                                  ActionType actionType, String before, String after) {
-          TargetType targetType = switch (approval.getApprovalType()) {
-              case RESIDENT    -> TargetType.USER;
-              case VEHICLE     -> TargetType.VEHICLE;
-              case RESERVATION -> TargetType.RESERVATION;
-              default          -> TargetType.USER;
-          };
-
-          adminActionLogRepository.save(AdminActionLog.builder()
-                  .admin(admin)
-                  .targetType(targetType)
-                  .actionType(actionType)
-                  .targetId(approval.getApprovalId())
-                  .beforeData(before)
-                  .afterData(after)
-                  .build());
-      }
-
-      private ApprovalResponseDto toResponseDto(Approval approval) {
-          String content           = "";
-          LocalDateTime visitStart = null;
-          LocalDateTime visitEnd   = null;
-
-          switch (approval.getApprovalType()) {
-              case RESIDENT -> content = "입주민 등록 신청";
-              case VEHICLE -> {
-                  Vehicle v = vehicleRepository.findById(approval.getTargetId()).orElse(null);
-                  content = (v != null) ? v.getCarNumber() + " 차량 등록 신청" : "차량 등록 신청";
-              }
-              case RESERVATION -> {
-                  Reservation r = reservationRepository.findById(approval.getTargetId()).orElse(null);
-                  if (r != null) {
-                      content    = r.getCarNumber() + " 방문 예약 신청";
-                      visitStart = r.getVisitStartAt();
-                      visitEnd   = r.getVisitEndAt();
-                  } else {
-                      content = "방문 예약 신청";
-                  }
-              }
-          }
-
-          return ApprovalResponseDto.from(approval, content, visitStart, visitEnd);
-      }
-
-      private String buildStatusJson(String status) {
-          return String.format("{\"status\":\"%s\"}", status);
-      }
-  }
-
-  ---
-  7. AdminApprovalController.java
-
-  package com.example.demo.domain.admin.management.approval.controller;
-
-  import com.example.demo.domain.admin.management.approval.dtos.request.ApprovalRejectRequestDto;
-  import com.example.demo.domain.admin.management.approval.dtos.response.ApprovalPageResponseDto;
-  import com.example.demo.domain.admin.management.approval.service.AdminApprovalService;
-  import com.example.demo.domain.shared.approval.enums.ApprovalStatus;
-  import com.example.demo.domain.shared.approval.enums.ApprovalType;
-  import lombok.RequiredArgsConstructor;
-  import org.springframework.data.domain.PageRequest;
-  import org.springframework.http.ResponseEntity;
-  import org.springframework.web.bind.annotation.*;
-
-  @RestController
-  @RequestMapping("/api/admin/approvals")
-  @RequiredArgsConstructor
-  public class AdminApprovalController {
-
-      private final AdminApprovalService adminApprovalService;
-
-      @GetMapping
-      public ResponseEntity<ApprovalPageResponseDto> getApprovals(
-              @RequestParam(required = false) ApprovalType   type,
-              @RequestParam(required = false) ApprovalStatus status,
-              @RequestParam(required = false) String         keyword,
-              @RequestParam(defaultValue = "0")  int page,
-              @RequestParam(defaultValue = "10") int size
-      ) {
-          return ResponseEntity.ok(
-                  adminApprovalService.getApprovals(type, status, keyword, PageRequest.of(page, size))
-          );
-      }
-
-      @PostMapping("/{approvalId}/approve")
-      public ResponseEntity<Void> approve(@PathVariable Long approvalId) {
-          adminApprovalService.approve(approvalId);
-          return ResponseEntity.ok().build();
-      }
-
-      @PostMapping("/{approvalId}/reject")
-      public ResponseEntity<Void> reject(
-              @PathVariable Long approvalId,
-              @RequestBody ApprovalRejectRequestDto dto
-      ) {
-          adminApprovalService.reject(approvalId, dto.getRejectReason());
-          return ResponseEntity.ok().build();
-      }
-  }
-
-  ---
-  주의사항 2가지
-
-  ① Household.activate() 메서드 추가 필요
-
-  Household 엔티티에 아래 메서드가 없으면 추가해야 합니다:
-
-  public void activate() {
-      this.isActive = HouseholdStatus.ACTIVE;  // 또는 "ACTIVE" Enum에 맞게
-      this.totalVisitCount     = 0;
-      this.todayVisitCount     = 0;
-      this.monthlyVisitCount   = 0;
-      this.activeReservationCount = 0;
-  }
-   
-  Householdn엔티티에N아래메서드가 없으면 추가해야 합니다:
-                            
-  public void activate()c{e/reservation 조회 쿼리가 건별로 추가 실행됩니다. 당장 문제는 없지만 데이터가 많아지면 별도 JOIN 쿼리로 개선이
-      this.isActive = Hous holdStatus.ACTIVE;  // 또는 "ACTIVE" Enum에 맞게                                                             
-      this.totalVisitCount     = 0;
-✻ Brewthis.todayVisitCount     = 0;      
-      this.monthlyVisitCount   = 0;                                             
-──────this.activeReservationCount─=─0;─────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  }                                                                                                                                                
-   ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ② toResponseDto의 N+1 주의                                                                                                                       
-                                                                                                                                                   
-  목록 10건 조회 시 vehicle/reservation 조회 쿼리가 건별로 추가 실행됩니다. 당장 문제는 없지만 데이터가 많아지면 별도 JOIN 쿼리로 개선이
-  필요합니다.
-
-✻ Brewed for 3m 32s
+# 프로젝트 전체 현황 (2026-04-24)
+
+## 기술 스택
+- **백엔드**: Spring Boot 3.x, JPA/Hibernate, QueryDSL, Spring Security + JWT, Redis, MySQL, AWS S3, Naver CLOVA OCR, Gradle
+- **프론트엔드**: React 18+, React Router v6, Redux, Axios, Vite
+
+---
+
+## 백엔드 패키지 구조
+
+```
+com.example.demo
+├── api/                        # REST Controllers
+│   ├── admin/                  # 관리자 API (/api/admin/**)
+│   ├── kiosk/                  # 키오스크 API (/api/kiosk/**)
+│   └── user/                   # 사용자 API (/api/user/**)
+├── domain/                     # 비즈니스 로직
+│   ├── approval/               # 승인
+│   ├── auth/                   # 인증 (Admin, User)
+│   ├── notification/           # 알림
+│   ├── parking/                # 주차 (log, policy, space, entry, exit)
+│   ├── payment/                # 결제 (point, subscription, ticket, ticketpolicy)
+│   ├── report/                 # 신고
+│   ├── reservation/            # 예약
+│   ├── resident/               # 거주자 (household, mypage)
+│   ├── store/                  # 상가 할인권 설정 (StoreTicketConfig)
+│   ├── system/store/           # 상가 (Store, Wallet, Transaction)
+│   └── vehicle/                # 차량, 블랙리스트
+└── global/                     # 공통 인프라
+    ├── config/                 # Security, QueryDSL, S3, Swagger
+    ├── exception/              # ErrorCode, GlobalExceptionHandler
+    ├── redis/                  # Redis 서비스
+    └── security/               # JWT, AuthDto, Filter
+```
+
+---
+
+## 구현된 관리자 API 목록
+
+| 경로 | 메서드 | 기능 |
+|------|--------|------|
+| `/admin/refresh` | POST | 토큰 갱신 |
+| `/admin/logout` | POST | 로그아웃 |
+| `/admin/parking-space/summary` | GET | 주차공간 요약 |
+| `/admin/parking-space` | GET | 층별 주차공간 조회 |
+| `/admin/parking-space/{id}/control` | PATCH | 주차공간 상태 변경 |
+| `/admin/parking/summary` | GET | 입출차 요약 |
+| `/admin/parking/logs` | GET | 입출차 목록 |
+| `/admin/parking/logs/{id}` | GET | 입출차 상세 |
+| `/admin/parking/logs/{id}/force-exit` | POST | 강제 출차 |
+| `/admin/parking/logs/{id}/discount` | PATCH | 할인 수정 |
+| `/admin/fee-policy` | GET | 요금 정책 조회 |
+| `/admin/fee-policy/change` | POST | 요금 정책 변경 |
+| `/admin/fee-policy/history` | GET | 요금 정책 이력 |
+| `/admin/ticket-policy` | POST/DELETE/PUT | 할인권 등록/삭제/비활성화 |
+| `/admin/approvals` | GET | 승인 목록 |
+| `/admin/approvals/{id}/approve` | POST | 승인 |
+| `/admin/approvals/{id}/reject` | POST | 거절 |
+| `/admin/reports` | GET | 신고 목록 |
+| `/admin/reports/{id}/approve` | POST | 신고 승인 |
+| `/admin/reports/{id}/reject` | POST | 신고 거절 |
+| `/admin/management/users` | GET | 사용자 목록 |
+| `/admin/management/users/{id}` | GET | 사용자 상세 |
+| `/admin/management/vehicles` | GET | 차량 목록 |
+| `/admin/management/vehicles/{id}` | GET | 차량 상세 |
+| `/admin/management/subscriptions` | GET | 정기권 목록 |
+| `/admin/management/reservations` | GET | 예약 목록 |
+| `/admin/system-setting` | GET/PUT | 시스템 설정 조회/수정 |
+| `/admin/action-logs` | GET | 액션 로그 목록 |
+| `/admin/action-logs/{id}/revert` | POST | 액션 되돌리기 |
+
+---
+
+## AdminActionLog 현황
+
+### 구조
+- **Entity**: `AdminActionLog` — admin_action_log 테이블
+- **Repository**: `AdminActionLogRepository` — 복합 필터링 + 페이징
+- **Service**:
+  - `AdminActionLogService` — 로그 기록 헬퍼 (insertPolicyAdminLog, toJson, getAdmin)
+  - `AdminActionLogQueryService` — 조회(getActionLogs) + 되돌리기(revert)
+- **DTO**: `ActionLogResponseDto`
+- **Controller**: `AdminActionLogController`
+
+### Enum
+- **ActionType**: CREATE, UPDATE, DELETE, APPROVE, REJECT, REFUND, REPORT, BLACKLIST, ACTIVE, INACTIVE
+- **TargetType**: USER, VEHICLE, PAYMENT, POLICY, RESERVATION, SYSTEM_SETTING, STORE, PARKING_LOG, REPORT
+
+### revert 가능 대상 (UPDATE 타입만)
+- **POLICY** → ParkingFeePolicy.effectiveTo 복원
+- **PARKING_SPACE** → ParkingSpace.status / isDisabled / isEvCharge 복원
+- **PARKING_LOG** → ParkingLog.parkingStatus 복원
+- **STORE** → Store.name / terminalPassword / status 복원 (추가 예정)
+
+### 로그 기록 중인 서비스
+- ParkingFeePolicyService, TicketPolicyService, AdminApprovalService
+- AdminParkingService, AdminParkingSpaceService, AdminReportService
+
+### 남은 작업
+- `changedFields` 필드 저장 로직 없음
+- CREATE/DELETE 타입 revert 미지원
+
+---
+
+## 프론트엔드 구조 (parking_frontend_admin)
+
+```
+src/
+├── features/
+│   ├── auth/               # 로그인
+│   ├── dashboard/          # 대시보드 (미구현)
+│   ├── parkingspace/       # 주차공간 관리
+│   ├── parking-management/ # 입출차 관리
+│   ├── fee/                # 요금 관리 (정책/이력/통계 탭)
+│   ├── user-vehicle/       # 사용자/차량/예약/정기권/블랙리스트
+│   ├── approval/           # 승인관리 + 신고관리 (탭)
+│   ├── action-log/         # 관리자 활동내역 ✅ 구현 중
+│   └── systemsetting/      # 시스템 설정
+└── shared/
+    ├── api/adminApi.js     # Axios 인스턴스 (토큰 자동 갱신)
+    ├── components/         # Header, Sidebar, Pagination
+    └── layouts/Mainlayout.jsx
+```
+
+### 라우팅
+| 경로 | 컴포넌트 |
+|------|---------|
+| `/admin` | LoginPage |
+| `/admin/dashboard` | DashBoard |
+| `/admin/parking-space` | ParkingSpacePage |
+| `/admin/entry-exit` | ParkingLogPage |
+| `/admin/fee` | Fee |
+| `/admin/system-setting` | SystemSettingStatusPage |
+| `/admin/action-log` | ActionLogPage |
+| `/admin/approval/approval-request` | ApprovalRequestPage |
+| `/admin/approval/report` | ReportPage |
+| `/admin/user-vehicle/user` | UserVehicleUser |
+| `/admin/user-vehicle/vehicle` | UserVehicleVehicle |
+| `/admin/user-vehicle/blacklist` | UserVehicleBlacklist |
+| `/admin/user-vehicle/reservation` | UserVehicleReservation |
+| `/admin/user-vehicle/subscription` | UservehicleSubscription |
+
+### 미구현 페이지
+- Dashboard (기본 UI만)
+- **상가 관리** (현재 작업 중)
+
+---
+
+## Store(상가) 관련 테이블
+
+| 테이블 | 설명 |
+|--------|------|
+| `store` | 상가 정보 (name, location, status, terminalPassword) |
+| `store_ticket_config` | 상가별 사용 가능 할인권 정책 + monthly_quota |
+| `store_ticket_wallet` | 상가별 정책별 잔량 (issuedCount, usedCount, remainingCount) |
+| `store_ticket_transaction` | 지갑 변동 로그 (PURCHASE, USE 등) |
+
+### Wallet 로직
+- 지갑은 첫 구매 시 자동 생성 (lazy)
+- remaining=0인 지갑은 목록에서 숨김 (수정 완료)
+- 정책 비활성화 후에도 기존 잔량 사용 가능 (applyTicket에서 정책 status 미검증 — 의도적)
+
+### 상가 관리 페이지 처리 흐름 (작업 예정)
+- **입주 (INACTIVE→ACTIVE)**: status=ACTIVE, 새 비밀번호 설정, deleted_at=null
+- **퇴거 (ACTIVE→INACTIVE)**: status=INACTIVE, deleted_at=now(), wallet 카운트 전부 0 리셋
+- **수정 가능**: name, terminalPassword
+- **수정 불가**: location, createdAt
+
+### 필요 API (미구현)
+| 경로 | 메서드 | 기능 |
+|------|--------|------|
+| `/admin/stores` | GET | 전체 상가 목록 |
+| `/admin/stores/{id}` | GET | 상가 상세 |
+| `/admin/stores/{id}` | PATCH | 이름/비밀번호 수정 |
+| `/admin/stores/{id}/activate` | POST | 입주 처리 |
+| `/admin/stores/{id}/deactivate` | POST | 퇴거 처리 |

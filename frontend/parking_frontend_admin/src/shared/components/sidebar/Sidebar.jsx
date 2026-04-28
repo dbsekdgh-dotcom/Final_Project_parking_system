@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react'
 import './sidebar.css'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import adminApi from '../../api/adminApi'
 
 const mainNav = [
-  { to: '/admin/dashboard', label: '대시보드', id: 'dashboard' },
-  { to: '/admin/parking-space', label: '주차공간', id: 'parking-space' },
-  { to: '/admin/entry-exit', label: '입출차 기록', id: 'entry-exit' },
-  { to: '/admin/fee', label: '요금 설정/조회', id: 'fee' },
-  { to: '/admin/approval/approval-request', label: '승인 관리', id: 'approval', badge: 4, activeMatch: '/admin/approval' },
-  { to: '/admin/user-vehicle/user', label: '사용자 / 차량', id: 'user-vehicle' },
-  { to: '/admin/realtime-io', label: '관리자 활동 내역', id: 'realtime-io' },
+  { to: '/admin/dashboard',                  label: '대시보드',       id: 'dashboard'    },
+  { to: '/admin/parking-space',              label: '주차공간',       id: 'parking-space' },
+  { to: '/admin/entry-exit',                 label: '입출차 기록',    id: 'entry-exit'   },
+  { to: '/admin/fee',                        label: '요금 설정/조회', id: 'fee'          },
+  { to: '/admin/approval/approval-request',  label: '승인 관리',      id: 'approval',    activeMatch: '/admin/approval' },
+  { to: '/admin/user-vehicle/user',          label: '사용자 / 차량',  id: 'user-vehicle' },
+  { to: '/admin/action-log',                 label: '모든 활동 내역', id: 'realtime-io'  },
+  { to: '/admin/store',                      label: '상가 관리',      id: 'store'        },
 ]
 
 const bottomNav = [
-  { to: '#admin', label: '관리자', id: 'admin' },
-  { to: '/admin/system-setting', label: '시스템 설정', id: 'settings' },
+  { to: '#admin',                       label: '관리자',     id: 'admin'    },
+  { to: '/admin/system-setting/status', label: '시스템 설정', id: 'settings', activeMatch: '/admin/system-setting' },
 ]
 
 function IconHome() {
@@ -37,13 +37,23 @@ function IconBuilding() {
   )
 }
 
+function IconStore() {
+  return (
+    <svg className="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  )
+}
+
 function IconList() {
   return (
     <svg className="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="6"  x2="21" y2="6"  />
       <line x1="8" y1="12" x2="21" y2="12" />
       <line x1="8" y1="18" x2="21" y2="18" />
-      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="6"  x2="3.01" y2="6"  />
       <line x1="3" y1="12" x2="3.01" y2="12" />
       <line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
@@ -55,23 +65,6 @@ function IconTag() {
     <svg className="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
       <line x1="7" y1="7" x2="7.01" y2="7" />
-    </svg>
-  )
-}
-
-function IconPlay() {
-  return (
-    <svg className="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <polygon points="5 3 19 12 5 21 5 3" />
-    </svg>
-  )
-}
-
-function IconFile() {
-  return (
-    <svg className="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
     </svg>
   )
 }
@@ -125,77 +118,62 @@ function IconSettings() {
 }
 
 const iconsById = {
-  dashboard: IconHome,
+  dashboard:      IconHome,
   'parking-space': IconBuilding,
-  'entry-exit': IconList,
-  fee: IconTag,
-  'live-video': IconPlay,
-  'video-records': IconFile,
-  'realtime-io': IconArrow,
-  approval: IconCheck,
+  store:          IconStore,
+  'entry-exit':   IconList,
+  fee:            IconTag,
+  'realtime-io':  IconArrow,
+  approval:       IconCheck,
   'user-vehicle': IconUsers,
-  admin: IconAdmin,
-  settings: IconSettings,
+  admin:          IconAdmin,
+  settings:       IconSettings,
 }
 
-export default function Sidebar() {
-  const location = useLocation(); //현재 URL 위치 감지
-  // const [activeId, setActiveId] = useState('dashboard')
+export default function Sidebar({ pendingApproval = 0 }) {
+  const location  = useLocation()
   const [adminName, setAdminName] = useState('Admin')
-  const navigate = useNavigate();
+  const navigate  = useNavigate()
 
   useEffect(() => {
-    const savedName = localStorage.getItem('adminName')
-    if (savedName) {
-      setAdminName(savedName)
-    }
+    const saved = localStorage.getItem('adminName')
+    if (saved) setAdminName(saved)
   }, [])
 
   const renderLink = (item) => {
     const Icon = iconsById[item.id] || IconHome
-    // 현재 주소와 메뉴의 목적지가 같은지 확인
     const isActive = item.activeMatch
       ? location.pathname.startsWith(item.activeMatch)
       : location.pathname === item.to
+
+    const badge = item.id === 'approval' ? pendingApproval : null
+
     return (
       <li key={item.id} className="sidebar__item">
         <Link
           to={item.to}
           className={`sidebar__link${isActive ? ' sidebar__link--active' : ''}`}
-          // onClick={() => setActiveId(item.id)}
         >
           <Icon />
           <span className="sidebar__link-text">{item.label}</span>
-          {item.badge != null && <span className="sidebar__badge">{item.badge}</span>}
+          {badge > 0 && <span className="sidebar__badge">{badge}</span>}
         </Link>
       </li>
     )
   }
 
   const handleLogout = async () => {
-    if (!window.confirm("로그아웃 하시겠습니까?")) return;
-
+    if (!window.confirm('로그아웃 하시겠습니까?')) return
     try {
-      // adminApi 인스턴스를 사용하면 인터셉터가 알아서 토큰을 붙여줌.
-      // baseURL이 '/api/admin'이므로, 뒤에는 '/logout'만 붙이면 됨.
-      await adminApi.post('/logout');
-      // await axios.post('/api/admin/logout',null,{
-      //   withCredentials: true,
-      //   headers: {
-      //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      //   }
-      // })
-      console.log("서버 로그아웃 처리 완료!");
+      await adminApi.post('/logout')
     } catch (error) {
-      console.error("로그아웃 중 오류 발생:", error);
+      console.error('로그아웃 중 오류 발생:', error)
     } finally {
-      // localStorage.removeItem('accessToken');
-      localStorage.clear();
-      alert('로그아웃 되었습니다.');
-      // window.location.href = '/admin'; //리다이렉트
+      localStorage.clear()
+      alert('로그아웃 되었습니다.')
       navigate('/admin')
     }
-  };
+  }
 
   return (
     <aside className="sidebar">
@@ -221,9 +199,8 @@ export default function Sidebar() {
         <span className="sidebar__user-name">{adminName} 관리자님</span>
       </div>
 
-      <ul className="sidebar__nav">{mainNav.map((item) => renderLink(item))}</ul>
-
-      <ul className="sidebar__bottom">{bottomNav.map((item) => renderLink(item))}</ul>
+      <ul className="sidebar__nav">{mainNav.map(renderLink)}</ul>
+      <ul className="sidebar__bottom">{bottomNav.map(renderLink)}</ul>
     </aside>
   )
 }

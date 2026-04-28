@@ -35,6 +35,9 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 
     Optional<Approval> findByTargetIdAndApprovalType(Long targetId, ApprovalType approvalType);
 
+    Optional<Approval> findTopByTargetIdAndApprovalTypeAndStatusOrderByCreatedAtDesc(
+            Long targetId, ApprovalType approvalType, ApprovalStatus status);
+
     // Admin 승인관리 부분
     @Query(
             value = """
