@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './header-css.css'
-import axios from 'axios';
+import api from '../../../features/auth/api/axios';
 
 export function Header() {
   const [parkingData, setParkingData] = useState({
@@ -16,7 +16,7 @@ export function Header() {
       try{
         //test용
         const userType = 'RESIDENT';
-        const response = await axios.get(`http://localhost:8081/api/user/space/summary?userType=${userType}`);
+        const response = await api.get(`/api/user/space/summary?userType=${userType}`);
 
         if (response.data){
           setParkingData(response.data);

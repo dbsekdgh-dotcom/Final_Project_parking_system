@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../auth/api/axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "./DashBoard.css";
@@ -58,8 +58,8 @@ const DashBoard = () => {
         }
 
         try{
-        const response = await axios.get(
-          `http://localhost:8081/api/dashboard?userId=${currentUserId}&page=${page}`);
+        const response = await api.get(
+          `/api/dashboard?userId=${currentUserId}&page=${page}`);
         setData(response.data);
 
       }catch (error){

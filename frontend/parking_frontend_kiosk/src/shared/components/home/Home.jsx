@@ -16,18 +16,18 @@ const Home = () => {
 
           {/* 중앙 메인 카드 섹션 */}
           <div className="card-section">
-            {/* 입차 / 출차 카드 */}
+            {/* 내차 찾기 카드 */}
             <div className="card">
-              <div className="card-title">입차 / 출차</div>
+              <div className="card-title">내차 찾기</div>
               <p className="card-subtext">
-                차량 번호판을 입력하고<br />
-                입차 또는 출차를 선택하세요
+                차량 번호 끝 4자리를 입력하고<br />
+                주차 위치를 확인하세요
               </p>
-              <button 
-                className="main-button" 
-                onClick={() => navigate('/entry-exit')}
+              <button
+                className="main-button"
+                onClick={() => navigate('/find-car')}
               >
-                입차/출차 시작
+                내차 찾기 시작
               </button>
             </div>
 
@@ -38,8 +38,8 @@ const Home = () => {
                 차량 번호판을 입력하고<br />
                 주차 요금을 결제하세요
               </p>
-              <button 
-                className="main-button" 
+              <button
+                className="main-button"
                 onClick={() => navigate('/prepayment')}
               >
                 사전 정산 시작
@@ -52,8 +52,8 @@ const Home = () => {
             <button className="bottom-button" onClick={() => navigate('/store/login')}>
               상가 관리
             </button>
-            <button className="bottom-button" onClick={() => navigate('/find-car')}>
-              내차 찾기
+            <button className="bottom-button" onClick={() => navigate('/entry-exit')}>
+              입차 / 출차
             </button>
           </div>
         </div>
