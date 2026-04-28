@@ -119,13 +119,23 @@ pipeline {
         
         stage('Health Check Server 2') {
             steps {
-                sh 'sleep 30'
+                sh 'sleep 60'
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                    sh """
-                        aws elbv2 describe-target-health \
-                            --target-group-arn ${TG_ARN} \
-                            --region ${AWS_REGION}
-                    """
+                    script {
+                        def health = sh(script: """
+                            aws elbv2 describe-target-health \
+                                --target-group-arn ${TG_ARN} \
+                                --region ${AWS_REGION} \
+                                --query 'TargetHealthDescriptions[?Target.Id==\\"${SERVER_2_ID}\\"].TargetHealth.State' \
+                                --output text
+                        """, returnStdout: true).trim()
+                        
+                        echo "Server 2 health: ${health}"
+                        
+                        if (health != 'healthy') {
+                            error "Server 2 is ${health}. 배포를 중단합니다."
+                        }
+                    }
                 }
             }
         }
@@ -168,6 +178,29 @@ pipeline {
                                     --instance-id ${SERVER_1_ID} \
                                     --region ${AWS_REGION}
                             """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Health Check Server 1') {
+            steps {
+                sh 'sleep 60'
+                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                    script {
+                        def health = sh(script: """
+                            aws elbv2 describe-target-health \
+                                --target-group-arn ${TG_ARN} \
+                                --region ${AWS_REGION} \
+                                --query 'TargetHealthDescriptions[?Target.Id==\\"${SERVER_1_ID}\\"].TargetHealth.State' \
+                                --output text
+                        """, returnStdout: true).trim()
+                        
+                        echo "Server 1 health: ${health}"
+                        
+                        if (health != 'healthy') {
+                            error "Server 1 is ${health}. 배포를 중단합니다."
                         }
                     }
                 }
