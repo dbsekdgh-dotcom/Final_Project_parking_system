@@ -119,7 +119,7 @@ pipeline {
         
         stage('Health Check Server 2') {
             steps {
-                sh 'sleep 60'
+                sh 'sleep 150'
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     script {
                         def health = sh(script: """
@@ -186,7 +186,7 @@ pipeline {
 
         stage('Health Check Server 1') {
             steps {
-                sh 'sleep 90'
+                sh 'sleep 150'
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     script {
                         def health = sh(script: """
