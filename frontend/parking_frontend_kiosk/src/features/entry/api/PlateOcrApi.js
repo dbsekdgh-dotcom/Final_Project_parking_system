@@ -6,8 +6,7 @@ export const requestPlateOcr = async (file) => {
 
   const res = await kioskApi.post(
     `/api/kiosk/ocr/plate`,
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } }
+    formData
   );
 
   return res.data;
