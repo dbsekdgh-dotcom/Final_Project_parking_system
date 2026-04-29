@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import api from "../api/axios";
 import "./AuthAccountLinkWidget.css";
 import PasswordChangeButton from "./PasswordChangeButton";
@@ -45,7 +44,7 @@ export default function AuthAccountLinkWidget({ metaText, badge }) {
   };
 
   const handleLinkSocial = (provider) => {
-    window.location.href = `/oauth2/authorization/${provider}`;
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/${provider}`;
   };
 
   return (
@@ -81,7 +80,7 @@ export default function AuthAccountLinkWidget({ metaText, badge }) {
         {me.hasLocalPassword && <PasswordChangeButton name={me.name} email={me.email} phone={me.phone} />}
       </div>
 
-      {isModalOpen && createPortal(
+      {isModalOpen && (
         <div className="aalw__modal-overlay" onMouseDown={(e) => e.target === e.currentTarget && setIsModalOpen(false)}>
           <div className="aalw__modal">
             <div className="aalw__modal-header">
@@ -109,7 +108,7 @@ export default function AuthAccountLinkWidget({ metaText, badge }) {
             </div>
           </div>
         </div>
-      , document.body)}
+      )}
     </div>
   );
 }
