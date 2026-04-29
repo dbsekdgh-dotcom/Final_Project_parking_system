@@ -36,6 +36,8 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
                 errorType = "email_mismatch";
             } else if ("email_not_found".equals(errorCode)) {
                 errorType = "email_not_found";
+            } else {
+                errorType = errorCode; // 디버깅용: 실제 에러코드 그대로 전달
             }
         }
 
