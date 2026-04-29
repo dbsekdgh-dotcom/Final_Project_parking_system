@@ -55,11 +55,11 @@ public class AiServerClient {
         }
     }
     public void requestPaymentLock(String carNumber){
-        String lockUrl = aiServerUrl + "/api/v1/parking/payment/payment-start";
+        String lockUrl = aiServerUrl + "/api/v1/parking/payment/payment-start/";
         lockPayment(carNumber,lockUrl);
     }
     public void requestPaymentLockRelease(String carNumber){
-        String lockReleaseUrl =aiServerUrl +"/api/v1/parking/payment/payment-end";
+        String lockReleaseUrl =aiServerUrl +"/api/v1/parking/payment/payment-end/";
         lockPayment(carNumber,lockReleaseUrl);
     }
 }
