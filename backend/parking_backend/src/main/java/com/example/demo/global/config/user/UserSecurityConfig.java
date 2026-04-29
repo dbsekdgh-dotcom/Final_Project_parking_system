@@ -22,11 +22,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
 @Order(2)
 public class UserSecurityConfig {
+
+    @Value("${frontend.admin.url}")
+    private String adminUrl;
+    @Value("${frontend.user.url}")
+    private String userUrl;
+    @Value("${frontend.kiosk.url}")
+    private String kioskUrl;
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -100,12 +109,10 @@ public class UserSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // [중요] 쿠키 통신을 위해 프론트엔드 도메인을 명확히 명시 (와일드카드 * 사용 불가)
-//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5202"));
-        // 허용할 오리진(리액트 주소 등) 설정
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:5201",
-                "http://localhost:5202", //윤진추가 삭제예정
-                "http://localhost:5203",//윤진추가 삭제예정
+                adminUrl,
+                userUrl,
+                kioskUrl,
                 "https://admin.parking-system.store",
                 "https://user.parking-system.store",
                 "https://kiosk.parking-system.store"
