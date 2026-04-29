@@ -14,7 +14,9 @@ const OAuthRedirectPage = () => {
         if (isprocessed.current) return;
 
         const run = async () => {
+            console.log("[OAuth] 전체 파라미터:", Object.fromEntries(searchParams.entries()));
             const error = searchParams.get("error");
+            if (error) console.log("[OAuth] 에러 코드:", error);
 
             // 한글 이름 깨짐 방지 및 데이터 추출
             const rawName = searchParams.get("name");
