@@ -60,8 +60,10 @@ pipeline {
                 withCredentials([file(credentialsId: 'env-file-server1', variable: 'ENV_FILE')]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
+                            # 프론트 빌드용 .env 복사 (레포 최상위 - envDir: '../../' 설정 기준)
+                            cp ${ENV_FILE} .env
+
                             # Admin 빌드 및 배포
-                            cp ${ENV_FILE} ./frontend/parking_frontend_admin/.env
                             cd ./frontend/parking_frontend_admin
                             rm -rf node_modules
                             /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
@@ -71,7 +73,6 @@ pipeline {
                             cd ../..
 
                             # User 빌드 및 배포
-                            cp ${ENV_FILE} ./frontend/parking_frontend_user/.env
                             cd ./frontend/parking_frontend_user
                             rm -rf node_modules
                             /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
@@ -81,7 +82,6 @@ pipeline {
                             cd ../..
 
                             # Kiosk 빌드 및 배포
-                            cp ${ENV_FILE} ./frontend/parking_frontend_kiosk/.env
                             cd ./frontend/parking_frontend_kiosk
                             rm -rf node_modules
                             /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
