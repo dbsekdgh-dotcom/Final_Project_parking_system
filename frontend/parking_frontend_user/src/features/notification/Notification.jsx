@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState} from "react";
-import { fetchNotifications, markAsRead, deleteNotification } from "./api/notificationApi";
+import { fetchNotifications, markAsRead, deleteNotification } from "./api/NotificationApi";
 import './Notification.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
