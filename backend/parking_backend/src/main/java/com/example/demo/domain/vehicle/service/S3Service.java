@@ -1,7 +1,8 @@
 package com.example.demo.domain.vehicle.service;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 @Slf4j
@@ -32,10 +34,15 @@ public class S3Service {
             metadata.setContentLength(file.getSize());
             metadata.setContentType(resolveContentType(file));
 
-            amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata));
 
-            return amazonS3.getUrl(bucket, fileName).toString();
+            // ACL 없이 업로드 후 5분짜리 pre-signed URL 생성 (Naver OCR API 호출용)
+            Date expiration = new Date(System.currentTimeMillis() + 5 * 60 * 1000);
+            GeneratePresignedUrlRequest presignedRequest =
+                    new GeneratePresignedUrlRequest(bucket, fileName, HttpMethod.GET)
+                            .withExpiration(expiration);
+
+            return amazonS3.generatePresignedUrl(presignedRequest).toString();
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
         }
