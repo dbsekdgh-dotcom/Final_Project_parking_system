@@ -16,7 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "11. 블랙리스트 관리 (Blacklist)", description = "차량 블랙리스트 등록·해제·목록·상세 API")
+@Tag(name = "17. 블랙리스트 관리 (Blacklist)", description = "차량 블랙리스트 등록·해제·목록·상세 API")
 @RestController
 @RequestMapping("/api/admin/management/blacklist")
 @RequiredArgsConstructor

@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
-@Tag(name = "K2. 키오스크 OCR", description = "번호판 이미지를 AI 서버로 전달해 차량 번호를 인식하는 OCR API")
+@Tag(name = "6. 키오스크 OCR (Kiosk OCR)", description = "번호판 이미지를 AI 서버로 전달해 차량 번호를 인식하는 OCR API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kiosk/ocr")
