@@ -65,8 +65,8 @@ export default function ReportModal({ onClose }) {
 
       await api.post("/api/user/report", params);
 
-      await alertReportSuccess();
       onClose();
+      await alertReportSuccess();
       window.location.reload();
     } catch (error) {
       console.error("신고 접수 에러:", error);
