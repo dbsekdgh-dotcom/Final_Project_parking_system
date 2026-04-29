@@ -53,9 +53,7 @@ export default function ReportModal({ onClose }) {
       const pythonFormData = new FormData();
       pythonFormData.append("file", file);
 
-      const pythonRes = await api.post(`/api/user/report/upload`, pythonFormData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const pythonRes = await api.post(`/api/user/report/upload`, pythonFormData);
 
       const s3Path = pythonRes.data.report_s3path;
 
