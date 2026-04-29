@@ -99,7 +99,7 @@ pipeline {
             steps {
                 withCredentials([
                     usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
-                    file(credentialsId: 'env-file', variable: 'ENV_FILE')
+                    file(credentialsId: 'env-file-server2', variable: 'ENV_FILE')
                 ]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
