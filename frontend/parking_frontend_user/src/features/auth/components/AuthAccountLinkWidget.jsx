@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import api from "../api/axios";
 import "./AuthAccountLinkWidget.css";
 import PasswordChangeButton from "./PasswordChangeButton";

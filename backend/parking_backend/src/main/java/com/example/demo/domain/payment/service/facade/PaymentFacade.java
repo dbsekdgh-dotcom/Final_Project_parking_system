@@ -72,6 +72,15 @@ public class PaymentFacade {
         try {
             // 1. 결제 대상자 확인
             parkingLog = settlementService.validateVehicleStatus(dto.getParkingLogId());
+            // 입주민/정기권 등 결제 면제 차량 (NONE) — 요금 계산 없이 즉시 완료
+            if (com.example.demo.domain.parking.log.enums.PaymentStatus.NONE.equals(parkingLog.getPaymentStatus())) {
+                return PaymentReadyResponseDto.builder()
+                        .isPaymentRequired(false)
+                        .parkingLogId(parkingLog.getParkingLogId())
+                        .vehicleNumber(parkingLog.getCarNumberSnapshot())
+                        .amount(0)
+                        .build();
+            }
             // 2. 결제 금액 계산
             VehiclePaymentResponseDto vehiclePaymentResponseDto = paymentService.requestPayment(parkingLog);
             // 3. 이미 결제 진행 중인지 확인

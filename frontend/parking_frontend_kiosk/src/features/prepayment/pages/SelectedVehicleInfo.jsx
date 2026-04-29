@@ -38,6 +38,17 @@ const SelectedVehicleInfo = () => {
         console.log("지금 결제",data)
         if(isPaymentLoading)return;
 
+        if(data?.free){
+            navigate("./PrepaymentResult",{
+                 state:{                                                                                                                                                               
+                    title:"무료 출차 가능합니다.",                                                                                                                                    
+                    subTitle: data.message || "등록된 차량입니다.",                                                                                                                   
+                    type:"success"                                                                                                                                                    
+                }   
+            })
+            return
+        }
+
         setIsPaymentLoading(true)
 
         const settlementPayload={

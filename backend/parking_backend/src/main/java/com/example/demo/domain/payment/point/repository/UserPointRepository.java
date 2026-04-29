@@ -19,11 +19,11 @@ public interface UserPointRepository extends JpaRepository<UserPoint,Long> {
     //포인트 차감 : 현재 잔액보다 많은 경우만 차감
     //entityManager.refresh(userPoint)  쿼리 실행 후 영속성 컨텍스트를 최신화 합니다.
     @Modifying(clearAutomatically = true) //쿼리 실행 후 영속성 컨텍스트를 비움
-    @Query("update UserPoint up set up.currentPoint=:currentPoint-:amount where up.userId=:userId and up.currentPoint>=:amount")
+    @Query("update UserPoint up set up.currentPoint=up.currentPoint-:amount where up.userId=:userId and up.currentPoint>=:amount")
     int decreasePoint (@Param("userId") long userId,@Param("amount") int amount);
 
     @Modifying(clearAutomatically = true)
-    @Query("update UserPoint up set up.currentPoint=:currentPoint+:amount where up.userId=:userId")
+    @Query("update UserPoint up set up.currentPoint=up.currentPoint+:amount where up.userId=:userId")
     int increasePoint (@Param("userId") long userId,@Param("amount") int amount);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
