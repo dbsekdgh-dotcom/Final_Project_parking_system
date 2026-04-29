@@ -20,7 +20,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle,Long> {
     Optional<Vehicle> findByCarNumber(String carNumber);
 
 
-    @Query("SELECT v FROM Vehicle v WHERE v.user.userId = :userId AND v.status != 'DELETED'")
+    @Query("SELECT v FROM Vehicle v WHERE v.user.userId = :userId AND v.status != com.example.demo.domain.vehicle.enums.VehicleStatus.DELETED")
     Optional<Vehicle> findCurrentVehicle(@Param("userId") Long userId);
 
     //윤진 추가
