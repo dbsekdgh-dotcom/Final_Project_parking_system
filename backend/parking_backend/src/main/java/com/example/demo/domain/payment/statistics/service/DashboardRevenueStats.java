@@ -73,7 +73,9 @@ public class DashboardRevenueStats {
             months.add(today.minusMonths(i).format(DateTimeFormatter.ofPattern("yyyy-M")));
         }
         //월별 집계
-        Map<String,List<DailyRevenueByTypeDto>> map=dailyPayments.stream().collect(Collectors.groupingBy(p->p.getDate().format(DateTimeFormatter.ofPattern("yyyy-M"))));
+        Map<String,List<DailyRevenueByTypeDto>> map=dailyPayments.stream()
+                .collect(Collectors.groupingBy(p->p.getDate()
+                        .format(DateTimeFormatter.ofPattern("yyyy-M"))));
         List<DashboardMonthlyRevenueDto> result=new ArrayList<>();
         for(String month: months){
             long amount = 0;

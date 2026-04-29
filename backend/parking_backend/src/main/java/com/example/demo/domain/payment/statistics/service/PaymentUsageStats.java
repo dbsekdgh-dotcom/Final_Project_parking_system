@@ -71,7 +71,9 @@ public class PaymentUsageStats {
                 // 할인권 할인 가치 계산
                 // -할인 전 주차요금
                 ParkingFeePolicy policy=policies.stream()
-                        .filter(p->p.getId().equals(l.getParkingFeePolicyId())).findFirst().orElseThrow(()->new BusinessException(ErrorCode.INVALID_REQUEST));
+                        .filter(p->p.getId().equals(l.getParkingFeePolicyId()))
+                        .findFirst()
+                        .orElseThrow(()->new BusinessException(ErrorCode.INVALID_REQUEST));
                 long parkingTime=calculateBillableTime(l.getEnteredAt(),l.getExitedAt(),policy);
                 int rawFee=calculatedFee(parkingTime,policy);
                 // -할인 후 주차요금
