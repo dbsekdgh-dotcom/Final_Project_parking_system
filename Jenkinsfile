@@ -57,7 +57,7 @@ pipeline {
 
         stage('Build & Deploy Frontend') {
             steps {
-                withCredentials([file(credentialsId: 'env-file', variable: 'ENV_FILE')]) {
+                withCredentials([file(credentialsId: 'env-file-server1', variable: 'ENV_FILE')]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
                             # 프론트 빌드용 .env 복사
@@ -196,7 +196,7 @@ pipeline {
                 }
                 withCredentials([
                     usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
-                    file(credentialsId: 'env-file', variable: 'ENV_FILE')
+                    file(credentialsId: 'env-file-server1', variable: 'ENV_FILE')
                 ]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
