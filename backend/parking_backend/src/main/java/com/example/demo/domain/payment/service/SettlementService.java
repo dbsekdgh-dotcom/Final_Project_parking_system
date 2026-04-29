@@ -148,7 +148,7 @@ public class SettlementService {
         }
         //유저 포인트 검증
         User user=parkingLogRepository.getDetailLogInfo(parkingLogId).map(ParkingLog::getVehicle).map(Vehicle::getUser).orElse(null);
-        int userCurrentPoint=user!=null?userPointRepository.findByUserUserId(user.getUserId()).get().getCurrentPoint() : 0;
+        int userCurrentPoint=user!=null?userPointRepository.findByUserUserId(user.getUserId()).map(UserPoint::getCurrentPoint).orElse(0) : 0;
         if(userCurrentPoint<usedPoint){
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
@@ -346,8 +346,8 @@ public class SettlementService {
             userPointRepository.save(newUserPoint);
         }
 
-        //업데이트 후 최신 정보를 가져오기
-        entityManager.refresh(userPoint);
+        //업데이트 후 최신 정보를 가져오기 (JPQL update 후 clearAutomatically로 컨텍스트가 비워지므로 재조회)
+        userPoint = userPointRepository.findByUserUserId(userId).orElseThrow(() -> new BusinessException(ErrorCode.INSUFFICIENT_POINTS));
 
         //pointLog insert
         PointLog pointLog=PointLog.builder()
