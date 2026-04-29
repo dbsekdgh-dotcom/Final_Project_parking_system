@@ -25,7 +25,6 @@ public class AdminUserDetailService implements UserDetailsService {
         //1. DB에서 loginId로 관리자 정보 조회
         Admin admin = adminRepository.findByLoginId(loginId)
                 .orElseThrow(()->new UsernameNotFoundException("해당 아이디를 가진 관리자가 없습니다: "+loginId));
-
         //2. 계정 상태 체크 (ACTIVE 상태일때만 로그인 허용)
         if(admin.getStatus()!= AdminStatus.ACTIVE){
             log.error("---------- [AdminAuth] 비활성화된 계정 접근: "+loginId+" ----------");
