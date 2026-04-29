@@ -39,6 +39,6 @@ public class KioskOcrController {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-        return restTemplate.postForEntity(aiServerUrl + "/api/v1/parking/entryexit", request, Map.class);
+        return restTemplate.postForEntity(aiServerUrl + "/api/v1/parking/entryexit/", request, Map.class);
     }
 }
