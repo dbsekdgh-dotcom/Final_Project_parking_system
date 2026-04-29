@@ -42,7 +42,6 @@ public class AdminParkingLogController {
     @GetMapping("/parking/summary")
     public ResponseEntity<ParkingLogSummaryResponse> getParkingSummary(){
         ParkingLogSummaryResponse summary = parkingLogService.getMainSummary();
-
         return ResponseEntity.ok(summary);
     }
 
