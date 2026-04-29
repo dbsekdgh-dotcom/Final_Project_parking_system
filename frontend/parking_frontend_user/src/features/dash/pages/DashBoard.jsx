@@ -94,9 +94,9 @@ const DashBoard = () => {
       });
     }
 
-    //캐시 없을 때만 토스트 표시
+    //캐시 없을 때만 토스트 표시 (로그인 성공 모달과 충돌 방지)
     const isFirstLoad = page === 0 && !sessionStorage.getItem(CACHE_KEY);
-    if (isFirstLoad) {
+    if (isFirstLoad && !name) {
       loadingToast.fire({ icon: "info", title: "데이터를 불러오는 중..." });
     }
 
