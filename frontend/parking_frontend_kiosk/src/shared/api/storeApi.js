@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const storeApi = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || '',
+    baseURL: '',
     timeout: 10000,
 });
 
