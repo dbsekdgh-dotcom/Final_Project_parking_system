@@ -29,6 +29,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // 일반적으로 설정해둠
@@ -37,6 +39,13 @@ import java.util.List;
 @Order(1)
 public class
 AdminSecurityConfig {
+    @Value("${frontend.admin.url}")
+    private String adminUrl;
+    @Value("${frontend.user.url}")
+    private String userUrl;
+    @Value("${frontend.kiosk.url}")
+    private String kioskUrl;
+
     private final AdminUserDetailService adminUserDetailService;
     private final AdminJWTUtil adminJWTUtil;
     private final AdminAccessDeniedHandler adminAccessDeniedHandler;
@@ -108,9 +117,9 @@ AdminSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 오리진(리액트 주소 등) 설정
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:5201",
-                "http://localhost:5202", //윤진추가 삭제예정
-                "http://localhost:5203",//윤진추가 삭제예정
+                adminUrl,
+                userUrl,
+                kioskUrl,
                 "https://admin.parking-system.store",
                 "https://user.parking-system.store",
                 "https://kiosk.parking-system.store",

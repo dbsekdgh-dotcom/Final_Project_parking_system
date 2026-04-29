@@ -8,7 +8,6 @@ import LogoutButton from '../../../features/auth/components/LogoutButton'
 import WithdrawButton from '../../../features/auth/components/WithdrawButton'
 import { fetchUserStatus } from '../../../features/apply/api/applyApi'
 import Noti from "../../../features/notification/Notification";
-import { fetchUnreadCount } from '../../../features/notification/api/notificationApi'; 
 import api from '../../../features/auth/api/axios';
 
 

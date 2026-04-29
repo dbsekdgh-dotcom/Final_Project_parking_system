@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException; // ⭐ 추가
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -15,6 +16,9 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
+
+    @Value("${frontend.user.url}")
+    private String frontendUserUrl;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
@@ -36,7 +40,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         }
 
         // 리액트로 이동 (에러 코드를 정확히 실어서 보냄)
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
+        String targetUrl = UriComponentsBuilder.fromUriString(frontendUserUrl + "/oauth-redirect")
                 .queryParam("error", errorType)
                 .build().toUriString();
 

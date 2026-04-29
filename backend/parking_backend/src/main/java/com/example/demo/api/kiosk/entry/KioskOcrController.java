@@ -1,5 +1,7 @@
 package com.example.demo.api.kiosk.entry;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
+@Tag(name = "K2. 키오스크 OCR", description = "번호판 이미지를 AI 서버로 전달해 차량 번호를 인식하는 OCR API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kiosk/ocr")
@@ -22,6 +25,7 @@ public class KioskOcrController {
     @Value("${AI_SERVER_URL}")
     private String aiServerUrl;
 
+    @Operation(summary = "번호판 OCR 인식", description = "번호판 이미지를 AI 서버로 전송해 차량 번호를 추출합니다. 입차 시 키오스크에서 사용됩니다.")
     @PostMapping("/plate")
     public ResponseEntity<Map> plateOcr(@RequestParam("file") MultipartFile file) throws Exception {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();

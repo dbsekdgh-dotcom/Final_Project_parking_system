@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -32,6 +33,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    @Value("${frontend.user.url}")
+    private String frontendUserUrl;
 
     private final AdminJWTUtil adminJWTUtil;
     private final UserAuthRepository userAuthRepository;
@@ -89,7 +93,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         if (email == null) {
-            response.sendRedirect("http://localhost:5202/?error=email_not_found");
+            response.sendRedirect(frontendUserUrl + "/?error=email_not_found");
             return;
         }
 
@@ -99,7 +103,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         if (user != null && user.getStatus() == Status.DELETED) {
             log.info("### [탈퇴 유저 감지] 복구 URL 생성: email={}, providerId={}", email, providerId);
 
-            String recoveryUrl = UriComponentsBuilder.fromUriString("http://localhost:5202/")
+            String recoveryUrl = UriComponentsBuilder.fromUriString(frontendUserUrl + "/")
                     .queryParam("error", "WITHDRAWN")
                     .queryParam("email", email)
                     .queryParam("provider", provider)
@@ -159,7 +163,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         // 리다이렉트 URL에는 UI용 정보만 포함 (토큰 제외)
-        UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromUriString("http://localhost:5202/oauth-redirect")
+        UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromUriString(frontendUserUrl + "/oauth-redirect")
                 .queryParam("userId", user.getUserId())
                 .queryParam("name", name)
                 .queryParam("email", email)
