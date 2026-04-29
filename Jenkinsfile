@@ -61,6 +61,7 @@ pipeline {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
                             # 프론트 빌드용 .env 복사 (레포 최상위 - envDir: '../../' 설정 기준)
+                            rm -f .env
                             cp ${ENV_FILE} .env
 
                             # Admin 빌드 및 배포
