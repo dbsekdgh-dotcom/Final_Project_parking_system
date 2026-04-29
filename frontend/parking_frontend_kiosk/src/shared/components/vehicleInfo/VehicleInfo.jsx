@@ -28,7 +28,7 @@ const VehicleInfo = ({vehicleNumber,parkingTime,fee}) => {
             </div>
             <div className="info-group">
                 <span className="info-label">주차 요금</span>
-                <span className="fee-text">{fee==0?'무료':fee.toLocaleString()+'원'}</span>
+                <span className="fee-text">{fee==0?'무료':(fee?.toLocaleString()??'0')+'원'}</span>
             </div>
         </div>
     </div>

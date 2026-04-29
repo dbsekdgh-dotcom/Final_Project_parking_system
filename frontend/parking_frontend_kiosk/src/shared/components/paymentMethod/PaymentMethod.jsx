@@ -29,7 +29,7 @@ const PaymentMethod = ({fee,userPoint,onConfirm,isLoading}) => {
             {userPoint>0 &&
             <div className='payment-box point-box'>
                 <div className='point-header'>
-                    <span>포인트 사용 (보유 : {userPoint.toLocaleString()})</span>
+                    <span>포인트 사용 (보유 : {userPoint?.toLocaleString()})</span>
                 </div>
                 <div className='point-input-group'>
                     <input type='number' placeholder='0' className='point-input' onChange={(e)=>pointUseHandler(e)} value={usePoint==0?'':usePoint}></input>
