@@ -57,49 +57,60 @@ pipeline {
 
         stage('Build & Deploy Frontend') {
             steps {
-                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                    sh """
-                        # Admin 빌드 및 배포
-                        cd ./frontend/parking_frontend_admin
-                        rm -rf node_modules
-                        /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
-                        /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
-                        aws s3 sync dist/ s3://${ADMIN_BUCKET} --delete
-                        aws cloudfront create-invalidation --distribution-id ${ADMIN_CF_ID} --paths "/*"
-                        cd ../..
+                withCredentials([file(credentialsId: 'env-file', variable: 'ENV_FILE')]) {
+                    withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                        sh """
+                            # 프론트 빌드용 .env 복사
+                            cp ${ENV_FILE} /var/lib/jenkins/.env
 
-                        # User 빌드 및 배포
-                        cd ./frontend/parking_frontend_user
-                        rm -rf node_modules
-                        /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
-                        /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
-                        aws s3 sync dist/ s3://${USER_BUCKET} --delete
-                        aws cloudfront create-invalidation --distribution-id ${USER_CF_ID} --paths "/*"
-                        cd ../..
+                            # Admin 빌드 및 배포
+                            cd ./frontend/parking_frontend_admin
+                            rm -rf node_modules
+                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
+                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
+                            aws s3 sync dist/ s3://${ADMIN_BUCKET} --delete
+                            aws cloudfront create-invalidation --distribution-id ${ADMIN_CF_ID} --paths "/*"
+                            cd ../..
 
-                        # Kiosk 빌드 및 배포
-                        cd ./frontend/parking_frontend_kiosk
-                        rm -rf node_modules
-                        /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
-                        /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
-                        aws s3 sync dist/ s3://${KIOSK_BUCKET} --delete
-                        aws cloudfront create-invalidation --distribution-id ${KIOSK_CF_ID} --paths "/*"
-                        cd ../..
-                    """
+                            # User 빌드 및 배포
+                            cd ./frontend/parking_frontend_user
+                            rm -rf node_modules
+                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
+                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
+                            aws s3 sync dist/ s3://${USER_BUCKET} --delete
+                            aws cloudfront create-invalidation --distribution-id ${USER_CF_ID} --paths "/*"
+                            cd ../..
+
+                            # Kiosk 빌드 및 배포
+                            cd ./frontend/parking_frontend_kiosk
+                            rm -rf node_modules
+                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
+                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
+                            aws s3 sync dist/ s3://${KIOSK_BUCKET} --delete
+                            aws cloudfront create-invalidation --distribution-id ${KIOSK_CF_ID} --paths "/*"
+                            cd ../..
+                        """
+                    }
                 }
             }
         }
         
         stage('Deploy to Server 2') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                withCredentials([
+                    usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
+                    file(credentialsId: 'env-file', variable: 'ENV_FILE')
+                ]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                        sh """
+                            aws s3 cp ${ENV_FILE} s3://${ADMIN_BUCKET}/server.env
+                        """
                         script {
                             def cmdId = sh(script: """
                                 aws ssm send-command \
                                     --instance-ids ${SERVER_2_ID} \
                                     --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose -f docker-compose.server2.yml pull && sudo docker rm -f parking-backend && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -f"]}' \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose -f docker-compose.server2.yml pull && sudo docker rm -f parking-backend && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -f"]}' \
                                     --region ${AWS_REGION} \
                                     --query 'Command.CommandId' \
                                     --output text
@@ -183,14 +194,20 @@ pipeline {
                             --region ${AWS_REGION}
                     """
                 }
-                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                withCredentials([
+                    usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
+                    file(credentialsId: 'env-file', variable: 'ENV_FILE')
+                ]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                        sh """
+                            aws s3 cp ${ENV_FILE} s3://${ADMIN_BUCKET}/server.env
+                        """
                         script {
                             def cmdId = sh(script: """
                                 aws ssm send-command \
                                     --instance-ids ${SERVER_1_ID} \
                                     --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose pull && sudo docker rm -f parking-backend && sudo docker compose up -d && sudo docker image prune -f"]}' \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose pull && sudo docker rm -f parking-backend && sudo docker compose up -d && sudo docker image prune -f"]}' \
                                     --region ${AWS_REGION} \
                                     --query 'Command.CommandId' \
                                     --output text
