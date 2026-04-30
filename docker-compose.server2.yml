@@ -5,7 +5,7 @@ services:
     ports:
       - "8081:8081"
     env_file:
-      - .env
+      - .env.server2
     environment:
       - AI_SERVER_URL=http://ai:8000
       - SPRING_DATASOURCE_URL=${DB_URL}
@@ -22,7 +22,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - .env.server2
     environment:
       - REDIS_HOST=10.0.10.173
       - REDIS_PORT=6379

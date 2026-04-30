@@ -69,6 +69,8 @@ api.interceptors.response.use(
                 localStorage.removeItem("userStatus");
                 localStorage.removeItem("unitNo");
                 localStorage.removeItem("userId");
+                sessionStorage.removeItem("sessionActive");
+                sessionStorage.removeItem("loginSuccess");
                 window.location.href = "/";
                 return Promise.reject(refreshError);
             } finally {

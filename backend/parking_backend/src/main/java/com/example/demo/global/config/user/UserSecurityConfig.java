@@ -56,7 +56,10 @@ public class UserSecurityConfig {
                 .cors(cors -> cors.configurationSource(userCorsConfigurationSource()))
 
                 // 3. 세션 정책: JWT를 쓰므로 세션을 생성하지 않음 (STATELESS)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionFixation(fixation -> fixation.none())
+                )
 
                 .logout(logout -> logout.disable())
 
