@@ -144,6 +144,8 @@ public class AdminApprovalService {
         household.setTodayVisitCount(0);
         household.setMonthlyVisitCount(0);
         household.setActiveReservationCount(0);
+        // 신청자 User를 해당 Household에 연결 — 이 연결이 없으면 승인 후에도 입주민 미인식
+        approval.getRequestUserId().setHousehold(household);
     }
     private void approveVehicle(Approval approval){
         Vehicle vehicle = vehicleRepository.findById(approval.getTargetId())
@@ -165,6 +167,11 @@ public class AdminApprovalService {
         Reservation reservation = reservationRepository.findById(approval.getTargetId())
                 .orElseThrow(()-> new BusinessException(ErrorCode.INVALID_REQUEST));
         reservation.updateStatus(Status.REJECTED);
+        // 예약 생성 시 증가한 activeReservationCount 복원
+        var user = approval.getRequestUserId();
+        if (user != null && user.getHousehold() != null) {
+            householdRepository.decrementActiveReservationCount(user.getHousehold().getHouseholdId());
+        }
     }
     // 승인
     public void approve(Long approvalId){
