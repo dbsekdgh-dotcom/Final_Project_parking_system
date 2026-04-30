@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../auth/api/axios';
 import ReservationList from '../components/ReservationList';
 import ReservationModal from '../components/ReservationModal';
 import './ReservationPage.css';
@@ -21,12 +22,27 @@ const ResidentOnlyModal = ({ onClose }) => (
 
 const ReservationPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isResident, setIsResident] = useState(localStorage.getItem('userStatus') === 'RESIDENT');
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
-    const memberStatus = localStorage.getItem('userStatus') ?? 'NONE';
-    const isResident = memberStatus === 'RESIDENT';
+    useEffect(() => {
+        api.get('/api/user/auth/local/me')
+            .then(res => {
+                const status = res.data.userStatus ?? 'NONE';
+                localStorage.setItem('userStatus', status);
+                if (res.data.unitNo != null) localStorage.setItem('unitNo', String(res.data.unitNo));
+                setIsResident(status === 'RESIDENT');
+            })
+            .catch(() => {
+                setIsResident(localStorage.getItem('userStatus') === 'RESIDENT');
+            })
+            .finally(() => setIsLoading(false));
+    }, []);
 
     const handleRestrictedClose = () => navigate(-1);
+
+    if (isLoading) return null;
 
     return (
         <div className="reservation-page">

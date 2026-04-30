@@ -1,5 +1,8 @@
 package com.example.demo.domain.auth.user.service;
 
+import com.example.demo.domain.approval.enums.ApprovalStatus;
+import com.example.demo.domain.approval.enums.ApprovalType;
+import com.example.demo.domain.approval.repository.ApprovalRepository;
 import com.example.demo.domain.resident.User;
 import com.example.demo.domain.resident.UserRepository;
 import com.example.demo.domain.resident.enums.Status;
@@ -26,6 +29,7 @@ public class UserLinkService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserVerificationService userVerificationService;
+    private final ApprovalRepository approvalRepository;
 
     @Transactional
     public void addLocalPassword(String email, UserPasswordUpdateRequestDto userPasswordUpdateRequestDto) {
@@ -59,6 +63,17 @@ public class UserLinkService {
         boolean hasNaver = socialAccounts.stream()
                 .anyMatch(sa -> sa.getProvider() == Provider.NAVER);
 
+        String userStatus;
+        Integer unitNo = null;
+        if (user.getHousehold() != null) {
+            userStatus = "RESIDENT";
+            unitNo = user.getHousehold().getUnitNo();
+        } else {
+            boolean hasPending = approvalRepository.existsByRequestUserIdAndApprovalTypeAndStatus(
+                    user, ApprovalType.RESIDENT, ApprovalStatus.PENDING);
+            userStatus = hasPending ? "PENDING" : "NONE";
+        }
+
         return UserMeResponseDto.builder()
                 .email(user.getEmail())
                 .name(user.getName())
@@ -67,6 +82,8 @@ public class UserLinkService {
                 .hasLocalPassword(user.getPassword() != null)
                 .hasKakao(hasKakao)
                 .hasNaver(hasNaver)
+                .userStatus(userStatus)
+                .unitNo(unitNo)
                 .build();
     }
     @Transactional

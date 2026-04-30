@@ -20,4 +20,6 @@ public class UserMeResponseDto {
     private boolean hasLocalPassword;
     private boolean hasKakao;
     private boolean hasNaver;
+    private String userStatus;
+    private Integer unitNo;
 }
