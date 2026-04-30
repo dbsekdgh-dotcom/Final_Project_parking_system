@@ -96,7 +96,8 @@ public class PaymentFacade {
             return paymentReadyResponseDto;
         }catch (BusinessException e){
             log.error("사전 검증 중 비즈니스 예외 발생: {}", e.getMessage());
-            if(parkingLog!=null){
+            // ALREADY_PROCESSING은 다른 요청이 잡은 락이므로 해제하지 않음
+            if(parkingLog!=null && e.getErrorCode() != ErrorCode.ALREADY_PROCESSING){
                 settlementService.releasePaymentLock(parkingLog.getParkingLogId());
                 aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
             }

@@ -51,7 +51,7 @@ public class ReportController {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-        return restTemplate.postForEntity(aiServerUrl + "/api/v1/parking/report", request, Map.class);
+        return restTemplate.postForEntity(aiServerUrl + "/api/v1/parking/report/", request, Map.class);
     }
 
     @Operation(summary = "신고 접수", description = "차량번호·신고 유형·설명·이미지 S3 경로를 받아 신고를 접수합니다.", security = @SecurityRequirement(name = "jwtAuth"))

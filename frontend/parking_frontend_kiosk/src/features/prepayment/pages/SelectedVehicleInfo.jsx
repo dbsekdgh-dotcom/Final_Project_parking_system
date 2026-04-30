@@ -39,7 +39,7 @@ const SelectedVehicleInfo = () => {
         if(isPaymentLoading)return;
 
         if(data?.free){
-            navigate("./PrepaymentResult",{
+            navigate("/PrepaymentResult",{
                  state:{                                                                                                                                                               
                     title:"무료 출차 가능합니다.",                                                                                                                                    
                     subTitle: data.message || "등록된 차량입니다.",                                                                                                                   

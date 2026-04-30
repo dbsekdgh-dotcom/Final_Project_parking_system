@@ -49,6 +49,7 @@ export default function ApprovalRequestPage() {
   // 거절 모달 상태
   const [rejectTarget, setRejectTarget] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [approvingId, setApprovingId] = useState(null);
 
   // ── 통계 ──
   const [stats,setStats] = useState({
@@ -105,12 +106,16 @@ export default function ApprovalRequestPage() {
 
   //  승인
   const handleApprove = async(approvalId) => {
+    if (approvingId) return;
+    setApprovingId(approvalId);
     try {
       await approveApproval(approvalId);
       fetchApprovals();
     } catch (e) {
       const msg = e?.response?.data?.message;
       alert(msg ?? '이미 처리된 항목이거나 처리할 수 없는 요청입니다.');
+    } finally {
+      setApprovingId(null);
     }
   };
 
@@ -233,7 +238,7 @@ export default function ApprovalRequestPage() {
                     <td>
                       {row.status === 'PENDING' ? (
                         <div className="arp__actions">
-                          <button className="arp__btn-approve" onClick={() => handleApprove(row.approvalId)}>승인</button>
+                          <button className="arp__btn-approve" onClick={() => handleApprove(row.approvalId)} disabled={approvingId === row.approvalId}>승인</button>
                           <button className="arp__btn-reject"  onClick={() => openReject(row)}>거절</button>
                         </div>
                       ) : (

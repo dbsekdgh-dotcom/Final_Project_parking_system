@@ -17,8 +17,6 @@ import com.example.demo.domain.auth.admin.repository.AdminRepository;
 import com.example.demo.domain.reservation.Reservation;
 import com.example.demo.domain.reservation.enums.Status;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
-import com.example.demo.domain.resident.User;
-import com.example.demo.domain.resident.UserRepository;
 import com.example.demo.domain.resident.household.Household;
 import com.example.demo.domain.resident.household.enums.IsActive;
 import com.example.demo.domain.resident.household.repository.HouseholdRepository;
@@ -48,7 +46,6 @@ public class AdminApprovalService {
     private final AdminActionLogRepository adminActionLogRepository;
     private final VehicleRepository vehicleRepository;
     private final ReservationRepository reservationRepository;
-    private final UserRepository userRepository;
     private final HouseholdRepository householdRepository;
 
     //헬퍼
@@ -139,9 +136,8 @@ public class AdminApprovalService {
 
     // 유형별 승인 처리
     private void approveResident(Approval approval){
-        User user = userRepository.findById(approval.getTargetId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
-        Household household = householdRepository.findById(user.getHousehold().getHouseholdId())
+        // RESIDENT 승인 시 targetId는 householdId (ResidentApplyService 참조)
+        Household household = householdRepository.findById(approval.getTargetId())
                 .orElseThrow(()->new BusinessException(ErrorCode.INVALID_REQUEST));
         household.setIsActive(IsActive.ACTIVE);
         household.setTotalVisitCount(0);
