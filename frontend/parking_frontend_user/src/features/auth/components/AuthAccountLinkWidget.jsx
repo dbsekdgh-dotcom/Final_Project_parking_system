@@ -29,6 +29,7 @@ export default function AuthAccountLinkWidget({ metaText, badge }) {
       if (res.data.name) localStorage.setItem("userName", res.data.name);
     } catch (e) {
       console.error("내 정보 불러오기 실패");
+      localStorage.removeItem("userName");
     } finally {
       setIsLoading(false);
     }
