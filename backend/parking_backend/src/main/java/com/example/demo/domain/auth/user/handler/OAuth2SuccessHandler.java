@@ -76,17 +76,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     }
                 }
             } else if (provider.equals("KAKAO")) {
-                if (attributes.containsKey("email")) {
-                    email = (String) attributes.get("email");
-                    name = (String) attributes.get("nickname");
-                } else {
-                    Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-                    if (kakaoAccount != null) {
-                        email = (String) kakaoAccount.get("email");
-                        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-                        if (profile != null) name = (String) profile.get("nickname");
-                    }
+                Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+                if (kakaoAccount != null) {
+                    email = (String) kakaoAccount.get("email");
+                    name = (String) kakaoAccount.get("name");
                 }
+                if (email == null) email = (String) attributes.get("email");
             }
         } catch (Exception e) {
             log.error("### 데이터 추출 중 오류: {}", e.getMessage());

@@ -17,6 +17,7 @@ const useLogout = () => {
 
         // 2. 세션 마커 삭제 (브라우저 내 인증 상태 초기화)
         sessionStorage.removeItem("sessionActive");
+        sessionStorage.removeItem("loginSuccess");
 
         // 3. 로컬 스토리지 삭제 (UI 데이터만, 토큰은 서버 로그아웃 시 쿠키 삭제됨)
         localStorage.removeItem("userName");
