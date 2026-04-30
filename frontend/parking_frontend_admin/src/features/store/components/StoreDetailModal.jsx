@@ -101,11 +101,15 @@ export default function StoreDetailModal({ store, onClose, onRefresh }) {
         }
     };
 
-    // 할인권 config 저장 — 수량 필수(1이상), 종류 미선택 시 기존 유지
+    // 할인권 config 저장 — 수량 필수(1이상), 신규 config일 때 종류 필수
     const handleConfigSave = async () => {
         const q = parseInt(quota, 10);
         if (!quota || isNaN(q) || q < 1) {
             alert('월 지급 수량을 1 이상으로 입력해주세요.');
+            return;
+        }
+        if (!selectedPolicyId) {
+            alert('할인권 종류를 선택해주세요.');
             return;
         }
         setConfigSaving(true);

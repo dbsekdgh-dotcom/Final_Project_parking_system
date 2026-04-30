@@ -46,8 +46,8 @@ public interface PointLogRepository extends JpaRepository<PointLog,Long> {
                     "FROM point_log p " +
                     "WHERE p.reason = 'PAYMENT_USE' " +
                     "  AND p.created_at BETWEEN :from AND :to " +
-                    "GROUP BY DATE(p.created_at) " +
-                    "ORDER BY DATE(p.created_at) DESC",
+                    "GROUP BY DATE_FORMAT(p.created_at, '%Y-%m-%d') " +
+                    "ORDER BY DATE_FORMAT(p.created_at, '%Y-%m-%d') DESC",
             nativeQuery = true)
     List<UsageDailyProjection> findDailyUsedRows(
             @Param("from") LocalDateTime from,

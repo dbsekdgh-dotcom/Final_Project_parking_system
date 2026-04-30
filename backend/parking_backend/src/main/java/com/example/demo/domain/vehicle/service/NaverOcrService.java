@@ -57,15 +57,10 @@ public class NaverOcrService {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
 
-        String ext = extractExtension(imageUrl);
-        List<String> allowedExtensions = Arrays.asList("jpg", "jpeg", "png", "pdf", "tiff");
-        if (!allowedExtensions.contains(ext)) {
-            log.error("지원하지 않는 확장자: {}", ext);
-            throw new CustomException(ErrorCode.INVALID_REQUEST);
-        }
-
-        // 네이버 API 규격에 맞게 jpeg를 jpg로 정규화
-        if (ext.equals("jpeg")) ext = "jpg";
+        // 1. 배포 환경 변수 주입 확인용 로그 (길이만 체크하여 보안 유지)
+        log.info("[OCR-DEBUG] Invoke URL length: {}", invokeUrl != null ? invokeUrl.length() : "NULL");
+        log.info("[OCR-DEBUG] Secret Key length: {}", secretKey != null ? secretKey.length() : "NULL");
+        log.info("[OCR-DEBUG] S3 Image URL: {}", imageUrl);
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -78,23 +73,33 @@ public class NaverOcrService {
             body.put("timestamp", System.currentTimeMillis());
 
             Map<String, String> imageInfo = new HashMap<>();
-            imageInfo.put("format", ext);
+            imageInfo.put("format", extractExtension(imageUrl));
             imageInfo.put("name", "ocr_request_image");
             imageInfo.put("url", imageUrl);
 
             body.put("images", Collections.singletonList(imageInfo));
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-            log.info("--- [NaverOcrService] CLOVA OCR API 요청 시작 ---");
 
-            return restTemplate.postForObject(invokeUrl, request, NaverOcrResponse.class);
+            // postForEntity를 사용하여 상세 응답 확인
+            ResponseEntity<NaverOcrResponse> responseEntity =
+                    restTemplate.postForEntity(invokeUrl, request, NaverOcrResponse.class);
+
+            log.info("[OCR-DEBUG] 네이버 응답 성공: {}", responseEntity.getStatusCode());
+            return responseEntity.getBody();
 
         } catch (HttpStatusCodeException e) {
-            log.error("네이버 API 서버 에러: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new CustomException(ErrorCode.AI_SERVER_ERROR);
+            // ⭐ [핵심] 네이버가 뱉은 진짜 에러(4005, 401 등)를 로그에 찍고 예외로 던짐
+            String errorBody = e.getResponseBodyAsString();
+            log.error("[OCR-ERROR] 네이버 상태 코드: {}", e.getStatusCode());
+            log.error("[OCR-ERROR] 네이버 에러 본문: {}", errorBody);
+
+            // 프론트엔드에서 볼 수 있도록 메시지에 에러 본문을 포함시킴
+            throw new RuntimeException("NAVER_OCR_API_FAIL: " + errorBody);
+
         } catch (Exception e) {
-            log.error("OCR 통신 중 예상치 못한 에러: {}", e.getMessage());
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+            log.error("[OCR-ERROR] 통신 예외 발생: {}", e.getMessage());
+            throw new RuntimeException("OCR_SYSTEM_ERROR: " + e.getMessage());
         }
     }
 

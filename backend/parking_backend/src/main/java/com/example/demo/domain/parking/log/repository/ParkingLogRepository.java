@@ -140,8 +140,8 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
                     "FROM parking_log p " +
                     "WHERE p.exited_at BETWEEN :from AND :to " +
                     "  AND p.parking_status IN ('EXITED', 'FORCE_EXITED') " +
-                    "GROUP BY DATE(p.exited_at) " +
-                    "ORDER BY DATE(p.exited_at) DESC",
+                    "GROUP BY DATE_FORMAT(p.exited_at, '%Y-%m-%d') " +
+                    "ORDER BY DATE_FORMAT(p.exited_at, '%Y-%m-%d') DESC",
             nativeQuery = true)
     List<UsageDailyProjection> findDailyExitedRows(@Param("from") LocalDateTime from,
                                                    @Param("to") LocalDateTime to);
