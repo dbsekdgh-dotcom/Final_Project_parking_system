@@ -80,30 +80,26 @@ const VehicleRegisterModal = ({ isOpen, onClose }) => {
             }
             setStep('main');
         } catch (error) {
-            // 백엔드가 반환한 에러 메시지 추출 (없으면 기본 문구 사용)
-            const serverMessage = error?.response?.data?.message;
+            // 1. 서버가 보낸 에러 데이터 추출 (객체일 수도, 문자열일 수도 있음)
+            const serverData = error?.response?.data;
+            
+            // 2. 메시지 추출 (data.message가 있으면 쓰고, 없으면 data 통째로 문자열화)
+            const displayMessage = typeof serverData === 'object' 
+                ? (serverData.message || JSON.stringify(serverError)) 
+                : (serverData || '이미지 분석 중 알 수 없는 오류가 발생했습니다.');
 
-            if (serverMessage) {
-                // 백엔드에서 내려온 구체적인 메시지 표시 (예: 잘못된 서류 첨부 등)
-                Swal.fire({
-                    icon: 'warning',
-                    title: '서류 확인 필요',
-                    text: serverMessage,
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: '다시 첨부하기',
-                });
-            } else {
-                // 네트워크 오류 등 예상치 못한 에러
-                Swal.fire({
-                    icon: 'error',
-                    title: '분석 실패',
-                    text: '이미지 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-                    confirmButtonColor: '#3085d6',
-                });
-            }
+            console.error("OCR 분석 에러 상세:", serverData);
+
+            Swal.fire({
+                icon: 'error',
+                title: '분석 실패',
+                text: displayMessage, // ⬅️ 이제 여기에 "NAVER_OCR_API_FAIL..."이 뜹니다!
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: '확인'
+            });
         } finally {
             setIsOcrLoading(false);
-        }
+}
     };
 
     const handleSubmit = () => {
