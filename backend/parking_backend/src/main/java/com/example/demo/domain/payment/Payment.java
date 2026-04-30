@@ -68,5 +68,5 @@ public class Payment {
         this.paymentStatus = PaymentStatus.SUCCESS;
         this.externalPaymentId = paymentKey;
     }
-// 발표용 주석 2트
+// 발표용 주석 3트
 }
