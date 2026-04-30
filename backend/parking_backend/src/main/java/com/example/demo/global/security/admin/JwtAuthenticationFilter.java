@@ -32,6 +32,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // [로그 추가] 요청이 서버 입구에 도착했는지 확인
         System.out.println(">>> [입구 감지] Path: " + path + " | Method: " + method);
 
+        // [중요] OCR 경로는 인증 필터를 거치지 않도록 명시적으로 추가
+        if (path.startsWith("/api/user/ai/naver/")) {
+            return true;
+        }
+
         // 1. OPTIONS 메서드는 CORS 처리를 위해 doFilterInternal에서 처리하도록 필터를 통과시킴
         if (method.equals("OPTIONS")) {
             return true;

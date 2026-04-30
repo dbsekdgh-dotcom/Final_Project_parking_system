@@ -108,3 +108,61 @@ export const useDeleteVehicle = () => {
         }
     });
 };
+
+/**
+ * [신분증 OCR 분석 훅]
+ * - 역할: 신분증 이미지를 서버로 보내 분석 결과를 받아옵니다.
+ * - 특징: 서버 에러 발생 시 상세 메시지(네이버 응답 코드 등)를 Swal에 직접 노출합니다.
+ */
+export const useUploadIdCard = () => {
+    return useMutation({
+        mutationFn: vehicleApi.uploadIdCard,
+        onSuccess: (data) => {
+            // 성공 시 로직 (예: 상태 저장 등)
+            console.log("OCR 결과:", data);
+        },
+        onError: (error) => {
+            // 서버에서 보낸 에러 데이터 추출
+            const serverError = error.response?.data;
+            
+            // 상세 로그 출력 (개발자 도구에서 확인용)
+            console.error("OCR 분석 에러 발생:", serverError);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'OCR 분석 실패',
+                // 서버가 보낸 에러가 JSON 객체면 문자열로 변환하고, 
+                // 그냥 문자열(RuntimeException 메시지)이면 그대로 출력합니다.
+                text: typeof serverError === 'object' 
+                    ? (serverError.message || JSON.stringify(serverError)) 
+                    : (serverError || '네트워크 연결이 원활하지 않습니다.'),
+                confirmButtonColor: '#d33',
+            });
+        }
+    });
+};
+
+/**
+ * [자동차 등록증 OCR 분석 훅]
+ */
+export const useUploadRegistration = () => {
+    return useMutation({
+        mutationFn: vehicleApi.uploadRegistration,
+        onSuccess: (data) => {
+            console.log("자동차 등록증 결과:", data);
+        },
+        onError: (error) => {
+            const serverError = error.response?.data;
+            console.error("등록증 분석 에러:", serverError);
+
+            Swal.fire({
+                icon: 'error',
+                title: '등록증 분석 실패',
+                text: typeof serverError === 'object' 
+                    ? (serverError.message || JSON.stringify(serverError)) 
+                    : (serverError || '파일 형식을 확인해주세요.'),
+                confirmButtonColor: '#d33',
+            });
+        }
+    });
+};
