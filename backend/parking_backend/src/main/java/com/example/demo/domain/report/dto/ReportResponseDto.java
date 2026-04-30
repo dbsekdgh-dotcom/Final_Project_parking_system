@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReportResponseDto {
 
-    private Long id;
+    private Long reportId;
     private String carNumber;
     private String reportType;
     private String description;
