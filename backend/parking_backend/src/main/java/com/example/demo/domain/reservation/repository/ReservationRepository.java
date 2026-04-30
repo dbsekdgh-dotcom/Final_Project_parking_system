@@ -226,8 +226,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                     "FROM reservation r " +
                     "WHERE r.created_at BETWEEN :from AND :to " +
                     "  AND r.status IN ('COMPLETED', 'ENTERED') " +
-                    "GROUP BY DATE(r.created_at) " +
-                    "ORDER BY DATE(r.created_at) DESC",
+                    "GROUP BY DATE_FORMAT(r.created_at, '%Y-%m-%d') " +
+                    "ORDER BY DATE_FORMAT(r.created_at, '%Y-%m-%d') DESC",
             nativeQuery = true)
     List<UsageDailyProjection> findDailyCompletedRows(
             @Param("from") LocalDateTime from,

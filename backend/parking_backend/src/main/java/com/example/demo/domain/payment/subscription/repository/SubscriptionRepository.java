@@ -147,8 +147,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
                     "COUNT(*) AS transactionCount " +
                     "FROM subscription s "+
                     "WHERE s.activated_at BETWEEN :from AND :to "+
-                    "GROUP BY DATE(s.activated_at) " +
-                    "ORDER BY DATE(s.activated_at) DESC"
+                    "GROUP BY DATE_FORMAT(s.activated_at, '%Y-%m-%d') " +
+                    "ORDER BY DATE_FORMAT(s.activated_at, '%Y-%m-%d') DESC"
             ,nativeQuery = true)
     List<UsageDailyProjection> findDailyActivatedRows(@Param("from") LocalDateTime from,
                                                       @Param("to") LocalDateTime to);

@@ -27,8 +27,8 @@ public interface StoreTicketTransactionRepository extends JpaRepository<StoreTic
                     "FROM store_ticket_transaction t " +
                     "WHERE t.transaction_type = 'USE' " +
                     "AND t.created_at BETWEEN :from AND :to " +
-                    "GROUP BY DATE(t.created_at) " +
-                    "ORDER BY DATE(t.created_at) DESC",
+                    "GROUP BY DATE_FORMAT(t.created_at, '%Y-%m-%d') " +
+                    "ORDER BY DATE_FORMAT(t.created_at, '%Y-%m-%d') DESC",
             nativeQuery = true)
     List<UsageDailyProjection> findDailyUsedRows(@Param("from") LocalDateTime from,
                                                  @Param("to") LocalDateTime to);
