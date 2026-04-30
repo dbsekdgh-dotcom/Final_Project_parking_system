@@ -104,6 +104,7 @@ public class UserLoginService {
             // maxAge 미설정 → 세션 쿠키 (브라우저 종료 시 자동 삭제)
             ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                     .path("/")
+                    .domain(".parking-system.store")
                     .httpOnly(true)
                     .secure(true)
                     .sameSite("Lax")
@@ -111,6 +112,7 @@ public class UserLoginService {
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .path("/")
+                    .domain(".parking-system.store")
                     .httpOnly(true)
                     .secure(true)
                     .sameSite("Lax")
@@ -163,14 +165,20 @@ public class UserLoginService {
         // 2. 브라우저 쿠키 삭제 (Max-Age를 0으로 설정)
         ResponseCookie deleteAccess = ResponseCookie.from("accessToken", "")
                 .path("/")
+                .domain(".parking-system.store")
                 .maxAge(0)
                 .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
                 .build();
 
         ResponseCookie deleteRefresh = ResponseCookie.from("refreshToken", "")
                 .path("/")
+                .domain(".parking-system.store")
                 .maxAge(0)
                 .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, deleteAccess.toString());
