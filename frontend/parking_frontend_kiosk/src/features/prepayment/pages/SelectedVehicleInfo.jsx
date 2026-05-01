@@ -21,18 +21,12 @@ const SelectedVehicleInfo = () => {
         queryFn:async()=>await requestPayment(selectedVehicle),
         enabled: !!selectedVehicle
     })  
-    
-    const searchCarHandler=()=>{
-        resetSelectedVehicle()
-        navigate('/prepayment')
-    }
 
     const homeHandler=()=>{
         resetSearchKeyword()
         resetSelectedVehicle()
         navigate('/')
     }
-
 
     const paymentHandler=async(paymentData)=>{
         console.log("지금 결제",data)
@@ -42,7 +36,7 @@ const SelectedVehicleInfo = () => {
             navigate("/PrepaymentResult",{
                  state:{                                                                                                                                                               
                     title:"무료 출차 가능합니다.",                                                                                                                                    
-                    subTitle: data.message || "등록된 차량입니다.",                                                                                                                   
+                    subTitle: data.message || "이미 등록되었거나 정산할 금액이 없는 차량입니다.",                                                                                                                   
                     type:"success"                                                                                                                                                    
                 }   
             })
@@ -64,44 +58,18 @@ const SelectedVehicleInfo = () => {
     
 
     if (!selectedVehicle) {
-        return (
-            <div className='full-page-container'>
-                <div className='error-content-box'>
-                    <div className='error-icon'>🔍</div>
-                    <p className='error-message'>선택된 차량 정보가 없습니다.</p>
-                    <button className='error-back-btn' onClick={() => navigate('/prepayment')}>
-                        차량 검색 화면으로 이동
-                    </button>
-                </div>
-            </div>
-        )
+        return <ResultView title="조회 정보 없음" subTitle="선택된 차량 정보가 없습니다." type="error"/>
     }
 
     // {/* 1. 로딩 상태 */}
     if (isLoading) {
-        return (
-            <div className='full-page-container'>
-                <div className='error-content-box'>
-                    <div className='loading-spinner'>⚙️</div> 
-                    <p className='loading-message'>정보를 불러오는 중입니다...</p>
-                </div>
-            </div>
-        );
+        return <ResultView title="정보 조회 중" subTitle="정산 데이터를 불러오고 있습니다." type="loading" />
     }
 
     // {/* 2. 에러 상태 */}
     if (isError) {
-        return (
-            <div className='full-page-container'>
-                <div className='error-content-box'>
-                    <div className='error-icon'>⚠️</div>
-                    <p className='error-message'>
-                        {error?.message || "차량 정보를 가져오는 데 실패했습니다."}
-                    </p>
-                    <button className='error-back-btn' onClick={searchCarHandler}>차량 검색 화면으로 이동</button>
-                </div>
-            </div>
-        );
+        resetSelectedVehicle()
+        return<ResultView title="조회 실패" subTitle={error?.message || "서버와의 통신이 원활하지 않습니다."} type="error" />
     }
     
     // {/* 3. 성공 상태 */}
