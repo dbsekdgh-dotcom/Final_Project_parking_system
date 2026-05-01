@@ -455,11 +455,12 @@ public class SettlementService {
         }
         // 1. Payment insert
         savePaymentReceipt(payments, dto, status);
-        // 2. userPoint & PointLog update
-        pointProcessOfPayment(user, parkingLog, payments, dto);
-        // 3. parking Log 업데이트
+        // 2. parking Log 업데이트
         long totalAmount=payments.stream().mapToLong(Payment::getAmount).sum();
         settlementResponseDto = updateParkingLogFinal(parkingLog, totalAmount);
+        // 3. userPoint & PointLog update
+        entityManager.flush();
+        pointProcessOfPayment(user, parkingLog, payments, dto);
         // 4. notification insert
         insertNotification(user, settlementResponseDto.getExitDeadline());
         // 5. active log insert(포인트+카드 결제면 두줄?)// 사전정산인지, 출차 정산인지 여부는 컨트롤러에서
