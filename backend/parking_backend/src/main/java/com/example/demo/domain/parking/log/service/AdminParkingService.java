@@ -97,7 +97,6 @@ public class AdminParkingService {
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
         ParkingFeePolicy feePolicy = parkingFeePolicyRepository.findById(parkingLog.getParkingFeePolicyId())
                 .orElseThrow(()->new BusinessException(ErrorCode.PARKING_POLICY_NOT_FOUND));
-
         //관리자용 정책인지 검증(보안)
         if(policy.getUseType()!= UseType.ADMIN){
             throw new BusinessException("관리자 전용 할인권만 적용 가능합니다.",ErrorCode.INVALID_REQUEST);
@@ -130,7 +129,10 @@ public class AdminParkingService {
         //관리자 할인 합계 계산 [Before]
         int beforeAdminTotal = calculateDiscountSum(allTickets, com.example.demo.domain.payment.ticket.Status.ADMIN);
         //Before 스냅샷 생성
-        String beforeData = objectMapper.writeValueAsString(ParkingLogDetailResponse.toDetailDto(parkingLog,beforeStoreTotal,beforeAdminTotal,(long)currentRawFee,calculation.getAmountToPay()));
+        String beforeData = objectMapper.writeValueAsString(
+                ParkingLogDetailResponse.toDetailDto(
+                        parkingLog,beforeStoreTotal,beforeAdminTotal,
+                        (long)currentRawFee,calculation.getAmountToPay()));
 
         // 기존 관리자 할인 티켓(ADMIN타입) 삭제
         parkingTicketRepository.deleteAll(
@@ -155,7 +157,8 @@ public class AdminParkingService {
         parkingTicketRepository.save(adminTicket);
         //결제 취소 및 감사로그 저장
         cancelReadyPayments(parkingLog);
-        saveAdminActionLog(currentAdmin,parkingLogId,beforeData,reason,policy,newAdminDiscountAmount,parkingLog,beforeStoreTotal,(long)currentRawFee);
+        saveAdminActionLog(currentAdmin,parkingLogId,beforeData,reason,policy,
+                newAdminDiscountAmount,parkingLog,beforeStoreTotal,(long)currentRawFee);
         log.info("관리자[{}] 할인 수정 완료: 차량={}, 새관리자할인={}원",currentAdmin.getLoginId(),parkingLog.getCarNumberSnapshot(),newAdminDiscountAmount);
     }
 
@@ -170,7 +173,8 @@ public class AdminParkingService {
     }
 
     //신규 할인액 계산용 - 현재 시점의 요금을 기준으로 계산
-    private int calculateDiscountByPolicy(TicketPolicy policy,ParkingFeePolicy feePolicy, int rawFee, int storeTotal){
+    private int calculateDiscountByPolicy(TicketPolicy policy, ParkingFeePolicy feePolicy,
+                                          int rawFee, int storeTotal){
         //전액 무료(FREE) 정책일 경우: (원금 - 상가할인) 전체를 할인액으로 반환
         if(policy.getDiscountType() == DiscountType.FREE){
             return Math.max(0,rawFee-storeTotal);
@@ -281,8 +285,9 @@ public class AdminParkingService {
         //After 스냅샷 생성
         Long afterRawFee = (long) log.getRawFee();
         Long afterFinalPrice = Math.max(0L,afterRawFee - (storeSum + adminSum));
-        String afterData = objectMapper.writeValueAsString(ParkingLogDetailResponse.toDetailDto(log,storeSum,adminSum,(long)log.getRawFee(),(long)log.getFee()));
-
+        String afterData = objectMapper.writeValueAsString(
+                ParkingLogDetailResponse.toDetailDto(
+                        log,storeSum,adminSum,(long)log.getRawFee(),(long)log.getFee()));
         //관리자 감사 로그 기록 (AdminActionLog)
         saveForceExitActionLog(currentAdmin,parkingLogId,beforeData,afterData,reason,log);
 

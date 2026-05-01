@@ -64,15 +64,12 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
     // 강제 출차 핸들러
     const handleForceExitClick = async () => {
         if (isForceExitDisabled) return;
-
         const reason = window.prompt("강제 출차 사유를 입력해주세요.", "관리자 직접 조치");
-
         if (reason === null) return; //취소 클릭시
         if (reason.trim() === "") {
             alert("사유를 반드시 입력해야 합니다.");
             return;
         }
-
         if (window.confirm(`${data.carNumber} 차량을 강제 출차 처리하시겠습니까?`)) {
             try {
                 setIsSubmitting(true);
@@ -80,7 +77,6 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
                 alert(res.message || "강제 출차 처리가 완료되었습니다.");
                 if (onRefresh) { await onRefresh() } //부모 컴포넌트 새로고침 함수 호출
                 if(onRefetchDetail) { await onRefetchDetail(data.parkingLogId) }
-
             } catch (error) {
                 alert(error.response?.data?.message || "처리에 실패했습니다.");
             } finally {
@@ -101,7 +97,6 @@ const ParkingLogDetailModal = ({ isOpen, data, onClose, onRefresh, onRefetchDeta
     const handlePolicyChange=(e)=>{
         const policyId=e.target.value;
         setSelectedPolicyId(policyId)
-        
         if(policyId) {
             //선택한 정책의 이름을 찾아 사유에 기본값으로 넣어주기
             const selectedPolicy = policies.find(p=>String(p.id) === String(policyId));

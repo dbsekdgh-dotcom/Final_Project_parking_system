@@ -8,11 +8,11 @@
 
 /* 기본 카드 스타일 (시안의 어두운 배경 유지) */
 .summary-card {
-    background-color: #333; 
-    border: 1px solid #444;
+    background-color: var(--bg-section);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 20px;
-    color: #fff;
+    color: var(--text-primary);
     cursor: pointer; /* 클릭 가능함을 표시 */
     transition: all 0.25s ease; /* 부드러운 상태 변화 */
     position: relative;
@@ -21,10 +21,10 @@
 
 /* 마우스를 올렸을 때 (Hover) */
 .summary-card:hover {
-    background-color: #3d3d3d;
-    border-color: #666;
+    background-color: var(--bg-hover);
+    border-color: var(--border);
     transform: translateY(-4px); /* 살짝 위로 뜨는 효과 */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* 선택된 활성화 상태 (Active) */
@@ -43,13 +43,13 @@
     left: 0;
     width: 100%;
     height: 4px;
-    background-color: #3b82f6;
+    background-color: var(--primary);
 }
 
 /* 라벨 스타일 (제목) */
 .summary-label {
     font-size: 14px;
-    color: #aaa;
+    color: var(--text-secondary);
     margin-bottom: 8px;
 }
 
@@ -66,11 +66,11 @@
     font-size: 16px;
     margin-left: 4px;
     font-weight: normal;
-    color: #888; /* 단위는 수치보다 조금 연하게 */
+    color: var(--text-muted);
 }
 
 /* 선택된 카드의 라벨 색상 강조 */
 .summary-card.active .summary-label {
-    color: #fff;
+    color: var(--text-primary);
     font-weight: 600;
 }

@@ -1,6 +1,6 @@
 .system-setting-page {
   padding: 24px;
-  background-color: #111111;
+  background-color: var(--bg-content);
   min-height: 100%;
 }
 
@@ -8,21 +8,19 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: #1e1e1e;
-  border: 1px solid #2e2e2e;
+  background-color: var(--bg-card-alt);
+  border: 1px solid var(--border-deep);
   border-radius: 6px;
   padding: 6px 14px;
   margin-bottom: 20px;
 }
 
-.system-setting-page__title-icon {
-  font-size: 14px;
-}
+.system-setting-page__title-icon { font-size: 14px; }
 
 .system-setting-page__title {
   font-size: 13px;
   font-weight: 500;
-  color: #d0d0d0;
+  color: var(--text-label);
 }
 
 .system-setting-page__grid {
@@ -32,7 +30,5 @@
 }
 
 @media (max-width: 600px) {
-  .system-setting-page__grid {
-    grid-template-columns: 1fr;
-  }
+  .system-setting-page__grid { grid-template-columns: 1fr; }
 }

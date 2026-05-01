@@ -15,3 +15,140 @@ body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* ===== 다크 모드 (기본값) ===== */
+  :root {
+    /* 배경 */
+    --bg-app:        #1a1a1a;
+    --bg-content:    #262626;
+    --bg-card:       #2a2a2a;
+    --bg-card-alt:   #1e1e1e;
+    --bg-section:    #333333;
+    --bg-header:     #333333;
+    --bg-sidebar:    #000000;
+    --bg-input:      #1a1a1a;
+    --bg-input-deep: #121212;
+    --bg-hover:      #1f1f1f;
+    --bg-table-wrap: #2a2a2a;
+    --bg-table-head: #111111;
+    --bg-chart:      #333333;
+
+    /* 텍스트 */
+    --text-primary:   #ffffff;
+    --text-secondary: #a3a3a3;
+    --text-muted:     #888888;
+    --text-label:     #bbbbbb;
+    --text-input:     #ffffff;
+
+    /* 보더 */
+    --border:       #444444;
+    --border-light: #333333;
+    --border-deep:  #2e2e2e;
+    --border-input: #555555;
+
+    /* 사이드바 전용 */
+    --sidebar-text:        #e5e5e5;
+    --sidebar-text-muted:  #a3a3a3;
+    --sidebar-hover:       #1f1f1f;
+    --sidebar-active:      #2a2a2a;
+    --sidebar-active-text: #ffffff;
+    --sidebar-user-bg:     #141414;
+    --sidebar-border:      #262626;
+    --sidebar-exit-color:  #a3a3a3;
+    --sidebar-exit-hover:  #2a2a2a;
+
+    /* 시맨틱 색상 (양쪽 모드 동일) */
+    --primary:        #2563eb;
+    --primary-light:  #eff6ff;
+    --primary-border: #bfdbfe;
+    --success:        #16a34a;
+    --success-light:  #f0fdf4;
+    --success-border: #bbf7d0;
+    --warning:        #d97706;
+    --warning-light:  #fffbeb;
+    --warning-border: #fde68a;
+    --danger:         #dc2626;
+    --danger-light:   #fef2f2;
+    --danger-border:  #fecaca;
+    --purple:         #7c3aed;
+    --purple-light:   #f5f3ff;
+    --purple-border:  #ddd6fe;
+
+    /* 그레이 스케일 (다크: 값 반전 — 어두운 배경에 밝은 텍스트) */
+    --gray-50:  #f9fafb;
+    --gray-100: #2a2a2a;
+    --gray-200: #444444;
+    --gray-300: #555555;
+    --gray-400: #888888;
+    --gray-500: #999999;
+    --gray-600: #a3a3a3;
+    --gray-700: #cccccc;
+    --gray-900: #f9fafb;
+    --black-50: #111111;
+    --gray-555: #555555;
+    --gray-560: #2e2e2e;
+
+    /* 공통 */
+    --font:      'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --radius:    8px;
+    --radius-lg: 12px;
+    --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  /* ===== 라이트 모드 재정의 ===== */
+  [data-theme="light"] {
+    /* 배경 */
+    --bg-app:        #f1f5f9;
+    --bg-content:    #f8fafc;
+    --bg-card:       #ffffff;
+    --bg-card-alt:   #f9fafb;
+    --bg-section:    #f3f4f6;
+    --bg-header:     #ffffff;
+    --bg-sidebar:    #ffffff;
+    --bg-input:      #ffffff;
+    --bg-input-deep: #f3f4f6;
+    --bg-hover:      #f3f4f6;
+    --bg-table-wrap: #ffffff;
+    --bg-table-head: #f9fafb;
+    --bg-chart:      #f3f4f6;
+
+    /* 텍스트 */
+    --text-primary:   #111827;
+    --text-secondary: #6b7280;
+    --text-muted:     #9ca3af;
+    --text-label:     #374151;
+    --text-input:     #111827;
+
+    /* 보더 */
+    --border:       #e5e7eb;
+    --border-light: #f3f4f6;
+    --border-deep:  #e5e7eb;
+    --border-input: #d1d5db;
+
+    /* 사이드바 전용 (라이트: 흰 배경 + 어두운 텍스트) */
+    --sidebar-text:        #374151;
+    --sidebar-text-muted:  #9ca3af;
+    --sidebar-hover:       #f3f4f6;
+    --sidebar-active:      #eff6ff;
+    --sidebar-active-text: #2563eb;
+    --sidebar-user-bg:     #f3f4f6;
+    --sidebar-border:      #e5e7eb;
+    --sidebar-exit-color:  #9ca3af;
+    --sidebar-exit-hover:  #f3f4f6;
+
+    /* 그레이 스케일 (라이트: 원래 순서) */
+    --gray-50:  #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --black-50: #f3f4f6;
+    --gray-555: #d1d5db;
+    --gray-560: #e5e7eb;
+  }

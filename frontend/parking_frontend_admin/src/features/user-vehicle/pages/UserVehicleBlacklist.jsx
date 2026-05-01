@@ -146,11 +146,11 @@ export default function UserVehicleBlacklist() {
             {showForm && (
                 <form onSubmit={handleRegister}
                     style={{
-                        background: '#1e1e1e', border: '1px solid #2e2e2e', borderRadius: 10,
+                        background: 'var(--bg-card-alt)', border: '1px solid var(--border-deep)', borderRadius: 10,
                         padding: '20px 24px', marginBottom: 16,
                         display: 'flex', flexDirection: 'column', gap: 12,
                     }}>
-                    <span style={{ fontWeight: 600, color: '#f9fafb', fontSize: 14 }}>블랙리스트 등록</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 14 }}>블랙리스트 등록</span>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                         <input
                             name="carNumber" value={form.carNumber} onChange={handleFormChange}
@@ -163,7 +163,7 @@ export default function UserVehicleBlacklist() {
                             {REGISTER_REASON_OPTIONS.map(o =>
                                 <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#d1d5db', fontSize: 13, cursor: 'pointer' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>
                             <input type="checkbox" name="permanent" checked={form.permanent} onChange={handleFormChange} />
                             영구 차단
                         </label>
@@ -177,8 +177,8 @@ export default function UserVehicleBlacklist() {
                         placeholder="상세 사유 (선택)"
                         rows={2}
                         style={{
-                            background: '#141414', border: '1px solid #2e2e2e', borderRadius: 6,
-                            color: '#f9fafb', fontSize: 13, padding: '8px 10px', resize: 'vertical',
+                            background: 'var(--bg-input-deep)', border: '1px solid var(--border-deep)', borderRadius: 6,
+                            color: 'var(--text-primary)', fontSize: 13, padding: '8px 10px', resize: 'vertical',
                         }}
                     />
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>

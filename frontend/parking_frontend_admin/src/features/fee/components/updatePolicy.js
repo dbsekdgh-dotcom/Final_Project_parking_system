@@ -30,8 +30,8 @@ export const updatePolicy=async({title,type,updateMutateAsync})=>{
             cancelButtonColor: '#aaa',
             confirmButtonText: '등록',
             cancelButtonText: '취소',
-            background: '#1e1e1e',
-            color: '#ffffff',
+            background: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#1e1e1e',
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#ffffff',
             backdrop:'rgba(0,0,0,0.6)',
             customClass:{
                 popup: 'custom-policy-popup'
