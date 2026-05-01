@@ -1,0 +1,23 @@
+import React, { useState } from 'react';
+import ChatModal from './ChatModal';
+import './ChatButton.css';
+
+const ChatButton = () => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <>
+            {isOpen && <ChatModal onClose={() => setIsOpen(false)} />}
+            <button
+                className="chat-fab"
+                onClick={() => setIsOpen((prev) => !prev)}
+                aria-label="AI 주차 비서 열기"
+            >
+                <span className="chat-fab__icon">💬</span>
+                <span className="chat-fab__label">AI 비서</span>
+            </button>
+        </>
+    );
+};
+
+export default ChatButton;

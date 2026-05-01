@@ -127,7 +127,7 @@ const DashBoard = () => {
       <div className="dashboard">
         {/* 상단 요약 영역 */}
         <div className="floor-summary">
-          {[data.b1Detail, data.b2Detail].map((floor) => (
+          {[data.b1Detail, data.b2Detail].filter(Boolean).map((floor) => (
             <div key={floor.floorName} className="floor-card">
               <div className="floor-name">{floor.floorName}</div>
               <div className="floor-type">{floor.description}</div>
@@ -230,7 +230,7 @@ const DashBoard = () => {
               </div>
             )}
 
-          {data.recentLogs.totalPages > 1 && (
+          {data.recentLogs?.totalPages > 1 && (
             <div className="dash-pagination">
               <button
                 className="dash-page-btn"

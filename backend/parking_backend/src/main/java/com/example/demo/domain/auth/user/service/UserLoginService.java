@@ -102,19 +102,24 @@ public class UserLoginService {
              * - maxAge: 엑세스 토큰은 브라우저 끄면 사라지도록 설정하지 않거나 짧게 설정
              */
             // maxAge 미설정 → 세션 쿠키 (브라우저 종료 시 자동 삭제)
+            // [배포용] domain, secure 설정 복원 필요
+            // ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+            //         .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
+            // ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+            //         .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
+
+            // [로컬 개발용]
             ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                     .path("/")
-                    .domain(".parking-system.store")
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(false)
                     .sameSite("Lax")
                     .build();
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .path("/")
-                    .domain(".parking-system.store")
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(false)
                     .sameSite("Lax")
                     .build();
 
@@ -163,21 +168,26 @@ public class UserLoginService {
         userVerificationService.deleteRefreshToken(email);
 
         // 2. 브라우저 쿠키 삭제 (Max-Age를 0으로 설정)
+        // [배포용] domain, secure 설정 복원 필요
+        // ResponseCookie deleteAccess = ResponseCookie.from("accessToken", "")
+        //         .path("/").domain(".parking-system.store").maxAge(0).httpOnly(true).secure(true).sameSite("Lax").build();
+        // ResponseCookie deleteRefresh = ResponseCookie.from("refreshToken", "")
+        //         .path("/").domain(".parking-system.store").maxAge(0).httpOnly(true).secure(true).sameSite("Lax").build();
+
+        // [로컬 개발용]
         ResponseCookie deleteAccess = ResponseCookie.from("accessToken", "")
                 .path("/")
-                .domain(".parking-system.store")
                 .maxAge(0)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("Lax")
                 .build();
 
         ResponseCookie deleteRefresh = ResponseCookie.from("refreshToken", "")
                 .path("/")
-                .domain(".parking-system.store")
                 .maxAge(0)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("Lax")
                 .build();
 

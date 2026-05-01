@@ -2,10 +2,11 @@ import React from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 
 // 인증 라우트 컴포넌트
-import { PublicRoute, PrivateRoute } from './features/auth/components/AuthRoute'; 
+import { PublicRoute, PrivateRoute } from './features/auth/components/AuthRoute';
 
 // 페이지 및 레이아웃 컴포넌트
 import MainLayout from './shared/layouts/MainLayout.jsx';
+import ChatButton from './shared/componets/chatbot/ChatButton.jsx';
 import DashBoard from './features/dash/pages/DashBoard.jsx';
 import LoginPage from './features/auth/pages/LoginPage.jsx';
 import SignupPage from './features/auth/pages/SignupPage.jsx';
@@ -41,10 +42,13 @@ function App() {
         <Route path="/oauth-redirect" element={<OAuthRedirectPage />} />
 
         {/* 2. 보호된 경로 (로그인 필수) */}
-        <Route 
+        <Route
           element={
             <PrivateRoute>
-              <MainLayout />
+              <>
+                <MainLayout />
+                <ChatButton />
+              </>
             </PrivateRoute>
           }
         >

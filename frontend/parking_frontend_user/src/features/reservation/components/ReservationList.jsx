@@ -87,19 +87,25 @@ const ReservationList = () => {
                 <ReservationSummary />
                 <h3 className="reservation-card__title">방문 예약 내역</h3>
 
-                <div className="reservation-table-wrap">
-                    <table className="reservation-table">
-                        <thead>
-                            <tr>
-                                <th className="center">차량번호</th>
-                                <th className="left">방문 목적 및 시간</th>
-                                <th className="center">상태</th>
-                                <th className="center">관리</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paged.length > 0 ? (
-                                paged.map((res) => {
+                {paged.length === 0 ? (
+                    <div className="reservation-empty-state">
+                        <div className="reservation-empty-state__icon">🚗</div>
+                        <p className="reservation-empty-state__text">예약된 방문 내역이 없습니다.</p>
+                        <p className="reservation-empty-state__sub">방문 예약을 신청하면 여기에 표시됩니다.</p>
+                    </div>
+                ) : (
+                    <div className="reservation-table-wrap">
+                        <table className="reservation-table">
+                            <thead>
+                                <tr>
+                                    <th className="center">차량번호</th>
+                                    <th className="left">방문 목적 및 시간</th>
+                                    <th className="center">상태</th>
+                                    <th className="center">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paged.map((res) => {
                                     const status = STATUS_CONFIG[res.status] ?? { text: res.status, cls: 'status-badge--cancelled' };
                                     return (
                                         <tr key={res.reservationId}>
@@ -129,17 +135,11 @@ const ReservationList = () => {
                                             </td>
                                         </tr>
                                     );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan="4" className="reservation-empty">
-                                        예약된 내역이 없습니다.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
                 {totalPages > 1 && (
                     <div className="pagination">

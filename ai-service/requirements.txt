@@ -1,9 +1,11 @@
- pandas 
+ pandas
  openai
  python-dotenv
- langchain 
+ langchain
  langchain-openai
  langchain_community
+ langgraph
+ httpx
  faiss-cpu
  redis
  uvicorn 
