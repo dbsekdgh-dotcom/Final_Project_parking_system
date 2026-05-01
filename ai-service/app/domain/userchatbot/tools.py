@@ -29,13 +29,36 @@ def parse_response(response):
 
 @tool
 async def get_my_reservations(access_token: Annotated[str, InjectedState("access_token")]):
-    """사용자의 현재 방문 예약 목록을 조회합니다."""
+    """사용자의 전체 방문 예약 목록을 조회합니다. (조회/내역 확인용)"""
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{SPRING_URL}/api/user/reservations",
             headers=get_headers(access_token)
         )
         return parse_response(response)
+
+@tool
+async def get_cancellable_reservations(access_token: Annotated[str, InjectedState("access_token")]):
+    """취소 가능한 방문 예약 목록만 조회합니다. PENDING/RESERVED 상태이면서 내일 이후 예약만 반환됩니다. (취소용)"""
+    from datetime import date, datetime
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{SPRING_URL}/api/user/reservations",
+            headers=get_headers(access_token)
+        )
+    result = parse_response(response)
+    if isinstance(result, list):
+        today = date.today()
+        def is_future(r):
+            try:
+                visit = r.get("visitStartAt", "")
+                return datetime.fromisoformat(visit[:10]).date() > today
+            except Exception:
+                return False
+        filtered = [r for r in result if r.get("status") in ("PENDING", "RESERVED") and is_future(r)]
+        # 번호와 reservationId를 명시적으로 분리해서 LLM이 번호를 ID로 착각하지 않도록 함
+        return [{"번호": i + 1, "reservationId": r["reservationId"], "carNumber": r.get("carNumber"), "visitStartAt": r.get("visitStartAt"), "purpose": r.get("purpose"), "status": r.get("status")} for i, r in enumerate(filtered)]
+    return result
 
 @tool
 async def create_reservation(
@@ -75,6 +98,39 @@ async def cancel_reservation(
             headers=get_headers(access_token)
         )
         return parse_response(response)
+
+@tool
+async def cancel_reservation_by_date(
+    car_number: str,
+    visit_start_at: str,
+    access_token: Annotated[str, InjectedState("access_token")]
+):
+    """차량번호와 방문 시작 시간으로 예약을 취소합니다. visit_start_at은 ISO 형식(예: 2026-05-02T14:00:00)으로 전달하세요."""
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{SPRING_URL}/api/user/reservations",
+            headers=get_headers(access_token)
+        )
+    reservations = parse_response(response)
+    if not isinstance(reservations, list):
+        return reservations
+
+    target = next(
+        (r for r in reservations
+         if r.get("carNumber") == car_number
+         and r.get("visitStartAt", "").startswith(visit_start_at[:16])),
+        None
+    )
+    if not target:
+        return {"error": True, "message": "해당 예약을 찾을 수 없습니다."}
+
+    reservation_id = target["reservationId"]
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(
+            f"{SPRING_URL}/api/user/reservations/{reservation_id}/cancel",
+            headers=get_headers(access_token)
+        )
+    return parse_response(response)
 
 # ==========================================
 # 2. 주차 현황 및 포인트

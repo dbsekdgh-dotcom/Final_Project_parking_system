@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useChatbot } from '../../hooks/useChatbot';
+import ChatReservationTable from './ChatReservationTable';
 import './ChatModal.css';
 
 const ChatModal = ({ onClose }) => {
@@ -32,7 +33,10 @@ const ChatModal = ({ onClose }) => {
             <div className="chat-modal__body">
                 {messages.map((msg) => (
                     <div key={msg.id} className={`chat-bubble chat-bubble--${msg.role}`}>
-                        <span className="chat-bubble__text">{msg.text}</span>
+                        <span className="chat-bubble__text">
+                            {msg.reservations ? msg.text.split('\n')[0] : msg.text}
+                        </span>
+                        {msg.reservations && <ChatReservationTable reservations={msg.reservations} />}
                     </div>
                 ))}
                 {loading && (

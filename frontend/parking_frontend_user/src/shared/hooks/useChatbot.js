@@ -28,14 +28,11 @@ export const useChatbot = () => {
                 .filter((m) => m.id !== 1)
                 .map((m) => ({ role: m.role, text: m.text }));
             const data = await sendChatMessage(trimmed, history);
-            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply };
+            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply, reservations: data.reservations || null };
             setMessages((prev) => [...prev, botMsg]);
-            const reply = data.reply;
-            if (
-                reply.includes('예약이 완료') || reply.includes('예약 완료') ||
-                reply.includes('취소되었습니다') || reply.includes('취소가 완료') || reply.includes('취소 완료')
-            ) {
+            if (data.action === 'RESERVATION_CREATED' || data.action === 'RESERVATION_CANCELLED') {
                 queryClient.invalidateQueries({ queryKey: ['myReservations'] });
+                queryClient.invalidateQueries({ queryKey: ['reservationPolicy'] });
             }
         } catch {
             const errMsg = {
