@@ -72,3 +72,27 @@
 .search-button:active {
     transform: scale(0.98);
 }
+
+/* 전체보기 버튼 */
+.show-all-button {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    height: 40px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.show-all-button:hover {
+    background-color: var(--border-input);
+}
+
+.show-all-button:active {
+    transform: scale(0.98);
+}
