@@ -20,6 +20,7 @@ export function PaymentPage() {
         if(!paymentInfo || amount <=0 )return;
         async function fetchPaymentWidgets() {
         // ------  결제위젯 초기화 ------
+        console.log("로컬 키 값 확인:", clientKey);
         const tossPayments = await loadTossPayments(clientKey);
         const widgets = tossPayments.widgets({ customerKey: customerKey });
         setWidgets(widgets);

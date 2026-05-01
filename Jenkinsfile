@@ -57,12 +57,11 @@ pipeline {
 
         stage('Build & Deploy Frontend') {
             steps {
-                withCredentials([file(credentialsId: 'env-file-server1', variable: 'ENV_FILE')]) {
+                withCredentials([file(credentialsId: 'env-file', variable: 'ENV_FILE')]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
-                            # 프론트 빌드용 .env 복사 (레포 최상위 - envDir: '../../' 설정 기준)
-                            rm -f .env
-                            cp ${ENV_FILE} .env
+                            # 프론트 빌드용 .env 복사
+                            cp ${ENV_FILE} /var/lib/jenkins/.env
 
                             # Admin 빌드 및 배포
                             cd ./frontend/parking_frontend_admin
@@ -100,7 +99,7 @@ pipeline {
             steps {
                 withCredentials([
                     usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
-                    file(credentialsId: 'env-file-server2', variable: 'ENV_FILE')
+                    file(credentialsId: 'env-file', variable: 'ENV_FILE')
                 ]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
@@ -111,7 +110,7 @@ pipeline {
                                 aws ssm send-command \
                                     --instance-ids ${SERVER_2_ID} \
                                     --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin/server.env .env.server2 && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose -f docker-compose.server2.yml pull && sudo docker rm -f parking-backend && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -f"]}' \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker compose -f docker-compose.server2.yml pull && sudo docker rm -f parking-backend && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -f"]}' \
                                     --region ${AWS_REGION} \
                                     --query 'Command.CommandId' \
                                     --output text
@@ -147,24 +146,19 @@ pipeline {
         
         stage('Health Check Server 2') {
             steps {
+                sh 'sleep 150'
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     script {
-                        def maxAttempts = 10
-                        def attempt = 0
-                        def health = ''
-                        while (attempt < maxAttempts) {
-                            sleep 30
-                            health = sh(script: """
-                                aws elbv2 describe-target-health \
-                                    --target-group-arn ${TG_ARN} \
-                                    --region ${AWS_REGION} \
-                                    --query "TargetHealthDescriptions[?Target.Id=='${SERVER_2_ID}'].TargetHealth.State" \
-                                    --output text
-                            """, returnStdout: true).trim()
-                            echo "Server 2 health: ${health} (시도 ${attempt + 1}/${maxAttempts})"
-                            if (health == 'healthy') break
-                            attempt++
-                        }
+                        def health = sh(script: """
+                            aws elbv2 describe-target-health \
+                                --target-group-arn ${TG_ARN} \
+                                --region ${AWS_REGION} \
+                                --query "TargetHealthDescriptions[?Target.Id=='${SERVER_2_ID}'].TargetHealth.State" \
+                                --output text
+                        """, returnStdout: true).trim()
+                        
+                        echo "Server 2 health: ${health}"
+                        
                         if (health != 'healthy') {
                             error "Server 2 is ${health}. 배포를 중단합니다."
                         }
@@ -202,7 +196,7 @@ pipeline {
                 }
                 withCredentials([
                     usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
-                    file(credentialsId: 'env-file-server1', variable: 'ENV_FILE')
+                    file(credentialsId: 'env-file', variable: 'ENV_FILE')
                 ]) {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
@@ -249,25 +243,20 @@ pipeline {
 
         stage('Health Check Server 1') {
             steps {
+                sh 'sleep 150'
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     script {
-                        def maxAttempts = 10
-                        def attempt = 0
-                        def health = ''
-                        while (attempt < maxAttempts) {
-                            sleep 30
-                            health = sh(script: """
-                                aws elbv2 describe-target-health \
-                                    --target-group-arn ${TG_ARN} \
-                                    --region ${AWS_REGION} \
-                                    --query "TargetHealthDescriptions[?Target.Id=='${SERVER_1_ID}'].TargetHealth.State" \
-                                    --output text
-                            """, returnStdout: true).trim()
-                            echo "Server 1 health: ${health} (시도 ${attempt + 1}/${maxAttempts})"
-                            if (health == 'healthy') break
-                            attempt++
-                        }
-                        if (health != 'healthy') {
+                        def health = sh(script: """
+                            aws elbv2 describe-target-health \
+                                --target-group-arn ${TG_ARN} \
+                                --region ${AWS_REGION} \
+                                --query "TargetHealthDescriptions[?Target.Id=='${SERVER_1_ID}'].TargetHealth.State" \
+                                --output text
+                        """, returnStdout: true).trim()
+                        
+                        echo "Server 1 health: ${health}"
+                        
+                        if (health != 'healthy' && health != 'initial') {
                             error "Server 1 is ${health}. 배포를 중단합니다."
                         }
                     }

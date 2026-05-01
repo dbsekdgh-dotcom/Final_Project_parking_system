@@ -131,6 +131,7 @@ public class ParkingLog {
     @Column(name = "payment_requested_at")
     @Comment("요금 조회 및 결제 요청 시점 검증")
     private LocalDateTime paymentRequestedAt;
+    private String latestOrderId;
 
     //오버라이드
     public Integer getGraceMinutesSnapshot(){
