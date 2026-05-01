@@ -2,20 +2,21 @@ import { useEffect, useState } from 'react'
 import './sidebar.css'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import adminApi from '../../api/adminApi'
+import { useTheme } from '../../context/ThemeContext'
 
 const mainNav = [
-  { to: '/admin/dashboard',                  label: '대시보드',       id: 'dashboard'    },
-  { to: '/admin/parking-space',              label: '주차공간',       id: 'parking-space' },
-  { to: '/admin/entry-exit',                 label: '입출차 기록',    id: 'entry-exit'   },
-  { to: '/admin/fee',                        label: '요금 설정/조회', id: 'fee'          },
-  { to: '/admin/approval/approval-request',  label: '승인 관리',      id: 'approval',    activeMatch: '/admin/approval' },
-  { to: '/admin/user-vehicle/user',          label: '사용자 / 차량',  id: 'user-vehicle' },
-  { to: '/admin/action-log',                 label: '모든 활동 내역', id: 'realtime-io'  },
-  { to: '/admin/store',                      label: '상가 관리',      id: 'store'        },
+  { to: '/admin/dashboard', label: '대시보드', id: 'dashboard' },
+  { to: '/admin/parking-space', label: '주차공간', id: 'parking-space' },
+  { to: '/admin/entry-exit', label: '입출차 기록', id: 'entry-exit' },
+  { to: '/admin/fee', label: '요금 설정/조회', id: 'fee' },
+  { to: '/admin/approval/approval-request', label: '승인 관리', id: 'approval', activeMatch: '/admin/approval' },
+  { to: '/admin/user-vehicle/user', label: '사용자 / 차량', id: 'user-vehicle' },
+  { to: '/admin/action-log', label: '모든 활동 내역', id: 'realtime-io', activeMatch: '/admin/action-log' },
+  { to: '/admin/store', label: '상가 관리', id: 'store' },
 ]
 
 const bottomNav = [
-  { to: '#admin',                       label: '관리자',     id: 'admin'    },
+  { to: '#admin', label: '관리자', id: 'admin' },
   { to: '/admin/system-setting/status', label: '시스템 설정', id: 'settings', activeMatch: '/admin/system-setting' },
 ]
 
@@ -37,6 +38,30 @@ function IconBuilding() {
   )
 }
 
+function IconSun() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  )
+}
+
+function IconMoon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  )
+}
+
 function IconStore() {
   return (
     <svg className="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -50,10 +75,10 @@ function IconStore() {
 function IconList() {
   return (
     <svg className="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <line x1="8" y1="6"  x2="21" y2="6"  />
+      <line x1="8" y1="6" x2="21" y2="6" />
       <line x1="8" y1="12" x2="21" y2="12" />
       <line x1="8" y1="18" x2="21" y2="18" />
-      <line x1="3" y1="6"  x2="3.01" y2="6"  />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
       <line x1="3" y1="12" x2="3.01" y2="12" />
       <line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
@@ -118,22 +143,23 @@ function IconSettings() {
 }
 
 const iconsById = {
-  dashboard:      IconHome,
+  dashboard: IconHome,
   'parking-space': IconBuilding,
-  store:          IconStore,
-  'entry-exit':   IconList,
-  fee:            IconTag,
-  'realtime-io':  IconArrow,
-  approval:       IconCheck,
+  store: IconStore,
+  'entry-exit': IconList,
+  fee: IconTag,
+  'realtime-io': IconArrow,
+  approval: IconCheck,
   'user-vehicle': IconUsers,
-  admin:          IconAdmin,
-  settings:       IconSettings,
+  admin: IconAdmin,
+  settings: IconSettings,
 }
 
 export default function Sidebar({ pendingApproval = 0 }) {
-  const location  = useLocation()
+  const location = useLocation()
   const [adminName, setAdminName] = useState('Admin')
-  const navigate  = useNavigate()
+  const { theme, toggle } = useTheme()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const saved = localStorage.getItem('adminName')
@@ -186,13 +212,18 @@ export default function Sidebar({ pendingApproval = 0 }) {
           </span>
           <span className="sidebar__title">Parking</span>
         </a>
-        <button type="button" className="sidebar__exit" aria-label="나가기" onClick={handleLogout}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-        </button>
+        <div className='sidebar__top-actions'>
+          <button type='button' className='sidebar__theme-toggle' aria-label='테마 변경' onClick={toggle}>
+            {theme === 'dark' ? <IconSun /> : <IconMoon />}
+          </button>
+          <button type="button" className="sidebar__exit" aria-label="나가기" onClick={handleLogout}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="sidebar__user">

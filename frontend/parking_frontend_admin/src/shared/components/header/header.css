@@ -1,11 +1,15 @@
 .header {
-  background-color: #333333;
+  background-color: var(--bg-header);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   padding: 20px 24px;
   flex-shrink: 0;
   gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
 }
 
 .header__left {
@@ -31,14 +35,14 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
 .header__subtitle {
   margin: 0;
   font-size: 0.875rem;
-  color: #a3a3a3;
+  color: var(--text-secondary);
 }
 
 .header__right {
@@ -92,7 +96,7 @@
 .header__clock {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
 }
@@ -100,5 +104,5 @@
 .header__date {
   margin-top: 4px;
   font-size: 0.8125rem;
-  color: #a3a3a3;
+  color: var(--text-secondary);
 }

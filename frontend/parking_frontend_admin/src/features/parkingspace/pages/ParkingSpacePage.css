@@ -1,94 +1,83 @@
-/* 페이지 전체 컨테이너 */
 .parking-space-page {
-    padding: 24px 32px; /* 상하 24px, 좌우 32px 여백으로 답답함 해소 */
-    background-color: #1a1a1a;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    color: #fff;
+  padding: 24px 32px;
+  background-color: var(--bg-content);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-primary);
 }
 
-/* 상단 카드와 하단 콘텐츠 사이의 간격 */
 .summary-cards-container {
-    margin-bottom: 32px;
+  margin-bottom: 32px;
 }
 
-/* 하단 메인 레이아웃 (지도 + 우측 현황) */
 .main-content-layout {
-    display: flex;
-    gap: 24px; /* 좌우 컴포넌트 사이의 간격 */
-    align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
 }
 
-/* 좌측 영역 (층 탭 + 지도) */
 .left-area {
-    flex: 3; /* 지도가 더 넓게 차지하도록 설정 */
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* 우측 영역 (범례 + 구역별 현황) */
 .right-area {
-    flex: 1; /* 현황판은 좁게 설정 */
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    background: #2a2a2a; /* 우측 영역을 구분하는 배경색 (선택사항) */
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #333;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
 }
 
-/* 층별 탭 버튼 스타일 */
 .floor-tabs {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 8px;
 }
 
 .floor-tabs button {
-    padding: 8px 16px;
-    background: #333;
-    border: 1px solid #444;
-    color: #888;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+  padding: 8px 16px;
+  background: var(--bg-section);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .floor-tabs button.active {
-    background: #3b82f6;
-    color: #fff;
-    border-color: #3b82f6;
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
 
-/* --- 모달 레이어 (화면 밀림 방지 핵심) --- */
-
-/* 1. 배경 오버레이: 화면 전체를 덮음 */
 .admin-modal-overlay {
-    position: fixed;      /* 브라우저 화면에 고정 */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7); /* 배경을 어둡게 처리 */
-    display: flex;
-    justify-content: center; /* 가로 중앙 */
-    align-items: center;     /* 세로 중앙 */
-    z-index: 9999;           /* 최상단으로 올림 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
-/* 2. 모달 박스: 실제 제어창 */
 .admin-modal {
-    background-color: #2a2a2a; /* 우측 영역과 통일감 있는 배경색 */
-    width: 400px;
-    padding: 24px;
-    border-radius: 16px;
-    border: 1px solid #444;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    color: #fff;
+  background-color: var(--bg-card);
+  width: 400px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-primary);
 }
-
