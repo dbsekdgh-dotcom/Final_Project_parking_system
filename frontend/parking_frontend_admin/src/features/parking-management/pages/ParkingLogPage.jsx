@@ -67,6 +67,13 @@ const ParkingLogPage = () => {
         console.log(`${status} 필터 적용 및 검색어 초기화`)
     }
 
+    const handleShowAll = () => {
+        setFilterStatus('ALL')
+        setKeyword('')
+        setSearchQuery('')
+        setPage(0)
+    }
+
     //데이터를 새로고침하는 함수
     const handleRefresh =()=>{
         console.log("데이터 새로고침 실행..")
@@ -92,6 +99,7 @@ const ParkingLogPage = () => {
                 <form className='search-form' onSubmit={handleSearch}>
                     <input className='search-input' type="text" placeholder='차량번호 검색 (예: 12가 3456)' value={keyword} onChange={(e) => setKeyword(e.target.value)} />
                     <button className='search-button' type='submit'>조회</button>
+                    <button className='show-all-button' type='button' onClick={handleShowAll}>전체보기</button>
                 </form>
             </section>
 

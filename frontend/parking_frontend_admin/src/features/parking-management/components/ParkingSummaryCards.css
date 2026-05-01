@@ -30,9 +30,9 @@
 /* 선택된 활성화 상태 (Active) */
 /* 부모 컴포넌트에서 activeFilter와 일치할 때 'active' 클래스가 붙음 */
 .summary-card.active {
-    background-color: #444;
-    border: 2px solid #3b82f6; /* 포인트 컬러(파란색)로 테두리 강조 */
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); /* 은은한 네온 효과 */
+    background-color: var(--bg-section);
+    border: 2px solid #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 /* 선택된 상태에서만 보이는 하단 강조 바 (디자인 포인트) */
