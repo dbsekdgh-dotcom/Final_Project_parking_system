@@ -76,6 +76,7 @@ public enum ErrorCode {
     INVALID_REFUND_AMOUNT(HttpStatus.BAD_REQUEST, "환불 금액이 올바르지 않습니다."),
     LOCK_ACQUISITION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "현재 결제 요청이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해 주세요."),
     INSUFFICIENT_POINTS(HttpStatus.BAD_REQUEST,"포인트 잔액이 부족합니다."),
+    INVALID_ORDER_ID(HttpStatus.BAD_REQUEST,"다른 창이나 기기에서 새로운 결제가 시작되어 현재 결제 요청이 취소되었습니다."),
 
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),

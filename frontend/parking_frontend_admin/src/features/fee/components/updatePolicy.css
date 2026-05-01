@@ -1,36 +1,51 @@
+/* 전체 컨테이너 */
 .policy-form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 20px 0;
-  padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 항목 간 간격 축소 */
+    padding: 10px;
+    text-align: left;
 }
 
+/* 개별 필드 (세로 정렬) */
 .policy-field {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.policy-field label {
-  flex: 0 0 130px;
-  text-align: left;
-  font-size: 0.95rem;
-  color: var(--text-label);
-  font-weight: 500;
+/* 라벨 스타일 */
+.field-label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: #e0e0e0;
 }
 
-.policy-field input {
-  flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border-input);
-  border-radius: 4px;
-  padding: 8px 12px;
-  color: var(--text-primary);
-  outline: none;
+/* 입력창 및 셀렉트 공통 스타일 */
+.policy-form-container input[type="text"], 
+.policy-form-container input[type="number"], 
+.policy-form-container input[type="datetime-local"],
+.policy-form-container textarea {
+    width: 100%;
+    background: #121212 !important; /* 깊은 다크 배경 */
+    border: 1px solid #333 !important;
+    border-radius: 4px;
+    padding: 10px !important;
+    color: white !important;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
 }
 
-.policy-field input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+/* 포커스 효과 */
+.policy-form-container input:focus {
+    border-color: #3085d6 !important;
+}
+
+/* 크롬/엣지 등에서 datetime-local 아이콘 색상 보정 */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
 }

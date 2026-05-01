@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import {searchCar} from '../../../shared/api/VehicleApi'
 import { useNavigate } from 'react-router-dom'
 import VehicleList from '../../../shared/components/vehicleList/VehicleList'
+import ResultView from '../../../shared/components/resultView/ResultView'
 
 const VehicleSearchResult = () => {
   const {searchKeyword,setSelectedVehicle}=useVehicleStore();
@@ -30,34 +31,34 @@ const VehicleSearchResult = () => {
             
             <div className='content-area'>
                 {/* 1. 로딩 상태 (디자인 통일) */}
-                {isLoading && (
-                    <div className='error-content-box'>
-                        <div className='loading-spinner'>⚙️</div>
-                        <p className='loading-message'>차량 정보를 조회 중입니다...</p>
-                    </div>
-                )}
+                {isLoading && 
+                    <ResultView 
+                        title="조회 중" 
+                        subTitle="차량 정보를 가져오고 있습니다..." 
+                        type="loading" 
+                    />
+                }
                 
                 {/* 2. 에러 상태  */}
-                {isError && (
-                    <div className='error-content-box'>
-                        <div className='error-icon'>⚠️</div>
-                        <p className='error-message'>
-                            {error?.response?.data?.message || "차량 정보를 가져오는 데 실패했습니다."}
-                        </p>
-                    </div>
-                )}
+                {isError && 
+                    <ResultView 
+                        title="조회 실패" 
+                        subTitle={error?.response?.data?.message || "차량 정보를 가져오는 데 실패했습니다."} 
+                        type="error" 
+                    />
+                }
                 
+                {/* 3. 검색 결과 없음 */}
+                if (data && data.length === 0) {
+                    <ResultView 
+                        title="검색 결과 없음" 
+                        subTitle={`${searchKeyword}에 대한 입차 기록이 없습니다.`} 
+                        type="error" 
+                    />
+                }
+
                 {/* 3. 성공 상태 */}
-                {!isLoading && !isError && data && (
-                    data.length > 0 ? (
-                        <VehicleList vehicles={data} onSelect={selectHandler} />
-                    ) : (
-                        <div className='error-content-box'>
-                            <div className='error-icon'>🚫</div>
-                            <p className='loading-message'>검색 결과가 없습니다.</p>
-                        </div>
-                    )
-                )}
+                {!isLoading && !isError && data &&<VehicleList vehicles={data} onSelect={selectHandler} />}
             </div>
 
             {/* 공통 하단 버튼 */}
