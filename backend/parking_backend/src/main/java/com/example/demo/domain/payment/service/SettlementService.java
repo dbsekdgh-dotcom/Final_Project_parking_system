@@ -127,6 +127,8 @@ public class SettlementService {
         if(!timeCheck){
             throw new BusinessException(ErrorCode.PAYMENT_TIMEOUT);
         }
+        //order Id 일치 여부 체크(브라우저를 닫아버렸을 때)
+
     }
     
     //결제 전 검증
@@ -429,6 +431,8 @@ public class SettlementService {
             savePaymentReceipt(payments, dto, status);
             // - 결제 요청 시간 삭제
             parkingLog.setPaymentRequestedAt(null);
+            // - DB에 즉시 반영하여 락 해제
+            parkingLogRepository.saveAndFlush(parkingLog);
             // - return
             settlementResponseDto=SettlementResponseDto.builder().paymentStatus(status.name()).vehicleNumber(parkingLog.getCarNumberSnapshot()).message(tossErrorMsg).build();
         //결제 취소 시
@@ -437,6 +441,8 @@ public class SettlementService {
             savePaymentReceipt(payments, dto, status);
             // - 결제 요청 시간 삭제
             parkingLog.setPaymentRequestedAt(null);
+            // - DB에 즉시 반영하여 락 해제
+            parkingLogRepository.saveAndFlush(parkingLog);
             // - return
             settlementResponseDto = SettlementResponseDto.builder().paymentStatus(status.name()).vehicleNumber(parkingLog.getCarNumberSnapshot()).build();
         }
