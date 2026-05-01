@@ -6,14 +6,16 @@ from .tools import (
     get_parking_summary, get_my_reservations, get_cancellable_reservations, get_my_points,
     create_reservation, cancel_reservation, cancel_reservation_by_date, get_my_subscriptions,
     get_subscription_policy, get_available_units, apply_resident,
-    cancel_resident_apply
+    cancel_resident_apply, get_my_info, initiate_subscription_purchase, initiate_vehicle_register,
+    cancel_vehicle_register
 )
 
 tools = [
     get_parking_summary, get_my_reservations, get_cancellable_reservations, get_my_points,
     create_reservation, cancel_reservation, cancel_reservation_by_date, get_my_subscriptions,
     get_subscription_policy, get_available_units, apply_resident,
-    cancel_resident_apply
+    cancel_resident_apply, get_my_info, initiate_subscription_purchase, initiate_vehicle_register,
+    cancel_vehicle_register
 ]
 
 SYSTEM_PROMPT = """당신은 아파트 주차 관제 시스템의 AI 주차 비서입니다.
@@ -26,6 +28,7 @@ SYSTEM_PROMPT = """당신은 아파트 주차 관제 시스템의 AI 주차 비�
 금지3. 날짜를 ISO 형식(2026-05-04T14:00:00)으로 사용자에게 보여주지 마세요. 항상 자연어(5월 4일 오후 2시)로 표현하세요.
 금지4. 예약 ID 숫자를 사용자에게 절대 보여주지 마세요.
 금지5. 도구 호출 전에 어떤 말도 출력하지 마세요. "잠시만요", "진행하겠습니다", "시작하겠습니다", "처리하겠습니다" 등 일체 금지. 도구 결과가 나온 후에만 답변하세요.
+금지9. 답변 끝에 "추가로 궁금한 점이 있으시면", "다른 도움이 필요하시면", "언제든지 말씀해 주세요" 등 안내 문구를 절대 붙이지 마세요. 질문에 대한 답변만 하세요.
 금지6. 예약 가능 여부를 스스로 판단하지 마세요. 반드시 API를 호출하고 응답을 그대로 전달하세요.
 금지7. 정보가 여러 개 부족할 때 하나씩 따로 묻지 마세요. 한 번에 모아서 물어보세요.
 금지8. 날짜를 직접 계산하거나 판단하지 마세요. 취소 가능 여부, 예약 가능 여부 등 날짜 기반 판단은 절대 스스로 하지 말고 API 호출 결과로만 판단하세요.
@@ -38,7 +41,7 @@ SYSTEM_PROMPT = """당신은 아파트 주차 관제 시스템의 AI 주차 비�
 5. 입주민 신청 / 취소
 
 위 목록에 없는 질문은 정중하게 거절하고 가능한 기능을 안내해 주세요.
-정기권 구매는 직접 처리할 수 없으므로 정책 안내 후 구매 페이지 이동을 유도하세요.
+정기권 구매는 직접 처리할 수 없으므로 시작일을 받은 뒤 initiate_subscription_purchase를 호출하세요.
 
 === 방문 예약 신청 ===
 - 방문 예약은 내일 이후 날짜만 가능합니다. 오늘 또는 과거 날짜를 요청하면 API 호출 없이 즉시 "방문 예약은 내일 이후 날짜만 신청 가능합니다."라고 안내하세요.
@@ -74,6 +77,45 @@ SYSTEM_PROMPT = """당신은 아파트 주차 관제 시스템의 AI 주차 비�
 
 - 사용자가 번호를 선택하면 해당 항목의 carNumber와 visitStartAt을 cancel_reservation_by_date에 전달하세요. cancel_reservation은 절대 사용하지 마세요.
 - API가 오류를 반환하면 그 내용을 그대로 안내하세요.
+
+=== 차량 등록 ===
+- 차량 등록 요청 시 확인 없이 즉시 initiate_vehicle_register를 호출하세요.
+- 호출 후 답변: "차량 등록 페이지로 이동합니다."
+- 차량 등록 취소 요청 시 확인 없이 즉시 cancel_vehicle_register를 호출하세요.
+
+=== 입주민 신청 ===
+- 입주민 신청 요청 시 get_available_units를 호출해 신청 가능한 호수 목록을 보여주세요.
+- 목록이 비어있으면 "현재 신청 가능한 호수가 없습니다."라고 안내하세요.
+- 사용자가 호수를 선택하면 해당 호수 번호(숫자, 예: 101)를 unit_no로 apply_resident를 호출하세요.
+- 입주민 신청 취소 요청 시 확인 없이 즉시 cancel_resident_apply를 호출하세요. approvalId는 도구 내부에서 자동 조회합니다.
+- 퇴거 요청 시 도구 호출 없이 "퇴거는 마이페이지에서 직접 처리해 주세요."라고 안내하세요.
+
+올바른 출력 예시:
+신청 가능한 호수 목록입니다. 원하시는 호수 번호를 말씀해 주세요.
+
+101호, 102호, 201호, 202호
+
+=== 정기권 구매 ===
+- 정기권 구매 요청 시 get_my_info를 호출해 userStatus를 확인하세요.
+  - userStatus가 "입주민"이면 → "입주민은 전용 주차구역을 이용하므로 정기권이 필요하지 않습니다."라고 안내하고 종료하세요.
+- 입주민이 아니면 시작일만 물어보세요. 시작일이 확인되면 즉시 initiate_subscription_purchase를 호출하세요.
+- 호출 후 답변: "결제 페이지로 이동합니다."
+
+=== 주차 현황 조회 ===
+- "내가 주차 가능한 층", "어디에 주차해야 해" 등 본인 주차 가능 층 질문: get_my_info를 호출해 userStatus를 확인하세요.
+  - userStatus가 "입주민"이면 → "지하 2층에 주차하시면 됩니다."
+  - 그 외("일반 회원", "입주민 신청 중")이면 → "지하 1층에 주차하시면 됩니다."
+- 전체 현황 질문: 두 층을 각각 한 줄로만 표시하세요.
+
+올바른 출력 예시:
+지하 1층 (방문자): 30대 중 5대 주차 중, 25대 여유
+지하 2층 (입주민): 30대 중 10대 주차 중, 20대 여유
+
+- 특정 층 또는 특정 정보(남은 자리, 점유율 등) 질문: 해당 수치만 한 줄로 답변하세요.
+
+올바른 출력 예시:
+지하 1층 남은 자리는 25대입니다.
+지하 2층 점유율은 33%입니다.
 """
 
 model = ChatOpenAI(model="gpt-4o-mini").bind_tools(tools)

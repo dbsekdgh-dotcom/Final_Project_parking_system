@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { useChatbot } from '../../hooks/useChatbot';
 import ChatReservationTable from './ChatReservationTable';
+import ChatUnitGrid from './ChatUnitGrid';
 import './ChatModal.css';
 
 const ChatModal = ({ onClose }) => {
-    const { messages, input, setInput, loading, sendMessage } = useChatbot();
+    const { messages, input, setInput, loading, sendMessage, sendDirect } = useChatbot(onClose);
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -34,9 +35,10 @@ const ChatModal = ({ onClose }) => {
                 {messages.map((msg) => (
                     <div key={msg.id} className={`chat-bubble chat-bubble--${msg.role}`}>
                         <span className="chat-bubble__text">
-                            {msg.reservations ? msg.text.split('\n')[0] : msg.text}
+                            {(msg.reservations || msg.units) ? msg.text.split('\n')[0] : msg.text}
                         </span>
                         {msg.reservations && <ChatReservationTable reservations={msg.reservations} />}
+                        {msg.units && <ChatUnitGrid units={msg.units} onSelect={sendDirect} />}
                     </div>
                 ))}
                 {loading && (
