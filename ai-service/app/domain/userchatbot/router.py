@@ -9,6 +9,8 @@ import os
 import base64
 import json
 import time
+from langchain_core.messages import ToolMessage
+
 
 SPRING_URL = os.getenv("SPRING_API_URL", "http://localhost:8080")
 
@@ -86,14 +88,13 @@ def postprocess(text: str) -> str:
     # 예약 ID 노출 제거 (마크다운 제거 후 처리)
     text = re.sub(r'[-\s]*예약 ?ID\s*:\s*\d+\s*\n?', '', text)
 
-    # 도구 호출 전 예고 문구 제거
+    # 도구 호출 전 예고 문구 제거 (줄 전체를 매칭해서 앞 조각이 남지 않도록)
     waiting_patterns = [
-        r'먼저[^。\n]*(?:조회|확인|진행)[^。\n]*(?:하겠습니다|할게요)[^\n]*\n?',
-        r'잠시만[^。\n]*기다려[^。\n]*(?:주세요|주십시오)[^\n]*\n?',
-        r'(?:예약|목록|정보)[^。\n]*(?:조회|확인)하겠습니다[^\n]*\n?',
+        r'^[^\n]*(?:잠시만|먼저)[^。\n]*(?:주세요|주십시오|하겠습니다|할게요)[^\n]*\n?',
+        r'^[^\n]*(?:예약|신청|취소|조회|확인|진행|처리|시작)[^。\n]*(?:하겠습니다|시작하겠습니다|진행하겠습니다|처리하겠습니다)[^\n]*\n?',
     ]
     for pattern in waiting_patterns:
-        text = re.sub(pattern, '', text)
+        text = re.sub(pattern, '', text, flags=re.MULTILINE)
 
     # ISO 날짜 변환 (2026-05-04T14:00:00 or 2026-05-04 14:00)
     text = re.sub(r'\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2})?', _convert_iso_date, text)
@@ -120,8 +121,8 @@ def is_token_expired(token: str) -> bool:
         return False
 
 
-async def try_refresh_access_token(refresh_token: str) -> Optional[str]:
-    """refreshToken 쿠키로 Spring에 토큰 갱신을 요청하고 새 accessToken 값을 반환합니다."""
+async def try_refresh_access_token(refresh_token: str) -> Optional[dict]:
+    """refreshToken 쿠키로 Spring에 토큰 갱신을 요청하고 새 accessToken과 Set-Cookie 헤더를 반환합니다."""
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -132,16 +133,17 @@ async def try_refresh_access_token(refresh_token: str) -> Optional[str]:
         if response.status_code != 200:
             logger.warning(f"토큰 갱신 실패: status={response.status_code}")
             return None
-        # 응답 Set-Cookie 헤더에서 accessToken 값 추출
-        # httpx는 동일 헤더가 여러 개일 때 multi_items()로 접근
         set_cookies = [v for k, v in response.headers.multi_items() if k.lower() == "set-cookie"]
+        new_access_token = None
         for header_value in set_cookies:
             if "accessToken=" in header_value:
                 for part in header_value.split(";"):
                     part = part.strip()
                     if part.startswith("accessToken="):
-                        return part.split("=", 1)[1]
-        return None
+                        new_access_token = part.split("=", 1)[1]
+        if not new_access_token:
+            return None
+        return {"access_token": new_access_token, "set_cookie_headers": set_cookies}
     except Exception as e:
         logger.error(f"토큰 갱신 중 예외: {e}")
         return None
@@ -166,15 +168,11 @@ async def chat_with_bot(
 
     if not token and not refresh:
         logger.warning("Unauthorized: No accessToken or refreshToken cookie provided.")
-    elif refresh and (not token or is_token_expired(token)):
-        # accessToken이 없거나 만료된 경우 refreshToken으로 갱신
-        logger.info("accessToken 만료 또는 없음, refreshToken으로 갱신 시도")
-        refreshed = await try_refresh_access_token(refresh)
-        if refreshed:
-            token = refreshed
-            logger.info("토큰 갱신 성공")
-        else:
-            logger.warning("토큰 갱신 실패 - 기존 토큰으로 진행")
+    elif is_token_expired(token):
+        # 토큰 만료 시 서버사이드 refresh를 하지 않고 브라우저 인터셉터에 위임
+        # (서버사이드 refresh는 RTR 충돌 유발 - 브라우저와 동시에 rotate 시도)
+        logger.info("accessToken 만료 - 브라우저 인터셉터에 갱신 위임")
+        return {"reply": "로그인 세션이 만료되었습니다. 잠시 후 다시 시도해 주세요.", "action": None, "reservations": None, "subscriptionStartDate": None, "availableUnits": None}
 
     prior_messages = []
     for msg in history:
@@ -200,7 +198,54 @@ async def chat_with_bot(
             raise ValueError("LangGraph returned an empty or invalid state.")
 
         final_answer = postprocess(final_state["messages"][-1].content)
-        return {"reply": final_answer}
+
+        action = None
+        reservations = None
+        available_units = None
+        subscription_start_date = None
+        for msg in final_state["messages"]:
+            # tool 호출 감지 (AIMessage.tool_calls)
+            tool_calls = getattr(msg, "tool_calls", None)
+            if tool_calls:
+                for tc in tool_calls:
+                    name = tc.get("name") if isinstance(tc, dict) else getattr(tc, "name", None)
+                    args = tc.get("args") if isinstance(tc, dict) else getattr(tc, "args", {})
+                    if name == "create_reservation":
+                        action = "RESERVATION_CREATED"
+                    elif name in ("cancel_reservation", "cancel_reservation_by_date"):
+                        action = "RESERVATION_CANCELLED"
+                    elif name == "initiate_vehicle_register":
+                        action = "VEHICLE_REGISTER"
+                    elif name == "cancel_vehicle_register":
+                        action = "VEHICLE_REGISTER_CANCELLED"
+                    elif name == "apply_resident":
+                        action = "RESIDENT_APPLIED"
+                    elif name == "cancel_resident_apply":
+                        action = "RESIDENT_CANCELLED"
+                    elif name == "initiate_subscription_purchase":
+                        action = "SUBSCRIPTION_PURCHASE"
+                        subscription_start_date = args.get("start_date") if isinstance(args, dict) else None
+            # ToolMessage 결과 추출
+            msg_name = getattr(msg, "name", None)
+            if msg_name == "get_my_reservations":
+                try:
+                    content = msg.content
+                    data = json.loads(content) if isinstance(content, str) else content
+                    if isinstance(data, list):
+                        reservations = data
+                except Exception:
+                    pass
+            elif msg_name == "get_available_units":
+                try:
+                    content = msg.content
+                    data = json.loads(content) if isinstance(content, str) else content
+                    if isinstance(data, list):
+                        available_units = [u.get("unitNo") for u in data if u.get("unitNo")]
+                except Exception:
+                    pass
+
+        return {"reply": final_answer, "action": action, "reservations": reservations,
+                "subscriptionStartDate": subscription_start_date, "availableUnits": available_units}
 
     except ValueError as ve:
         # 데이터 구조 문제 등 로직 에러

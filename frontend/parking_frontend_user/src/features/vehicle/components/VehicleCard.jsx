@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useCancelVehicle, useDeleteVehicle, useMyVehicle } from '../hooks/useVehicle';
 import VehicleRegisterModal from './VehicleRegisterModal';
@@ -7,6 +8,14 @@ import './VehicleCard.css';
 const VehicleCard = () => {
     const { data: vehicle, isLoading } = useMyVehicle();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        if (searchParams.get('openVehicle') === '1') {
+            setSearchParams({}, { replace: true });
+            setIsModalOpen(true);
+        }
+    }, [searchParams]);
 
     const { mutate: cancelVehicle } = useCancelVehicle();
     const { mutate: deleteVehicle } = useDeleteVehicle();

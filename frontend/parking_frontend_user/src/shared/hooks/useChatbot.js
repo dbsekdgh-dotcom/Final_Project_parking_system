@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { sendChatMessage } from '../api/chatbotApi';
 
-export const useChatbot = () => {
+export const useChatbot = (onClose) => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [messages, setMessages] = useState([
         {
             id: 1,
@@ -14,40 +16,57 @@ export const useChatbot = () => {
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const sendMessage = useCallback(async () => {
-        const trimmed = input.trim();
-        if (!trimmed || loading) return;
-
-        const userMsg = { id: Date.now(), role: 'user', text: trimmed };
+    const doSend = useCallback(async (text, currentMessages) => {
+        const userMsg = { id: Date.now(), role: 'user', text };
         setMessages((prev) => [...prev, userMsg]);
-        setInput('');
         setLoading(true);
 
         try {
-            const history = messages
+            const history = currentMessages
                 .filter((m) => m.id !== 1)
                 .map((m) => ({ role: m.role, text: m.text }));
-            const data = await sendChatMessage(trimmed, history);
-            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply };
+            const data = await sendChatMessage(text, history);
+            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply, reservations: data.reservations || null, units: data.availableUnits || null };
             setMessages((prev) => [...prev, botMsg]);
-            const reply = data.reply;
-            if (
-                reply.includes('예약이 완료') || reply.includes('예약 완료') ||
-                reply.includes('취소되었습니다') || reply.includes('취소가 완료') || reply.includes('취소 완료')
-            ) {
+            if (data.action === 'RESERVATION_CREATED' || data.action === 'RESERVATION_CANCELLED') {
                 queryClient.invalidateQueries({ queryKey: ['myReservations'] });
+                queryClient.invalidateQueries({ queryKey: ['reservationPolicy'] });
+            }
+            if (data.action === 'RESIDENT_APPLIED' || data.action === 'RESIDENT_CANCELLED') {
+                queryClient.invalidateQueries({ queryKey: ['userStatus'] });
+                queryClient.invalidateQueries({ queryKey: ['unitStatus'] });
+                queryClient.invalidateQueries({ queryKey: ['myInfo'] });
+            }
+            if (data.action === 'SUBSCRIPTION_PURCHASE') {
+                onClose?.();
+                const date = data.subscriptionStartDate ? `?date=${data.subscriptionStartDate}` : '';
+                navigate(`/subscription${date}`);
+            }
+            if (data.action === 'VEHICLE_REGISTER') {
+                onClose?.();
+                navigate('/mypage?openVehicle=1');
+            }
+            if (data.action === 'VEHICLE_REGISTER_CANCELLED') {
+                queryClient.invalidateQueries({ queryKey: ['myVehicle'] });
             }
         } catch {
-            const errMsg = {
-                id: Date.now() + 1,
-                role: 'bot',
-                text: '죄송합니다, 잠시 후 다시 시도해 주세요.',
-            };
-            setMessages((prev) => [...prev, errMsg]);
+            setMessages((prev) => [...prev, { id: Date.now() + 1, role: 'bot', text: '죄송합니다, 잠시 후 다시 시도해 주세요.' }]);
         } finally {
             setLoading(false);
         }
-    }, [input, loading]);
+    }, [queryClient, navigate]);
 
-    return { messages, input, setInput, loading, sendMessage };
+    const sendMessage = useCallback(async () => {
+        const trimmed = input.trim();
+        if (!trimmed || loading) return;
+        setInput('');
+        await doSend(trimmed, messages);
+    }, [input, loading, messages, doSend]);
+
+    const sendDirect = useCallback(async (text) => {
+        if (loading) return;
+        await doSend(text, messages);
+    }, [loading, messages, doSend]);
+
+    return { messages, input, setInput, loading, sendMessage, sendDirect };
 };
