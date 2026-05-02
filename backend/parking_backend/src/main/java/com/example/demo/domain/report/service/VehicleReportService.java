@@ -1,5 +1,6 @@
 package com.example.demo.domain.report.service;
 
+import com.example.demo.domain.notification.service.NotificationService;
 import com.example.demo.domain.report.entity.VehicleReportStat;
 import com.example.demo.domain.report.repository.VehicleReportRepository;
 import lombok.RequiredArgsConstructor;
