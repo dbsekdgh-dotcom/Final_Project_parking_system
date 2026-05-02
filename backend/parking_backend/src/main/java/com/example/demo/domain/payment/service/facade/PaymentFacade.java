@@ -91,8 +91,6 @@ public class PaymentFacade {
             settlementService.checkEligibility(dto,parkingLog);
             // 6. 결제 전 Payment insert
             PaymentReadyResponseDto paymentReadyResponseDto = settlementService.insertPayment(parkingLog, dto, PaymentStatus.READY, vehiclePaymentResponseDto);
-            // 7. 락 해제
-            //aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
             return paymentReadyResponseDto;
         }catch (BusinessException e){
             log.error("사전 검증 중 비즈니스 예외 발생: {}", e.getMessage());
@@ -134,7 +132,7 @@ public class PaymentFacade {
             SettlementRequestDto settlementRequestDto=SettlementRequestDto.builder().parkingLogId(parkingLog.getParkingLogId()).usedPoint((int)(parkingLog.getCalculatedFee()-parkingLog.getFee()-dto.getAmount())).paidAmount((int)dto.getAmount()).build();
             settlementService.checkEligibility(settlementRequestDto,parkingLog);
             // - 결제 유효시간 초과 여부 확인
-            settlementService.checkPaymentTimeout(parkingLog);
+            settlementService.checkPaymentTimeout(parkingLog, dto.getOrderId());
 
             if (dto.getAmount() > 0) {
                 // 2. 토스 승인 요청

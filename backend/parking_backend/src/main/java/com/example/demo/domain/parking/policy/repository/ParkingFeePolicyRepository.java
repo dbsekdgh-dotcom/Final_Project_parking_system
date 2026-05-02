@@ -46,7 +46,7 @@ public interface ParkingFeePolicyRepository extends JpaRepository<ParkingFeePoli
         """)
     Optional<ParkingFeePolicy> findActivePolicy(@Param("type") ParkingType type);
 
-    //과거 이력조회
-    @Query("select p from ParkingFeePolicy p where p.effectiveTo<CURRENT_TIMESTAMP order by p.version desc ")
-    List<ParkingFeePolicy> findPolicyHistory();
+    //과거 이력조회 - parkingType별
+    @Query("select p from ParkingFeePolicy p where p.parkingType = :parkingType and p.effectiveTo < :now order by p.version desc")
+    List<ParkingFeePolicy> findPolicyHistoryByType(@Param("parkingType") ParkingType parkingType, @Param("now") LocalDateTime now);
 }

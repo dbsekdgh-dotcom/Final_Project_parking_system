@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {changeFeePolicy} from './../api/feeApi'
-import { updateFeePolicy,deleteTicketPolicy,insertTicketPolicy,inactivateTicketPolicy ,searchPolicyHistory} from "./../api/feeApi";
+import { updateFeePolicy,deleteTicketPolicy,insertTicketPolicy,inactivateTicketPolicy} from "./../api/feeApi";
 
 export const usePolicyMutation=()=>{
     const queryClient=useQueryClient();

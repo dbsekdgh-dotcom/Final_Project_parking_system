@@ -42,7 +42,7 @@ public class RefundService {
     private final NotificationRepository notificationRepository;
     private final ActivityLogRepository activityLogRepository;
 
-    //강제 출차 시 전액 환불
+    //강제 출차 시 환불
     @Transactional
     public void refundByForceExit(String paymentKey, List<Payment> payments){
         //1.toss 환불
@@ -52,8 +52,10 @@ public class RefundService {
                 response=tossPaymentService.cancelPayment(paymentKey,"중복 결제로 인한 환불");
             }catch (Exception e){
                 //환불 실패 시, 시스템에서 자동으로 재실행 될 수 있도록/환불 실패하더라도 DB는 업데이트 되어야 함
+                //환불 실패 로그 기록 및 관리자 알림
                 log.error("Toss 환불 실패! 재시도 큐에 등록합니다.");
-                //여기에 스케줄러 만들기
+                // 비동기 재시도 처리: 실패한 환불 요청을 별도 테이블(PendingRefund)에 저장 후,Spring Batch나 @Scheduled를 통해 일정 주기로 재시도 로직 실행 필요
+                // TODO: 스케줄러 기반 자동 재시도 로직 구현 필요
             }
 
         }
@@ -65,7 +67,7 @@ public class RefundService {
         ParkingLog parkingLog=null;
         Payment payment=null;
 
-        //3.
+        //3.환불 대상 정보 확정 및 금액 계산
         long creditRefundAmount=0L;
         if(creditPayment!=null){
             creditRefundAmount=creditPayment.getAmount();
@@ -80,20 +82,20 @@ public class RefundService {
         }
         long totalRefundAmount=creditRefundAmount+pointRestoreAmount;
 
-        //1.payment 업데이트
+        //4.payment 업데이트
         updatePaymentByRefund(payments,creditRefundAmount,pointRestoreAmount);
 
-        //2.userPoint & PointLog update
+        //5.userPoint & PointLog update
         User user=parkingLog.getVehicle().getUser();
         pointLogUpdateByRefund(parkingLog,user,pointPayment,pointRestoreAmount);
 
-        //3.parking_log update
+        //6.parking_log update
         parkingLogUpdateByRefund(parkingLog,totalRefundAmount);
 
-        //4.notification insert
+        //7.notification insert
         notificationUpdateByRefund(user,totalRefundAmount);
 
-        //5.active log insert
+        //8.active log insert
         activeLogInsertByRefund(parkingLog,user,payment,creditRefundAmount,pointRestoreAmount);
     }
 
@@ -147,8 +149,12 @@ public class RefundService {
     }
     private void notificationUpdateByRefund(User user,long totalRefundedAmount){
         if(user ==null) return;;
-        Notification notification=Notification.builder().user(user).type(Type.REFUNDED).title("환불 완료 알람")
-                .content(totalRefundedAmount +"원 환불이 완료되었습니다.")
+        String refundContent = String.format(
+                "관리자 확인 및 강제 출차 처리에 따라 결제하신 주차 요금 %d원이 환불되었습니다.",
+                totalRefundedAmount
+        );
+        Notification notification=Notification.builder().user(user).type(Type.REFUNDED).title("강제 출차로 인한 환불 안내")
+                .content(refundContent)
                 .status(Status.ACTIVE).build();
         notificationRepository.save(notification);
     }

@@ -9,33 +9,26 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class PolicyHistoryService {
     private final ParkingFeePolicyRepository parkingFeePolicyRepository;
-    private final TicketPolicyRepository ticketPolicyRepository;
 
-    public Map<String,Object> getPolicyHistory() {
-        Map<String, Object> result = new HashMap<>();
-        List<ParkingFeePolicy> list = parkingFeePolicyRepository.findPolicyHistory();
-        //외부인 과거 요금 정책
-        List<ParkingFeePolicyResponseDto> visitorPolicyHistory = list.stream().filter(l -> ParkingType.VISIT.equals(l.getParkingType()))
+    public List<ParkingFeePolicyResponseDto> getPolicyHistoryFiltered(
+            ParkingType parkingType, Long version, LocalDate startDate, LocalDate endDate) {
+        return parkingFeePolicyRepository.findPolicyHistoryByType(parkingType, LocalDateTime.now())
+                .stream()
+                .filter(p -> version == null || p.getVersion().equals(version))
+                .filter(p -> startDate == null || !p.getEffectiveFrom().toLocalDate().isBefore(startDate))
+                .filter(p -> endDate == null || !p.getEffectiveFrom().toLocalDate().isAfter(endDate))
                 .map(ParkingFeePolicyResponseDto::toPolicyDto)
                 .toList();
-        //방문객 과거 요금 정책
-        List<ParkingFeePolicyResponseDto> reservationPolicyHistory = list.stream().filter(l -> ParkingType.RESERVATION.equals(l.getParkingType()))
-                .map(ParkingFeePolicyResponseDto::toPolicyDto)
-                .toList();
-
-        result.put("visitorPolicyHistory", visitorPolicyHistory);
-        result.put("reservationPolicyHistory", reservationPolicyHistory);
-        return result;
     }
 }

@@ -2,6 +2,8 @@ package com.example.demo.api.admin.fee;
 
 import com.example.demo.domain.parking.policy.dtos.request.ParkingFeePolicyChangeRequestDto;
 import com.example.demo.domain.parking.policy.dtos.request.ParkingFeePolicyUpdateRequestDto;
+import com.example.demo.domain.parking.policy.dtos.response.ParkingFeePolicyResponseDto;
+import com.example.demo.domain.parking.policy.enums.ParkingType;
 import com.example.demo.domain.parking.policy.service.ParkingFeePolicyService;
 import com.example.demo.domain.parking.policy.service.PolicyHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,10 +11,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @Tag(name = "5. 요금 정책 (Fee Policy)", description = "주차 요금 정책 조회, 변경, 전체 수정, 이력 조회 API")
@@ -46,7 +51,14 @@ public class FeePolicyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(policyId);
     }
 
-    @Operation(summary = "요금 정책 이력 조회", description = "과거부터 현재까지 등록된 모든 요금 정책 변경 이력을 반환합니다.", security = @SecurityRequirement(name = "jwtAuth"))
-    @GetMapping("/fee-policy/history")
-    public Map<String,Object> searchFeePolicyHistory(){return policyHistoryService.getPolicyHistory();}
+    @Operation(summary = "요금 정책 이력 필터 조회", description = "parkingType, 버전, 날짜 범위로 필터링된 이력을 반환합니다.", security = @SecurityRequirement(name = "jwtAuth"))
+    @GetMapping("/fee-policy/history/search")
+    public List<ParkingFeePolicyResponseDto> searchFeePolicyHistoryFiltered(
+            @RequestParam ParkingType parkingType,
+            @RequestParam(required = false) Long version,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return policyHistoryService.getPolicyHistoryFiltered(parkingType, version, startDate, endDate);
+    }
 }

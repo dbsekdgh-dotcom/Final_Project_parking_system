@@ -31,8 +31,8 @@ const TicketPolicyBox = ({title,data}) => {
         const typeLabel = TICKET_POLICY_TYPE_LABEL[p.discountType];
         const type=typeLabel==='비율'?'%':typeLabel==='시간'?'분':typeLabel==='무료'?'무료':'원'
         confirmAlert({
-        title:'할인권 비활성화 확인',
-        label:'비활성화 정책',
+        title:`${p.status==='ACTIVE'?'비활성화 확인':'활성화 확인'}`,
+        label:'정책 내용',
         value:`[${p.useType==='STORE'?'상가':'관리자'}] ${type==='무료'?type:p.discountValue.toLocaleString()}${type==='무료'?'':type} 할인권`,
         effectiveDate:'즉시 적용',
         resultTitle: `${p.status==='ACTIVE'?'비활성화 완료':'활성화 완료'}`,

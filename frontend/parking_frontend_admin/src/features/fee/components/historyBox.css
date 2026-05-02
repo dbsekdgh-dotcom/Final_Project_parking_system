@@ -1,3 +1,4 @@
+/* 레이아웃 및 컨테이너 */
 .container {
   padding: 20px;
   background-color: var(--bg-card);
@@ -13,20 +14,99 @@
   border: 1px solid var(--border);
 }
 
+/* 제목과 검색 영역을 가로로 강제 정렬 */
 .sectionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  margin-top: 10px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  margin-bottom: 25px;
+  gap: 15px;
 }
 
 .title {
   font-size: 1.1rem;
   font-weight: bold;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
+/* --- 검색 영역 (강력한 한 줄 고정) --- */
+.search-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* 공통 입력창 스타일: 부트스트랩 width 100% 차단 */
+.search-input {
+  display: inline-block !important;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-input);
+  color: var(--text-primary);
+  padding: 0 10px;
+  border-radius: 6px;
+  height: 32px !important;
+  font-size: 0.85rem;
+  width: auto !important;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+}
+
+/* 각 입력창 너비 고정 */
+.version-input {
+  width: 100px !important;
+}
+
+.date-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 5px;
+  flex-shrink: 0; /* 날짜창이 찌그러지지 않게 */
+}
+
+.date-group input[type='date'] {
+  width: 140px !important; /* 연-월-일이 다 보일 정도의 최소 너비 */
+}
+
+.date-group span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* 초기화 버튼 */
+.reset-button {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  background-color: var(--bg-section);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 6px;
+  white-space: nowrap !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-button:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--primary);
+}
+
+.reset-button:active {
+  transform: scale(0.96);
+}
+
+/* --- 테이블 스타일 (기존 유지) --- */
 .custom-history-table,
 .custom-history-table th,
 .custom-history-table td {
@@ -69,33 +149,4 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.date {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.date input[type='date'] {
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-input);
-  color: var(--text-primary);
-  padding: 5px 12px;
-  border-radius: 6px;
-  outline: none;
-}
-
-.date button {
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  padding: 6px 18px;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: 0.2s;
-}
-
-.date button:hover {
-  background-color: #1d4ed8;
 }

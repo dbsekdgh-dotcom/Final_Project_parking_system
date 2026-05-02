@@ -88,3 +88,30 @@
   padding: 0 !important;
   box-sizing: border-box !important;
 }
+
+.rv-spin {
+  /* 중심축을 요소의 정중앙으로 고정 */
+  transform-origin: center; 
+  animation: rv-rotate 1s linear infinite;
+}
+
+@keyframes rv-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rv-bg-loading {
+  background-color: green;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rv-svg-icon {
+  width: 60%;  /* 원 안에서 적절한 크기 유지 */
+  height: 60%;
+}
