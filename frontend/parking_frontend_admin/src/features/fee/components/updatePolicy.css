@@ -1,50 +1,45 @@
-/* 전체 컨테이너 */
+/* 전체 컨테이너 및 레이아웃 */
 .policy-form-container {
     display: flex;
     flex-direction: column;
-    gap: 12px; /* 항목 간 간격 축소 */
+    gap: 12px;
     padding: 10px;
     text-align: left;
 }
 
-/* 개별 필드 (세로 정렬) */
 .policy-field {
     width: 100%;
     display: flex;
     flex-direction: column;
 }
 
-/* 라벨 스타일 */
+/* 라벨 - 팀원 변수 적용 */
 .field-label {
     font-weight: bold;
     font-size: 0.85rem;
     margin-bottom: 6px;
-    color: #e0e0e0;
+    color: var(--text-label);
 }
 
-/* 입력창 및 셀렉트 공통 스타일 */
-.policy-form-container input[type="text"], 
-.policy-form-container input[type="number"], 
-.policy-form-container input[type="datetime-local"],
-.policy-form-container textarea {
+/* 입력창 - 팀원 변수(라이트모드 대응) 적용 */
+.policy-form-container input {
     width: 100%;
-    background: #121212 !important; /* 깊은 다크 배경 */
-    border: 1px solid #333 !important;
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border-input) !important;
+    color: var(--text-primary) !important;
     border-radius: 4px;
     padding: 10px !important;
-    color: white !important;
     font-size: 0.9rem;
     box-sizing: border-box;
     outline: none;
-    transition: border-color 0.2s;
 }
 
-/* 포커스 효과 */
+/* 포커스 및 아이콘 */
 .policy-form-container input:focus {
-    border-color: #3085d6 !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
 }
 
-/* 크롬/엣지 등에서 datetime-local 아이콘 색상 보정 */
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
     cursor: pointer;

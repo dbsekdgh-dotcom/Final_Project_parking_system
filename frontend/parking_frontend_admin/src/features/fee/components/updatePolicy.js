@@ -2,14 +2,14 @@ import Swal from "sweetalert2";
 import './updatePolicy.css';
 import { confirmAlert } from './confirmPolicy';
 
-export const updatePolicy = async ({ title, type, updateMutateAsync }) => {
-    const now = new Date();
-    // utc 시차 보정
-    const adjustDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-    const minDate = new Date(adjustDate);
-    minDate.setDate(minDate.getDate() + 1);
-    minDate.setHours(0, 0, 0, 0);
-    const minDateString = minDate.toISOString().split('T')[0] + " 00:00:00";
+export const updatePolicy=async({title,type,updateMutateAsync})=>{
+        const now=new Date();
+        //utc 시차 보정
+        const adjustDate=new Date(now.getTime()-now.getTimezoneOffset()*60000)
+        const minDate=new Date(adjustDate)
+        minDate.setDate(minDate.getDate())
+        minDate.setHours(0,0,0,0)
+        const minDateString=minDate.toISOString().split('T')[0]+ " 00:00:00";
 
     const result = await Swal.fire({
         title: `${title}`,
@@ -54,8 +54,8 @@ export const updatePolicy = async ({ title, type, updateMutateAsync }) => {
         cancelButtonColor: '#aaa',
         confirmButtonText: '등록',
         cancelButtonText: '취소',
-        background: '#1e1e1e',
-        color: '#ffffff',
+        background: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#1e1e1e',
+        color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#ffffff',
         backdrop: 'rgba(0,0,0,0.6)',
         customClass: {
             popup: 'custom-policy-popup'
@@ -77,7 +77,7 @@ export const updatePolicy = async ({ title, type, updateMutateAsync }) => {
                 return false;
             }
             if (Object.values(data).filter(v => typeof v === 'number').some(v => v < 0)) {
-                Swal.showValidationMessage("요금 항목은 0 이상이어야 합니다.");
+                Swal.showValidationMessage("단위/요금 항목은 0 이상이어야 합니다.");
                 return false;
             }
             if (!data.effectiveFrom) {
@@ -85,19 +85,21 @@ export const updatePolicy = async ({ title, type, updateMutateAsync }) => {
                 return false;
             }
 
-            return data;
-        }
-    })
-
-    if (result.isConfirmed) {
-        await confirmAlert({
-            title: "정책 예약 확인",
-            label: "기본요금/단위요금",
-            value: `${result.value.baseFee}원 / ${result.value.unitFee}원`,
-            effectiveDate: `${result.value.effectiveFrom.replace('T', ' ')}`,
-            resultTitle: "정책 예약 완료",
-            mutateAsync: updateMutateAsync,
-            updatePolicy: result.value
+                return data;
+           
+            }
         })
-    }
+        if(result.isConfirmed){
+            await confirmAlert({
+                title:"정책 예약 확인",
+                label:"기본요금/단위요금",
+                value: `${result.value.baseFee}원/${result.value.unitFee}`,
+                effectiveDate:`${result.value.effectiveFrom.replace('T',' ')}`,
+                resultTitle:"정책 예약 완료",
+                mutateAsync: updateMutateAsync,
+                updatePolicy:result.value
+            })
+        }
+
+    
 }

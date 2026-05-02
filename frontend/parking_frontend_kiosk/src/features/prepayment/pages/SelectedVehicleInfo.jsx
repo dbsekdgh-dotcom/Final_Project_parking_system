@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import VehicleInfo from '../../../shared/components/vehicleInfo/VehicleInfo'
+import ResultView from '../../../shared/components/resultView/ResultView'
 import useVehicleStore from '../../../store/useVehicleStore';
 import '../../../app.css'
 import PaymentMethod from '../../../shared/components/paymentMethod/PaymentMethod';

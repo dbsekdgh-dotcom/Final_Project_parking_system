@@ -1,5 +1,7 @@
 import Swal from 'sweetalert2';
 export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mutateAsync,updatePolicy})=>{
+    const bg = () => getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#1e1e1e';
+    const fg = () => getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#ffffff';
 
     const result=await Swal.fire({
         title: `${title}`,
@@ -17,9 +19,9 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
         cancelButtonColor: '#aaa',
         confirmButtonText: '저장',
         cancelButtonText: '취소',
-        
-        background: '#1e1e1e',
-        color: '#ffffff',
+
+        background: bg(),
+        color: fg(),
         backdrop:'rgba(0,0,0,0.6)'
     })
 
@@ -32,8 +34,8 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
                     icon:'success',
                     timer:1500,
                     showConfirmButton:false,
-                    background: '#1e1e1e',
-                    color: '#ffffff',
+                    background: bg(),
+                    color: fg(),
                     backdrop:'rgba(0,0,0,0.6)'
                 })
             }
@@ -45,8 +47,8 @@ export const confirmAlert=async({title,label,value,effectiveDate,resultTitle,mut
                 icon:'error',
                 timer:1500,
                 showConfirmButton:false,
-                background: '#1e1e1e',
-                color: '#ffffff',
+                background: bg(),
+                color: fg(),
                 backdrop:'rgba(0,0,0,0.6)'
             })
         }

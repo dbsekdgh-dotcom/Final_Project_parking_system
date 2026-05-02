@@ -147,6 +147,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
                                                    @Param("to") LocalDateTime to);
 
     //최근 주문 번호 업데이트
-    @Query("update ParkingLog p set p.latestOrderId =:orderid where p.parkingLogId=:orderId")
-    int updateLatestOrderId(@Param("id")Long id, @Param("orderId") String orderId);
+    @Modifying
+    @Query("update ParkingLog p set p.latestOrderId =:latestOrderId where p.parkingLogId=:id")
+    int updateLatestOrderId(@Param("id")Long id, @Param("latestOrderId") String latestOrderId);
 }

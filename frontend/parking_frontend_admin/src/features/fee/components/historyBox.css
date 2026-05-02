@@ -1,104 +1,152 @@
+/* 레이아웃 및 컨테이너 */
 .container {
   padding: 20px;
-  background-color: #2c2c2c;
-  color: #ffffff;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   min-height: 100vh;
 }
 
-/* 요금 정책 섹션 (카드) */
 .section {
-  background-color: #3d3d3d;
+  background-color: var(--bg-section);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 25px;
-  border: 1px solid #4d4d4d;
+  border: 1px solid var(--border);
 }
 
-/* 섹션 헤더 (제목 + 메인 수정) */
+/* 제목과 검색 영역을 가로로 강제 정렬 */
 .sectionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  margin-top:10px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  margin-bottom: 25px;
+  gap: 15px;
 }
 
 .title {
   font-size: 1.1rem;
   font-weight: bold;
+  color: var(--text-primary);
+  white-space: nowrap;
 }
-/* HistoryBox.css */
 
-/* 1. 테이블과 모든 셀의 배경을 투명으로 강제 고정 */
-.custom-history-table, 
-.custom-history-table th, 
+/* --- 검색 영역 (강력한 한 줄 고정) --- */
+.search-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* 공통 입력창 스타일: 부트스트랩 width 100% 차단 */
+.search-input {
+  display: inline-block !important;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-input);
+  color: var(--text-primary);
+  padding: 0 10px;
+  border-radius: 6px;
+  height: 32px !important;
+  font-size: 0.85rem;
+  width: auto !important;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+}
+
+/* 각 입력창 너비 고정 */
+.version-input {
+  width: 100px !important;
+}
+
+.date-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 5px;
+  flex-shrink: 0; /* 날짜창이 찌그러지지 않게 */
+}
+
+.date-group input[type='date'] {
+  width: 140px !important; /* 연-월-일이 다 보일 정도의 최소 너비 */
+}
+
+.date-group span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* 초기화 버튼 */
+.reset-button {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  background-color: var(--bg-section);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 6px;
+  white-space: nowrap !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-button:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--primary);
+}
+
+.reset-button:active {
+  transform: scale(0.96);
+}
+
+/* --- 테이블 스타일 (기존 유지) --- */
+.custom-history-table,
+.custom-history-table th,
 .custom-history-table td {
-    table-layout: fixed !important;
-    width: 100% !important;
-    white-space: nowrap !important;  /* 텍스트 줄바꿈 방지 */
-    vertical-align: middle !important;
-    background-color: transparent !important; /* 배경색 제거 */
-    color: #eee !important;                 /* 글자색 유지 */
-    border-color: #444 !important;          /* 선 색상 (너무 밝으면 안되니까) */
+  table-layout: fixed !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
 }
 
-/* 2. 부트스트랩의 hover 효과가 배경을 덮지 못하게 수정 */
 .custom-history-table.table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important; /* 마우스 올렸을 때만 아주 살짝 티나게 */
-    transition: 0.2s;
+  background-color: var(--bg-hover) !important;
+  transition: 0.2s;
 }
 
-/* 3. 테이블 외곽선이나 그림자 등 부트스트랩 기본값 억제 */
 .custom-history-table {
-    border-style: hidden; 
+  border-style: hidden;
 }
+
 .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .date-cell {
-    white-space: pre-line !important; /* 공백이나 줄바꿈을 만나면 줄을 바꿈 */
-    word-break: break-all;
-    min-width: 90px;
-    line-height: 1.4;
+  white-space: pre-line !important;
+  word-break: break-all;
+  min-width: 90px;
+  line-height: 1.4;
 }
-.custom-history-table .text-muted{
-    color: #aaa !important;
+
+.custom-history-table .text-muted {
+  color: var(--text-muted) !important;
 }
-/* 텍스트가 칸을 넘칠 경우 처리 */
+
 .custom-history-table th,
 .custom-history-table td {
-    overflow: hidden;
-    text-overflow: ellipsis; /* 글자가 너무 길면 ... 처리 */
-    white-space: nowrap;    /* 아까 설정한 줄바꿈 방지 유지 */
-}
-/* 날짜 조회 컨트롤 영역 */
-.date {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.date input[type='date'] {
-    background-color: #4d4d4d;
-    border: 1px solid #666;
-    color: #fff;
-    padding: 5px 12px;
-    border-radius: 6px;
-    outline: none;
-}
-
-.date button {
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    padding: 6px 18px;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: 0.2s;
-}
-
-.date button:hover {
-    background-color: #1d4ed8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

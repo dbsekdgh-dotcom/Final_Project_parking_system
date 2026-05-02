@@ -186,13 +186,11 @@ public class ParkingLog {
     public void  updateForFreeForceExit(Integer rawFee, LocalDateTime now){
         this.parkingStatus=ParkingStatus.FORCE_EXITED; //상태변경
         this.exitedAt=now; //실제 출차완료시점 기록
-
         //비용 데이터 업데이트
         this.rawFee=rawFee; //입차부터 현재까지 계산된 원금
         this.calculatedFee=0L; //청구금액
         this.totalDiscountAmount=rawFee; //원금만큼 전액 할인 처리
         this.fee = 0; //실제 납부 금액 0원 처리
-
         //결제 상태 및 시간 업데이트
         this.paymentStatus=PaymentStatus.PAID; //결제 완료로 간주
         this.paidAt = now; //결제 시점 기록
@@ -212,9 +210,7 @@ public class ParkingLog {
 
     //관리자용 할인 수정 메서드
     public void updateAdminDiscount(Integer newAdminsDiscount,Integer currentStoreTotal){
-        if(!isDiscountModifiable()) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        }
+        if(!isDiscountModifiable()) {throw new BusinessException(ErrorCode.INVALID_REQUEST);}
         // 전달받은 상가 할인합계와 새 관리자 할인을 더함
         int nextTotalDiscount = currentStoreTotal + newAdminsDiscount;
         //원금 초과방지

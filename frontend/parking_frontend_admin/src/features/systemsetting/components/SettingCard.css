@@ -1,6 +1,6 @@
 .setting-card {
-  background-color: #1e1e1e;
-  border: 1px solid #2e2e2e;
+  background-color: var(--bg-card-alt);
+  border: 1px solid var(--border-deep);
   border-radius: 8px;
   padding: 16px 18px 20px;
   display: flex;
@@ -10,9 +10,7 @@
   min-height: 108px;
 }
 
-.setting-card--editing {
-  border-color: #4a4a4a;
-}
+.setting-card--editing { border-color: var(--border-input); }
 
 .setting-card__header {
   display: flex;
@@ -23,13 +21,13 @@
 .setting-card__label {
   font-size: 14px;
   font-weight: 500;
-  color: #e0e0e0;
+  color: var(--text-label);
   line-height: 1.4;
 }
 
 .setting-card__key {
   font-size: 12px;
-  color: #6b6b6b;
+  color: var(--text-muted);
   margin-top: 2px;
   margin-bottom: 6px;
 }
@@ -37,7 +35,7 @@
 .setting-card__value {
   font-size: 26px;
   font-weight: 500;
-  color: #f0f0f0;
+  color: var(--text-primary);
   margin-top: 4px;
 }
 
@@ -46,7 +44,7 @@
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: #6b6b6b;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,13 +54,11 @@
 }
 
 .setting-card__icon-btn:hover {
-  color: #c0c0c0;
-  background-color: #2a2a2a;
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
 }
 
-.setting-card__icon-btn--close {
-  font-size: 13px;
-}
+.setting-card__icon-btn--close { font-size: 13px; }
 
 .setting-card__edit-row {
   display: flex;
@@ -73,10 +69,10 @@
 
 .setting-card__input {
   flex: 1;
-  background: #121212;
-  border: 1px solid #3a3a3a;
+  background: var(--bg-input-deep);
+  border: 1px solid var(--border-input);
   border-radius: 6px;
-  color: #f0f0f0;
+  color: var(--text-primary);
   font-size: 22px;
   font-weight: 500;
   padding: 4px 10px;
@@ -86,9 +82,7 @@
   transition: border-color 0.15s;
 }
 
-.setting-card__input:focus {
-  border-color: #5a5a5a;
-}
+.setting-card__input:focus { border-color: var(--border-input); }
 
 .setting-card__input::-webkit-outer-spin-button,
 .setting-card__input::-webkit-inner-spin-button {
@@ -100,10 +94,10 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  background-color: #2a2a2a;
-  border: 1px solid #3c3c3c;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  color: #d0d0d0;
+  color: var(--text-label);
   font-size: 13px;
   padding: 6px 12px;
   cursor: pointer;
@@ -112,14 +106,9 @@
 }
 
 .setting-card__save-btn:hover {
-  background-color: #383838;
-  border-color: #505050;
+  background-color: var(--bg-hover);
+  border-color: var(--border-input);
 }
 
-.setting-card__save-btn:active {
-  transform: scale(0.97);
-}
-
-.setting-card__save-icon {
-  font-size: 14px;
-}
+.setting-card__save-btn:active { transform: scale(0.97); }
+.setting-card__save-icon { font-size: 14px; }

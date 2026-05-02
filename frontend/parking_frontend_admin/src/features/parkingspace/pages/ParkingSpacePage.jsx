@@ -52,7 +52,6 @@ const ParkingSpacePage = () => {
     //컴포넌트 언마운트 시 인터벌 해제
     return () => clearInterval(intervalId)
   }, [fetchFloorSpaces])
-
   //주차 칸 클릭시 호출될 함수
   const handleSlotClick = (space) => {
     if (space.status === 'OCCUPIED') {

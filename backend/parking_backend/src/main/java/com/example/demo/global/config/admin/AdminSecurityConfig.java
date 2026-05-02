@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Order(1)
 public class
 AdminSecurityConfig {
-    @Value("${frontend.admin.url}")
+    @Value("${FRONTEND_ADMIN_URL:http://localhost:5201}")
     private String adminUrl;
     @Value("${frontend.user.url}")
     private String userUrl;

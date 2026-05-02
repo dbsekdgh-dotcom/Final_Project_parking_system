@@ -1,12 +1,12 @@
 /* 1. 테이블 전체를 감싸는 컨테이너 */
 .parking-table-wrapper {
-    background-color: #2a2a2a;
+    background-color: var(--bg-card);
     border-radius: 12px;
     padding: 30px;
-    border: 1px solid #444;
+    border: 1px solid var(--border);
     margin: 20px auto; /* 페이지 중앙 배치 */
     width: 98%; /* 좌우 여백 확보 */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* 2. 테이블 본체: !important를 사용해 글자색 강제 및 균등 배분 */
@@ -14,14 +14,14 @@
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed; /* 모든 컬럼 간격을 동일하게 고정 */
-    color: #ffffff !important; /* 검정색 글씨 방지 */
+    color: var(--text-primary); /* 검정색 글씨 방지 */
 }
 
 /* 3. 헤더(thead): 밝은 흰색 및 중앙 정렬 */
 .parking-table-wrapper .parking-log-table thead th {
     padding: 20px 10px;
-    border-bottom: 2px solid #666; /* 구분선 더 밝게 */
-    color: #ffffff !important; /* 헤더 글자색 강제 */
+    border-bottom: 2px solid var(--border); /* 구분선 더 밝게 */
+    color: var(--text-primary); /* 헤더 글자색 강제 */
     font-size: 15px;
     font-weight: 600;
     text-align: center; /* 가로 중앙 */
@@ -31,8 +31,8 @@
 /* 4. 본문(tbody): 행 간격 대폭 확대 및 중앙 정렬 */
 .parking-table-wrapper .parking-log-table tbody td {
     padding: 28px 10px; /* 위아래 사이 간격 확대 */
-    border-bottom: 1px solid #444; /* 각 행 밑줄 */
-    color: #eeeeee !important; /* 본문 글자색 밝게 강제 */
+    border-bottom: 1px solid var(--border); /* 각 행 밑줄 */
+    color: var(--text-primary); /* 본문 글자색 밝게 강제 */
     font-size: 14px;
     text-align: center; /* 가로 중앙 */
     vertical-align: middle; /* 세로 중앙 */
@@ -42,7 +42,7 @@
 /* 차량번호: 폰트 사이즈 통일 및 강조 */
 .parking-table-wrapper .parking-log-table .font-bold {
     font-weight: 700;
-    color: #ffffff !important;
+    color: var(--text-primary);
     font-size: 14px; /* 다른 텍스트와 통일 */
 }
 
@@ -88,7 +88,7 @@
 .detail-btn {
     background: none;
     border: none;
-    color: #3b82f6 !important;
+    color: var(--primary) !important;
     text-decoration: underline;
     cursor: pointer;
     font-size: 14px;
@@ -162,8 +162,8 @@
 
 /* 입차취소 행 흐리게 처리 */
 .row-cancelled {
-    background-color: rgba(255, 255, 255, 0.02); /* 다크모드 기준 */
-    color: #666 !important;
+    background-color: rgba(128,128,128,0.05); /* 다크모드 기준 */
+    color: var(--text-muted) !important;
 }
 
 .row-cancelled .type-badge,

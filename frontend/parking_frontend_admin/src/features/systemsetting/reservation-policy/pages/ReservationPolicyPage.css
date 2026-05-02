@@ -1,177 +1,162 @@
-  .rpp {                                                                                                                                                         
-      padding: 20px 24px 32px;                                                                                                                                   
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      font-family: var(--font);
-  }
+.rpp {
+  padding: 20px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font);
+}
 
-  /* 섹션 타이틀 — 배경이 어두우니 밝게 */
-  .rpp__section-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gray-400);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-  }
+.rpp__section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
 
-  /* ── 활성 정책 카드 ── */
-  .rpp__active-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-  }
+.rpp__active-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .rpp__active-card {
-      background: #1a2e1a;
-      border: 1px solid var(--success-border);
-      border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: var(--shadow);
-  }
+.rpp__active-card {
+  background: #1a2e1a;
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow);
+}
 
-  .rpp__active-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: #4ade80;
-  }
+.rpp__active-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #4ade80;
+}
 
-  .rpp__active-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      font-size: 13px;
-      color: var(--gray-400);
-  }
+.rpp__active-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
 
-  .rpp__active-meta span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-  }
+.rpp__active-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-  .rpp__active-empty {
-      color: var(--gray-500);
-      font-size: 13px;
-      padding: 14px 0;
-  }
+.rpp__active-empty {
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 14px 0;
+}
 
-  /* ── 목록 헤더 ── */
-  .rpp__list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-  }
+.rpp__list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .rpp__create-btn {
-      font-family: var(--font);
-      height: 34px;
-      padding: 0 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
-      background: var(--primary);
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background 0.15s;
-  }
+.rpp__create-btn {
+  font-family: var(--font);
+  height: 34px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+}
 
-  .rpp__create-btn:hover { background: #1d4ed8; }
+.rpp__create-btn:hover { background: #1d4ed8; }
 
-  /* ── 테이블 — 승인관리와 동일한 스타일 ── */
-  .rpp__table-wrap {
-      background: #444;
-      border: 1px solid var(--gray-560);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-  }
+.rpp__table-wrap {
+  background: var(--bg-table-wrap);
+  border: 1px solid var(--border-deep);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
 
-  .rpp__table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-  }
+.rpp__table { width: 100%; border-collapse: collapse; font-size: 13px; }
 
-  .rpp__table thead tr {
-      background: var(--black-50);
-      border-bottom: 1px solid var(--gray-560);
-  }
+.rpp__table thead tr {
+  background: var(--bg-table-head);
+  border-bottom: 1px solid var(--border-deep);
+}
 
-  .rpp__table th {
-      padding: 10px 14px;
-      text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--gray-400);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      white-space: nowrap;
-  }
+.rpp__table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
 
-  .rpp__table td {
-      padding: 13px 14px;
-      vertical-align: middle;
-      border-bottom: 1px solid var(--gray-560);
-      color: var(--gray-50);
-      white-space: nowrap;
-  }
+.rpp__table td {
+  padding: 13px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-deep);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
 
-  .rpp__table tbody tr:last-child td { border-bottom: none; }
-  .rpp__table tbody tr:hover td { background: var(--gray-500); }
+.rpp__table tbody tr:last-child td { border-bottom: none; }
+.rpp__table tbody tr:hover td { background: var(--bg-hover); }
 
-  .rpp__empty {
-      padding: 48px;
-      text-align: center;
-      color: var(--gray-400);
-      font-size: 14px;
-  }
+.rpp__empty { padding: 48px; text-align: center; color: var(--text-secondary); font-size: 14px; }
 
-  /* ── 상태 배지 ── */
-  .rpp__badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-  }
+.rpp__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
 
-  .rpp__badge--active    { background: var(--success-light); color: var(--success);  border: 1px solid var(--success-border); }
-  .rpp__badge--scheduled { background: var(--primary-light); color: var(--primary);  border: 1px solid var(--primary-border); }
-  .rpp__badge--expired   { background: #1e1e1e;              color: var(--gray-400); border: 1px solid var(--gray-560); }
-  .rpp__badge--permanent { background: var(--purple-light);  color: var(--purple);   border: 1px solid var(--purple-border); }
+.rpp__badge--active    { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+.rpp__badge--scheduled { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+.rpp__badge--expired   { background: var(--bg-hover);      color: var(--text-secondary); border: 1px solid var(--border); }
+.rpp__badge--permanent { background: var(--purple-light);  color: var(--purple);  border: 1px solid var(--purple-border); }
 
-  /* ── 수정 버튼 ── */
-  .rpp__btn {
-      font-family: var(--font);
-      height: 30px;
-      padding: 0 12px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: all 0.15s;
-  }
+.rpp__btn {
+  font-family: var(--font);
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
 
-  .rpp__btn--edit {
-      color: var(--primary);
-      background: var(--primary-light);
-      border: 1px solid var(--primary-border);
-  }
+.rpp__btn--edit {
+  color: var(--primary);
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+}
+.rpp__btn--edit:hover { background: #dbeafe; border-color: #93c5fd; }
 
-  .rpp__btn--edit:hover { background: #dbeafe; border-color: #93c5fd; }
-   .rpp__btn--disabled {
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      background: var(--gray-100);
-      color: var(--gray-400);
-      border: 1px solid var(--gray-200);
-  }
+.rpp__btn--disabled {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}

@@ -1,16 +1,14 @@
-/* 탭 전체 컨테이너 */
 .tabs-header {
   display: flex;
   gap: 10px;
-  margin-top:20px;
+  margin-top: 20px;
   margin-bottom: 10px;
   padding: 10px;
 }
 
-/* 기본 버튼 스타일 */
 .tab-btn {
   background: transparent;
-  color: #aaa;
+  color: var(--text-secondary);
   border: none;
   padding: 10px 20px;
   font-size: 1.1rem;
@@ -22,23 +20,21 @@
   transition: all 0.3s;
 }
 
-/* 활성화된 탭 스타일  */
 .tab-btn.active {
-  background-color: #3b82f6; /* 파란색 포인트 */
+  background-color: var(--primary);
   color: white;
   font-weight: bold;
   box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
 
 .tab-btn:hover:not(.active) {
-  background-color: #333;
-  color: #fff;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
 }
 
-내용 영역 박스
 .tabs-content {
-  background-color: #2a2a2a; 
-  border: 1px solid #444;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 30px;
   min-height: 500px;

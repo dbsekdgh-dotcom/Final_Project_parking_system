@@ -34,7 +34,7 @@ const VehicleSearchResult = () => {
                 {isLoading && 
                     <ResultView 
                         title="조회 중" 
-                        subTitle="차량 정보를 가져오고 있습니다..." 
+                        subTitle="차량 정보를 가져오고 있습니다." 
                         type="loading" 
                     />
                 }
@@ -49,7 +49,7 @@ const VehicleSearchResult = () => {
                 }
                 
                 {/* 3. 검색 결과 없음 */}
-                if (data && data.length === 0) {
+                {data && data.length === 0 &&
                     <ResultView 
                         title="검색 결과 없음" 
                         subTitle={`${searchKeyword}에 대한 입차 기록이 없습니다.`} 
