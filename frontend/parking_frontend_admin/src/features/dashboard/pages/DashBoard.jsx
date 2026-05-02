@@ -6,6 +6,7 @@ import UsageChart from '../components/UsageChart'
 import SalesDetailTable from '../components/SalesDetailTable'
 import UsageDetailTable from '../components/UsageDetailTable'
 import './DashBoard.css'
+import { generateReport } from '../api/dashboardApi';
 
 // 탭 state를 이 컴포넌트에서 중앙관리
 // 차트/테이블에 props로 내려주는 구조
@@ -29,8 +30,40 @@ export default function DashBoard() {
     // 사용량 현황 탭 state: UsageChart + UsageDetailTable이 함께 사용
     const [usageTab, setUsageTab] = useState('PARKING');
 
+    const [period,setPeriod] = useState('MONTHLY')
+    const [reportLoading, setReportLoading] = useState(false) // 다운로드 중 버튼 비활성화
+
+    // 다운로드 핸들러
+    const handleDownload = async()=>{
+      setReportLoading(true)
+      try {
+        const res = await generateReport(period)
+        //blob - 다운로드 링크 생성
+        const url = URL.createObjectURL(res.data)
+        const a = document.createElement('a')
+        a.href=url
+        a.download=`parking_report_${period.toLowerCase()}.xlsx`
+        a.click()
+        URL.revokeObjectURL(url)
+      } catch(e){
+        alert('보고서 생성 중 오류가 발생했습니다.')
+      }finally{
+        setReportLoading(false)
+      }
+    }
+
     return (
       <div className="dash">
+        {/* 보고서 다운로드 */}
+        <div className='dash__report-bar'>
+          <select className='dash__report-select' value={period} onChange={e=>setPeriod(e.target.value)}>
+            <option value="MONTHLY">월간 보고서</option>
+            <option value="WEEKLY">주간 보고서</option>
+          </select>
+          <button className='dash__report-btn' onClick={handleDownload} disabled={reportLoading}>
+            {reportLoading ? '생성 중...' : 'Excel 보고서 다운로드'}
+          </button>
+        </div>
 
         {/* 1행: 상단 통계 카드 4개 (세대수/차량/주차공간/수익) */}
         <DashSummaryCards />
