@@ -56,4 +56,7 @@ adminApi.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+export const fetchAdminList = () => adminApi.get('/admins');
+
 export default adminApi;
