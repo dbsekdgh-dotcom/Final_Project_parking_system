@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './sidebar.css'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import adminApi from '../../api/adminApi'
 import { useTheme } from '../../context/ThemeContext'
+import AdminListModal from './AdminListModal'
 
 const mainNav = [
   { to: '/admin/dashboard', label: '대시보드', id: 'dashboard' },
@@ -160,6 +161,9 @@ export default function Sidebar({ pendingApproval = 0 }) {
   const [adminName, setAdminName] = useState('Admin')
   const { theme, toggle } = useTheme()
   const navigate = useNavigate()
+  const [showAdminModal, setShowAdminModal] = useState(false)
+  const [popoverPos, setPopoverPos] = useState({ left: 0, bottom: 0 })
+  const adminBtnRef = useRef(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('adminName')
@@ -171,6 +175,27 @@ export default function Sidebar({ pendingApproval = 0 }) {
     const isActive = item.activeMatch
       ? location.pathname.startsWith(item.activeMatch)
       : location.pathname === item.to
+    
+    if (item.id === 'admin') {
+      const handleAdminClick = () => {
+        if (adminBtnRef.current) {
+          const rect = adminBtnRef.current.getBoundingClientRect()
+          setPopoverPos({
+            left: rect.right + 8,
+            bottom: window.innerHeight - rect.bottom,
+          })
+        }
+        setShowAdminModal(prev => !prev)
+      }
+      return (
+        <li key={item.id} className="sidebar__item">
+          <button ref={adminBtnRef} className="sidebar__link" onClick={handleAdminClick}>
+            <Icon />
+            <span className="sidebar__link-text">{item.label}</span>
+          </button>
+        </li>
+      )
+    }
 
     const badge = item.id === 'approval' ? pendingApproval : null
 
@@ -232,6 +257,13 @@ export default function Sidebar({ pendingApproval = 0 }) {
 
       <ul className="sidebar__nav">{mainNav.map(renderLink)}</ul>
       <ul className="sidebar__bottom">{bottomNav.map(renderLink)}</ul>
+      {showAdminModal && (
+        <AdminListModal
+          onClose={() => setShowAdminModal(false)}
+          position={popoverPos}
+          excludeRef={adminBtnRef}
+        />
+      )}
     </aside>
   )
 }
