@@ -1,0 +1,41 @@
+package com.example.demo.api.admin.dashboard;
+
+import com.example.demo.domain.dashboard.service.AdminReportDownloadService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@Tag(name = "2. 대시보드(Dashboard")
+@RestController
+@RequestMapping("/api/admin/dashboard")
+@RequiredArgsConstructor
+public class AdminReportDownloadController {
+    private final AdminReportDownloadService adminReportDownloadService;
+
+    @Operation(summary = "운영 보고서 생성(Excel)", security = @SecurityRequirement(name = "jwtAuth"))
+    @GetMapping("/report/generate")
+    public ResponseEntity<byte[]> generateReport(
+            @RequestParam(defaultValue = "MONTHLY") String period,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate
+    ) {
+        byte[] excelBytes = adminReportDownloadService.generateReport(period,startDate,endDate);
+
+        String periodLabel="MONTHLY".equals(period)?"monthly":"weekly";
+        String filename="parking_report_" + periodLabel + ".xlsx";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename="+filename)
+                .body(excelBytes);
+    }
+}

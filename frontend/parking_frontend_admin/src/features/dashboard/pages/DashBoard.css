@@ -179,3 +179,41 @@
   color: var(--text-muted);
   font-size: 13px;
 }
+
+.dash__report-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-end;
+  }
+
+.dash__report-select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+  }
+
+.dash__report-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+  }
+
+  .dash__report-btn:hover:not(:disabled) {
+      background: #1d4ed8;
+  }
+
+  .dash__report-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+  }
