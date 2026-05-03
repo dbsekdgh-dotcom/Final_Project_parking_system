@@ -72,13 +72,13 @@ def _parse_comment(text: str) -> dict:
         "[사용량분석]":"usage_comment"
     }
     current_key=None
-    lines=text.strip().split("\n")
+    lines=text.strip().split("\n") # 줄 단위로 쪼개기
     for line in lines:
         stripped = line.strip()
         if stripped in sections:
-            current_key = sections[stripped]
+            current_key = sections[stripped] # 섹션 제목 만나면 키 전환
         elif current_key and stripped:
-            result[current_key] += stripped + " "
+            result[current_key] += stripped + " " # 내용은 현재 키에 누적
     
     return {k: v.strip() for k, v in result.items()}
     
