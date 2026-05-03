@@ -7,12 +7,17 @@ WORKDIR /app
 # 3. 라이브러리 목록 복사
 COPY requirements.txt .
 
-# OpenCV 실행에 필요한 리눅스 시스템 라이브러리 설치
+# OpenCV 실행에 필요한 리눅스 시스템 라이브러리 + 타임존 데이터 설치
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
     libxcb1 \
+    tzdata \
+    && ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
+    && echo "Asia/Seoul" > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
+
+ENV TZ=Asia/Seoul
 
 # 4. 라이브러리 설치
 RUN pip install --no-cache-dir -r requirements.txt

@@ -26,4 +26,5 @@ services:
     environment:
       - REDIS_HOST=10.0.10.173
       - REDIS_PORT=6379
+      - TZ=Asia/Seoul
     restart: always

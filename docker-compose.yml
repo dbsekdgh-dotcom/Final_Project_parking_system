@@ -29,7 +29,8 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    # AI 서버 내에서도 RDS 정보를 써야 한다면 env_file이 이미 해결해줍니다.
+    environment:
+      - TZ=Asia/Seoul
     restart: always
     depends_on:
       - redis
