@@ -8,7 +8,7 @@ from openpyxl.utils import get_column_letter
 
 def generate_excel_report(data: dict, comments: dict, period: str,
                         start_date: str, end_date: str) -> bytes:
-    wb = Workbook()
+    wb = Workbook() # 엑셀 파일 생성
     wb.remove(wb.active) # 기본 시트 제거
     
     period_label = "월간" if period == "MONTHLY" else "주간"
@@ -17,32 +17,32 @@ def generate_excel_report(data: dict, comments: dict, period: str,
     _build_revenue_sheet(wb, data, comments)
     _build_usage_sheet(wb,data, comments)
     
-    buffer = io.BytesIO()
-    wb.save(buffer)
-    return buffer.getvalue()
+    buffer = io.BytesIO() # 메모리 임시 저장공간 생성
+    wb.save(buffer) # 엑셀을 파일이 아닌 메모리에 저장
+    return buffer.getvalue() # 바이트 데이터로 반환
 
 # -- 공용 스타일 헬퍼
-def _header_fill(color="1E3A5F"):
+def _header_fill(color="1E3A5F"): # 셀 배경색 설정(기본값: 네이비 색상)
     return PatternFill("solid", fgColor=color)
 
-def _font(bold=False, size=11, color="000000"):
+def _font(bold=False, size=11, color="000000"): # 글꼴 설정(굵기,크기,색상)
     return Font(bold=bold, size=size, color=color)
 
 def _center():
     return Alignment(horizontal="center", vertical="center", wrap_text=True)
 
-def _thin_border():
+def _thin_border(): # 셀 4면에 얇은 테두리
     side=Side(style="thin")
     return Border(left=side, right=side, top=side, bottom=side)
 
-def _write_header(ws, row, col, value, bg="1E3A5F"):
+def _write_header(ws, row, col, value, bg="1E3A5F"): # 헤더 셀 한번에 꾸미기
     cell = ws.cell(row=row, column=col, value=value)
-    cell.fill = _header_fill(bg)
-    cell.font = _font(bold=True, color="FFFFFF")
-    cell.alignment = _center()
-    cell.border = _thin_border()
+    cell.fill = _header_fill(bg) # 배경색
+    cell.font = _font(bold=True, color="FFFFFF") # 흰색 굵은 글씨
+    cell.alignment = _center() # 가운데 정렬
+    cell.border = _thin_border() # 테두리
 
-def _write_cell(ws, row, col, value, bold=False, align="left"):
+def _write_cell(ws, row, col, value, bold=False, align="left"): # 일반 데이터 셀 꾸미기
     cell = ws.cell(row=row, column=col, value=value)
     cell.font = _font(bold=bold)
     cell.alignment = Alignment(horizontal=align, vertical="center", wrap_text=True)
@@ -52,16 +52,16 @@ def _write_cell(ws, row, col, value, bold=False, align="left"):
 # -- 시트 1: 요약
 def _build_summary_sheet(wb,data,comments,period_label,start_date,end_date):
     ws=wb.create_sheet("요약")
-    ws.column_dimensions["A"].width=22
-    ws.column_dimensions["B"].width=35
+    ws.column_dimensions["A"].width=22 # A열 너비
+    ws.column_dimensions["B"].width=35 # B열 너비
     
     # 제목
-    ws.merge_cells("A1:B1")
+    ws.merge_cells("A1:B1") # A1~B1 셀 합치기
     title = ws["A1"]
     title.value = f"주차장 운영 {period_label} 보고서"
     title.font = _font(bold=True, size=16, color="1E3A5F")
     title.alignment = _center()
-    ws.row_dimensions[1].height = 40
+    ws.row_dimensions[1].height = 40 # 1행 높이
     
     # 기간
     ws.merge_cells("A2:B2")
@@ -93,9 +93,9 @@ def _build_summary_sheet(wb,data,comments,period_label,start_date,end_date):
         ("총 사용량",     f"{data.get('usage_total_count', '-')} 건"),
         ("전월 대비 사용량", f"{data.get('usage_change_percent', '-')}%"),
     ]
-    for i, (label,value) in enumerate(rows, start=6):
-        _write_cell(ws,i,1,label,bold=True)
-        _write_cell(ws,i,2,value,align="center")
+    for i, (label,value) in enumerate(rows, start=6): # 6행부터 시작해서 순서대로 작성
+        _write_cell(ws,i,1,label,bold=True) # A열: 항목명
+        _write_cell(ws,i,2,value,align="center") # B열: 값
     
     # LLM 요약 코멘트
     ws.append([])

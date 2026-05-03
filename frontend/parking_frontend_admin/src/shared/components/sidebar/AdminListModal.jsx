@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { fetchAdminList } from '../../api/adminApi'
 import './AdminListModal.css'
 
@@ -27,7 +28,7 @@ export default function AdminListModal({ onClose, position, excludeRef }) {
         return () => document.removeEventListener('mousedown', handler)
     }, [onClose, excludeRef])
 
-    return (
+    return createPortal(
         <div
             ref={popoverRef}
             className="admin-popover"
@@ -60,6 +61,7 @@ export default function AdminListModal({ onClose, position, excludeRef }) {
                     ))
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
