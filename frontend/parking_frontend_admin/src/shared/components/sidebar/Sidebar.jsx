@@ -220,7 +220,8 @@ export default function Sidebar({ pendingApproval = 0 }) {
     } catch (error) {
       console.error('로그아웃 중 오류 발생:', error)
     } finally {
-      localStorage.clear()
+      sessionStorage.removeItem('accessToken')
+      localStorage.removeItem('adminName')
       alert('로그아웃 되었습니다.')
       navigate('/admin')
     }

@@ -14,7 +14,7 @@ const LoginForm = () => {
 
             console.log("로그인 응답 데이터: ",data);
 
-            localStorage.setItem('accessToken',data.accessToken);
+            sessionStorage.setItem('accessToken',data.accessToken);
             localStorage.setItem('adminName',data.adminName);
             navigate('/admin/dashboard');
         } catch (error){
