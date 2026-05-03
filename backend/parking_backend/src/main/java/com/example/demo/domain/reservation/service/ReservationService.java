@@ -73,7 +73,7 @@ public class ReservationService {
 
         validateSystemTotalLimit(visitDate);
 
-        String carNumber = reservationApplyRequestDto.getCarNumber();
+        String carNumber = reservationApplyRequestDto.getCarNumber().replaceAll("\\s+", "");
         LocalDateTime now = LocalDateTime.now();
 
         if (vehicleBlacklistRepository.isCurrentlyBlacklisted(carNumber, now)) {
@@ -244,7 +244,7 @@ public class ReservationService {
             throw new CustomException(ErrorCode.EDIT_NOT_TODAY);
         }
 
-        String newCarNumber = reservationApplyRequestDto.getCarNumber();
+        String newCarNumber = reservationApplyRequestDto.getCarNumber().replaceAll("\\s+", "");
         LocalDate newVisitDate = reservationApplyRequestDto.getVisitStartAt().toLocalDate();
         LocalDate oldVisitDate = reservation.getVisitStartAt().toLocalDate();
         LocalDateTime now = LocalDateTime.now();
