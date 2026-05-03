@@ -230,7 +230,7 @@ const DashBoard = () => {
               </div>
             )}
 
-          {data.recentLogs?.totalPages > 1 && (
+          {data.recentLogs && data.recentLogs.totalPages > 1 && (
             <div className="dash-pagination">
               <button
                 className="dash-page-btn"

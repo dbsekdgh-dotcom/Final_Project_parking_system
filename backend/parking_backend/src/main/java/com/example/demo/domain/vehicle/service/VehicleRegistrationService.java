@@ -54,6 +54,9 @@ public class VehicleRegistrationService {
     @Transactional
     public void registerVehicle(Long userId, VehicleRegistrationRequestDto requestDto) {
 
+        String carNumber = requestDto.getCarNumber().replaceAll("\\s+", "");
+        String ocrRawCarNumber = requestDto.getOcrRawCarNumber().replaceAll("\\s+", "");
+
         // 1. 유저 존재 및 상태 확인
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -63,7 +66,7 @@ public class VehicleRegistrationService {
         }
 
         // 2. 차량 번호 중복 체크 (기존 등록 여부 확인)
-        Optional<Vehicle> existingVehicleOpt = vehicleRepository.findByCarNumber(requestDto.getCarNumber());
+        Optional<Vehicle> existingVehicleOpt = vehicleRepository.findByCarNumber(carNumber);
 
         if (existingVehicleOpt.isPresent()) {
             Vehicle existingVehicle = existingVehicleOpt.get();
@@ -101,7 +104,7 @@ public class VehicleRegistrationService {
 
         // (1) 인풋 수정 여부: 이름, 차번호, 차종, 생년월일 중 하나라도 원본과 다르면 '수정됨' 판정
         boolean isNameNotModified = requestDto.getName().equals(requestDto.getOcrRawName());
-        boolean isCarNumberNotModified = requestDto.getCarNumber().equals(requestDto.getOcrRawCarNumber());
+        boolean isCarNumberNotModified = carNumber.equals(ocrRawCarNumber);
         boolean isVehicleNameNotModified = requestDto.getVehicleName().equals(requestDto.getOcrRawVehicleName());
         // 생년월일: DB 포맷 불일치 문제로 DB 비교는 하지 않고, 신분증 OCR 원본과만 비교
         // 프론트에서 idCardRawBirth를 정규화(6자리)로 저장하므로 birth와 동일 기준으로 비교 가능
@@ -142,7 +145,7 @@ public class VehicleRegistrationService {
             Vehicle newVehicle = Vehicle.builder()
                     .user(user)
                     .vehicleName(requestDto.getVehicleName())
-                    .carNumber(requestDto.getCarNumber())
+                    .carNumber(carNumber)
                     .status(finalStatusToSave)
                     .build();
             return vehicleRepository.save(newVehicle);

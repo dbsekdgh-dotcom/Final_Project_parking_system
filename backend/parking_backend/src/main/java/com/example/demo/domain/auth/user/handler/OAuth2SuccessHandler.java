@@ -37,6 +37,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${frontend.user.url}")
     private String frontendUserUrl;
 
+    @Value("${cookie.domain:}")
+    private String cookieDomain;
+
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
+
     private final AdminJWTUtil adminJWTUtil;
     private final UserAuthRepository userAuthRepository;
     private final UserVerificationService userVerificationService; // ⭐ Redis 저장을 위한 주입 추가
@@ -147,19 +153,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             userStatus = hasPending ? "PENDING" : "NONE";
         }
 
-        // 토큰을 HttpOnly 쿠키로 설정 (URL에서 제거)
-        // maxAge 미설정 → 세션 쿠키 (브라우저 종료 시 자동 삭제)
-        // [배포용] domain, secure 설정 복원 필요
-        // ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-        //         .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
-        // ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-        //         .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
-
-        // [로컬 개발용]
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                .path("/").httpOnly(true).secure(false).sameSite("Lax").build();
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-                .path("/").httpOnly(true).secure(false).sameSite("Lax").build();
+        ResponseCookie accessCookie  = buildCookie("accessToken",  accessToken,  -1);
+        ResponseCookie refreshCookie = buildCookie("refreshToken", refreshToken, -1);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
@@ -178,6 +173,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String targetUrl = urlBuilder.build().encode().toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    private ResponseCookie buildCookie(String name, String value, long maxAge) {
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, value)
+                .path("/")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite("Lax");
+        if (cookieDomain != null && !cookieDomain.isBlank()) builder.domain(cookieDomain);
+        if (maxAge >= 0) builder.maxAge(maxAge);
+        return builder.build();
     }
 
     private String extractProviderId(String provider, Map<String, Object> attributes) {
