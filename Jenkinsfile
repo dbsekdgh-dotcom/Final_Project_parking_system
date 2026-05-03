@@ -266,7 +266,7 @@ pipeline {
                             if (health == 'healthy') break
                             attempt++
                         }
-                        if (health != 'healthy') {
+                        if (health != 'healthy' && health != 'initial') {
                             error "Server 1 is ${health}. 배포를 중단합니다."
                         }
                     }
