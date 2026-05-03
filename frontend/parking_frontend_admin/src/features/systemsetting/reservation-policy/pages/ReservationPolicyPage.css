@@ -21,7 +21,7 @@
 }
 
 .rpp__active-card {
-  background: #1a2e1a;
+  background: var(--success-light);
   border: 1px solid var(--success-border);
   border-radius: var(--radius-lg);
   padding: 16px 20px;
@@ -34,7 +34,7 @@
 .rpp__active-name {
   font-size: 15px;
   font-weight: 700;
-  color: #4ade80;
+  color: var(--success);
 }
 
 .rpp__active-meta {
@@ -42,7 +42,7 @@
   flex-wrap: wrap;
   gap: 16px;
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--success);
 }
 
 .rpp__active-meta span {

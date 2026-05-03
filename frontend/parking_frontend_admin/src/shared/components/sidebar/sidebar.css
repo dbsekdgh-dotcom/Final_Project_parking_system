@@ -173,3 +173,14 @@
   flex-direction: column;
   gap: 4px;
 }
+
+/* button 태그에 sidebar__link 적용 시 브라우저 기본 스타일 초기화 */
+button.sidebar__link {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+}

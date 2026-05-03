@@ -23,7 +23,7 @@ body {
     --bg-content:    #262626;
     --bg-card:       #2a2a2a;
     --bg-card-alt:   #1e1e1e;
-    --bg-section:    #333333;
+    --bg-section:    #2a2a2a;
     --bg-header:     #333333;
     --bg-sidebar:    #000000;
     --bg-input:      #1a1a1a;
@@ -104,7 +104,7 @@ body {
     --bg-content:    #f8fafc;
     --bg-card:       #ffffff;
     --bg-card-alt:   #f9fafb;
-    --bg-section:    #f3f4f6;
+    --bg-section:    #ffffff;
     --bg-header:     #ffffff;
     --bg-sidebar:    #ffffff;
     --bg-input:      #ffffff;

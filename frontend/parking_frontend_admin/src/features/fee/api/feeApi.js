@@ -38,10 +38,16 @@ export const inactivateTicketPolicy=async(ticketPolicyId)=>{
     const res=await adminApi.put(`/ticket-policy`,{ticketPolicyId})
     return res;
 }
-//과거 요금 정책 이력 불러오기
-export const searchPolicyHistory=async()=>{
-    const res=await adminApi.get(`/fee-policy/history`)
-    console.log("요금정책이력==>",res.data)
+//과거 요금 정책 이력 필터 조회
+export const searchPolicyHistoryFiltered=async({parkingType,version,startDate,endDate})=>{
+    const res=await adminApi.get(`/fee-policy/history/search`,{
+        params:{
+            parkingType,
+            version: version||undefined,
+            startDate: startDate||undefined,
+            endDate: endDate||undefined,
+        }
+    })
     return res.data
 }
 //현금흐름 자료 불러오기

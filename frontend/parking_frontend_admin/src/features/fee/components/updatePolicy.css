@@ -1,36 +1,46 @@
+/* 전체 컨테이너 및 레이아웃 */
 .policy-form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 20px 0;
-  padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+    text-align: left;
 }
 
 .policy-field {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.policy-field label {
-  flex: 0 0 130px;
-  text-align: left;
-  font-size: 0.95rem;
-  color: var(--text-label);
-  font-weight: 500;
+/* 라벨 - 팀원 변수 적용 */
+.field-label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: var(--text-label);
 }
 
-.policy-field input {
-  flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border-input);
-  border-radius: 4px;
-  padding: 8px 12px;
-  color: var(--text-primary);
-  outline: none;
+/* 입력창 - 팀원 변수(라이트모드 대응) 적용 */
+.policy-form-container input {
+    width: 100%;
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border-input) !important;
+    color: var(--text-primary) !important;
+    border-radius: 4px;
+    padding: 10px !important;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    outline: none;
 }
 
-.policy-field input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+/* 포커스 및 아이콘 */
+.policy-form-container input:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
 }

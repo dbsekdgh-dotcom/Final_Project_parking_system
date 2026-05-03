@@ -5,7 +5,7 @@ import './prepayment.css'
 import { useNavigate } from 'react-router-dom';
 
 const PrepaymentMain = () => {
-  const {searchKeyword,addSearchKeyword,deleteSearchKeyword,resetSearchKeyword}=useVehicleStore()
+  const {searchKeyword,addSearchKeyword,deleteSearchKeyword,resetSearchKeyword,resetAll}=useVehicleStore()
   const navigate=useNavigate()
 
   const searchCarHandler=async()=>{
@@ -17,13 +17,19 @@ const PrepaymentMain = () => {
     navigate("/searchResult")
   }
 
+  const resetHandler=()=>{
+      resetAll()
+      navigate("/")
+  }
+
+
   return (
     <div className='full-page-container'>
       <div className='page-header-container'>
         <h2 className='page-title'>차량번호 입력</h2>
         <button 
           type='button' 
-          className='header-back-button' onClick={() => navigate('/')}>돌아가기</button>
+          className='header-back-button' onClick={resetHandler}>돌아가기</button>
       </div>
       <div className='number-display'>
         {searchKeyword}

@@ -41,6 +41,7 @@ import com.example.demo.global.exception.ErrorCode;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.juli.logging.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,13 +107,14 @@ public class SettlementService {
         if(!isFree && parkingLog.getPaymentRequestedAt()!=null){
             // 결제 요청 시간이 찍힌 지 5분이 지났는지 확인
             if(timeCheck){
-                throw new BusinessException(ErrorCode.ALREADY_PROCESSING);
+                log.info("기존 결제 시도(5분 이내)가 감지되었으나, 재시도를 위해 락을 갱신 차번: {}", parkingLog.getCarNumberSnapshot());
+                //throw new BusinessException(ErrorCode.ALREADY_PROCESSING);
             }
             log.info("결제 요청 시간이 만료되어 락을 무시하고 새로 진행합니다.");
         }
     }
     //after 사전 검증
-    public void checkPaymentTimeout(ParkingLog parkingLog){
+    public void checkPaymentTimeout(ParkingLog parkingLog,String requestOrderId){
         // 시스템 설정 값: 결제 유효시간
         String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
                 .map(t->t.getSettingValue())
@@ -127,7 +129,10 @@ public class SettlementService {
         if(!timeCheck){
             throw new BusinessException(ErrorCode.PAYMENT_TIMEOUT);
         }
-        //order Id 일치 여부 체크(브라우저를 닫아버렸을 때)
+        //order Id 일치 여부 체크(브라우저 중복/재접속 방어)
+        if(parkingLog.getLatestOrderId()!=null && !parkingLog.getLatestOrderId().equals(requestOrderId)){
+            throw new BusinessException(ErrorCode.INVALID_ORDER_ID);
+        }
 
     }
     
@@ -189,7 +194,7 @@ public class SettlementService {
         return parkingLog;
     }
 
-    //결제 전 payment insert
+    //결제 전 payment insert,parkingLog update
     public PaymentReadyResponseDto insertPayment(ParkingLog parkingLog, SettlementRequestDto settlementRequestDto, PaymentStatus paymentStatus, VehiclePaymentResponseDto vehiclePaymentResponseDto){
 
         Vehicle vehicle=parkingLog.getVehicle();
@@ -214,6 +219,8 @@ public class SettlementService {
         if(settlementRequestDto.getPaidAmount()+ settlementRequestDto.getUsedPoint()==0){
             savePayment(parkingLog,vehicle,0L,PaymentMethod.FREE_POLICY,paymentStatus,tempPaymentId);
         }
+        // parkingLog에 latestOrderId 업데이트
+        parkingLogRepository.updateLatestOrderId(parkingLog.getParkingLogId(),tempPaymentId);
 
         //4.리턴
         return PaymentReadyResponseDto.builder()
@@ -238,6 +245,7 @@ public class SettlementService {
                 .paymentType(PaymentType.PARKING).build();
         paymentRepository.save(payment).getPaymentId();
     }
+
     //결제 후/결제 실패/결제 취소 시
     public void savePaymentReceipt(List<Payment> payments,PaymentConfirmRequestDto paymentConfirmRequestDto,PaymentStatus paymentStatus){
         payments.forEach(payment->{
@@ -384,11 +392,11 @@ public class SettlementService {
                 .build();
     }
 
-    //결제 완료 알람
-    public void insertNotification(User user,String freeExitUntil){
+    //사용자 알람
+    public void insertNotification(User user,Type type,String msg){
         if(user ==null) return;;
-        Notification notification=Notification.builder().user(user).type(Type.PAYMENT).title("결제 완료 알람")
-                .content("정산이 완료되었습니다. " +freeExitUntil +"까지 출차해 주세요.")
+        Notification notification=Notification.builder().user(user).type(type).title("결제 완료 알람")
+                .content(msg)
                 .status(Status.ACTIVE).build();
         notificationRepository.save(notification);
     }
@@ -468,7 +476,8 @@ public class SettlementService {
         entityManager.flush();
         pointProcessOfPayment(user, parkingLog, payments, dto);
         // 4. notification insert
-        insertNotification(user, settlementResponseDto.getExitDeadline());
+        String msg="정산이 완료되었습니다. " +settlementResponseDto.getExitDeadline() +"까지 출차해 주세요.";
+        insertNotification(user, Type.PAYMENT,msg);
         // 5. active log insert(포인트+카드 결제면 두줄?)// 사전정산인지, 출차 정산인지 여부는 컨트롤러에서
         insertActivityLog(parkingLog, user, payments, activityType);
           return  settlementResponseDto;

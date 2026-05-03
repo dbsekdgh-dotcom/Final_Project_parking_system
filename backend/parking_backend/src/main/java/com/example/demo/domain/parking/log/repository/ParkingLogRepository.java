@@ -145,4 +145,9 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             nativeQuery = true)
     List<UsageDailyProjection> findDailyExitedRows(@Param("from") LocalDateTime from,
                                                    @Param("to") LocalDateTime to);
+
+    //최근 주문 번호 업데이트
+    @Modifying
+    @Query("update ParkingLog p set p.latestOrderId =:latestOrderId where p.parkingLogId=:id")
+    int updateLatestOrderId(@Param("id")Long id, @Param("latestOrderId") String latestOrderId);
 }

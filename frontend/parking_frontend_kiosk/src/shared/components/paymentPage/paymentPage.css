@@ -1,0 +1,98 @@
+/* 전체 배경 */
+.payment-page-container {
+  background-color: #ffffff;
+  min-height: auto;
+  padding: 20px 16px 40px 16px;
+  display: flex;
+  justify-content: center;
+}
+
+/* 메인 카드 스타일 */
+.payment-card {
+  width: 100%;
+  max-width: 500px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: block;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 주문 요약 */
+.order-summary {
+  padding: 16px 24px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.order-label {
+  display: block;
+  font-size: 14px;
+  color: #8b95a1;
+  margin-bottom: 4px;
+}
+
+.order-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #191f28;
+}
+
+.order-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #3182f6; /* 토스 블루 */
+}
+
+/* 위젯 구역 타이틀 */
+.section-title {
+  padding: 0 24px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333d4b;
+  margin-bottom: 4px;
+}
+
+.divider {
+  height: 4px;
+  background-color: #f9fafb;
+  margin: 8px 0;
+}
+
+/* 위젯 내부 간격 조절 */
+.toss-widget {
+  width: 100%;
+  min-height: 100px; /* 로딩 시 레이아웃 무너짐 방지 */
+}
+
+/* 하단 버튼 */
+.payment-action {
+  padding: 16px 24px;
+}
+
+.payment-button {
+  width: 100%;
+  height: 50px;
+  background-color: #3182f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 18px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-button:active {
+  transform: scale(0.98);
+  background-color: #1b64da;
+}
+
+.payment-button:disabled {
+  background-color: #e5e8eb;
+  color: #b0b8c1;
+  cursor: not-allowed;
+}
