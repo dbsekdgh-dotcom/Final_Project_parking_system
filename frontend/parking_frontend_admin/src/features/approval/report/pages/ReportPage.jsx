@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
   import Pagination from '../../../../shared/components/pagination/Pagination';
   import './ReportPage.css';
   import { getReports, approveReport, rejectReport } from '../api/reportApi';
+  import { usePendingCountRefresh } from '../../../../shared/context/PendingCountContext';
 
   const TYPE_OPTIONS = [
     { value: '',                label: '유형 전체'  },
@@ -37,6 +38,7 @@ import { useState, useCallback, useEffect } from 'react';
   };
 
   export default function ReportPage() {
+    const refreshCounts = usePendingCountRefresh()
     const [rows, setRows]               = useState([]);
     const [loading, setLoading]         = useState(false);
     const [page, setPage]               = useState(0);
@@ -90,6 +92,7 @@ import { useState, useCallback, useEffect } from 'react';
       await approveReport(reportId);
       setDetailTarget(null);
       fetchReports();
+      refreshCounts();
     };
 
     // ── 거절 ──────────────────────────────────────────────────
@@ -102,6 +105,7 @@ import { useState, useCallback, useEffect } from 'react';
       closeReject();
       setDetailTarget(null);
       fetchReports();
+      refreshCounts();
     };
 
     return (
