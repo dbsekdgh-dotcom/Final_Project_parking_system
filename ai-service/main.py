@@ -13,7 +13,7 @@ from app.domain.payment.router import payment_router
 from app.domain.report.router import report_router
 from app.domain.userchatbot.router import router as chatbot_router
 from app.domain.notification.router import router as notification_router
-
+from app.domain.kioskChatbot.router import kiosk_chatbot_router
 app = FastAPI()
 
 print("AWS_REGION=", os.getenv("AWS_REGION"))
@@ -56,6 +56,11 @@ app.include_router(
     notification_router,
     prefix="/api/v1/notification",
     tags=["Notification"]
+)
+app.include_router(
+    kiosk_chatbot_router,
+    prefix="/api/v1/kiosk",
+    tags=["kioskChatbot"]
 )
 
 if __name__ == "__main__":

@@ -30,6 +30,8 @@ services:
     env_file:
       - .env
     environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - TZ=Asia/Seoul
     restart: always
     depends_on:
