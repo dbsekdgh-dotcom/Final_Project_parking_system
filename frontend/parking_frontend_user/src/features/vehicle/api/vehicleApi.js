@@ -53,7 +53,8 @@ export const vehicleApi = {
         const formData = new FormData();
         formData.append('file', file);
         const response = await api.post('/api/user/ai/naver/upload-registration', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 30000, // OCR은 S3 업로드 + Naver API 호출로 5초 초과 가능
         });
         return response.data;
     },
@@ -67,7 +68,8 @@ export const vehicleApi = {
         const formData = new FormData();
         formData.append('file', file);
         const response = await api.post('/api/user/ai/naver/upload-idcard', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 30000, // OCR은 S3 업로드 + Naver API 호출로 5초 초과 가능
         });
         return response.data;
     }

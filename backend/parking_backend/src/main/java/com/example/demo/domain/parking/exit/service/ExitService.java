@@ -44,13 +44,7 @@ public class ExitService {
         if (parkingLog.getParkingStatus().isFinished()){
             throw new BusinessException(ErrorCode.ALREADY_EXITED);
         }
-        // Blacklist 한번더 확인
-        if (parkingLog.getParkingTypeSnapshot() != ParkingTypeSnapshot.SUBSCRIPTION
-                && parkingLog.getParkingTypeSnapshot() != ParkingTypeSnapshot.RESERVATION) {
-            if (Boolean.TRUE.equals(parkingLog.getIsBlacklist())) {
-                throw new BusinessException(ErrorCode.BLACKLIST_VEHICLE);
-            }
-        }
+
         // 상태 변화 및 저장 ENTERED -> EXIT_REQUESTED
         parkingLog.exitRequested(exitCameraId,imagePath);
         parkingLogRepository.save(parkingLog);
