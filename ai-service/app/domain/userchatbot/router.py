@@ -226,12 +226,13 @@ async def chat_with_bot(
                 except Exception:
                     pass
 
-        # 액션 없이 도구만 호출하고 끝난 거절/안내 응답은 terminal=True → 프론트에서 히스토리 리셋
-        # 단, get_available_units 호출 시엔 사용자가 호수를 선택해야 하므로 히스토리 유지
-        has_available_units = any(
-            getattr(m, "name", None) == "get_available_units" for m in final_state["messages"]
+        # 봇 응답이 사용자에게 추가 입력을 요구하면 히스토리 유지 (terminal=False)
+        # 거절/단순안내처럼 대화가 끝나는 응답이면 terminal=True → 프론트에서 히스토리 리셋
+        waiting_for_input = any(
+            kw in final_answer
+            for kw in ("주세요", "말씀해", "알려주", "선택해", "입력해", "?")
         )
-        terminal = action is None and not has_available_units and any(
+        terminal = action is None and not waiting_for_input and any(
             isinstance(m, ToolMessage) for m in final_state["messages"]
         )
 
