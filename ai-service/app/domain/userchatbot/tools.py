@@ -197,6 +197,24 @@ async def initiate_subscription_purchase(
     정기권 구매 페이지로 이동을 준비합니다. 시작일이 확정되면 이 도구를 호출하세요.
     - start_date: 정기권 시작일 (ISO 형식, 예: 2026-05-10)
     """
+    from datetime import date
+    try:
+        if date.fromisoformat(start_date) < date.today():
+            return {"error": True, "message": f"오늘({date.today().strftime('%m월 %d일')}) 이전 날짜로는 정기권을 구매할 수 없습니다. 오늘 또는 이후 날짜로 다시 말씀해 주세요."}
+    except ValueError:
+        return {"error": True, "message": "날짜 형식이 올바르지 않습니다. (예: 2026-05-10)"}
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{SPRING_URL}/api/user/vehicles/me",
+            headers=get_headers(access_token)
+        )
+    if resp.status_code == 204 or not resp.content:
+        return {"error": True, "message": "정기권 구매를 위해서는 활성화된 차량이 등록되어 있어야 합니다."}
+    vehicle = parse_response(resp)
+    if isinstance(vehicle, dict) and vehicle.get("error"):
+        return vehicle
+    if vehicle.get("status") != "ACTIVE":
+        return {"error": True, "message": "정기권 구매를 위해서는 활성화된 차량이 등록되어 있어야 합니다."}
     return {"ready": True, "startDate": start_date}
 
 @tool

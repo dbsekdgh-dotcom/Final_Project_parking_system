@@ -10,7 +10,7 @@ export const useChatbot = (onClose) => {
         {
             id: 1,
             role: 'bot',
-            text: '안녕하세요! AI 주차 비서입니다 🚗\n방문예약, 주차 현황, 포인트, 정기권 등을 도와드릴게요.',
+            text: '안녕하세요! AI 주차 비서입니다 🚗\n방문예약, 주차 현황, 포인트, 정기권, 차량 등록, 입주민 신청 등을 도와드릴게요.',
         },
     ]);
     const [input, setInput] = useState('');
@@ -38,9 +38,11 @@ export const useChatbot = (onClose) => {
                 queryClient.invalidateQueries({ queryKey: ['myInfo'] });
             }
             if (data.action === 'SUBSCRIPTION_PURCHASE') {
-                onClose?.();
                 const date = data.subscriptionStartDate ? `?date=${data.subscriptionStartDate}` : '';
-                navigate(`/subscription${date}`);
+                setTimeout(() => {
+                    onClose?.();
+                    navigate(`/subscription${date}`);
+                }, 1200);
             }
             if (data.action === 'VEHICLE_REGISTER') {
                 onClose?.();

@@ -88,10 +88,11 @@ def postprocess(text: str) -> str:
     # 예약 ID 노출 제거 (마크다운 제거 후 처리)
     text = re.sub(r'[-\s]*예약 ?ID\s*:\s*\d+\s*\n?', '', text)
 
-    # 도구 호출 전 예고 문구 제거 (줄 전체를 매칭해서 앞 조각이 남지 않도록)
+    # 도구 호출 전 예고 문구 제거 - 마침표까지 포함해서 제거
     waiting_patterns = [
-        r'^[^\n]*(?:잠시만|먼저)[^。\n]*(?:주세요|주십시오|하겠습니다|할게요)[^\n]*\n?',
-        r'^[^\n]*(?:예약|신청|취소|조회|확인|진행|처리|시작)[^。\n]*(?:하겠습니다|시작하겠습니다|진행하겠습니다|처리하겠습니다)[^\n]*\n?',
+        r'^[^\n]*(?:잠시만|먼저)[^。\n]*(?:주세요|주십시오|하겠습니다|드리겠습니다|할게요)[.。!?]*\s*\n?',
+        r'^[^\n]{0,30}(?:예약|신청|취소|조회|확인|진행|처리)(?:해\s*드리겠습니다|하겠습니다|시작하겠습니다|진행하겠습니다|처리하겠습니다)[.。!?]*\s*\n?',
+        r'^[^\n]*(?:상태를\s*확인|확인해)[^。\n]*(?:드리겠습니다|하겠습니다)[.。!?]*\s*\n?',
     ]
     for pattern in waiting_patterns:
         text = re.sub(pattern, '', text, flags=re.MULTILINE)
@@ -197,7 +198,12 @@ async def chat_with_bot(
         if not final_state or "messages" not in final_state:
             raise ValueError("LangGraph returned an empty or invalid state.")
 
-        final_answer = postprocess(final_state["messages"][-1].content)
+        raw_content = final_state["messages"][-1].content
+        final_answer = postprocess(raw_content)
+        if len(final_answer.strip()) <= 2:
+            # postprocess가 전부 제거하거나 마침표만 남긴 경우 마크다운만 걷어낸 원문 사용
+            final_answer = re.sub(r'\*\*(.+?)\*\*', r'\1', raw_content).strip()
+            final_answer = re.sub(r'\*(.+?)\*', r'\1', final_answer).strip()
 
         action = None
         reservations = None
@@ -222,9 +228,6 @@ async def chat_with_bot(
                         action = "RESIDENT_APPLIED"
                     elif name == "cancel_resident_apply":
                         action = "RESIDENT_CANCELLED"
-                    elif name == "initiate_subscription_purchase":
-                        action = "SUBSCRIPTION_PURCHASE"
-                        subscription_start_date = args.get("start_date") if isinstance(args, dict) else None
             # ToolMessage 결과 추출
             msg_name = getattr(msg, "name", None)
             if msg_name == "get_my_reservations":
@@ -241,6 +244,15 @@ async def chat_with_bot(
                     data = json.loads(content) if isinstance(content, str) else content
                     if isinstance(data, list):
                         available_units = [u.get("unitNo") for u in data if u.get("unitNo")]
+                except Exception:
+                    pass
+            elif msg_name == "initiate_subscription_purchase":
+                try:
+                    content = msg.content
+                    data = json.loads(content) if isinstance(content, str) else content
+                    if isinstance(data, dict) and data.get("ready"):
+                        action = "SUBSCRIPTION_PURCHASE"
+                        subscription_start_date = data.get("startDate")
                 except Exception:
                     pass
 
