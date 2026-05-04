@@ -41,6 +41,7 @@ export function Sidebar() {
       return response.data;
     },
     refetchOnWindowFocus: true,
+    refetchInterval: 30000,
   });
 
   const handleBellClick =(e) => {
