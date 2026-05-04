@@ -6,15 +6,17 @@ import { sendChatMessage } from '../api/chatbotApi';
 export const useChatbot = (onClose) => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const [messages, setMessages] = useState([
+    const INITIAL_MESSAGES = [
         {
             id: 1,
             role: 'bot',
             text: '안녕하세요! AI 주차 비서입니다 🚗\n방문예약, 주차 현황, 포인트, 정기권, 차량 등록, 입주민 신청 등을 도와드릴게요.',
         },
-    ]);
+    ];
+    const [messages, setMessages] = useState(INITIAL_MESSAGES);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
+    const [resetHistoryOnNext, setResetHistoryOnNext] = useState(false);
 
     const doSend = useCallback(async (text, currentMessages) => {
         const userMsg = { id: Date.now(), role: 'user', text };
@@ -22,12 +24,16 @@ export const useChatbot = (onClose) => {
         setLoading(true);
 
         try {
-            const history = currentMessages
-                .filter((m) => m.id !== 1)
-                .map((m) => ({ role: m.role, text: m.text }));
+            const history = resetHistoryOnNext
+                ? []
+                : currentMessages
+                    .filter((m) => m.id !== 1)
+                    .map((m) => ({ role: m.role, text: m.text }));
+            setResetHistoryOnNext(false);
             const data = await sendChatMessage(text, history);
-            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply, reservations: data.reservations || null, units: data.availableUnits || null };
+            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply, reservations: data.reservations || null, units: (data.action === 'RESIDENT_APPLIED' || data.action === 'RESIDENT_CANCELLED') ? null : (data.availableUnits || null) };
             setMessages((prev) => [...prev, botMsg]);
+            if (data.terminal || data.action) setResetHistoryOnNext(true);
             if (data.action === 'RESERVATION_CREATED' || data.action === 'RESERVATION_CANCELLED') {
                 queryClient.invalidateQueries({ queryKey: ['myReservations'] });
                 queryClient.invalidateQueries({ queryKey: ['reservationPolicy'] });
@@ -56,7 +62,7 @@ export const useChatbot = (onClose) => {
         } finally {
             setLoading(false);
         }
-    }, [queryClient, navigate]);
+    }, [queryClient, navigate, resetHistoryOnNext]);
 
     const sendMessage = useCallback(async () => {
         const trimmed = input.trim();
