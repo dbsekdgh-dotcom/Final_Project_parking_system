@@ -210,7 +210,7 @@ public class AdminApprovalService {
         String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
         Page<Approval> page = approvalRepository.findAllWithFilters(type,status,kw,pageable);
 
-        List<ApprovalResponseDto> content = page.getContent().stream()
+        List<ApprovalResponseDto> dtoList = page.getContent().stream()
                 .map(this::toResponseDto)
                 .toList();
         ApprovalStatsDto stats = ApprovalStatsDto.builder()
@@ -219,7 +219,7 @@ public class AdminApprovalService {
                 .rejectedCount(approvalRepository.countByStatus(ApprovalStatus.REJECTED))
                 .build();
         return ApprovalPageResponseDto.builder()
-                .content(content)
+                .content(dtoList)
                 .totalPages(page.getTotalPages())
                 .totalElements(page.getTotalElements())
                 .number(page.getNumber())
