@@ -11,8 +11,6 @@ import time
 from langchain_core.messages import ToolMessage
 
 
-SPRING_URL = os.getenv("SPRING_API_URL", "http://localhost:8080")
-
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chatbot", tags=["AI 주차 비서"])
 
@@ -228,8 +226,19 @@ async def chat_with_bot(
                 except Exception:
                     pass
 
+        # 봇 응답이 사용자에게 추가 입력을 요구하면 히스토리 유지 (terminal=False)
+        # 거절/단순안내처럼 대화가 끝나는 응답이면 terminal=True → 프론트에서 히스토리 리셋
+        waiting_for_input = any(
+            kw in final_answer
+            for kw in ("주세요", "말씀해", "알려주", "선택해", "입력해", "?")
+        )
+        terminal = action is None and not waiting_for_input and any(
+            isinstance(m, ToolMessage) for m in final_state["messages"]
+        )
+
         return {"reply": final_answer, "action": action, "reservations": reservations,
-                "subscriptionStartDate": subscription_start_date, "availableUnits": available_units}
+                "subscriptionStartDate": subscription_start_date, "availableUnits": available_units,
+                "terminal": terminal}
 
     except ValueError as ve:
         # 데이터 구조 문제 등 로직 에러
