@@ -19,3 +19,4 @@
  easyocr
  openpyxl
  python-docx
+ pyyaml

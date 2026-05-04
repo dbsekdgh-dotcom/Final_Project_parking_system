@@ -12,6 +12,7 @@ from app.domain.entryexitocr.router import entryexit_router
 from app.domain.payment.router import payment_router
 from app.domain.report.router import report_router
 from app.domain.userchatbot.router import router as chatbot_router
+from app.domain.notification.router import router as notification_router
 
 app = FastAPI()
 
@@ -49,6 +50,12 @@ app.include_router(
     chatbot_router,
     prefix="/api/v1/parking",
     tags=["Chatbot"]
+)
+
+app.include_router(
+    notification_router,
+    prefix="/api/v1/notification",
+    tags=["Notification"]
 )
 
 if __name__ == "__main__":

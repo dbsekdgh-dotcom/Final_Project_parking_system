@@ -14,6 +14,9 @@ import com.example.demo.domain.auth.admin.enums.AdminStatus;
 import com.example.demo.domain.auth.admin.enums.TargetType;
 import com.example.demo.domain.auth.admin.repository.AdminActionLogRepository;
 import com.example.demo.domain.auth.admin.repository.AdminRepository;
+import com.example.demo.domain.notification.enums.Type;
+import com.example.demo.domain.notification.service.NotificationAiClient;
+import com.example.demo.domain.notification.service.NotificationService;
 import com.example.demo.domain.reservation.Reservation;
 import com.example.demo.domain.reservation.enums.Status;
 import com.example.demo.domain.reservation.repository.ReservationRepository;
@@ -27,6 +30,7 @@ import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.security.admin.AdminAuthDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,7 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -47,8 +53,95 @@ public class AdminApprovalService {
     private final VehicleRepository vehicleRepository;
     private final ReservationRepository reservationRepository;
     private final HouseholdRepository householdRepository;
+    private final NotificationAiClient notificationAiClient;
+    private final NotificationService notificationService;
 
     //헬퍼
+    private void notifyVehicleApproved(Approval approval, Vehicle vehicle){
+        try {
+            Map<String, Object> ctx = Map.of("car_number", vehicle.getCarNumber());
+            NotificationAiClient.NotificationContent ai =
+                    notificationAiClient.generate("VEHICLE_APPROVED", ctx);
+            String title = (ai != null) ? ai.title() : "차량 등록 완료";
+            String content = (ai != null) ? ai.content() : vehicle.getCarNumber() + "차량 등록이 승인되었습니다.";
+
+            notificationService.createNotification(
+                    approval.getRequestUserId().getUserId(), title, content, Type.SYSTEM
+            );
+        }catch (Exception e){
+            log.warn("차량 승인 알림 생성 실패: {}", e.getMessage());
+        }
+    }
+    private void notifyVehicleRejected(Approval approval, Vehicle vehicle, String reason){
+        try {
+            Map<String,Object> ctx = Map.of(
+                    "car_number", vehicle.getCarNumber(),
+                    "reason", reason != null ? reason : "사유 없음"
+            );
+            NotificationAiClient.NotificationContent ai =
+                    notificationAiClient.generate("VEHICLE_REJECTED", ctx);
+
+            String title = (ai != null) ? ai.title() : "차량 등록 반려";
+            String content = (ai != null) ? ai.content() : vehicle.getCarNumber() +"차량 등록이 반려되었습니다.";
+
+            notificationService.createNotification(
+                    approval.getRequestUserId().getUserId(), title, content, Type.WARNING
+            );
+        } catch (Exception e){
+            log.warn("차량 거절 알림 생성 실패: {}", e.getMessage());
+        }
+    }
+    private void notifyResidentApproved(Approval approval, Household household){
+        try {
+            Map<String,Object> ctx = Map.of("unit_no", household.getUnitNo());
+            NotificationAiClient.NotificationContent ai =
+                    notificationAiClient.generate("RESIDENT_APPROVED", ctx);
+            String title = (ai != null) ? ai.title() : "입주민 등록 완료";
+            String content = (ai != null) ? ai.content() : household.getUnitNo() + "호 입주민 등록이 완료되었습니다.";
+
+            notificationService.createNotification(approval.getRequestUserId().getUserId(), title, content, Type.SYSTEM);
+        }catch (Exception e){
+            log.warn("입주민 승인 알림 생성 실패: {}", e.getMessage());
+        }
+    }
+    private void notifyReservationApproved(Approval approval, Reservation reservation){
+        try {
+            Map<String,Object> ctx = Map.of(
+                    "car_number", reservation.getCarNumber(),
+                    "visit_date", reservation.getVisitStartAt().toString()
+            );
+            NotificationAiClient.NotificationContent ai =
+                    notificationAiClient.generate("RESERVATION_APPROVED", ctx);
+
+            String title = (ai != null) ? ai.title() : "방문 예약 승인";
+            String content = (ai != null) ? ai.content() : reservation.getCarNumber() + " 방문 예약이 승인되었습니다.";
+
+            notificationService.createNotification(
+                    approval.getRequestUserId().getUserId(), title, content, Type.RESERVATION
+            );
+        }catch (Exception e){
+            log.warn("예약 승인 알림 생성 실패: {}",e.getMessage());
+        }
+    }
+    private void notifyReservationRejected(Approval approval, Reservation reservation, String reason){
+        try {
+            Map<String,Object> ctx = Map.of(
+                    "car_number", reservation.getCarNumber(),
+                    "visit_date", reservation.getVisitStartAt().toString(),
+                    "reason", reason != null ? reason : "사유 없음"
+            );
+            NotificationAiClient.NotificationContent ai =
+                    notificationAiClient.generate("RESERVATION_REJECTED",ctx);
+            String title = (ai != null) ? ai.title() : "방문 예약 반려";
+            String content = (ai != null) ? ai.content() : reservation.getCarNumber() + " 방문 예약이 반려되었습니다.";
+
+            notificationService.createNotification(
+                    approval.getRequestUserId().getUserId(), title, content, Type.RESERVATION
+            );
+        }catch (Exception e){
+            log.warn("예약 거절 알림 생성 실패:{}", e.getMessage());
+        }
+    }
     private Approval findPendingApproval(Long approvalId){
         Approval approval = approvalRepository.findById(approvalId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.INVALID_REQUEST));
@@ -190,6 +283,21 @@ public class AdminApprovalService {
         approval.setProcessedByAdminId(admin.getAdminId());
 
         saveActionLog(admin, approval, ActionType.APPROVE, beforeData, buildStatusJson("APPROVED"));
+
+        switch (approval.getApprovalType()){
+            case VEHICLE -> {
+                Vehicle v = vehicleRepository.findById(approval.getTargetId()).orElse(null);
+                if (v != null) notifyVehicleApproved(approval,v);
+            }
+            case RESIDENT -> {
+                Household h = householdRepository.findById(approval.getTargetId()).orElse(null);
+                if (h != null) notifyResidentApproved(approval,h);
+            }
+            case RESERVATION -> {
+                Reservation r = reservationRepository.findById(approval.getTargetId()).orElse(null);
+                if (r != null) notifyReservationApproved(approval,r);
+            }
+        }
     }
 
     //거절
@@ -209,5 +317,16 @@ public class AdminApprovalService {
         approval.setRejectReason(rejectReason);
 
         saveActionLog(admin,approval,ActionType.REJECT, beforeData, String.format("{\"status\":\"REJECTED\",\"rejectReason\":\"%s\"}", rejectReason));
+
+        switch (approval.getApprovalType()){
+            case VEHICLE -> {
+                Vehicle v = vehicleRepository.findById(approval.getTargetId()).orElse(null);
+                if (v != null) notifyVehicleRejected(approval,v,rejectReason);
+            }
+            case RESERVATION -> {
+                Reservation r = reservationRepository.findById(approval.getTargetId()).orElse(null);
+                if (r != null) notifyReservationRejected(approval,r,rejectReason);
+            }
+        }
     }
 }
