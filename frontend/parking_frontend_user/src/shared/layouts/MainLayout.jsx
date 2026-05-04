@@ -10,7 +10,9 @@ const MainLayout = () => {
       <Sidebar />
       <div className="app-shell__main">
         <Header />
-        <Outlet />
+        <div className="app-shell__content">
+          <Outlet />
+        </div>
       </div>
     </div>
   )

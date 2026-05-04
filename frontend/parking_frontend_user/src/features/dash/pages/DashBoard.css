@@ -1,7 +1,16 @@
 .dashboard {
   font-family: 'Noto Sans KR', sans-serif;
-  padding: 20px;
-  background: #f1f5f9;
+  padding: 28px 32px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.dashboard__title {
+  margin: 0 0 24px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #32324d;
 }
 
 /* 상단 요약 영역 */
@@ -112,7 +121,7 @@
 }
 
 /* 개별 카드 스타일 */
-.status-card {
+.dash-status-card {
   flex: 1;                /* 1:1:1 비율로 너비 나눔 */
   display: flex;
   flex-direction: column;
@@ -122,7 +131,7 @@
 }
 
 /* 카드 사이의 구분선 (선택 사항) */
-.status-card:not(:last-child)::after {
+.dash-status-card:not(:last-child)::after {
   content: "";
   position: absolute;
   right: 0;

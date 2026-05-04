@@ -125,6 +125,7 @@ const DashBoard = () => {
 
     return (
       <div className="dashboard">
+        <h2 className="dashboard__title">대시보드</h2>
         {/* 상단 요약 영역 */}
         <div className="floor-summary">
           {[data.b1Detail, data.b2Detail].filter(Boolean).map((floor) => (
@@ -164,7 +165,7 @@ const DashBoard = () => {
         <h3>내 현황</h3>
         <div className="status-grid">
           {/* 1. 포인트 */}
-          <div className="status-card">
+          <div className="dash-status-card">
             <div className="status-icon">📈</div>
             <div className="status-value">{data.myPoint?.toLocaleString()}</div>
             <div className="status-label">포인트</div>
@@ -182,7 +183,7 @@ const DashBoard = () => {
           </div>
 
           {/* 3. 정기권 */}
-          <div className="status-card">
+          <div className="dash-status-card">
             <div className="status-icon">🛡️</div>
             <div className="status-value">
               {data.subscriptionDDay != null ? `D-${data.subscriptionDDay}` : "없음"}

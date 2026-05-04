@@ -4,7 +4,6 @@ from langchain_core.messages import HumanMessage, AIMessage
 from .graph import app_graph
 import logging
 import re
-import httpx
 import os
 import base64
 import json
@@ -121,33 +120,6 @@ def is_token_expired(token: str) -> bool:
     except Exception:
         return False
 
-
-async def try_refresh_access_token(refresh_token: str) -> Optional[dict]:
-    """refreshToken 쿠키로 Spring에 토큰 갱신을 요청하고 새 accessToken과 Set-Cookie 헤더를 반환합니다."""
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{SPRING_URL}/api/user/auth/refresh",
-                cookies={"refreshToken": refresh_token},
-                timeout=5.0
-            )
-        if response.status_code != 200:
-            logger.warning(f"토큰 갱신 실패: status={response.status_code}")
-            return None
-        set_cookies = [v for k, v in response.headers.multi_items() if k.lower() == "set-cookie"]
-        new_access_token = None
-        for header_value in set_cookies:
-            if "accessToken=" in header_value:
-                for part in header_value.split(";"):
-                    part = part.strip()
-                    if part.startswith("accessToken="):
-                        new_access_token = part.split("=", 1)[1]
-        if not new_access_token:
-            return None
-        return {"access_token": new_access_token, "set_cookie_headers": set_cookies}
-    except Exception as e:
-        logger.error(f"토큰 갱신 중 예외: {e}")
-        return None
 
 
 @router.post("/ask")
