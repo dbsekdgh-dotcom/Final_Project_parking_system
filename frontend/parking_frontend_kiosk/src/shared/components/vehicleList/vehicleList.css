@@ -1,24 +1,35 @@
-
+/* ── 차량 카드 ── */
 .vehicle-card {
-    width: 330px;
-    height: 60px;
-    padding: 10px;
-    font-size: 1.2rem;
-    background-color: rgb(255, 255, 255);
-    border: 2px black solid;
-    color: rgb(8, 8, 8);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  width: 400px;
+  height: 64px;
+  padding: 0 20px;
+  font-family: var(--font-base);
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: var(--panel-light);
+  border: var(--border-std);
+  color: var(--text-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
 }
 
-.vehicle-card:active{
-    background-color: #f0f0f0;
+.vehicle-card:active,
+.vehicle-card:hover {
+  background: var(--occupied-bg);
 }
-.vehicle-number{
-    letter-spacing: 2px;
+
+.vehicle-number {
+  letter-spacing: 3px;
+  font-weight: 900;
 }
-.arrow-icon{
-    font-size: 2rem;
-    font-weight: bold;
+
+.arrow-icon {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--accent-green);
 }

@@ -1,18 +1,25 @@
-.key-container{
-    display: grid;
-    /* 1프레임(1fr)씩 3개의 열 */
-    grid-template-columns: repeat(3,1fr);
-    gap: 15px;
-    width: 350px;
+/* ── 키패드 컨테이너 ── */
+.key-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 400px;
 }
 
+/* ── 키 버튼 ── */
 .key-button {
-    padding: 20px;
-    font-size: 1.2rem;
-    background-color: black;
-    color: aliceblue;
+  padding: 22px;
+  font-family: var(--font-base);
+  font-size: 1.4rem;
+  font-weight: 900;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: var(--transition);
 }
-.key-button:active{
-    background-color: #464646;
-    transition: background-color 0.2s ease;
+
+.key-button:active {
+  background: #4a4e48;
 }

@@ -1,167 +1,234 @@
-/* 검색 화면 */
-  .findcar-search-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 420px;
-    margin: 60px auto;
-    padding: 40px 32px;
-    border: 2px solid #000;
-    background: #fff;
-  }
+/* ── 페이지 루트 ── */
+.findcar-root {
+  min-height: 100vh;
+  background: var(--bg-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-base);
+}
 
-  .findcar-search-header {
-    width: 350px; /* 키패드 너비와 동일 */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
+/* ═══════════════════════════════════════
+   검색 화면
+═══════════════════════════════════════ */
+.findcar-search-wrapper {
+  width: 700px;
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: var(--wrapper-pad);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+}
 
-  .findcar-search-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-  }
+.findcar-search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  margin-bottom: var(--section-gap);
+  border-bottom: 4px solid var(--border-heavy);
+}
 
-  .btn-back {
-    padding: 8px 14px;
-    background: #fff;
-    color: #000;
-    border: 1px solid #000;
-    font-size: 13px;
-    cursor: pointer;
-  }
+.findcar-search-title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
+  margin: 0;
+}
 
-  .findcar-search-label {
-    color: #888;
-    font-size: 14px;
-    margin-bottom: 16px;
-  }
+/* ── 차량번호 라벨 ── */
+.findcar-search-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  text-align: center;
+}
 
-  .findcar-query-display {
-    font-size: 32px;
-    text-align: center;
-    margin: 16px 0;
-    letter-spacing: 8px;
-  }
+/* ── 번호 표시 ── */
+.findcar-query-display {
+  font-size: 48px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 12px;
+  color: var(--text-dark);
+  margin: 20px 0 32px;
+  border-bottom: 4px solid var(--border-heavy);
+  padding-bottom: 16px;
+}
 
-  .findcar-search-btn {
-    width: 350px;
-    margin-top: 16px;
-    padding: 14px;
-    background: #000;
-    color: #fff;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-  }
+/* ── 검색 버튼 ── */
+.findcar-search-btn {
+  width: 100%;
+  padding: 20px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  font-family: var(--font-base);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  margin-top: 16px;
+  transition: var(--transition);
+}
 
-  .findcar-search-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
+.findcar-search-btn:active {
+  background: #1a1c1a;
+}
 
-  /* 결과 화면 */
-  .findcar-result-wrapper {
-    max-width: 600px;
-    margin: 60px auto;
-    padding: 40px 32px;
-    border: 2px solid #000;
-    background: #fff;
-  }
+.findcar-search-btn:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+}
 
-  .findcar-result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-  }
+/* ═══════════════════════════════════════
+   결과 화면
+═══════════════════════════════════════ */
+.findcar-result-wrapper {
+  width: var(--wrapper-width);
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: var(--wrapper-pad);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+}
 
-  .findcar-result-header h2 {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-  }
+.findcar-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  margin-bottom: var(--section-gap);
+  border-bottom: 4px solid var(--border-heavy);
+}
 
-  .findcar-result-body {
-    display: flex;
-    gap: 32px;
-  }
+.findcar-result-header h2 {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
+  margin: 0;
+}
 
-  .findcar-car-list {
-    flex: 1;
-  }
+/* ── 결과 바디 ── */
+.findcar-result-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: var(--section-gap);
+}
 
-  .findcar-car-list h3 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 16px;
-  }
+/* ── 차량 목록 ── */
+.findcar-car-list h3 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
 
-  .findcar-car-item {
-    padding: 16px;
-    margin-bottom: 8px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    font-size: 16px;
-  }
+.findcar-car-item {
+  padding: 18px 20px;
+  margin-bottom: 8px;
+  border: var(--border-std);
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  transition: var(--transition);
+  letter-spacing: 0.04em;
+}
 
-  .findcar-car-item.selected {
-    background: #000;
-    color: #fff;
-    border-color: #000;
-  }
+.findcar-car-item:active,
+.findcar-car-item:hover {
+  background: var(--occupied-bg);
+}
 
-  .findcar-car-detail {
-    border: 1px solid #000;
-    padding: 24px;
-    min-width: 200px;
-    align-self: flex-start;
-  }
+.findcar-car-item.selected {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
 
-  .findcar-car-detail h4 {
-    font-size: 14px;
-    color: #888;
-    margin: 0 0 12px;
-  }
+/* ── 차량 상세 ── */
+.findcar-car-detail {
+  border: var(--border-std);
+  background: var(--info-bg);
+  padding: 32px;
+  align-self: flex-start;
+}
 
-  .findcar-car-number {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 8px;
-  }
+.findcar-car-detail h4 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 20px;
+}
 
-  .findcar-space-code {
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center;
-    margin: 12px 0;
-  }
+.findcar-car-number {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+}
 
-  .findcar-entry-time {
-    font-size: 12px;
-    color: #888;
-    text-align: center;
-  }
+.findcar-space-code {
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--text-purple);
+  text-align: center;
+  margin: 16px 0;
+  letter-spacing: 0.08em;
+}
 
-  .findcar-home-btn {
-    width: 100%;
-    margin-top: 40px;
-    padding: 16px;
-    background: #000;
-    color: #fff;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: bold;
-  }
+.findcar-entry-time {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 600;
+}
 
-  .btn-back {
-    padding: 10px 20px;
-    background: #000;
-    color: #fff;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-  }
+/* ── 홈 버튼 ── */
+.findcar-home-btn {
+  width: 100%;
+  padding: 20px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  font-family: var(--font-base);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: var(--transition);
+}
+
+.findcar-home-btn:active {
+  background: #1a1c1a;
+}
+
+/* ── 공통 돌아가기 버튼 ── */
+.btn-back {
+  padding: 14px 28px;
+  border: var(--border-std);
+  background: transparent;
+  font-family: var(--font-base);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-dark);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
+}
+
+.btn-back:active {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}

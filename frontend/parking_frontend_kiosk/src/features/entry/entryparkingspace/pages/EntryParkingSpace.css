@@ -1,135 +1,197 @@
-/* ... 기존 container, header, floor-select 관련 스타일은 동일하게 유지 ... */
-
+/* ── 페이지 루트 ── */
 .parking-container {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 40px;
-  background-color: #f8f8f8;
-  font-family: 'Pretendard', sans-serif;
+  min-height: 100vh;
+  background: var(--bg-neutral);
+  font-family: var(--font-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px var(--wrapper-pad);
 }
 
+/* ── 헤더 ── */
 .parking-header {
+  width: var(--wrapper-width);
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 2px solid #000;
-  padding-bottom: 15px;
-  margin-bottom: 40px;
+  border-bottom: 4px solid var(--border-heavy);
+  padding-bottom: 20px;
+  margin-bottom: var(--section-gap);
 }
 
 .parking-header h1 {
   margin: 0;
   font-size: 32px;
-  font-weight: 800;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
 }
 
-.floor-select-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-  border: 2px solid #000;
+.floor-badge {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-purple);
+  letter-spacing: 0.08em;
+  border: var(--border-std);
   padding: 8px 20px;
-  background-color: #fff;
-  cursor: pointer;
-  min-width: 120px;
+  background: var(--info-bg);
 }
 
-.floor-options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  border: 2px solid #000;
-  background-color: #fff;
-  list-style: none;
-  margin: -2px 0 0 0;
-  padding: 0;
-  z-index: 10;
-}
-
-.floor-options li {
-  padding: 10px 20px;
-  font-weight: bold;
-}
-
-.floor-options li:hover { background-color: #f0f0f0; }
-
-/* 그리드 레이아웃 */
+/* ── 주차 맵 ── */
 .map-canvas {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  gap: 15px;
-  margin-bottom: 50px;
+  gap: 12px;
+  width: var(--wrapper-width);
+  margin-bottom: var(--section-gap);
 }
 
-/* 주차 칸 스타일 */
+/* ── 주차 칸 ── */
 .parking-spot {
   aspect-ratio: 1 / 1;
-  border: 2px solid #000;
-  background-color: #fff;
+  border: var(--border-std);
+  background: var(--panel-light);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: var(--transition);
   text-align: center;
 }
 
-/* 텍스트 줄바꿈 처리를 위한 래퍼 */
+.parking-spot:hover:not(.selected):not(.occupied) {
+  background: var(--occupied-bg);
+}
+
+.parking-spot.occupied {
+  background: var(--info-bg);
+  cursor: not-allowed;
+  border-color: var(--muted);
+}
+
+.parking-spot.occupied .spot-label {
+  color: var(--muted);
+}
+
+/* ── 선택 상태 ── */
+.parking-spot.selected {
+  background: var(--border-heavy) !important;
+  border-color: var(--border-heavy) !important;
+}
+
+.parking-spot.selected .spot-label,
+.parking-spot.selected .sub-label {
+  color: var(--panel-light) !important;
+}
+
+/* ── 장애인 ── */
+.disabled-spot {
+  border-color: #0056b3;
+  background: #f0f7ff;
+}
+
+.disabled-spot .spot-label,
+.disabled-spot .sub-label {
+  color: #0056b3;
+}
+
+/* ── EV ── */
+.ev-spot {
+  border-color: var(--accent-green);
+  background: #f0f7f0;
+}
+
+.ev-spot .spot-label,
+.ev-spot .sub-label {
+  color: var(--accent-green);
+}
+
+/* ── 텍스트 래퍼 ── */
 .spot-text-wrapper {
   display: flex;
-  flex-direction: column; /* 세로 정렬 (줄바꿈 효과) */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
 }
 
 .spot-label {
-  font-weight: 800;
-  font-size: 18px;
+  font-weight: 900;
+  font-size: 16px;
   line-height: 1;
+  color: var(--text-dark);
 }
 
-/* 줄바꿈 되어 들어가는 하단 명칭 스타일 */
 .sub-label {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  white-space: nowrap; /* 텍스트가 칸을 벗어나지 않게 */
+  color: var(--text-dark);
 }
 
-/* 특수 칸 색상 스타일 */
-.disabled-spot {
-  border-color: #0056b3;
-  color: #0056b3;
-  background-color: #f0f7ff;
-}
-
-.ev-spot {
-  border-color: #ff8c00;
-  color: #ff8c00;
-  background-color: #fff9f0;
-}
-
-/* 선택 및 호버 */
-.parking-spot:hover:not(.selected) { background-color: #eee; }
-.parking-spot.selected {
-  background-color: #000 !important;
-  color: #fff !important;
-  border-color: #000 !important;
-}
-
+/* ── 푸터 ── */
 .parking-footer {
-  text-align: center;
-  border-top: 2px solid #000;
-  padding-top: 20px;
+  width: var(--wrapper-width);
+  border-top: 4px solid var(--border-heavy);
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 }
 
+.parking-footer p {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: 0.04em;
+  flex: 1;
+}
+
+/* ── 입차 버튼 ── */
 .submit-btn {
-  background-color: #000;
-  color: #fff;
-  padding: 10px 60px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  padding: 16px 60px;
+  font-family: var(--font-base);
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 900;
   border: none;
   cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
+}
+
+.submit-btn:active {
+  background: #1a1c1a;
+}
+
+.submit-btn:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* ── 회차 버튼 ── */
+.cancel-btn {
+  background: transparent;
+  color: var(--text-dark);
+  padding: 16px 40px;
+  font-family: var(--font-base);
+  font-size: 18px;
+  font-weight: 900;
+  border: var(--border-std);
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
+}
+
+.cancel-btn:active {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.cancel-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

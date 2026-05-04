@@ -40,7 +40,13 @@ public class KioskSecurityConfig {
             .securityMatcher("/api/v1/**", "/api/payment/**", "/api/exit/**", "/api/store/**","/api/kiosk/**")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(kioskCorsConfigurationSource()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session ->
+            {
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                session.sessionFixation().none();
+            })
+                .securityContext(ctx->
+                        ctx.securityContextRepository(new org.springframework.security.web.context.NullSecurityContextRepository()))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.POST, "/api/store/login").permitAll()
                     .requestMatchers("/api/kiosk/**").permitAll()

@@ -1,0 +1,252 @@
+/* ── 페이지 루트 ── */
+.kiosk-page-root {
+  min-height: 100vh;
+  background: var(--bg-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-base);
+}
+
+/* ── 공통 래퍼 ── */
+.kiosk-page-wrapper {
+  width: 700px;
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: var(--wrapper-pad);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── 헤더 ── */
+.kiosk-page-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  margin-bottom: var(--section-gap);
+  border-bottom: 4px solid var(--border-heavy);
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+/* ── 고정 돌아가기 버튼 ── */
+.header-back-button {
+  padding: 14px 28px;
+  border: var(--border-std);
+  background: transparent;
+  font-family: var(--font-base);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-dark);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.header-back-button:active {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+/* ── 번호 표시 ── */
+.number-display {
+  width: 100%;
+  max-width: 400px;
+  height: 72px;
+  border-bottom: 4px solid var(--border-heavy);
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: 10px;
+  color: var(--text-dark);
+}
+
+/* ── 확인/뒤로 버튼 ── */
+.ok-button,
+.back-button {
+  width: 100%;
+  max-width: 400px;
+  height: 64px;
+  font-family: var(--font-base);
+  font-size: 18px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
+  margin-top: 16px;
+}
+
+.ok-button {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.ok-button:active {
+  background: #1a1c1a;
+}
+
+.ok-button:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.back-button {
+  background: transparent;
+  border: var(--border-std);
+  color: var(--text-dark);
+}
+
+.back-button:active {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.back-button:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* ── page-header-container (PrepaymentMain 호환) ── */
+.page-header-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* ── content-area ── */
+.content-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── 로딩/에러 ── */
+.loading-spinner {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  color: var(--accent-green);
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.loading-text, .loading-full {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.error-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  border: var(--border-std);
+  background: var(--info-bg);
+  min-width: 350px;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: var(--call-red);
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.loading-message {
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.error-sub-message {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.empty-text {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.error-back-btn {
+  margin-top: 25px;
+  padding: 14px 30px;
+  font-family: var(--font-base);
+  font-size: 1rem;
+  font-weight: 800;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.error-back-btn:active {
+  background: #1a1c1a;
+}
+
+button:disabled {
+  background: var(--info-bg) !important;
+  color: var(--muted) !important;
+  cursor: not-allowed;
+}
+
+/* ── 결제 확인 레이아웃 (SelectedVehicleInfo) ── */
+.selected-vehicle-info {
+  display: grid;
+  grid-template-columns: repeat(2, 350px);
+  justify-content: center;
+  align-items: start;
+  gap: 30px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.selected-vehicle-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 350px);
+  justify-content: center;
+  align-items: start;
+  gap: 30px;
+  width: 100%;
+}
+
+.selected-vehicle-wrapper > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
