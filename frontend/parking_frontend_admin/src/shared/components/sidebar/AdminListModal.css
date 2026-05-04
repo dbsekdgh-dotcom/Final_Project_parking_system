@@ -1,6 +1,6 @@
 .admin-popover {
   position: fixed;
-  z-index: 200;
+  z-index: 9999;
   width: 260px;
   max-height: 400px;
   background: var(--bg-card);

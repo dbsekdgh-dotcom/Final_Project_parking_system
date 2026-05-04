@@ -3,6 +3,10 @@ import Swal from 'sweetalert2';
 const BASE = {
   confirmButtonColor: '#32324d',
   cancelButtonColor: '#9e9eb8',
+  didOpen: () => {
+    const container = document.querySelector('.swal2-container');
+    if (container) container.style.zIndex = '99999';
+  },
 };
 
 export const confirmCancelReport = () =>

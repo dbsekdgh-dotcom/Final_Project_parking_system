@@ -119,6 +119,7 @@ public enum ErrorCode {
 
     // APPLY (입주 신청 관련 추가)
     ALREADY_APPLIED_RESIDENT(HttpStatus.CONFLICT, "이미 대기 중인 입주 신청 내역이 있습니다."),
+    CANNOT_APPLY_RESIDENT_HAS_SUBSCRIPTION(HttpStatus.CONFLICT, "활성 정기권이 있는 경우 입주민 신청이 불가합니다. 정기권 만료 후 신청해 주세요."),
     ALREADY_RESIDENT(HttpStatus.CONFLICT, "이미 다른 세대에 거주 중인 입주민입니다."), // 유저가 이미 집이 있는 경우
     NOT_AVAILABLE_HOUSEHOLD(HttpStatus.BAD_REQUEST, "현재 신청 가능한 상태가 아닌 호수입니다."), // PENDING 상태인 호수 포함
     APPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 신청 내역을 찾을 수 없거나 취소 권한이 없습니다."),
@@ -138,7 +139,7 @@ public enum ErrorCode {
 
     // RESERVATION (방문 예약 관련 추가)
     RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "예약 내역을 찾을 수 없습니다."),
-    ALREADY_RESERVED_VEHICLE(HttpStatus.CONFLICT, "해당 차량은 이미 예약이 진행 중입니다."),
+    ALREADY_RESERVED_VEHICLE(HttpStatus.CONFLICT, "해당 차량번호는 같은 시간대에 이미 예약이 존재합니다."),
     ACTIVE_SUBSCRIPTION_EXISTS(HttpStatus.CONFLICT, "이미 정기권이 등록된 차량입니다. 별도의 방문 예약이 필요하지 않습니다."),
     MAX_RESERVATION_EXCEEDED(HttpStatus.CONFLICT, "동시에 보유 가능한 활성 예약 수를 초과했습니다."),
     DAILY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "일일 예약 가능 횟수를 초과했습니다."),

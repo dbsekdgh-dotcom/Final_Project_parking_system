@@ -13,8 +13,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -46,8 +48,8 @@ public class AdminAuthController {
         }
 
         // 기본 검증(토큰이 비어있는지 등)
-        if (refreshToken==null)throw new RuntimeException("NULL_REFRESH");
-        if (authHeader==null || authHeader.length() < 7)throw new RuntimeException("INVALID_HEADER");
+        if (refreshToken==null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "NULL_REFRESH");
+        if (authHeader==null || authHeader.length() < 7) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_HEADER");
 
         String accessToken = authHeader.substring(7);
 
@@ -64,7 +66,7 @@ public class AdminAuthController {
         String savedToken = redisService.getRefreshToken(loginId);
         if(savedToken == null || !savedToken.equals(refreshToken)){
             log.warn("토큰 불일치!!! 탈취 의심 혹은 로그아운된 세션: {}", loginId);
-            throw new RuntimeException("INVALID_REFRESH_IN_REDIS");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_IN_REDIS");
         }
 
         // 새로운 Access토큰 발급(30분)
@@ -141,6 +143,27 @@ public class AdminAuthController {
             }
         }
 
+        // Access 토큰으로 추출 실패 시 refreshToken 쿠키에서 loginId 추출 (fallback)
+        if (loginId == null && request.getCookies() != null) {
+            String refreshToken = Arrays.stream(request.getCookies())
+                    .filter(c -> "refreshToken".equals(c.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+            if (refreshToken != null) {
+                try {
+                    Claims refreshClaims = adminJWTUtil.validateToken(refreshToken);
+                    loginId = (String) refreshClaims.get("loginId");
+                } catch (Exception e) {
+                    try {
+                        loginId = adminJWTUtil.getAdminLoginIdWithoutValidation(refreshToken);
+                    } catch (Exception ex) {
+                        log.error("refreshToken에서 loginId 추출 실패: {}", ex.getMessage());
+                    }
+                }
+            }
+        }
+
         log.info("----------- [Admin Logout] 최종 확인 ID: {} -----------", loginId);
 
         //ID가 확보되면 Redis에서 삭제
@@ -153,7 +176,8 @@ public class AdminAuthController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(0) //즉시만료
+                .maxAge(0)
+                .sameSite("Lax")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE,cookie.toString());
         return Map.of("result","success");

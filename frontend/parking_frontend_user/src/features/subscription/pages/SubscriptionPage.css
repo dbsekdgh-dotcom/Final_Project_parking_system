@@ -1,6 +1,7 @@
 .sub-page {
     padding: 28px 32px;
-    max-width: 900px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .sub-page__title {

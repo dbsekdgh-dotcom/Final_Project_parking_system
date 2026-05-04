@@ -8,6 +8,7 @@ import com.example.demo.domain.approval.enums.ApprovalStatus;
 import com.example.demo.domain.approval.enums.ApprovalType;
 import com.example.demo.domain.approval.repository.ApprovalRepository;
 import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
+import com.example.demo.domain.payment.subscription.repository.SubscriptionRepository;
 import com.example.demo.domain.resident.household.Household;
 import com.example.demo.domain.resident.household.enums.IsActive;
 import com.example.demo.domain.resident.household.repository.HouseholdRepository;
@@ -40,6 +41,7 @@ public class ResidentApplyService {
     private final ReservationRepository reservationRepository;
     private final VehicleRepository vehicleRepository;
     private final ParkingLogRepository parkingLogRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     /**
      * [입주 신청 등록]
@@ -61,6 +63,11 @@ public class ResidentApplyService {
 
         if (approvalRepository.existsByRequestUserIdAndApprovalTypeAndStatus(user, ApprovalType.RESIDENT, ApprovalStatus.PENDING)) {
             throw new CustomException(ErrorCode.ALREADY_APPLIED_RESIDENT);
+        }
+
+        // [검증] 활성 정기권이 있으면 입주 신청 불가
+        if (subscriptionRepository.findMyActiveSubscription(userId, java.time.LocalDateTime.now()).isPresent()) {
+            throw new CustomException(ErrorCode.CANNOT_APPLY_RESIDENT_HAS_SUBSCRIPTION);
         }
 
         // [검증] 신청하려는 세대 존재 여부 및 활성화(이미 다른 사람 입주) 여부 확인

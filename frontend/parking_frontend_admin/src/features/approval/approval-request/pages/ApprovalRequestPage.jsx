@@ -3,6 +3,7 @@ import RejectModal from '../../components/RejectModal';
 import './ApprovalRequestPage.css';
 import Pagination from '../../../../shared/components/pagination/Pagination';
 import { getApprovals, approveApproval, rejectApproval } from '../api/approvalRequestApi';
+import { usePendingCountRefresh } from '../../../../shared/context/PendingCountContext';
 
   
 // ─── 상수 ────────────────────────────────────────────────────────────
@@ -35,6 +36,7 @@ const TYPE_LABEL = {
 
 // 페이지 컴포넌트 
 export default function ApprovalRequestPage() {
+  const refreshCounts = usePendingCountRefresh()
   const [rows, setRows] = useState([]);
   const [loading,setLoading] = useState(false);
   const [page,setPage] = useState(0);
@@ -111,6 +113,7 @@ export default function ApprovalRequestPage() {
     try {
       await approveApproval(approvalId);
       fetchApprovals();
+      refreshCounts();
     } catch (e) {
       const msg = e?.response?.data?.message;
       alert(msg ?? '이미 처리된 항목이거나 처리할 수 없는 요청입니다.');
@@ -129,6 +132,7 @@ export default function ApprovalRequestPage() {
       await rejectApproval(rejectTarget.approvalId, rejectReason.trim());
       closeReject();
       fetchApprovals();
+      refreshCounts();
     } catch (e) {
       const msg = e?.response?.data?.message;
       alert(msg ?? '이미 처리된 항목이거나 처리할 수 없는 요청입니다.');

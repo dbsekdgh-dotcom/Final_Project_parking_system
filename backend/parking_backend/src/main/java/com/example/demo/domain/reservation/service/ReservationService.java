@@ -73,7 +73,7 @@ public class ReservationService {
 
         validateSystemTotalLimit(visitDate);
 
-        String carNumber = reservationApplyRequestDto.getCarNumber();
+        String carNumber = reservationApplyRequestDto.getCarNumber().replaceAll("\\s+", "");
         LocalDateTime now = LocalDateTime.now();
 
         if (vehicleBlacklistRepository.isCurrentlyBlacklisted(carNumber, now)) {
@@ -88,7 +88,9 @@ public class ReservationService {
 
         var PENDING = com.example.demo.domain.reservation.enums.Status.PENDING;
         var RESERVED = com.example.demo.domain.reservation.enums.Status.RESERVED;
-        if (reservationRepository.existsByCarNumberAndStatusIn(carNumber, List.of(PENDING, RESERVED))) {
+        LocalDateTime visitStartAt = reservationApplyRequestDto.getVisitStartAt();
+        LocalDateTime tentativeEndAt = visitStartAt.plusMinutes(120);
+        if (reservationRepository.existsOverlappingReservation(carNumber, List.of(PENDING, RESERVED), visitStartAt, tentativeEndAt)) {
             throw new CustomException(ErrorCode.ALREADY_RESERVED_VEHICLE);
         }
 
@@ -111,7 +113,6 @@ public class ReservationService {
             throw new CustomException(ErrorCode.MONTHLY_LIMIT_EXCEEDED);
         }
 
-        LocalDateTime visitStartAt = reservationApplyRequestDto.getVisitStartAt();
         int minutesToAdd = (policy.getPermittedMinutes() != null) ? policy.getPermittedMinutes() : 60;
         LocalDateTime visitEndAt = visitStartAt.plusMinutes(minutesToAdd);
 
@@ -172,8 +173,8 @@ public class ReservationService {
         return new ReservationEventPolicyResponseDto(
                 policy.getEventName(),
                 policy.getPermittedMinutes() != null ? policy.getPermittedMinutes() : 60,
-                policy.getDailyLimitPerHousehold() != null ? policy.getDailyLimitPerHousehold() : 0,
-                policy.getMonthlyLimitPerHousehold() != null ? policy.getMonthlyLimitPerHousehold() : 0,
+                policy.getDailyLimitPerHousehold(),
+                policy.getMonthlyLimitPerHousehold(),
                 policy.getMaxActiveReservations(), totalDailyLimit, monthUsedCount, currentActiveCount,
                 targetDateTotalCount, targetDateUserCount,
                 policy.isNoShowPenaltyEnabled(), systemMessage, warningMessage);
@@ -244,7 +245,7 @@ public class ReservationService {
             throw new CustomException(ErrorCode.EDIT_NOT_TODAY);
         }
 
-        String newCarNumber = reservationApplyRequestDto.getCarNumber();
+        String newCarNumber = reservationApplyRequestDto.getCarNumber().replaceAll("\\s+", "");
         LocalDate newVisitDate = reservationApplyRequestDto.getVisitStartAt().toLocalDate();
         LocalDate oldVisitDate = reservation.getVisitStartAt().toLocalDate();
         LocalDateTime now = LocalDateTime.now();

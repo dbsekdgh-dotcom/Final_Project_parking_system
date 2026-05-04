@@ -21,3 +21,11 @@ export const getRevenueDetail = (type = 'TOTAL', page = 0, size = 5) =>
 // 사용량 상세 현황 테이블
 export const getUsageDetail = (type = 'PARKING', page = 0, size = 5) =>
     adminApi.get('/dashboard/usage/detail',{ params: { type, page, size } }).then(r => r.data.data);
+
+// 보고서 생성 - blob으로 받아야 엑셀 파일 다운로드 가능
+export const generateReport = (period = 'MONTHLY', startDate, endDate) =>
+    adminApi.get('/dashboard/report/generate',{
+        params:{period,startDate,endDate},
+        responseType:'blob' // 핵심, 없으면 파일이 깨짐
+    });
+    

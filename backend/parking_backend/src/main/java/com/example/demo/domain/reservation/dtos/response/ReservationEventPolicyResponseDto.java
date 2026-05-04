@@ -13,9 +13,9 @@ public class ReservationEventPolicyResponseDto {
 
     // --- [1. 아파트 공통 고정 정책] ---
     private final String eventName;             // 정책명 (예: "2026 봄 시즌 주차 정책")
-    private final int permittedMinutes;         // 1회 예약 시 주차 허용 시간 (분)
-    private final int dailyLimitPerHousehold;   // 세대당 하루에 신청 가능한 최대 횟수
-    private final int monthlyLimit;             // 세대당 한 달간 신청 가능한 총 횟수
+    private final int permittedMinutes;           // 1회 예약 시 주차 허용 시간 (분)
+    private final Integer dailyLimitPerHousehold; // 세대당 하루에 신청 가능한 최대 횟수 (null = 무제한)
+    private final Integer monthlyLimit;           // 세대당 한 달간 신청 가능한 총 횟수 (null = 무제한)
     private final int maxActiveReservations;    // 한 세대가 동시에 보유(대기/승인)할 수 있는 예약증 수
     private final int totalDailyLimit;          // 아파트 전체에서 하루에 받을 수 있는 총 예약 대수 (예: 10대)
 
@@ -35,8 +35,8 @@ public class ReservationEventPolicyResponseDto {
     public ReservationEventPolicyResponseDto(
             String eventName,
             int permittedMinutes,
-            int dailyLimitPerHousehold,
-            int monthlyLimit,
+            Integer dailyLimitPerHousehold,
+            Integer monthlyLimit,
             int maxActiveReservations,
             int totalDailyLimit,
             long monthUsedCount,

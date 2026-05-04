@@ -1,64 +1,80 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FaMagnifyingGlass, FaCreditCard, FaPhone, FaStore, FaPlay } from 'react-icons/fa6'
 import './home.css'
+
 const Home = () => {
   const navigate = useNavigate()
-  useEffect(()=>{
-    localStorage.removeItem("paymentFlow")
-    localStorage.removeItem("pendingParkingLogId")
-  },[])
+  const [time, setTime] = useState('')
+  const [date, setDate] = useState('')
+
+  useEffect(() => {
+    localStorage.removeItem('paymentFlow')
+    localStorage.removeItem('pendingParkingLogId')
+
+    const updateClock = () => {
+      const now = new Date()
+      const h = String(now.getHours()).padStart(2, '0')
+      const m = String(now.getMinutes()).padStart(2, '0')
+      setTime(`${h}:${m}`)
+      setDate(now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }))
+    }
+    updateClock()
+    const timer = setInterval(updateClock, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
   return (
-    <div className='full-page-container'>
-      <div className="home-container">
-          {/* 제목 및 구분선 */}
-          <h1 className="home-title">주차 관리 시스템</h1>
-          <hr className="home-divider" />
+    <div className="home-root">
+      <div className="kiosk-wrapper">
 
-          {/* 중앙 메인 카드 섹션 */}
-          <div className="card-section">
-            {/* 내차 찾기 카드 */}
-            <div className="card">
-              <div className="card-title">내차 찾기</div>
-              <p className="card-subtext">
-                차량 번호 끝 4자리를 입력하고<br />
-                주차 위치를 확인하세요
-              </p>
-              <button
-                className="main-button"
-                onClick={() => navigate('/find-car')}
-              >
-                내차 찾기 시작
-              </button>
-            </div>
-
-            {/* 사전 정산 카드 */}
-            <div className="card">
-              <div className="card-title">사전 정산</div>
-              <p className="card-subtext">
-                차량 번호판을 입력하고<br />
-                주차 요금을 결제하세요
-              </p>
-              <button
-                className="main-button"
-                onClick={() => navigate('/prepayment')}
-              >
-                사전 정산 시작
-              </button>
-            </div>
+        {/* 헤더 */}
+        <header className="kiosk-header">
+          <div className="brand-title">PARKING CENTER</div>
+          <div className="time-display">
+            <div className="clock">{time}</div>
+            <div className="date">{date}</div>
           </div>
+        </header>
 
-          {/* 하단 보조 버튼 섹션 */}
-          <div className="bottom-section">
-            <button className="bottom-button" onClick={() => navigate('/store/login')}>
-              상가 관리
-            </button>
-            <button className="bottom-button" onClick={() => navigate('/entry-exit')}>
-              입차 / 출차
-            </button>
+        {/* 주차 현황 바 */}
+        <section className="parking-info">
+          <div className="info-label">PARKING AVAILABILITY</div>
+          <div className="info-count">
+            -- <span>/ -- 대</span>
           </div>
-        </div>
+        </section>
+
+        {/* 메인 메뉴 */}
+        <main className="menu-container">
+          <button className="menu-box" onClick={() => navigate('/find-car')}>
+            <FaMagnifyingGlass className="menu-icon" />
+            <h2 className="menu-title">내 차 찾기</h2>
+            <p className="menu-sub">SEARCH VEHICLE</p>
+          </button>
+          <button className="menu-box menu-box--filled" onClick={() => navigate('/prepayment')}>
+            <FaCreditCard className="menu-icon" />
+            <h2 className="menu-title">사전 정산</h2>
+            <p className="menu-sub">PAYMENT FIRST</p>
+          </button>
+        </main>
+
+        {/* 하단 보조 버튼 */}
+        <footer className="footer-actions">
+          <button className="action-btn call-btn">
+            <FaPhone /> 관리자 호출
+          </button>
+          <button className="action-btn" onClick={() => navigate('/store/login')}>
+            <FaStore /> 관리
+          </button>
+          <button className="action-btn" onClick={() => navigate('/entry-exit')}>
+            <FaPlay /> 입/출차 TEST
+          </button>
+        </footer>
+
+      </div>
     </div>
   )
 }
 
-export default Home;
+export default Home

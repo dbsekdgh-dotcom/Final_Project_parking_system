@@ -1,9 +1,11 @@
- pandas 
+ pandas
  openai
  python-dotenv
- langchain 
+ langchain
  langchain-openai
  langchain_community
+ langgraph
+ httpx
  faiss-cpu
  redis
  uvicorn 
@@ -15,3 +17,6 @@
  boto3
  ultralytics
  easyocr
+ openpyxl
+ python-docx
+ pyyaml

@@ -498,6 +498,39 @@ CREATE TABLE activity_log (
     INDEX idx_activity_parking_log (parking_log_id)
 );
 
+-- 31. 관리자 채팅방 (Admin_Chat_Room)
+CREATE TABLE admin_chat_room (
+    room_id     BIGINT AUTO_INCREMENT PRIMARY KEY,
+    room_type   ENUM('DIRECT', 'GROUP') NOT NULL COMMENT '1:1 or 그룹',
+    room_name   VARCHAR(100) NULL COMMENT '그룹 채팅방 이름 (DIRECT면 NULL)',
+    created_by  BIGINT NOT NULL COMMENT '채팅방 생성 관리자',
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT fk_room_creator FOREIGN KEY (created_by) REFERENCES admin(admin_id)
+);
+
+-- 32. 채팅방 참여자 (Admin_Chat_Room_Member)
+CREATE TABLE admin_chat_room_member (
+    member_id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    room_id             BIGINT NOT NULL,
+    admin_id            BIGINT NOT NULL,
+    last_read_message_id BIGINT NULL COMMENT '마지막으로 읽은 메시지 ID (안읽은 메시지 수 계산용)',
+    joined_at           DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    UNIQUE KEY uq_room_admin (room_id, admin_id),
+    CONSTRAINT fk_member_room  FOREIGN KEY (room_id)  REFERENCES admin_chat_room(room_id),
+    CONSTRAINT fk_member_admin FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
+);
+
+-- 33. 관리자 채팅 메시지 (Admin_Chat_Message)
+CREATE TABLE admin_chat_message (
+    message_id  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    room_id     BIGINT NOT NULL,
+    sender_id   BIGINT NOT NULL COMMENT '메시지를 보낸 관리자 ID',
+    content     TEXT NOT NULL,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT fk_msg_room   FOREIGN KEY (room_id)   REFERENCES admin_chat_room(room_id),
+    CONSTRAINT fk_msg_sender FOREIGN KEY (sender_id) REFERENCES admin(admin_id)
+);
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =============================================================================
@@ -615,6 +648,12 @@ CREATE INDEX idx_store_status_name      ON store (status, name);
 
 -- camera: 타입별 카메라 조회
 CREATE INDEX idx_camera_type            ON camera (camera_type);
+
+-- admin_chat_message: 방별 메시지 시간순 조회 + 마지막 메시지 조회
+CREATE INDEX idx_acm_room_created       ON admin_chat_message (room_id, created_at);
+
+-- admin_chat_room_member: 관리자별 채팅방 목록 조회
+CREATE INDEX idx_acrm_admin_room        ON admin_chat_room_member (admin_id, room_id);
 
 -- store_ticket_wallet: 상가+정책 조합 조회 (FK 복합)
 CREATE INDEX idx_stw_store_policy       ON store_ticket_wallet (store_id, ticket_policy_id);

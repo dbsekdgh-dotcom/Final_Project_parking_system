@@ -19,7 +19,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     Page<Report> findMyReports(@Param("userId") Long userId, Pageable pageable);
 
     // 2. 내가 받은 신고 (직접 쿼리 작성)
-    @Query("SELECT r FROM Report r WHERE r.carNumber IN :carNumbers ORDER BY r.createdAt DESC")
+// ReportRepository.java
+
+    @Query("SELECT r FROM Report r " +"WHERE REPLACE(r.carNumber, ' ', '') IN :carNumbers " + "ORDER BY r.createdAt DESC")
     Page<Report> findReceivedReports(@Param("carNumbers") List<String> carNumbers, Pageable pageable);
 
     // 3. 기간 검색

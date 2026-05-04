@@ -11,15 +11,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.domain.entryexitocr.router import entryexit_router
 from app.domain.payment.router import payment_router
 from app.domain.report.router import report_router
+from app.domain.userchatbot.router import router as chatbot_router
+from app.domain.notification.router import router as notification_router
 
 app = FastAPI()
 
 print("AWS_REGION=", os.getenv("AWS_REGION"))
 print("S3_BUCKET_NAME=", os.getenv("S3_BUCKET_NAME"))
 
+CORS_ORIGINS = os.getenv("FRONTEND_USER_URL", "http://localhost:5202").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,6 +44,18 @@ app.include_router(
     report_router,
     prefix="/api/v1/parking/report",
     tags=["Report"]
+)
+
+app.include_router(
+    chatbot_router,
+    prefix="/api/v1/parking",
+    tags=["Chatbot"]
+)
+
+app.include_router(
+    notification_router,
+    prefix="/api/v1/notification",
+    tags=["Notification"]
 )
 
 if __name__ == "__main__":

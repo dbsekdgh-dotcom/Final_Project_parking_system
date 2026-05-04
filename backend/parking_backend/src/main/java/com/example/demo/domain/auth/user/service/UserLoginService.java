@@ -15,6 +15,7 @@ import com.example.demo.global.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserLoginService {
+
+    @Value("${cookie.domain:}")
+    private String cookieDomain;
+
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
 
     private final SocialAccountRepository socialAccountRepository;
     private final UserAuthRepository userAuthRepository;
@@ -95,28 +102,8 @@ public class UserLoginService {
             userVerificationService.saveRefreshToken(user.getEmail(), refreshToken);
             userVerificationService.deleteLoginFailCount(email);
 
-            /**
-             * [핵심] HttpOnly 쿠키 생성
-             * - httpOnly(true): 자바스크립트 접근 불가 (XSS 방어)
-             * - secure(false): 로컬 개발 환경이므로 false (HTTPS 적용 시 true)
-             * - maxAge: 엑세스 토큰은 브라우저 끄면 사라지도록 설정하지 않거나 짧게 설정
-             */
-            // maxAge 미설정 → 세션 쿠키 (브라우저 종료 시 자동 삭제)
-            ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                    .path("/")
-                    .domain(".parking-system.store")
-                    .httpOnly(true)
-                    .secure(true)
-                    .sameSite("Lax")
-                    .build();
-
-            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-                    .path("/")
-                    .domain(".parking-system.store")
-                    .httpOnly(true)
-                    .secure(true)
-                    .sameSite("Lax")
-                    .build();
+            ResponseCookie accessCookie = buildCookie("accessToken", accessToken, -1);
+            ResponseCookie refreshCookie = buildCookie("refreshToken", refreshToken, -1);
 
             // 응답 헤더에 쿠키 추가
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
@@ -163,27 +150,23 @@ public class UserLoginService {
         userVerificationService.deleteRefreshToken(email);
 
         // 2. 브라우저 쿠키 삭제 (Max-Age를 0으로 설정)
-        ResponseCookie deleteAccess = ResponseCookie.from("accessToken", "")
-                .path("/")
-                .domain(".parking-system.store")
-                .maxAge(0)
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Lax")
-                .build();
-
-        ResponseCookie deleteRefresh = ResponseCookie.from("refreshToken", "")
-                .path("/")
-                .domain(".parking-system.store")
-                .maxAge(0)
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Lax")
-                .build();
+        ResponseCookie deleteAccess  = buildCookie("accessToken",  "", 0);
+        ResponseCookie deleteRefresh = buildCookie("refreshToken", "", 0);
 
         response.addHeader(HttpHeaders.SET_COOKIE, deleteAccess.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, deleteRefresh.toString());
 
         log.info("로그아웃 완료 - Redis 및 쿠키 제거 성공: {}", email);
+    }
+
+    private ResponseCookie buildCookie(String name, String value, long maxAge) {
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, value)
+                .path("/")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite("Lax");
+        if (cookieDomain != null && !cookieDomain.isBlank()) builder.domain(cookieDomain);
+        if (maxAge >= 0) builder.maxAge(maxAge);
+        return builder.build();
     }
 }

@@ -1,0 +1,25 @@
+.cug-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.cug-chip {
+    padding: 5px 10px;
+    min-width: 54px;
+    text-align: center;
+    border-radius: 16px;
+    border: 1.5px solid #4a90d9;
+    background: #fff;
+    color: #4a90d9;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.cug-chip:hover {
+    background: #4a90d9;
+    color: #fff;
+}

@@ -2,11 +2,10 @@
    전체 레이아웃
 ===================== */
 .report-page {
-  width: 100%;
   padding: 28px 32px;
-  background-color: #f1f5f9;
-  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  width: 100%;
   box-sizing: border-box;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
 /* =====================

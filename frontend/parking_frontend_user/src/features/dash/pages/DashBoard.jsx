@@ -125,9 +125,10 @@ const DashBoard = () => {
 
     return (
       <div className="dashboard">
+        <h2 className="dashboard__title">대시보드</h2>
         {/* 상단 요약 영역 */}
         <div className="floor-summary">
-          {[data.b1Detail, data.b2Detail].map((floor) => (
+          {[data.b1Detail, data.b2Detail].filter(Boolean).map((floor) => (
             <div key={floor.floorName} className="floor-card">
               <div className="floor-name">{floor.floorName}</div>
               <div className="floor-type">{floor.description}</div>
@@ -164,14 +165,14 @@ const DashBoard = () => {
         <h3>내 현황</h3>
         <div className="status-grid">
           {/* 1. 포인트 */}
-          <div className="status-card">
+          <div className="dash-status-card">
             <div className="status-icon">📈</div>
             <div className="status-value">{data.myPoint?.toLocaleString()}</div>
             <div className="status-label">포인트</div>
           </div>
 
           {/* 2. 중앙 차량 정보 */}
-          <div className="status-card center">
+          <div className="dash-status-card">
             <div className="car-plate">{data.myCarNumber}</div>
             <div className="status-title">
               {data.myCarLocation !== "주차 정보 없음" ? "현재 주차 중" : "현재 미주차"}
@@ -182,7 +183,7 @@ const DashBoard = () => {
           </div>
 
           {/* 3. 정기권 */}
-          <div className="status-card">
+          <div className="dash-status-card">
             <div className="status-icon">🛡️</div>
             <div className="status-value">
               {data.subscriptionDDay != null ? `D-${data.subscriptionDDay}` : "없음"}
@@ -230,7 +231,7 @@ const DashBoard = () => {
               </div>
             )}
 
-          {data.recentLogs.totalPages > 1 && (
+          {data.recentLogs && data.recentLogs.totalPages > 1 && (
             <div className="dash-pagination">
               <button
                 className="dash-page-btn"

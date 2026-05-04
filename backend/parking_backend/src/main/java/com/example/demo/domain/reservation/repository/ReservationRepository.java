@@ -42,6 +42,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
      */
     boolean existsByCarNumberAndStatusIn(String carNumber, List<Status> statuses);
 
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r " +
+            "WHERE r.carNumber = :carNumber " +
+            "AND r.status IN :statuses " +
+            "AND r.visitStartAt < :endAt " +
+            "AND r.visitEndAt > :startAt")
+    boolean existsOverlappingReservation(
+            @Param("carNumber") String carNumber,
+            @Param("statuses") List<Status> statuses,
+            @Param("startAt") LocalDateTime startAt,
+            @Param("endAt") LocalDateTime endAt
+    );
+
     /**
      * 2. 세대별 동시 활성 예약 수 체크
      * Household의 activeReservationCount 컬럼이 있지만, DB 데이터 정합성을 위해
@@ -135,6 +147,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
           AND r.visitEndAt < :now
         """)
     int bulkMarkNoShow(@Param("now") LocalDateTime now);
+
+    // 노쇼 처리 전 영향받는 세대 ID 목록 조회
+    @Query("""
+        SELECT DISTINCT r.user.household.householdId FROM Reservation r
+        WHERE r.status IN ('RESERVED', 'PENDING')
+          AND r.visitEndAt < :now
+        """)
+    List<Long> findNoShowTargetHouseholdIds(@Param("now") LocalDateTime now);
 
     //Admin/UserVehicle Page 용
 
