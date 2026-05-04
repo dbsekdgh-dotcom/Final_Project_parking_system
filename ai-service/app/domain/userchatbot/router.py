@@ -11,8 +11,6 @@ import time
 from langchain_core.messages import ToolMessage
 
 
-SPRING_URL = os.getenv("SPRING_API_URL", "http://localhost:8080")
-
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chatbot", tags=["AI 주차 비서"])
 

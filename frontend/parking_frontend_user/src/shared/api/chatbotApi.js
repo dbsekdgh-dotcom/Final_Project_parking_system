@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-const AI_BASE_URL = import.meta.env.VITE_AI_SERVER_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
 
 const aiApi = axios.create({
-    baseURL: AI_BASE_URL,
+    baseURL: API_BASE_URL,
     withCredentials: true,
     timeout: 30000,
 });
 
 export const sendChatMessage = async (message, history = []) => {
-    const response = await aiApi.post('/api/v1/parking/chatbot/ask', { message, history });
+    const response = await aiApi.post('/api/user/chatbot/ask', { message, history });
     return response.data;
 };

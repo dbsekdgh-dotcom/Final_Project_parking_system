@@ -18,7 +18,7 @@ app = FastAPI()
 print("AWS_REGION=", os.getenv("AWS_REGION"))
 print("S3_BUCKET_NAME=", os.getenv("S3_BUCKET_NAME"))
 
-CORS_ORIGINS = os.getenv("CHATBOT_CORS_ORIGIN", "http://localhost:5202").split(",")
+CORS_ORIGINS = os.getenv("FRONTEND_USER_URL", "http://localhost:5202").split(",")
 
 app.add_middleware(
     CORSMiddleware,
