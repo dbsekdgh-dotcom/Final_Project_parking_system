@@ -172,7 +172,7 @@ const DashBoard = () => {
           </div>
 
           {/* 2. 중앙 차량 정보 */}
-          <div className="status-card center">
+          <div className="dash-status-card">
             <div className="car-plate">{data.myCarNumber}</div>
             <div className="status-title">
               {data.myCarLocation !== "주차 정보 없음" ? "현재 주차 중" : "현재 미주차"}
