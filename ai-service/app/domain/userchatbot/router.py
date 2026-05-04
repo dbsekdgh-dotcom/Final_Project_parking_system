@@ -227,7 +227,11 @@ async def chat_with_bot(
                     pass
 
         # 액션 없이 도구만 호출하고 끝난 거절/안내 응답은 terminal=True → 프론트에서 히스토리 리셋
-        terminal = action is None and any(
+        # 단, get_available_units 호출 시엔 사용자가 호수를 선택해야 하므로 히스토리 유지
+        has_available_units = any(
+            getattr(m, "name", None) == "get_available_units" for m in final_state["messages"]
+        )
+        terminal = action is None and not has_available_units and any(
             isinstance(m, ToolMessage) for m in final_state["messages"]
         )
 
