@@ -31,9 +31,9 @@ export const useChatbot = (onClose) => {
                     .map((m) => ({ role: m.role, text: m.text }));
             setResetHistoryOnNext(false);
             const data = await sendChatMessage(text, history);
-            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply, reservations: data.reservations || null, units: data.availableUnits || null };
+            const botMsg = { id: Date.now() + 1, role: 'bot', text: data.reply, reservations: data.reservations || null, units: (data.action === 'RESIDENT_APPLIED' || data.action === 'RESIDENT_CANCELLED') ? null : (data.availableUnits || null) };
             setMessages((prev) => [...prev, botMsg]);
-            if (data.terminal) setResetHistoryOnNext(true);
+            if (data.terminal || data.action) setResetHistoryOnNext(true);
             if (data.action === 'RESERVATION_CREATED' || data.action === 'RESERVATION_CANCELLED') {
                 queryClient.invalidateQueries({ queryKey: ['myReservations'] });
                 queryClient.invalidateQueries({ queryKey: ['reservationPolicy'] });

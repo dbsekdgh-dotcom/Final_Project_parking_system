@@ -119,7 +119,7 @@ async def cancel_reservation_by_date(
 
     target = next(
         (r for r in reservations
-         if r.get("carNumber") == car_number
+         if r.get("carNumber", "").replace(" ", "") == car_number.replace(" ", "")
          and r.get("visitStartAt", "").startswith(visit_start_at[:16])),
         None
     )
@@ -199,10 +199,30 @@ async def initiate_subscription_purchase(
     """
     from datetime import date
     try:
-        if date.fromisoformat(start_date) < date.today():
+        start = date.fromisoformat(start_date)
+        if start < date.today():
             return {"error": True, "message": f"오늘({date.today().strftime('%m월 %d일')}) 이전 날짜로는 정기권을 구매할 수 없습니다. 오늘 또는 이후 날짜로 다시 말씀해 주세요."}
     except ValueError:
         return {"error": True, "message": "날짜 형식이 올바르지 않습니다. (예: 2026-05-10)"}
+
+    # 기존 정기권 조회 — 구매 기간 겹침 여부 확인
+    async with httpx.AsyncClient() as client:
+        sub_resp = await client.get(
+            f"{SPRING_URL}/api/user/subscriptions/my",
+            headers=get_headers(access_token)
+        )
+    subs = parse_response(sub_resp)
+    if isinstance(subs, list):
+        for sub in subs:
+            if sub.get("status") != "ACTIVE":
+                continue
+            try:
+                end = date.fromisoformat(sub.get("endDate", "")[:10])
+                if start <= end:
+                    return {"error": True, "message": f"현재 {end.strftime('%m월 %d일')}까지 이용 중인 정기권이 있습니다. {end.strftime('%m월 %d일')} 이후 날짜로 신청 가능합니다."}
+            except Exception:
+                pass
+
     async with httpx.AsyncClient() as client:
         resp = await client.get(
             f"{SPRING_URL}/api/user/vehicles/me",
