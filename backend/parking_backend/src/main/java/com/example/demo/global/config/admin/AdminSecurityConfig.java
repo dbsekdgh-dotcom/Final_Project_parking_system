@@ -63,7 +63,10 @@ AdminSecurityConfig {
         http.csrf(csrf->csrf.disable());
         http.sessionManagement(sessionConfig ->{
             sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS); //세션 생성하지 않기
+            sessionConfig.sessionFixation().none();
         });
+        http.securityContext(ctx->
+                ctx.securityContextRepository(new org.springframework.security.web.context.NullSecurityContextRepository()));
         // 권한 설정 (인가)
         http.authorizeHttpRequests(auth -> auth
                 // 최상단에 로그아웃을 가장 먼저 배치

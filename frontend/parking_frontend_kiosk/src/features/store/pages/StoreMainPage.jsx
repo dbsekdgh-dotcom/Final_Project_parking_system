@@ -30,28 +30,30 @@ export default function StoreMainPage() {
     };
 
     return (
-        <div className="store-main-wrapper">
-            <div className="store-main-header">
-                <div>
-                    <h2 className="store-main-name">{storeName}</h2>
-                    <p className="store-main-remaining">남은 주차권: {totalRemaining}개</p>
-                </div>
-                <button className="btn-logout" onClick={handleLogout}>로그아웃</button>
-            </div>
-
-            <div className="store-main-body">
-                <div className="store-apply-section">
-                    <h3>할인권 적용</h3>
-                    <div className="store-apply-input-display">예: 1234</div>
-                    <button className="store-search-btn" onClick={() => navigate('/store/apply')}>검색</button>
+        <div className="store-page-root">
+            <div className="store-main-wrapper">
+                <div className="store-main-header">
+                    <div>
+                        <h2 className="store-main-name">{storeName}</h2>
+                        <p className="store-main-remaining">남은 주차권: {totalRemaining}개</p>
+                    </div>
+                    <button className="btn-logout" onClick={handleLogout}>로그아웃</button>
                 </div>
 
-                <div className="store-info-card">
-                    <p className="store-info-label">상가명</p>
-                    <p className="store-info-value">{storeName}</p>
-                    <p className="store-info-label">남은 주차권</p>
-                    <p className="store-info-value">{totalRemaining}개</p>
-                    <button className="store-purchase-btn" onClick={() => navigate('/store/purchase')}>할인권 구매</button>
+                <div className="store-main-body">
+                    <div className="store-apply-section">
+                        <h3>할인권 적용</h3>
+                        <div className="store-apply-input-display">차량번호 끝 4자리</div>
+                        <button className="store-search-btn" onClick={() => navigate('/store/apply')}>검색</button>
+                    </div>
+
+                    <div className="store-info-card">
+                        <p className="store-info-label">상가명</p>
+                        <p className="store-info-value">{storeName}</p>
+                        <p className="store-info-label">남은 주차권</p>
+                        <p className="store-info-value">{totalRemaining}개</p>
+                        <button className="store-purchase-btn" onClick={() => navigate('/store/purchase')}>할인권 구매</button>
+                    </div>
                 </div>
             </div>
         </div>

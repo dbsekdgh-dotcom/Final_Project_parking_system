@@ -1,0 +1,162 @@
+/* ── 공통 모달 백드롭 ── */
+.vd-backdrop,
+.dc-backdrop,
+.pc-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(45, 48, 44, 0.55);
+  z-index: 1000;
+  font-family: var(--font-base);
+  animation: modal-fade-in 0.2s ease;
+}
+
+/* ── 공통 모달 카드 ── */
+.vd-modal,
+.dc-modal,
+.pc-modal {
+  background: var(--panel-light);
+  border: var(--border-std);
+  width: 420px;
+  padding: 52px 44px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.08);
+  animation: modal-slide-up 0.25s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ── 아이콘 ── */
+.vd-icon-wrap,
+.dc-icon-wrap,
+.pc-icon-wrap {
+  margin-bottom: 24px;
+  border: var(--border-std);
+  padding: 16px;
+  background: var(--info-bg);
+}
+
+.vd-check-icon,
+.dc-check-icon,
+.pc-check-icon {
+  width: 52px;
+  height: 52px;
+  color: var(--accent-green);
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: icon-draw 0.6s ease forwards 0.15s;
+}
+
+/* ── 제목 ── */
+.vd-title,
+.dc-title,
+.pc-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text-dark);
+  text-align: center;
+  margin: 0 0 10px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+/* ── 서브타이틀 ── */
+.vd-subtitle,
+.dc-subtitle,
+.pc-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  margin: 0;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+}
+
+/* ── 구분선 ── */
+.vd-divider,
+.dc-divider,
+.pc-divider {
+  width: 48px;
+  height: 4px;
+  background: var(--border-heavy);
+  margin: 24px 0 28px;
+}
+
+/* ── 버튼 그룹 ── */
+.vd-btn-group {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+/* ── 공통 버튼 ── */
+.vd-btn,
+.dc-btn,
+.pc-btn {
+  flex: 1;
+  padding: 18px 0;
+  font-family: var(--font-base);
+  font-size: 16px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
+}
+
+.vd-btn:active,
+.dc-btn:active,
+.pc-btn:active {
+  opacity: 0.85;
+}
+
+/* ── Primary (출차/홈) ── */
+.vd-btn--primary,
+.dc-btn,
+.pc-btn--primary {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.vd-btn--primary:active,
+.dc-btn:active,
+.pc-btn--primary:active {
+  background: #1a1c1a;
+}
+
+/* ── Secondary (회차/취소) ── */
+.vd-btn--secondary,
+.pc-btn--secondary {
+  background: transparent;
+  border: var(--border-std) !important;
+  color: var(--text-dark);
+}
+
+.vd-btn--secondary:active,
+.pc-btn--secondary:active {
+  background: var(--occupied-bg);
+}
+
+/* PaymentConfirm 전체 너비 취소 버튼 */
+.pc-btn--secondary {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* ── 애니메이션 ── */
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes icon-draw {
+  to { stroke-dashoffset: 0; }
+}

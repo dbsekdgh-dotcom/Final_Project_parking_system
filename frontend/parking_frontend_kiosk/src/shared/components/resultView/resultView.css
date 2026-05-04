@@ -1,117 +1,129 @@
-/* ResultView.css - 다른 페이지 간섭 방지 최종본 */
-
+/* ── 전체 덮개 ── */
 .rv-main-wrapper {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ffffff;
-  z-index: 9999; /* 다른 요소들보다 항상 위에 위치 */
-  font-family: 'Pretendard', sans-serif;
+  background: var(--bg-neutral);
+  z-index: 9999;
+  font-family: var(--font-base);
 }
 
+/* ── 콘텐츠 박스 ── */
 .rv-content-layout {
-  text-align: center;
-  max-width: 400px;
-  width: 85%;
+  width: 560px;
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: 60px 60px 50px;
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
-/* 아이콘 스타일 */
+/* ── 아이콘 원 ── */
+.rv-check-icon-wrapper {
+  margin-bottom: 32px;
+}
+
 .rv-icon-circle {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  border: var(--border-std);
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 30px;
 }
 
-/* 성공은 초록, 에러(느낌표)는 빨강 */
-.rv-bg-success { background-color: #4CAF50; }
-.rv-bg-error { background-color: #F44336; } 
+.rv-bg-success {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.rv-bg-error {
+  background: var(--call-red);
+  border-color: var(--call-red);
+}
+
+.rv-bg-loading {
+  background: var(--text-purple);
+  border-color: var(--text-purple);
+}
 
 .rv-svg-icon {
-  width: 45px;
-  height: 45px;
+  width: 44px;
+  height: 44px;
+  color: var(--panel-light);
 }
 
-/* 텍스트 스타일 */
+/* ── 텍스트 ── */
 .rv-title {
-  font-size: 28px;
-  font-weight: 800;
-  margin-bottom: 12px;
-  color: #000;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
 }
 
 .rv-subtitle {
   font-size: 16px;
-  color: #666;
-  margin-bottom: 40px;
-  line-height: 1.4;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 40px;
+  line-height: 1.5;
 }
 
-.rv-line {
-  width: 40px;
-  height: 3px;
-  background-color: #000;
-  margin-bottom: 50px;
-}
-
-/* ⭐️ 버튼 정렬의 핵심 (반반/꽉차게 자동 조절) */
+/* ── 버튼 그룹 ── */
 .rv-btn-group {
-  display: flex !important;
-  flex-direction: row-reverse !important; /* 버튼 순서: 이전(왼쪽), 홈(오른쪽) */
-  gap: 12px !important;
-  width: 100% !important;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 12px;
+  width: 100%;
 }
 
 .rv-action-btn {
-  flex: 1 !important;
-  height: 56px !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  border: none !important;
-  border-radius: 6px !important;
-  font-size: 17px !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
+  flex: 1;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-base);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
+  border: none;
 }
 
+.rv-btn-home {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.rv-btn-home:active {
+  background: #1a1c1a;
+}
+
+.rv-btn-back {
+  background: transparent;
+  border: var(--border-std) !important;
+  color: var(--text-dark);
+}
+
+.rv-btn-back:active {
+  background: var(--occupied-bg);
+}
+
+/* ── 로딩 스핀 ── */
 .rv-spin {
-  /* 중심축을 요소의 정중앙으로 고정 */
-  transform-origin: center; 
+  transform-origin: center;
   animation: rv-rotate 1s linear infinite;
 }
 
 @keyframes rv-rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.rv-bg-loading {
-  background-color: green;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.rv-svg-icon {
-  width: 60%;  /* 원 안에서 적절한 크기 유지 */
-  height: 60%;
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }

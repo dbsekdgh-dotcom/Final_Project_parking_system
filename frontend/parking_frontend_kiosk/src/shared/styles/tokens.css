@@ -1,0 +1,33 @@
+/* ============================================================
+   PARKING KIOSK — DESIGN TOKENS  (Home 기준 통일)
+   모든 페이지가 이 파일을 import해서 사용합니다.
+   ============================================================ */
+
+:root {
+  /* ── Color Palette ── */
+  --bg-neutral:    #e2e4df;   /* 전체 배경 */
+  --panel-light:   #f1f2ee;   /* 카드/패널 배경 */
+  --info-bg:       #dadcd6;   /* 서브 정보 영역 배경 */
+  --border-heavy:  #2d302c;   /* 주요 테두리 */
+  --text-dark:     #3a3d38;   /* 본문 텍스트 */
+  --text-purple:   #5b2d8e;   /* 강조 (제목) */
+  --accent-green:  #4a634d;   /* 아이콘/포인트 */
+  --call-red:      #9e4343;   /* 경고/오류 */
+  --muted:         #777;      /* 서브 텍스트 */
+  --occupied-bg:   #e7e9e3;   /* 점유/비활성 배경 */
+
+  /* ── Typography ── */
+  --font-base: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+
+  /* ── Border ── */
+  --border-std:  2px solid var(--border-heavy);
+  --border-thin: 1px solid var(--border-heavy);
+
+  /* ── Spacing ── */
+  --wrapper-width: 1000px;
+  --wrapper-pad:   60px;
+  --section-gap:   40px;
+
+  /* ── Transition ── */
+  --transition: background 0.15s ease;
+}

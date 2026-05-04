@@ -75,7 +75,7 @@ export function PaymentPage() {
             // 에러 처리하기
             console.error(error);
             if(error.code==='USER_CANCEL'){
-                navigate(`/payment/fail?code=${errorCode}&message=${encodeURIComponent(errorMsg)}`);
+                navigate(`/payment/fail?code=${error.code}&message=${encodeURIComponent(error.message)}`);
             }
         }
     }

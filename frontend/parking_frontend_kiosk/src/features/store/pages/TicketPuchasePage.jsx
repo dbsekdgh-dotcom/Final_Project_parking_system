@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getTicketPolicies, getWallets, purchaseReady } from "../api/StoreApi";
 import './TicketPuchasePage.css';
 
-export default function TicketPurchasePage(){
+export default function TicketPurchasePage() {
     const navigate = useNavigate();
     const { setPaymentInfo } = useVehicleStore();
     const { wallets, setWallets } = useStoreStore();
@@ -52,44 +52,46 @@ export default function TicketPurchasePage(){
     };
 
     return (
-        <div className="ticket-purchase-wrapper">
-            <div className="ticket-purchase-header">
-                <h2>할인권 구매</h2>
-                <button className="btn-back" onClick={() => navigate('/store/main')}>돌아가기</button>
-            </div>
+        <div className="store-page-root">
+            <div className="ticket-purchase-wrapper">
+                <div className="ticket-purchase-header">
+                    <h2>할인권 구매</h2>
+                    <button className="btn-back" onClick={() => navigate('/store/main')}>돌아가기</button>
+                </div>
 
-            <div className="ticket-purchase-card">
-                <h3>할인권 선택</h3>
-                {policies.map(policy => (
-                    <div
-                        key={policy.ticketPolicyId}
-                        className={`policy-item${selectedId === policy.ticketPolicyId ? ' selected' : ''}`}
-                        onClick={() => { setSelectedId(policy.ticketPolicyId); setQuantity(1); }}
-                    >
-                        <div>
-                            <div className="policy-name">{policy.name}</div>
-                            <div className="policy-remaining">현재 보유: {getRemaining(policy.ticketPolicyId)}개</div>
+                <div className="ticket-purchase-card">
+                    <h3>할인권 선택</h3>
+                    {policies.map(policy => (
+                        <div
+                            key={policy.ticketPolicyId}
+                            className={`policy-item${selectedId === policy.ticketPolicyId ? ' selected' : ''}`}
+                            onClick={() => { setSelectedId(policy.ticketPolicyId); setQuantity(1); }}
+                        >
+                            <div>
+                                <div className="policy-name">{policy.name}</div>
+                                <div className="policy-remaining">현재 보유: {getRemaining(policy.ticketPolicyId)}개</div>
+                            </div>
+                            <span className="policy-price">{policy.price.toLocaleString()}원</span>
                         </div>
-                        <span className="policy-price">{policy.price.toLocaleString()}원</span>
-                    </div>
-                ))}
+                    ))}
 
-                {selectedId && (
-                    <div className="quantity-selector">
-                        <span>수량</span>
-                        <button className="qty-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
-                        <span className="qty-value">{quantity}</span>
-                        <button className="qty-btn" onClick={() => setQuantity(q => q + 1)}>+</button>
-                    </div>
-                )}
+                    {selectedId && (
+                        <div className="quantity-selector">
+                            <span>수량</span>
+                            <button className="qty-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
+                            <span className="qty-value">{quantity}</span>
+                            <button className="qty-btn" onClick={() => setQuantity(q => q + 1)}>+</button>
+                        </div>
+                    )}
 
-                <button
-                    className="purchase-btn"
-                    onClick={handlePurchase}
-                    disabled={!selectedId || loading}
-                >
-                    {loading ? '처리 중...' : '구매하기'}
-                </button>
+                    <button
+                        className="purchase-btn"
+                        onClick={handlePurchase}
+                        disabled={!selectedId || loading}
+                    >
+                        {loading ? '처리 중...' : '구매하기'}
+                    </button>
+                </div>
             </div>
         </div>
     );

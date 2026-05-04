@@ -1,28 +1,31 @@
-/* 전체 배경 */
+/* ── 전체 배경 ── */
 .payment-page-container {
-  background-color: #ffffff;
-  min-height: auto;
-  padding: 20px 16px 40px 16px;
+  min-height: 100vh;
+  background: var(--bg-neutral);
+  padding: 60px 20px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+  font-family: var(--font-base);
 }
 
-/* 메인 카드 스타일 */
+/* ── 메인 카드 ── */
 .payment-card {
   width: 100%;
   max-width: 500px;
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  display: block;
+  background: var(--panel-light);
+  border: var(--border-std);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+  display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* 주문 요약 */
+/* ── 주문 요약 ── */
 .order-summary {
-  padding: 16px 24px;
-  background: #ffffff;
+  padding: 28px 32px;
+  background: var(--info-bg);
+  border-bottom: var(--border-std);
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -30,69 +33,79 @@
 
 .order-label {
   display: block;
-  font-size: 14px;
-  color: #8b95a1;
-  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
 }
 
 .order-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #191f28;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text-dark);
+  letter-spacing: 0.04em;
 }
 
 .order-amount {
-  font-size: 24px;
-  font-weight: 700;
-  color: #3182f6; /* 토스 블루 */
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-purple);
+  letter-spacing: 0.02em;
 }
 
-/* 위젯 구역 타이틀 */
+/* ── 섹션 타이틀 ── */
 .section-title {
-  padding: 0 24px;
-  font-size: 16px;
+  padding: 20px 32px 4px;
+  font-size: 13px;
   font-weight: 700;
-  color: #333d4b;
-  margin-bottom: 4px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
+/* ── 구분선 ── */
 .divider {
-  height: 4px;
-  background-color: #f9fafb;
-  margin: 8px 0;
+  height: 2px;
+  background: var(--info-bg);
+  margin: 12px 0;
 }
 
-/* 위젯 내부 간격 조절 */
+/* ── 토스 위젯 영역 ── */
 .toss-widget {
   width: 100%;
-  min-height: 100px; /* 로딩 시 레이아웃 무너짐 방지 */
+  min-height: 100px;
+  padding: 0 8px;
 }
 
-/* 하단 버튼 */
+/* ── 하단 버튼 ── */
 .payment-action {
-  padding: 16px 24px;
+  padding: 20px 32px 32px;
+  border-top: var(--border-std);
+  background: var(--panel-light);
 }
 
 .payment-button {
   width: 100%;
-  height: 50px;
-  background-color: #3182f6;
-  color: #ffffff;
+  height: 60px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
   border: none;
-  border-radius: 18px;
+  font-family: var(--font-base);
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.2s ease;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
 }
 
 .payment-button:active {
-  transform: scale(0.98);
-  background-color: #1b64da;
+  background: #1a1c1a;
 }
 
 .payment-button:disabled {
-  background-color: #e5e8eb;
-  color: #b0b8c1;
+  background: var(--info-bg);
+  color: var(--muted);
   cursor: not-allowed;
 }
