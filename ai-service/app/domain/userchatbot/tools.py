@@ -246,6 +246,19 @@ async def initiate_vehicle_register(
     access_token: Annotated[str, InjectedState("access_token")]
 ):
     """차량 등록 페이지로 이동을 준비합니다."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{SPRING_URL}/api/user/vehicles/me",
+            headers=get_headers(access_token)
+        )
+    if resp.status_code != 204 and resp.content:
+        vehicle = parse_response(resp)
+        if not (isinstance(vehicle, dict) and vehicle.get("error")):
+            status = vehicle.get("status")
+            if status == "ACTIVE":
+                return {"error": True, "message": "이미 등록된 차량이 있습니다. 차량은 1대만 등록 가능합니다."}
+            if status == "PENDING":
+                return {"error": True, "message": "차량 등록 승인 대기 중입니다."}
     return {"ready": True}
 
 @tool

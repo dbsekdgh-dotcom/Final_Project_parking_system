@@ -226,8 +226,14 @@ async def chat_with_bot(
                 except Exception:
                     pass
 
+        # 액션 없이 도구만 호출하고 끝난 거절/안내 응답은 terminal=True → 프론트에서 히스토리 리셋
+        terminal = action is None and any(
+            isinstance(m, ToolMessage) for m in final_state["messages"]
+        )
+
         return {"reply": final_answer, "action": action, "reservations": reservations,
-                "subscriptionStartDate": subscription_start_date, "availableUnits": available_units}
+                "subscriptionStartDate": subscription_start_date, "availableUnits": available_units,
+                "terminal": terminal}
 
     except ValueError as ve:
         # 데이터 구조 문제 등 로직 에러
