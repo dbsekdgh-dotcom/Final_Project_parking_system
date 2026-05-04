@@ -41,6 +41,7 @@ export function Header() {
 
   return (
     <header className="dashboard-header">
+      <div className="dashboard-header__inner">
       <div className="dashboard-header__intro">
         <CarIcon />
         <h1 className="dashboard-header__title">Smart Parking</h1>
@@ -70,6 +71,7 @@ export function Header() {
           </span>
           <span className="dashboard-header__stat-label">주차 가능 층</span>
         </div>
+      </div>
       </div>
     </header>
   )

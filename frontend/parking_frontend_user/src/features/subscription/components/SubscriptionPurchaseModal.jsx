@@ -6,8 +6,8 @@ import PointInput from './PointInput';
 import TossPaymentWidget from './TossPaymentWidget';
 import './SubscriptionPurchaseModal.css';
 
-export default function SubscriptionPurchaseModal({ vehicle, activeSubscriptions = [], onClose }) {
-    const [selectedDate, setSelectedDate] = useState('');
+export default function SubscriptionPurchaseModal({ vehicle, activeSubscriptions = [], onClose, initialDate = '' }) {
+    const [selectedDate, setSelectedDate] = useState(initialDate);
     const [overlapError, setOverlapError] = useState('');
     const [usedPoint, setUsedPoint] = useState(0);
     const [showToss, setShowToss] = useState(false);

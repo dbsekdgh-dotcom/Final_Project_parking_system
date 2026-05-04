@@ -43,6 +43,22 @@
     flex-shrink: 0;
 }
 
+.summary-main {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #233b6e;
+}
+
+.summary-policy {
+    font-size: 0.72rem;
+    color: #6f708b;
+    margin-top: 2px;
+}
+
+.summary-value--warn {
+    color: #e03e3e !important;
+}
+
 /* 로딩 */
 .summary-loading {
     padding: 14px 20px;

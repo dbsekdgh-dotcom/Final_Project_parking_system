@@ -1,5 +1,7 @@
 package com.example.demo.domain.report.service;
 
+import com.example.demo.domain.notification.enums.Type;
+import com.example.demo.domain.notification.service.NotificationService;
 import com.example.demo.domain.resident.User;
 import com.example.demo.domain.resident.UserRepository;
 import com.example.demo.domain.vehicle.Vehicle;
@@ -33,6 +35,7 @@ public class ReportService {
     private final VehicleRepository vehicleRepository;
     private final VehicleReportRepository vehicleReportRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     /**
      * 신고 생성 + 통계 증가
@@ -53,6 +56,32 @@ public class ReportService {
                 .build();
 
         reportRepository.save(report);
+
+
+        //5월2일 수정해야될 것-신고 시 알림 생성 로직 수정해야됨
+
+        vehicleRepository.findByCarNumber(carNumber.replace(" ","")).ifPresent(vehicle ->{
+            User targetUser = vehicle.getUser();  //차주 찾기
+            if (targetUser !=null){
+                String title ="차량 신고 접수 알림";
+                String content = switch (type){
+                    case ILLEGAL_PARKING -> String.format("[%s] 차량이 '일반 불법 주차'로 신고되었습니다.",carNumber);
+                    case BLOCKING -> String.format("[%s] 차량이 '통로 막음'으로 신고되었습니다", carNumber);
+                    case DOUBLE_PARK -> String.format("[%s] 차량이 '이중 주차'로 신고되었습니다.", carNumber);
+                    case NOISE -> String.format("[%s] 차량에 대해 '소음공해' 신고가 접수되었습니다.", carNumber);
+                    case OTHER -> String.format("[%s] 차량에 대해 '기타' 신고가 접수되었습니다: %s", carNumber, description);
+                    default ->String.format("[%s] 차량에 새로운 신고가 접수되었습니다.", carNumber);
+                };
+
+                //알림 서비스 호출
+                notificationService.createNotification(
+                        targetUser.getUserId(),
+                        title,
+                        content,
+                        Type.WARNING
+                );
+            }
+        });
 
         // 통계 업데이트
         VehicleReportStat stat = vehicleReportRepository.findById(carNumber)
@@ -92,7 +121,7 @@ public class ReportService {
         List<Vehicle> vehicles = vehicleRepository.findByUser_UserIdAndStatus(user.getUserId(), VehicleStatus.ACTIVE);
 
         List<String> carNumbers = vehicles.stream()
-                .map(Vehicle::getCarNumber)
+                .map(v -> v.getCarNumber().replace(" ",""))
                 .toList();
 
         if (carNumbers.isEmpty()) {

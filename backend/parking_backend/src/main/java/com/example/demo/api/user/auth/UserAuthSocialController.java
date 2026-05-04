@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class UserAuthSocialController {
+
+    @Value("${cookie.domain:}")
+    private String cookieDomain;
+
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
 
     private final AdminJWTUtil adminJWTUtil;
     private final UserSocialRecoverService userSocialRecoverService;
@@ -77,10 +84,8 @@ public class UserAuthSocialController {
             userVerificationService.saveRefreshToken(email, newRefreshToken);
 
             // 5. 새 토큰을 HttpOnly 쿠키로 설정 (세션 쿠키 - 브라우저 종료 시 삭제)
-            ResponseCookie accessCookie = ResponseCookie.from("accessToken", newAccessToken)
-                    .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
-            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefreshToken)
-                    .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
+            ResponseCookie accessCookie = buildCookie("accessToken", newAccessToken);
+            ResponseCookie refreshCookie = buildCookie("refreshToken", newRefreshToken);
 
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
@@ -117,11 +122,8 @@ public class UserAuthSocialController {
 
         userVerificationService.saveRefreshToken(user.getEmail(), refreshToken);
 
-        // maxAge 미설정 → 세션 쿠키 (브라우저 종료 시 자동 삭제)
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-                .path("/").domain(".parking-system.store").httpOnly(true).secure(true).sameSite("Lax").build();
+        ResponseCookie accessCookie = buildCookie("accessToken", accessToken);
+        ResponseCookie refreshCookie = buildCookie("refreshToken", refreshToken);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
@@ -132,5 +134,15 @@ public class UserAuthSocialController {
                 "email", user.getEmail(),
                 "name", user.getName()
         ));
+    }
+
+    private ResponseCookie buildCookie(String name, String value) {
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, value)
+                .path("/")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite("Lax");
+        if (cookieDomain != null && !cookieDomain.isBlank()) builder.domain(cookieDomain);
+        return builder.build();
     }
 }

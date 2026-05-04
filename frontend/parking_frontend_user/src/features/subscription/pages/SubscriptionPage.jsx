@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useQuery } from '@tanstack/react-query';
@@ -39,6 +40,17 @@ export default function SubscriptionPage() {
     });
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [chatbotStartDate, setChatbotStartDate] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const date = searchParams.get('date');
+        if (date) {
+            setSearchParams({}, { replace: true });
+            setChatbotStartDate(date);
+            setModalOpen(true);
+        }
+    }, [searchParams]);
 
     if (isResident) {
         return (
@@ -98,7 +110,8 @@ export default function SubscriptionPage() {
                 <SubscriptionPurchaseModal
                     vehicle={vehicle}
                     activeSubscriptions={activeSubscriptions}
-                    onClose={() => setModalOpen(false)}
+                    initialDate={chatbotStartDate}
+                    onClose={() => { setModalOpen(false); setChatbotStartDate(''); }}
                 />
             )}
         </div>
