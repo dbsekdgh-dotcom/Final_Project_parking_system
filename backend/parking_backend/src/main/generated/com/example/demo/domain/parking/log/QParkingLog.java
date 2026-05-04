@@ -50,6 +50,8 @@ public class QParkingLog extends EntityPathBase<ParkingLog> {
 
     public final BooleanPath isBlacklist = createBoolean("isBlacklist");
 
+    public final StringPath latestOrderId = createString("latestOrderId");
+
     public final DateTimePath<java.time.LocalDateTime> paidAt = createDateTime("paidAt", java.time.LocalDateTime.class);
 
     public final NumberPath<Long> parkingFeePolicyId = createNumber("parkingFeePolicyId", Long.class);

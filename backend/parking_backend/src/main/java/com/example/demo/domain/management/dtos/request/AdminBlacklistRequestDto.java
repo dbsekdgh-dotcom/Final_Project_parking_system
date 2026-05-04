@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-public class AdminBlacklistRequestDto {
+public class
+AdminBlacklistRequestDto {
 
     @NotBlank
     private String carNumber;
