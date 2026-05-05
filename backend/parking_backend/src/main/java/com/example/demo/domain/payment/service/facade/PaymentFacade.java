@@ -159,7 +159,9 @@ public class PaymentFacade {
                         .message("이미 관리자에 의해 강제 출차 처리되었습니다.")
                         .build();
             }
-            settlementService.restPaymentLock(payments,parkingLog);
+            if (e.getErrorCode() != ErrorCode.INVALID_ORDER_ID) {
+                settlementService.restPaymentLock(payments, parkingLog);
+            }
             throw e;
         }catch(Exception e ){
             settlementService.restPaymentLock(payments,parkingLog);

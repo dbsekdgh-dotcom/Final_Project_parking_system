@@ -10,8 +10,8 @@ const Home = () => {
   const [date, setDate] = useState('')
   const [parkingInfo, setParkingInfo] = useState({ available:null,total:null})
   useEffect(() => {
-    localStorage.removeItem('paymentFlow')
-    localStorage.removeItem('pendingParkingLogId')
+    sessionStorage.removeItem('paymentFlow')
+    sessionStorage.removeItem('pendingParkingLogId')
 
     const updateClock = () => {
       const now = new Date()
