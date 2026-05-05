@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaMagnifyingGlass, FaCreditCard, FaPhone, FaStore, FaPlay } from 'react-icons/fa6'
+import { getParkingSummary } from '../../api/ParkingApi'
 import './home.css'
 
 const Home = () => {
   const navigate = useNavigate()
   const [time, setTime] = useState('')
   const [date, setDate] = useState('')
-
+  const [parkingInfo, setParkingInfo] = useState({ available:null,total:null})
   useEffect(() => {
     localStorage.removeItem('paymentFlow')
     localStorage.removeItem('pendingParkingLogId')
@@ -22,6 +23,21 @@ const Home = () => {
     updateClock()
     const timer = setInterval(updateClock, 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(()=>{
+    const fetchParkingInfo = async () => {
+      try{
+        const res = await getParkingSummary()
+        const { availableSpaces, totalSapces } = res.data.data
+        setParkingInfo({ available: availableSpaces, total: totalSapces})
+      }catch{
+
+      }
+    }
+    fetchParkingInfo()
+    const interval = setInterval(fetchParkingInfo,30000)
+    return () => clearInterval(interval)
   }, [])
 
   return (
@@ -41,7 +57,7 @@ const Home = () => {
         <section className="parking-info">
           <div className="info-label">PARKING AVAILABILITY</div>
           <div className="info-count">
-            -- <span>/ -- 대</span>
+            {parkingInfo.available ?? '--'} <span>/ {parkingInfo.total ?? '--'}대</span>
           </div>
         </section>
 
