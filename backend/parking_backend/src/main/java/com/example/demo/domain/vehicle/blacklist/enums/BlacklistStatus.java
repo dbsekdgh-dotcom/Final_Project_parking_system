@@ -1,6 +1,13 @@
 package com.example.demo.domain.vehicle.blacklist.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum BlacklistStatus {
-    ACTIVE,
-    RELEASED
+    ACTIVE("차단 중"),
+    RELEASED("차단 해제됨");
+
+    private  final String description;
 }

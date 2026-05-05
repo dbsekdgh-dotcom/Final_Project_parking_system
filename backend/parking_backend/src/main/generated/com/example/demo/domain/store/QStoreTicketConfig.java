@@ -22,6 +22,8 @@ public class QStoreTicketConfig extends EntityPathBase<StoreTicketConfig> {
 
     public static final QStoreTicketConfig storeTicketConfig = new QStoreTicketConfig("storeTicketConfig");
 
+    public final DateTimePath<java.time.LocalDateTime> lastIssuedAt = createDateTime("lastIssuedAt", java.time.LocalDateTime.class);
+
     public final NumberPath<Integer> monthlyQuota = createNumber("monthlyQuota", Integer.class);
 
     public final com.example.demo.domain.system.store.QStore store;

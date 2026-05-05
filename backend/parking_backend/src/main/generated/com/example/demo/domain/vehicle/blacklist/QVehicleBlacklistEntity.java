@@ -7,20 +7,17 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QVehicleBlacklist is a Querydsl query type for VehicleBlacklist
+ * QVehicleBlacklistEntity is a Querydsl query type for VehicleBlacklistEntity
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QVehicleBlacklist extends EntityPathBase<VehicleBlacklist> {
+public class QVehicleBlacklistEntity extends EntityPathBase<VehicleBlacklistEntity> {
 
-    private static final long serialVersionUID = 1219104596L;
+    private static final long serialVersionUID = -164556713L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
-    public static final QVehicleBlacklist vehicleBlacklist = new QVehicleBlacklist("vehicleBlacklist");
+    public static final QVehicleBlacklistEntity vehicleBlacklistEntity = new QVehicleBlacklistEntity("vehicleBlacklistEntity");
 
     public final StringPath carNumber = createString("carNumber");
 
@@ -40,27 +37,18 @@ public class QVehicleBlacklist extends EntityPathBase<VehicleBlacklist> {
 
     public final EnumPath<com.example.demo.domain.vehicle.blacklist.enums.BlacklistStatus> status = createEnum("status", com.example.demo.domain.vehicle.blacklist.enums.BlacklistStatus.class);
 
-    public final com.example.demo.domain.vehicle.QVehicle vehicle;
+    public final NumberPath<Long> vehicleId = createNumber("vehicleId", Long.class);
 
-    public QVehicleBlacklist(String variable) {
-        this(VehicleBlacklist.class, forVariable(variable), INITS);
+    public QVehicleBlacklistEntity(String variable) {
+        super(VehicleBlacklistEntity.class, forVariable(variable));
     }
 
-    public QVehicleBlacklist(Path<? extends VehicleBlacklist> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+    public QVehicleBlacklistEntity(Path<? extends VehicleBlacklistEntity> path) {
+        super(path.getType(), path.getMetadata());
     }
 
-    public QVehicleBlacklist(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QVehicleBlacklist(PathMetadata metadata, PathInits inits) {
-        this(VehicleBlacklist.class, metadata, inits);
-    }
-
-    public QVehicleBlacklist(Class<? extends VehicleBlacklist> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.vehicle = inits.isInitialized("vehicle") ? new com.example.demo.domain.vehicle.QVehicle(forProperty("vehicle"), inits.get("vehicle")) : null;
+    public QVehicleBlacklistEntity(PathMetadata metadata) {
+        super(VehicleBlacklistEntity.class, metadata);
     }
 
 }

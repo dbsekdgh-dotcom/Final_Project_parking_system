@@ -23,7 +23,7 @@ import com.example.demo.domain.system.setting.SettingKey;
 import com.example.demo.domain.system.setting.repository.SystemSettingRepository;
 import com.example.demo.domain.vehicle.Vehicle;
 import com.example.demo.domain.vehicle.VehicleRepository;
-import com.example.demo.domain.vehicle.blacklist.VehicleBlacklist;
+import com.example.demo.domain.vehicle.blacklist.VehicleBlacklistEntity;
 import com.example.demo.domain.vehicle.blacklist.enums.BlacklistReasonType;
 import com.example.demo.domain.vehicle.blacklist.enums.BlacklistStatus;
 import com.example.demo.domain.vehicle.blacklist.repository.VehicleBlacklistRepository;
@@ -95,8 +95,8 @@ public class AdminReportService {
             return;
         }
         Vehicle vehicle = vehicleRepository.findByCarNumber(carNumber).orElse(null);
-        blacklistRepository.save(VehicleBlacklist.builder()
-                .vehicle(vehicle)
+        blacklistRepository.save(VehicleBlacklistEntity.builder()
+                .vehicleId(vehicle !=null ? vehicle.getId() : null)
                 .carNumber(carNumber)
                 .reasonType(BlacklistReasonType.REPORT_ACCUMULATION)
                 .reasonDetail("신고 누적으로 인한 자동 블랙리스트 등록")
