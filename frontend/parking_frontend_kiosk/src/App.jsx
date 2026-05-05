@@ -95,7 +95,7 @@ function App() {
       <Route path="/find-car" element={<FindCarPage/>} />
 
   </Routes>
-  <KioskChatbot />
+  {/* <KioskChatbot /> */}
   </>
   );
 }
