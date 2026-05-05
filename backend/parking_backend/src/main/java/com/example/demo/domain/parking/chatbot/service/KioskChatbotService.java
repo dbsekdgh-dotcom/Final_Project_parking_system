@@ -1,16 +1,11 @@
 package com.example.demo.domain.parking.chatbot.service;
 
-import com.example.demo.domain.parking.chatbot.dtos.request.ChatbotAiRequestDto;
 import com.example.demo.domain.parking.chatbot.dtos.request.ChatbotRequestDto;
 import com.example.demo.domain.parking.chatbot.dtos.response.ChatbotResponseDto;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,7 +25,6 @@ public class KioskChatbotService {
 
     @Value("${AI_SERVER_URL}")
     private String aiServerUrl;
-
     public ChatbotResponseDto chat(ChatbotRequestDto dto){
         // 질문이 없는 경우
         if(dto==null || !StringUtils.hasText(dto.getUserQuestion())) throw  new BusinessException(ErrorCode.INVALID_REQUEST);
@@ -75,7 +69,7 @@ public class KioskChatbotService {
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
-    private ResponseEntity<Map> deleteChatRequest(String url){
+    private void deleteChatRequest(String url){
         try {
             restTemplate.delete(url);
         }catch (HttpStatusCodeException e){

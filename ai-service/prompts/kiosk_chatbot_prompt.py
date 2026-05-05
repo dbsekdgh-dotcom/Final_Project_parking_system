@@ -32,33 +32,6 @@ KIOSK_SYSTEM_PROMPT = """
 - 가능하면 1~3단계로 안내한다.
 """
 
-
-SCREEN_ID_BY_IMAGE_FILE = {
-    "01_home.png": "home",
-
-    "02_findcar_plate_input.png": "find_input",
-    "03_findcar_search_result.png": "find_result",
-
-    "04_prepay_plate_input.png": "pay_input",
-    "05_prepay_search_result.png": "pay_result",
-    "06_prepay_payment_confirm.png": "pay_confirm",
-    "07_prepay_payment_method.png": "pay_method",
-    "08_prepay_account_phone_input.png": "pay_phone",
-    "09_prepay_qr_popup.png": "pay_qr",
-
-    "10_store_login_empty.png": "store_login",
-    "11_store_login_entered.png": "store_login",
-    "12_store_discount_main.png": "store_main",
-    "13_store_coupon_purchase_select.png": "store_buy_select",
-    "14_store_coupon_purchase_payment_method.png": "store_buy_method",
-    "15_store_coupon_purchase_qr_popup.png": "store_buy_qr",
-    "16_store_coupon_purchase_account_phone_input.png": "store_buy_phone",
-    "17_store_discount_apply_plate_input.png": "store_apply_input",
-    "18_store_discount_apply_search_result.png": "store_apply_result",
-    "19_store_discount_coupon_select_empty.png": "store_apply_coupon",
-    "20_store_discount_coupon_selected.png": "store_apply_coupon",
-}
-
 SCREEN_GUIDE = {
     "home": "첫 화면입니다. 차량 위치를 찾으려면 '내 차 찾기', 주차요금을 결제하려면 '사전 정산'을 누릅니다. 문제가 있으면 '관리자 호출'을 누릅니다.",
     "find_input": "내 차 찾기 번호판 입력 화면입니다. 차량번호 뒤 4자리를 입력하고 '검색'을 누릅니다. 잘못 입력했으면 '지우기' 또는 '초기화'를 사용합니다.",
