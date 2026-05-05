@@ -71,7 +71,7 @@ public class ParkingFeePolicyService {
         //상가 사용 할인권
         List<TicketPolicyResponseDto> storeTicket=ticketPolicies.stream().filter(t-> UseType.STORE.equals(t.getUseType())).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
         //관리자 사용 할인권
-        List<TicketPolicyResponseDto> adminTicket=ticketPolicies.stream().filter(t-> UseType.ADMIN.equals(t.getUseType())).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
+        List<TicketPolicyResponseDto> adminTicket=ticketPolicies.stream().filter(t-> UseType.ADMIN.equals(t.getUseType())).filter(t->t.isFreeTicket()==false).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
         //상가 기본 지급 할인권
         List<TicketPolicyResponseDto> monthlyTicket=ticketPolicies.stream().filter(t-> t.isFreeTicket()==true).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
 
