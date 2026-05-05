@@ -5,7 +5,7 @@ import cv2
 import re
 import base64
 import yaml
-import anthropic
+from openai import OpenAI
 from ultralytics import YOLO
 
   # ── 경로 설정 ─────────────────────────────────────────────────────────
@@ -102,56 +102,46 @@ def _image_to_base64(image_np: np.ndarray) -> str:
     return base64.b64encode(buffer).decode('utf-8')  # 바이트 → base64 문자열
 
 
-  # ── Claude Vision LLM fallback ─────────────────────────────────────────
+  
 async def _correct_with_llm(plate_image_np: np.ndarray, ocr_candidates: list) -> str:
     try:
         cfg = _load_config()
 
-          # anthropic.Anthropic() : SDK 클라이언트 생성
-          # 환경변수 ANTHROPIC_API_KEY를 자동으로 읽어서 인증에 사용
-        client = anthropic.Anthropic()
+        client = OpenAI()
 
           # client.messages.create() : Claude에게 메시지 전송 → 응답 받기
-        message = client.messages.create(
-            model=cfg["model"],            # 사용할 Claude 모델 (config.yml에서)
-            max_tokens=cfg["max_tokens"],  # 응답 최대 길이 제한 (config.yml에서)
-            messages=[{
-                "role": "user",   # 사용자 역할로 메시지 전송
-                "content": [
-                    {
-                          # 이미지 블록: Claude Vision에게 번호판 이미지를 직접 보여줌
-                          # Claude는 멀티모달(텍스트+이미지 동시 처리) 가능
-                        "type": "image",
-                        "source": {
-                            "type": "base64",           # 이미지 전달 방식
-                            "media_type": "image/jpeg", # 이미지 형식
-                            "data": _image_to_base64(plate_image_np)  # 실제 이미지 데이터
-                        }
-                    },
-                    {
-                          # 텍스트 블록: 무엇을 해달라는 지시 + OCR 후보 힌트
-                          # OCR 후보를 힌트로 주면 Claude가 더 정확하게 판단 가능
+        response = client.chat.completions.create(
+              model=cfg["model"],           # config.yml에서 gpt-4o-mini 로드
+              max_tokens=cfg["max_tokens"], # config.yml에서 30 로드
+              messages=[{
+                  "role": "user",
+                  "content": [
+                      {
+                          # OpenAI Vision 이미지 전달 방식
+                          # Anthropic은 "image" + "source.base64" 였지만
+                          # OpenAI는 "image_url" + "data:image/jpeg;base64,..." URL 형식 사용
+                          "type": "image_url",
+                          "image_url": {
+                              "url": f"data:image/jpeg;base64,{_image_to_base64(plate_image_np)}"
+                          }
+                      },
+                      {
                           "type": "text",
                           "text": _load_prompt(ocr_candidates)
-                    }
-                ]
-            }]
+                      }
+                  ]
+              }]
         )
 
-          # Claude의 응답 텍스트 추출
-          # message.content = 응답 블록 배열, [0] = 첫 번째 블록, .text = 텍스트 내용
-        result = message.content[0].text.strip().replace(" ", "")
-
-          # Claude가 반환한 텍스트에서 번호판 패턴 검증
-          # Claude가 지시를 어기고 설명을 붙여도 정규식으로 번호판 부분만 추출
+          
+        result = response.choices[0].message.content.strip().replace(" ","")
         match = re.search(PLATE_PATTERN, result)
         if match:
             return match.group()
 
-    except Exception:
-          # 네트워크 오류, API 키 문제 등 LLM 호출 실패 시
-          # 에러를 위로 전파하지 않고 조용히 처리 → "인식 실패" 반환
-        pass
+    except Exception as e:
+        print(f"[LLM fallback 실패] {type(e).__name__}: {e}")
+        
 
     return "인식 실패"
 

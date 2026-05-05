@@ -20,4 +20,3 @@
  openpyxl
  python-docx
  pyyaml
- anthropic
