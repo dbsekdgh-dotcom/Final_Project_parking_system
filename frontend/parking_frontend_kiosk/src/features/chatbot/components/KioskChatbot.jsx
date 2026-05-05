@@ -19,7 +19,10 @@ function KioskChatbot() {
     const sessionIdRef=useRef(null)
     const [loading,setLoading]=useState(false)
     const bottomRef = useRef(null);
-    const [pos,setPos]=useState({x:30,y:80})
+    const [pos,setPos]=useState(()=>({
+        x: Math.max(0, window.innerWidth / 2 - 460),
+        y: 160,
+    }))
     const isDragging=useRef(false)
     const dragOffset=useRef({x:0,y:0})
 
