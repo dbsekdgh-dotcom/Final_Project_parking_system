@@ -81,7 +81,7 @@ const Home = () => {
             <FaPhone /> 관리자 호출
           </button>
           <button className="action-btn" onClick={() => navigate('/store/login')}>
-            <FaStore /> 관리
+            <FaStore /> 상가 관리
           </button>
           <button className="action-btn" onClick={() => navigate('/entry-exit')}>
             <FaPlay /> 입/출차 TEST
