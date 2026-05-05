@@ -88,16 +88,6 @@ function KioskChatbot() {
         }
     }, [messages, open]);
 
-    useEffect(()=>{
-        document.addEventListener("mousemove",dragMoveHandler)
-        document.addEventListener("mouseup",dragEndHandler)
-
-        return ()=>{
-            document.removeEventListener("mousemove",dragMoveHandler)
-            document.removeEventListener("mouseup",dragEndHandler)
-        }
-    },[dragMoveHandler,dragEndHandler])
-
     const keyDownHandler = (e) => {
         if (e.key === "Enter" ) {
             e.preventDefault();
@@ -130,23 +120,32 @@ function KioskChatbot() {
             x: Math.max(0, Math.min(nextX, maxX)),
             y: Math.max(0, Math.min(nextY, maxY)),
         });
-    })
+    },[])
 
-    // 드래그 종료 — isDragging 플래그를 false로 리셋 
+    // 드래그 종료 — isDragging 플래그를 false로 리셋
+    
     const dragEndHandler = useCallback(() => {
         isDragging.current = false;
     }, []);
 
+    useEffect(()=>{
+        document.addEventListener("mousemove",dragMoveHandler)
+        document.addEventListener("mouseup",dragEndHandler)
 
+        return ()=>{
+            document.removeEventListener("mousemove",dragMoveHandler)
+            document.removeEventListener("mouseup",dragEndHandler)
+        }
+    },[dragMoveHandler,dragEndHandler])
 
     return (
         <div >
             <button className="chatbot-toggle-btn" onClick={()=>setOpen(!open)}>챗봇<FaCommentDots /></button>
             {open &&
-                <div  className="chatbot-window">
-                    <div className="chatbot-header">
+                <div  className="chatbot-window" style={{left:`${pos.x}px`, top:`${pos.y}px`}}>
+                    <div className="chatbot-header" onMouseDown={dragStartHandler}>
                         <span className="chatbot-header-title">키오스크 사용 도우미</span>
-                        <button className="chatbot-close-btn" onClick={closeHandler}><FaTimes /></button>
+                        <button className="chatbot-close-btn" onClick={closeHandler} onMouseDown={(e) => e.stopPropagation()}><FaTimes /></button>
                     </div>
                     <div className="chatbot-messages">
                         {messages.map((message, index) => (
