@@ -734,7 +734,7 @@ INSERT INTO admin (login_id, password, name, status) VALUES
 -- Store: 10개, 전부 INACTIVE
 -- terminal_password는 평문 '1234' (실제 운영 시 BCrypt 해시값으로 교체 필요)
 INSERT INTO store (name, location, status, terminal_password) VALUES
-('1층 카페',    '1층 101호', 'INACTIVE', '1234'),
+('관리실',    '1층 101호', 'INACTIVE', '1234'),
 ('1층 편의점',  '1층 102호', 'INACTIVE', '1234'),
 ('1층 약국',    '1층 103호', 'INACTIVE', '1234'),
 ('2층 식당',    '2층 201호', 'INACTIVE', '1234'),
@@ -744,3 +744,16 @@ INSERT INTO store (name, location, status, terminal_password) VALUES
 ('3층 치과',    '3층 302호', 'INACTIVE', '1234'),
 ('3층 부동산',  '3층 303호', 'INACTIVE', '1234'),
 ('4층 피부과',  '4층 401호', 'INACTIVE', '1234');
+
+-- 전액 무료
+  INSERT INTO ticket_policy (name, description, price, discount_type, discount_value, use_type, valid_minutes, valid_days, is_free_ticket,
+  stackable, status, created_at)
+  VALUES ('관리자 전액무료', '관리자 직권 전액 무료', 0, 'FREE', 0, 'ADMIN', NULL, NULL, true, false, 'ACTIVE', NOW());
+ -- 정액 할인 (예: 2000원)
+  INSERT INTO ticket_policy (ticket_policy_id, name, description, price, discount_type, discount_value, use_type, valid_minutes, valid_days, is_free_ticket,
+  stackable, status, created_at)
+  VALUES (3, '관리자 2000원 할인', '관리자 직권 2000원 할인', 0, 'AMOUNT', 2000, 'ADMIN', NULL, NULL, false, false, 'ACTIVE', NOW());
+  -- 시간 할인 (예: 60분)
+  INSERT INTO ticket_policy (ticket_policy_id, name, description, price, discount_type, discount_value, use_type, valid_minutes, valid_days, is_free_ticket,
+  stackable, status, created_at)
+  VALUES (4, '관리자 1시간 할인', '관리자 직권 1시간 무료', 0, 'TIME', 60, 'ADMIN', NULL, NULL, false, false, 'ACTIVE', NOW());
