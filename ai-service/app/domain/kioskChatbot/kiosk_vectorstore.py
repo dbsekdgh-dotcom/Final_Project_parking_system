@@ -99,6 +99,9 @@ def get_vectorstore():
 # 질문과 관련된 pdf 내용을 검색
 def get_retriever():
     vectorstore=get_vectorstore()
+    if vectorstore._collection.count() == 0:
+        load_pdf()
+        vectorstore=get_vectorstore()
     return vectorstore.as_retriever(
         search_kwargs={"k":4}
     )
