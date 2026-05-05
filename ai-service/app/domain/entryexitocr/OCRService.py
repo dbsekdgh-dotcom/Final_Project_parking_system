@@ -33,20 +33,28 @@ PLATE_PATTERN = r"\d{2,3}[가-힣]\d{4}"
   # ── config.yml 로더 ───────────────────────────────────────────────────
   # 매번 파일을 읽는 이유: 서버 재시작 없이 config.yml만 수정해도 즉시 반영되도록
 def _load_config() -> dict:
-      with open(_CONFIG_PATH, encoding="utf-8") as f:
-          return yaml.safe_load(f)
+    try:
+        with open(_CONFIG_PATH, encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        return {"model": "gpt-4o-mini", "max_tokens": 30, "confidence_threshold": 0.5}
 
 
-  # ── 프롬프트 로더 + OCR 후보 주입 ─────────────────────────────────────
 def _load_prompt(ocr_candidates: list) -> str:
-    with open(_PROMPT_PATH, encoding="utf-8") as f:
-        template = f.read()
-      # 후보 리스트를 "12가1234(신뢰도:0.72)" 형태의 문자열로 변환
+    try:
+        with open(_PROMPT_PATH, encoding="utf-8") as f:
+            template = f.read()
+    except FileNotFoundError:
+        template = (
+            "OCR 후보: {ocr_candidates}\n"
+            "한국 자동차 번호판을 읽어주세요.\n"
+            "형식: 숫자2~3자리+한글1자+숫자4자리 (예: 12가1234)\n"
+            "번호만 출력, 인식 불가시 인식실패만 출력."
+        )
     candidate_text = (
         ", ".join([f'{p}(신뢰도:{s:.2f})' for p, s in ocr_candidates])
         if ocr_candidates else "없음"
-      )
-      # 프롬프트 파일의 {ocr_candidates} 자리에 실제 값 삽입
+    )
     return template.format(ocr_candidates=candidate_text)
 
 

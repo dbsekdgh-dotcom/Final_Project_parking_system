@@ -338,7 +338,15 @@ INSERT INTO system_setting (setting_key, setting_value, description, is_editable
 ('DETECTED_CANCEL_MINUTES',    '1',   '미입차 자동 취소 대기 시간(분)',           TRUE),
 ('MIN_USAGE_POINT',            '100', '포인트 최소 사용 단위',                    TRUE),
 ('PAYMENT_POINT_EARN_RATE',    '5',   '결제 금액 대비 포인트 적립율(%)',          TRUE),
-('VEHICLE_APPROVAL_EXPIRE_HOURS', '72','차량 등록 승인 만료 시간(시간)',          TRUE);
+('VEHICLE_APPROVAL_EXPIRE_HOURS', '72','차량 등록 승인 만료 시간(시간)',          TRUE),
+('TOTAL_DAILY_RESERVATION_LIMIT', '10',     '주차장 전체 세대 일일 총 방문 예약 가능 횟수', TRUE),
+('VEHICLE_AUTO_APPROVAL_THRESHOLD','95',    '차량 자동 승인 유사도 기준치(%)',              TRUE),
+('OVERTIME_MIN_FEE',              '100',    '사전정산 후 출차시간 초과 시 최소 부과 요금',  TRUE),
+('REPORT_BLACKLIST_THRESHOLD',    '10',     '블랙리스트 등록을 위한 신고 횟수 기준',        TRUE),
+('SUB_MAX_COUNT',                 '10',     '정기권 월별 최대 판매 수량(선착순)',            TRUE),
+('SUB_MONTHLY_PRICE',             '100000', '정기권 30일권 이용 금액',                      TRUE),
+('SUB_DURATION_DAYS',             '30',     '정기권 기본 이용 기간(일)',                    TRUE),
+('PG_COMMISSION_RATE',            '0.033',  'PG 수수료율',                                  TRUE);
 
 -- 22. 신고 (Report)
 CREATE TABLE report (
