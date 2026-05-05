@@ -8,7 +8,7 @@ const Home = () => {
   const navigate = useNavigate()
   const [time, setTime] = useState('')
   const [date, setDate] = useState('')
-  const [parkingInfo, setParkingInfo] = useState({ available:null,total:null})
+  const [parkingInfo, setParkingInfo] = useState({ occupied: null, total: null })
   useEffect(() => {
     localStorage.removeItem('paymentFlow')
     localStorage.removeItem('pendingParkingLogId')
@@ -29,8 +29,8 @@ const Home = () => {
     const fetchParkingInfo = async () => {
       try{
         const res = await getParkingSummary()
-        const { availableSpaces, totalSapces } = res.data.data
-        setParkingInfo({ available: availableSpaces, total: totalSapces})
+        const { occupiedSpaces, totalSpaces } = res.data.data
+        setParkingInfo({ occupied: occupiedSpaces, total: totalSpaces })
       }catch{
 
       }
@@ -57,7 +57,7 @@ const Home = () => {
         <section className="parking-info">
           <div className="info-label">PARKING AVAILABILITY</div>
           <div className="info-count">
-            {parkingInfo.available ?? '--'} <span>/ {parkingInfo.total ?? '--'}대</span>
+            {parkingInfo.occupied ?? '--'} <span>/ {parkingInfo.total ?? '--'}대</span>
           </div>
         </section>
 
