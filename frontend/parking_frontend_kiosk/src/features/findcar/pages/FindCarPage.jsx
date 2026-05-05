@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Keypad from "../../../shared/components/keypad/Keypad";
 import { findCar } from "../api/FindCarApi";
 import './FindCarPage.css'
+import '../../../shared/styles/prepayment.css'
 
 export default function FindCarPage() {
     const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function FindCarPage() {
             <div className="findcar-result-wrapper">
                 <div className="findcar-result-header">
                     <h2>내차 찾기</h2>
-                    <button className="btn-back" onClick={() => { setQuery(''); setStep('search'); }}>돌아가기</button>
+                    <button className="header-back-button" onClick={() => { setQuery(''); setStep('search'); }}>돌아가기</button>
                 </div>
 
                 <div className="findcar-result-body">
@@ -69,16 +70,18 @@ export default function FindCarPage() {
     );
 
     return (
-        <div className="findcar-root">
-            <div className="findcar-search-wrapper">
-                <div className="findcar-search-header">
-                    <h2 className="findcar-search-title">내 차 찾기</h2>
-                    <button className="btn-back" onClick={() => navigate('/')}>돌아가기</button>
+        <div className="kiosk-page-root">
+            <div className="kiosk-page-wrapper">
+                <div className="kiosk-page-header">
+                    <h2 className="page-title">내 차 찾기</h2>
+                    <button className="header-back-button" onClick={() => navigate('/')}>돌아가기</button>
                 </div>
-                <p className="findcar-search-label">차량 번호 끝 4자리</p>
-                <div className="findcar-query-display">{query || '- - - -'}</div>
+                <p style={{ marginBottom: '8px', letterSpacing: '0.12em', fontSize: '13px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
+                    차량 번호 끝 4자리
+                </p>
+                <div className="number-display">{query || '- - - -'}</div>
                 <Keypad onKeyClick={handleKey} onDeleteClick={handleDelete} onClearClick={handleClear} />
-                <button className="findcar-search-btn" onClick={handleSearch} disabled={query.length < 4}>
+                <button className="ok-button" onClick={handleSearch} disabled={query.length < 4}>
                     검색
                 </button>
             </div>
