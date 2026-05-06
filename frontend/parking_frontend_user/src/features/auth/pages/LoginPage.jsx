@@ -73,12 +73,12 @@ const LoginPage = () => {
 
         // 기본 유효성 검사
         if (!email || !password) {
-            Swal.fire({ icon: 'warning', title: '입력 오류', text: '이메일과 비밀번호를 모두 입력해주세요.' });
+            Swal.fire({ icon: 'warning', title: '입력 오류', text: '이메일과 비밀번호를 모두 입력해주세요.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
             return;
         }
 
         if (password.length < 8) {
-            Swal.fire({ icon: 'error', title: '비밀번호 형식 오류', text: '비밀번호는 최소 8자 이상이어야 합니다.' });
+            Swal.fire({ icon: 'error', title: '비밀번호 형식 오류', text: '비밀번호는 최소 8자 이상이어야 합니다.', confirmButtonText: '확인', confirmButtonColor: '#d33' });
             return;
         }
 

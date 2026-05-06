@@ -40,7 +40,12 @@ const VehicleCard = () => {
 
     return (
         <div className="vehicle-card">
-            <h3 className="vehicle-card__title">차량 관리</h3>
+            <div className="vehicle-card__header">
+                <h3 className="vehicle-card__title">차량 관리</h3>
+                {vehicle?.isBlacklisted && (
+                    <span className="vehicle-badge vehicle-badge--blacklist">블랙리스트</span>
+                )}
+            </div>
 
             {!vehicle ? (
                 <div className="vehicle-card__empty">

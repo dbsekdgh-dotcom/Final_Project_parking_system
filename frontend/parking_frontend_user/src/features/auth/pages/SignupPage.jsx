@@ -103,10 +103,10 @@ const SignupPage = () => {
             if (errorCode === AUTH_ERROR_CODES.WITHDRAWN_ACCOUNT) {
                 await handleLocalRecover(formData.email);
             } else if (errorCode === AUTH_ERROR_CODES.EMAIL_DUPLICATE) {
-                Swal.fire({ icon: 'error', title: '가입 불가', text: '이미 사용 중인 이메일입니다.', confirmButtonColor: '#3085d6' });
+                Swal.fire({ icon: 'error', title: '가입 불가', text: '이미 사용 중인 이메일입니다.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
                 setIsEmailFixed(false); // 중복이면 고정 해제
             } else {
-                Swal.fire({ icon: 'error', title: '회원가입 실패', text: serverErrorMessage, confirmButtonColor: '#d33' });
+                Swal.fire({ icon: 'error', title: '회원가입 실패', text: serverErrorMessage, confirmButtonText: '확인', confirmButtonColor: '#d33' });
             }
         }
     });
@@ -117,18 +117,18 @@ const SignupPage = () => {
 
         // 1. 이메일 중복확인 체크 여부 확인
         if (!isEmailFixed) {
-            Swal.fire({ icon: 'warning', title: '중복 확인 필요', text: '이메일 중복 확인을 완료해 주세요.' });
+            Swal.fire({ icon: 'warning', title: '중복 확인 필요', text: '이메일 중복 확인을 완료해 주세요.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
             return;
         }
 
         // 2. 비밀번호 유효성 체크
         if (formData.password !== formData.passwordCheck) {
-            Swal.fire({ icon: 'error', title: '비밀번호 불일치', text: '비밀번호가 일치하지 않습니다.', confirmButtonColor: '#d33' });
+            Swal.fire({ icon: 'error', title: '비밀번호 불일치', text: '비밀번호가 일치하지 않습니다.', confirmButtonText: '확인', confirmButtonColor: '#d33' });
             return;
         }
 
         if (formData.password.length < 8) {
-            Swal.fire({ icon: 'error', title: '비밀번호 형식 오류', text: '비밀번호는 최소 8자 이상이어야 합니다.', confirmButtonColor: '#d33' });
+            Swal.fire({ icon: 'error', title: '비밀번호 형식 오류', text: '비밀번호는 최소 8자 이상이어야 합니다.', confirmButtonText: '확인', confirmButtonColor: '#d33' });
             return;
         }
 

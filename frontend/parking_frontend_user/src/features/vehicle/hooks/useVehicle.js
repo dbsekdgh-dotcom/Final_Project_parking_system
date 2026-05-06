@@ -33,6 +33,7 @@ export const useCreateVehicle = () => {
                 icon: 'success',
                 title: '등록 요청 완료',
                 text: '차량등록 요청이 정상적으로 처리되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -41,6 +42,7 @@ export const useCreateVehicle = () => {
                 icon: 'error',
                 title: '등록 실패',
                 text: error.response?.data?.message || 'OCR 인식 또는 등록 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }
@@ -64,6 +66,7 @@ export const useCancelVehicle = () => {
                 icon: 'success',
                 title: '취소 완료',
                 text: '차량 등록 신청이 취소되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -72,6 +75,7 @@ export const useCancelVehicle = () => {
                 icon: 'error',
                 title: '취소 실패',
                 text: error.response?.data?.message || '취소 처리 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }
@@ -95,6 +99,7 @@ export const useDeleteVehicle = () => {
                 icon: 'success',
                 title: '삭제 완료',
                 text: '차량이 성공적으로 삭제되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -103,6 +108,7 @@ export const useDeleteVehicle = () => {
                 icon: 'error',
                 title: '삭제 실패',
                 text: error.response?.data?.message || '차량 삭제 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }
@@ -133,9 +139,10 @@ export const useUploadIdCard = () => {
                 title: 'OCR 분석 실패',
                 // 서버가 보낸 에러가 JSON 객체면 문자열로 변환하고, 
                 // 그냥 문자열(RuntimeException 메시지)이면 그대로 출력합니다.
-                text: typeof serverError === 'object' 
-                    ? (serverError.message || JSON.stringify(serverError)) 
+                text: typeof serverError === 'object'
+                    ? (serverError.message || JSON.stringify(serverError))
                     : (serverError || '네트워크 연결이 원활하지 않습니다.'),
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }
@@ -158,9 +165,10 @@ export const useUploadRegistration = () => {
             Swal.fire({
                 icon: 'error',
                 title: '등록증 분석 실패',
-                text: typeof serverError === 'object' 
-                    ? (serverError.message || JSON.stringify(serverError)) 
+                text: typeof serverError === 'object'
+                    ? (serverError.message || JSON.stringify(serverError))
                     : (serverError || '파일 형식을 확인해주세요.'),
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }

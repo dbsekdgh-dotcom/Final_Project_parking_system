@@ -37,6 +37,7 @@ export const usePurchaseSubscription = () => {
                 icon: 'error',
                 title: '구매 실패',
                 text: error.response?.data?.message || '정기권 구매 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         },
@@ -63,6 +64,7 @@ export const useCancelSubscription = () => {
                 icon: 'success',
                 title: '환불 완료',
                 html: lines.join('<br/>'),
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -71,6 +73,7 @@ export const useCancelSubscription = () => {
                 icon: 'error',
                 title: '환불 실패',
                 text: error.response?.data?.message || '환불 처리 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         },
