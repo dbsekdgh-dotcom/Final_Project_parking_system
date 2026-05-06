@@ -1,53 +1,88 @@
+/* ── 페이지 루트 ── */
 .entry-exit-page {
-  padding: 28px 36px;
-  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  background: var(--bg-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-base);
 }
 
+/* ── 래퍼 ── */
+.entry-exit-wrapper {
+  width: var(--wrapper-width);
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: var(--wrapper-pad);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+}
+
+/* ── 상단 바 ── */
 .entry-exit-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  padding-bottom: 20px;
+  margin-bottom: var(--section-gap);
+  border-bottom: 4px solid var(--border-heavy);
 }
 
 .entry-exit-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
 }
 
 .back-button {
-  background-color: #000;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  font-size: 14px;
+  padding: 14px 28px;
+  border: var(--border-std);
+  background: transparent;
+  font-family: var(--font-base);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-dark);
   cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
 }
 
+.back-button:active {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+/* ── 메인 레이아웃 ── */
 .entry-exit-layout {
-  display: flex;
-  align-items: flex-start;
-  gap: 50px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
 }
 
+/* ── 번호판 패널 ── */
 .plate-panel {
-  border: 2px solid #000;
-  width: 470px;
-  height: 500px;
-  padding: 28px 22px;
+  border: var(--border-std);
+  background: var(--panel-light);
+  padding: 36px 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 500px;
 }
 
 .plate-panel-label {
   width: 100%;
   text-align: center;
   font-size: 13px;
-  color: #666;
-  margin-bottom: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
+/* ── 번호판 슬롯 ── */
 .plate-underline {
   width: 100%;
   display: flex;
@@ -57,33 +92,46 @@
 }
 
 .plate-slot {
-  width: 28px;
+  width: 30px;
   text-align: center;
-  border-bottom: 3px solid #000;
-  font-size: 18px;
-  line-height: 1.2;
-  min-height: 22px;
+  border-bottom: 3px solid var(--border-heavy);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.3;
+  color: var(--text-dark);
+  min-height: 26px;
 }
 
+/* ── 업로드 버튼 ── */
 .upload-button {
-  background-color: #000;
-  color: #fff;
+  background: var(--border-heavy);
+  color: var(--panel-light);
   border: none;
-  padding: 14px 22px;
+  padding: 16px 32px;
+  font-family: var(--font-base);
   font-size: 16px;
+  font-weight: 800;
   cursor: pointer;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
   user-select: none;
+}
+
+.upload-button:active {
+  background: #1a1c1a;
 }
 
 .upload-button input {
   display: none;
 }
 
+/* ── 이미지 미리보기 ── */
 .upload-preview {
-  width: 320px;
+  width: 340px;
   height: 240px;
-  border: 1px dashed #000;
+  border: var(--border-std);
+  background: var(--info-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,39 +145,83 @@
 }
 
 .upload-placeholder {
-  color: #666;
-  font-size: 12px;
-  padding: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-align: center;
 }
 
 .ocr-status {
-  margin-top: 14px;
+  margin-top: 16px;
   font-size: 14px;
-  color: #000;
+  font-weight: 700;
+  color: var(--accent-green);
+  letter-spacing: 0.04em;
 }
 
 .ocr-error {
-  margin-top: 14px;
+  margin-top: 16px;
   font-size: 14px;
-  color: #b00020;
+  font-weight: 700;
+  color: var(--call-red);
   text-align: center;
 }
 
+/* ── 액션 패널 ── */
 .action-panel {
+  border: var(--border-std);
+  background: var(--panel-light);
+  padding: 36px 28px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  margin-top: 120px;
+  gap: 16px;
+  min-height: 500px;
+  justify-content: center;
 }
 
+.action-placeholder {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+}
+
+.camera-section-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* ── 카메라 선택 버튼 ── */
 .action-button {
-  background-color: #000;
-  color: #fff;
-  border: none;
-  width: 240px;
-  padding: 18px 0;
+  width: 100%;
+  padding: 22px 0;
+  border: var(--border-std);
+  background: transparent;
+  font-family: var(--font-base);
   font-size: 20px;
+  font-weight: 900;
+  color: var(--text-dark);
   cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
 }
 
+.action-button:active,
+.action-button:hover {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.action-button:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+  border-color: var(--muted);
+}

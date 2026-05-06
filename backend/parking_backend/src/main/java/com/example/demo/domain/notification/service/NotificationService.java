@@ -9,6 +9,7 @@ import com.example.demo.domain.resident.User;
 import com.example.demo.domain.resident.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -51,7 +52,7 @@ public class NotificationService {
         return notificationRepository.countUnreadNotifications(userId);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createNotification(Long userId, String title, String content, Type type){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다. ID:" + userId));

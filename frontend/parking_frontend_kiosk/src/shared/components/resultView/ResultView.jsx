@@ -10,7 +10,7 @@ const ResultView = ({ title, subTitle, type ,buttonText = "이전 화면으로"}
   const {resetAll}=useVehicleStore();
 
   const homeHandler=()=>{
-    localStorage.removeItem("pendingParkingLogId")
+    sessionStorage.removeItem("pendingParkingLogId")
     resetAll()
     navigate("/",{ replace: true }) //히스토리 청소
   }

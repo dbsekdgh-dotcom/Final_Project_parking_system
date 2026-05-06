@@ -1,79 +1,97 @@
+/* ── 결제 방법 컨테이너 ── */
 .payment-method-container {
-  background-color: #ffffff;
-  border: 2px solid #000000; 
-  padding: 30px; 
-  width: 350px; 
+  background: var(--info-bg);
+  border: var(--border-std);
+  padding: 30px;
+  width: 350px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  margin-top: 70px;
+  gap: 16px;
 }
 
-.payment-box{
-    border: 2px solid #000000; 
-    padding: 15px 20px;     /* 상하 15px, 좌우 20px로 균형 조정 */
-    width: 100%;            /* 80% 대신 100%로 변경 (부모 패딩에 의존) */
-    box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-top: 10px;
-    text-align: left;
-}
-.final-pay-btn:active{
-    background-color: #4e4e4e;
-    transition: background-color 0.2s ease;
-}
-.full-use-btn{
-    background-color: #4e4e4e;
-    transition: background-color 0.2s ease;
+/* ── 포인트 박스 ── */
+.payment-box {
+  border: var(--border-std);
+  padding: 18px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--panel-light);
 }
 
-/* 현재 선택된 상태 */
-.payment-box.active {
-  background-color: #e9e9e9 !important;
+.point-header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
 }
 
-/* 포인트 입력창과 버튼을 한 줄로 */
+/* ── 포인트 입력 그룹 ── */
 .point-input-group {
   display: flex;
-  gap: 5px;
+  gap: 8px;
   align-items: center;
 }
 
 .point-input {
-  flex: 1; /* 남은 공간 다 차지 */
-  height: 35px;
-  border: 1px solid #ccc;
+  flex: 1;
+  height: 40px;
+  border: var(--border-thin);
+  background: var(--panel-light);
+  font-family: var(--font-base);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0 10px;
+  color: var(--text-dark);
 }
 
+/* ── 전액 사용 버튼 ── */
 .full-use-btn {
-  background-color: #333;
-  color: #fff;
+  background: var(--border-heavy);
+  color: var(--panel-light);
   border: none;
-  padding: 8px 10px;
-  cursor: pointer;
+  padding: 10px 14px;
+  font-family: var(--font-base);
   font-size: 0.8rem;
-  white-space: nowrap;    /* 글자가 절대 줄바꿈되지 않음 */
-  min-width: fit-content; /* 내용물에 맞게 너비 보장 */
-  flex-shrink: 0;         /* flex 환경에서 버튼이 찌그러지지 않게 함 */
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
 }
 
+.full-use-btn:active {
+  background: #1a1c1a;
+}
+
+/* ── 최종 결제 버튼 ── */
 .final-pay-btn {
   width: 100%;
-  height: 60px;
-  background-color: #000;
-  color: #fff;
+  height: 64px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  font-family: var(--font-base);
   font-size: 1.2rem;
-  font-weight: bold;
+  font-weight: 900;
   border: none;
   cursor: pointer;
-  margin-top: 20px;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
 }
 
-.check-icon {
-  color: #000;
-  font-size: 1.2rem;
-  font-weight: bold;
+.final-pay-btn:active {
+  background: #1a1c1a;
+}
+
+.final-pay-btn:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+  border: var(--border-std);
 }

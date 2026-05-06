@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./PaymentConfirm.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cancelExit } from "../../api/ExitApi";
-import { requestBeforePayment, requestAfterPayment, requestPayment } from "../../../../shared/api/VehicleApi";
+import { requestBeforePayment, requestAfterPayment } from "../../../../shared/api/VehicleApi";
 import useVehicleStore from "../../../../store/useVehicleStore";
 import PaymentMethod from "../../../../shared/components/paymentMethod/PaymentMethod";
 
@@ -32,7 +32,7 @@ export default function PaymentConfirm() {
     const beforeResponse = await requestBeforePayment(settlementPayload);
     if (beforeResponse.paymentRequired){
       setPaymentInfo({...beforeResponse,flowType:"EXIT_GATE"});
-      localStorage.setItem("paymentFlow","EXIT_GATE");
+      sessionStorage.setItem("paymentFlow","EXIT_GATE");
       navigate("/payment")
     } else {
       const afterPayload={

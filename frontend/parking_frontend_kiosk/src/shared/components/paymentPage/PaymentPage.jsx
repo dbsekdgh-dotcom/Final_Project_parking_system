@@ -60,7 +60,7 @@ export function PaymentPage() {
         try {
             //store정보 리셋되는 걸 방지
             if(paymentInfo?.parkingLogId){
-                localStorage.setItem("pendingParkingLogId",paymentInfo?.parkingLogId)
+                sessionStorage.setItem("pendingParkingLogId",paymentInfo?.parkingLogId)
             }
 
             await widgets.requestPayment({
@@ -75,7 +75,7 @@ export function PaymentPage() {
             // 에러 처리하기
             console.error(error);
             if(error.code==='USER_CANCEL'){
-                navigate(`/payment/fail?code=${errorCode}&message=${encodeURIComponent(errorMsg)}`);
+                navigate(`/payment/fail?code=${error.code}&message=${encodeURIComponent(error.message)}`);
             }
         }
     }

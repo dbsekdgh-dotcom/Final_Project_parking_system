@@ -1,0 +1,707 @@
+/* ══════════════════════════════════════
+   STORE PAGES — 공통
+══════════════════════════════════════ */
+
+/* ── 페이지 루트 ── */
+.store-page-root {
+  min-height: 100vh;
+  background: var(--bg-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-base);
+}
+
+/* ── 공통 래퍼 ── */
+.store-login-wrapper,
+.store-main-wrapper,
+.ticket-purchase-wrapper {
+  background: var(--panel-light);
+  border: var(--border-std);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+  font-family: var(--font-base);
+}
+
+/* ══════════════════════════════════════
+   STORE LOGIN
+══════════════════════════════════════ */
+.store-login-wrapper {
+  width: 600px;
+  padding: var(--wrapper-pad);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.store-login-title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
+  margin: 0 0 40px;
+  align-self: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 4px solid var(--border-heavy);
+  width: 100%;
+}
+
+.store-login-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.store-login-display {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 14px;
+  color: var(--text-dark);
+  margin: 12px 0 24px;
+  min-height: 48px;
+  text-align: center;
+  border-bottom: 4px solid var(--border-heavy);
+  width: 100%;
+  max-width: 400px;
+  padding-bottom: 12px;
+}
+
+.store-login-error {
+  color: var(--call-red);
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.store-login-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  width: 400px;
+}
+
+/* ── 공통 버튼 ── */
+.btn-back,
+.btn-confirm,
+.btn-logout,
+.btn-black,
+.btn-outline,
+.store-search-btn,
+.store-purchase-btn,
+.apply-search-btn,
+.purchase-btn {
+  font-family: var(--font-base);
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
+}
+
+.btn-back,
+.btn-outline {
+  flex: 1;
+  padding: 16px;
+  font-size: 15px;
+  background: transparent;
+  border: var(--border-std);
+  color: var(--text-dark);
+}
+
+.btn-back:active,
+.btn-outline:active {
+  background: var(--occupied-bg);
+}
+
+.btn-confirm,
+.btn-black {
+  flex: 1;
+  padding: 16px;
+  font-size: 15px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+}
+
+.btn-confirm:active,
+.btn-black:active {
+  background: #1a1c1a;
+}
+
+.btn-confirm:disabled,
+.btn-black:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.btn-logout {
+  padding: 12px 24px;
+  font-size: 14px;
+  background: transparent;
+  border: var(--border-std);
+  color: var(--text-dark);
+}
+
+.btn-logout:active {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+/* ══════════════════════════════════════
+   STORE MAIN
+══════════════════════════════════════ */
+.store-main-wrapper {
+  width: 800px;
+  padding: var(--wrapper-pad);
+}
+
+.store-main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  margin-bottom: var(--section-gap);
+  border-bottom: 4px solid var(--border-heavy);
+}
+
+.store-main-name {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
+  margin: 0 0 6px;
+}
+
+.store-main-remaining {
+  color: var(--muted);
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.store-main-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.store-apply-section h3 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+.store-apply-input-display {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  border: var(--border-std);
+  background: var(--info-bg);
+  color: var(--muted);
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  letter-spacing: 0.08em;
+}
+
+.store-search-btn {
+  width: 100%;
+  padding: 18px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  font-size: 16px;
+}
+
+.store-search-btn:active {
+  background: #1a1c1a;
+}
+
+.store-info-card {
+  border: var(--border-std);
+  padding: 28px;
+  background: var(--info-bg);
+}
+
+.store-info-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+
+.store-info-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin: 0 0 20px;
+  letter-spacing: 0.04em;
+}
+
+.store-purchase-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  font-size: 15px;
+}
+
+.store-purchase-btn:active {
+  background: #1a1c1a;
+}
+
+/* ══════════════════════════════════════
+   TICKET APPLY
+══════════════════════════════════════ */
+.apply-car-list-wrapper,
+.apply-ticket-wrapper,
+.apply-no-result,
+.apply-done-wrapper {
+  width: 600px;
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: var(--wrapper-pad);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+  font-family: var(--font-base);
+}
+
+.apply-search-wrapper {
+  width: 600px;
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: var(--wrapper-pad);
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-base);
+}
+
+.apply-search-header {
+  width: 400px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 4px solid var(--border-heavy);
+}
+
+.apply-search-wrapper h2 {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.apply-search-wrapper > p {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.apply-query-display {
+  font-size: 48px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 14px;
+  color: var(--text-dark);
+  margin: 12px 0 28px;
+  border-bottom: 4px solid var(--border-heavy);
+  padding-bottom: 16px;
+  width: 400px;
+}
+
+.apply-search-btn {
+  width: 400px;
+  margin-top: 16px;
+  padding: 18px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  font-size: 16px;
+}
+
+.apply-search-btn:active {
+  background: #1a1c1a;
+}
+
+.apply-search-btn:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* 결과 없음 */
+.apply-no-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.apply-no-result h3 {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.apply-no-result p {
+  color: var(--muted);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* 차량 목록 */
+.apply-car-list-wrapper h3,
+.apply-ticket-wrapper h3 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 16px;
+  padding-bottom: 20px;
+  border-bottom: 4px solid var(--border-heavy);
+}
+
+.car-item {
+  padding: 18px 20px;
+  margin: 8px 0;
+  border: var(--border-std);
+  background: var(--panel-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.car-item:hover,
+.car-item:active {
+  background: var(--occupied-bg);
+}
+
+.car-number {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text-dark);
+  letter-spacing: 0.04em;
+}
+
+.car-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* 할인권 선택 */
+.apply-car-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 0 0 16px;
+  letter-spacing: 0.04em;
+}
+
+.no-wallet-msg {
+  color: var(--call-red);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.wallet-item {
+  padding: 18px 20px;
+  margin: 8px 0;
+  border: var(--border-std);
+  background: var(--panel-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.wallet-item:hover {
+  background: var(--occupied-bg);
+}
+
+.wallet-item.selected {
+  background: var(--border-heavy);
+  border-color: var(--border-heavy);
+}
+
+.wallet-item.selected .wallet-name,
+.wallet-item.selected .wallet-sub {
+  color: var(--panel-light);
+}
+
+.wallet-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-dark);
+}
+
+.wallet-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* 수량 선택 */
+.apply-quantity-selector,
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.apply-qty-btn,
+.qty-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: 900;
+  background: transparent;
+  border: var(--border-std);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.apply-qty-btn:active,
+.qty-btn:active {
+  background: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.apply-qty-input {
+  width: 60px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 900;
+  border: var(--border-thin);
+  padding: 4px;
+  font-family: var(--font-base);
+  color: var(--text-dark);
+}
+
+.apply-qty-max {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.qty-value {
+  font-size: 22px;
+  font-weight: 900;
+  min-width: 32px;
+  text-align: center;
+  color: var(--text-dark);
+}
+
+.apply-action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* 완료 화면 */
+.apply-done-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.apply-done-icon {
+  font-size: 64px;
+  color: var(--accent-green);
+  border: var(--border-std);
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--info-bg);
+}
+
+.apply-done-wrapper h2 {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* ══════════════════════════════════════
+   TICKET PURCHASE
+══════════════════════════════════════ */
+.ticket-purchase-wrapper {
+  width: 600px;
+  padding: var(--wrapper-pad);
+}
+
+.ticket-purchase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  margin-bottom: var(--section-gap);
+  border-bottom: 4px solid var(--border-heavy);
+}
+
+.ticket-purchase-header h2 {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.ticket-purchase-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+.policy-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  margin-bottom: 8px;
+  border: var(--border-std);
+  background: var(--panel-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.policy-item:hover {
+  background: var(--occupied-bg);
+}
+
+.policy-item.selected {
+  background: var(--border-heavy);
+  border-color: var(--border-heavy);
+  color: var(--panel-light);
+}
+
+.policy-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-dark);
+}
+
+.policy-item.selected .policy-name,
+.policy-item.selected .policy-remaining,
+.policy-item.selected .policy-price {
+  color: var(--panel-light);
+}
+
+.policy-remaining {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.policy-price {
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--text-dark);
+}
+
+.purchase-btn {
+  width: 100%;
+  padding: 20px;
+  margin-top: 16px;
+  background: var(--border-heavy);
+  color: var(--panel-light);
+  border: none;
+  font-size: 16px;
+}
+
+.purchase-btn:active {
+  background: #1a1c1a;
+}
+
+.purchase-btn:disabled {
+  background: var(--info-bg);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* ══════════════════════════════════════
+   STORE PURCHASE COMPLETE
+══════════════════════════════════════ */
+.purchase-complete-wrapper {
+  min-height: 100vh;
+  background: var(--bg-neutral);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-base);
+  gap: 0;
+}
+
+.purchase-complete-card {
+  width: 560px;
+  background: var(--panel-light);
+  border: var(--border-std);
+  padding: 60px 60px 50px;
+  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+
+.purchase-complete-icon {
+  font-size: 56px;
+  color: var(--accent-green);
+  border: var(--border-std);
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--info-bg);
+  margin-bottom: 28px;
+}
+
+.purchase-complete-wrapper h2 {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+}
+
+.purchase-complete-wrapper p {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 36px;
+}

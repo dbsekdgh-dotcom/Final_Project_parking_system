@@ -12,7 +12,7 @@ export function PaymentSuccessPage() {
   const navigate=useNavigate();
   const hasCalled=useRef(false) //다시 랜더링되지 않도록
   const { paymentInfo } = useVehicleStore(); // 일반 출차 정보 호출
-  const flowType=localStorage.getItem("paymentFlow") //로컬 스토리지에서 flowType 호출
+  const flowType=sessionStorage.getItem("paymentFlow") //로컬 스토리지에서 flowType 호출
 
   useEffect(() => {
     const processPayment = async () => {
@@ -35,19 +35,19 @@ export function PaymentSuccessPage() {
       }
 
       if (flowType === 'STORE_TICKET') {
-          const ticketPolicyId = localStorage.getItem('pendingTicketPolicyId');
-          const quantity = Number(localStorage.getItem('pendingQuantity') || '1');
+          const ticketPolicyId = sessionStorage.getItem('pendingTicketPolicyId');
+          const quantity = Number(sessionStorage.getItem('pendingQuantity') || '1');
           try
           {
           await purchaseConfirm(ticketPolicyId, quantity);
-          localStorage.removeItem('paymentFlow');
-          localStorage.removeItem('pendingTicketPolicyId');
-          localStorage.removeItem('pendingQuantity');
+          sessionStorage.removeItem('paymentFlow');
+          sessionStorage.removeItem('pendingTicketPolicyId');
+          sessionStorage.removeItem('pendingQuantity');
           navigate('/store/purchase/complete');
         } catch(e){
-          localStorage.removeItem('paymentFlow');
-          localStorage.removeItem('pendingTicketPolicyId');
-          localStorage.removeItem('pendingQuantity');
+          sessionStorage.removeItem('paymentFlow');
+          sessionStorage.removeItem('pendingTicketPolicyId');
+          sessionStorage.removeItem('pendingQuantity');
           navigate('/store/main',{
             state: { error: '구매 확인 중 오류가 발생했습니다.'}
           });
@@ -55,7 +55,7 @@ export function PaymentSuccessPage() {
           return;
       }
 
-      const parkingLogIdRaw = localStorage.getItem("pendingParkingLogId");
+      const parkingLogIdRaw = sessionStorage.getItem("pendingParkingLogId");
       const payload = { paymentKey, orderId, amount, parkingLogId: parkingLogIdRaw };
 
       if (flowType === "EXIT_GATE") {
@@ -66,7 +66,7 @@ export function PaymentSuccessPage() {
             parkingLogId: Number(parkingLogIdRaw)
           };
           const afterResponse = await requestAfterPayment(exitPayload);
-          localStorage.removeItem("paymentFlow");
+          sessionStorage.removeItem("paymentFlow");
           navigate("/exit-departure",{
             state: {
               parkingLogId : Number(parkingLogIdRaw),
