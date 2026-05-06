@@ -23,7 +23,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
     @Query("select new com.example.demo.domain.parking.log.dtos.response.ParkingLogSettlementDto(" +
             "p.parkingLogId,p.carNumberSnapshot, u.userId, up.currentPoint) " +
             "from ParkingLog p " +
-            "left join p.vehicle v " +
+            "left join Vehicle v on v.carNumber = p.carNumberSnapshot and v.deletedAt is null " +
             "left join v.user u " +
             "left join UserPoint up on up.userId = u.userId " +
             "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null")
