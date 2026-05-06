@@ -131,7 +131,7 @@ export const openFindEmailModal = async () => {
                 }, 100);
             }
         } catch (error) {
-            Swal.fire('실패', error.response?.data?.message || '일치하는 정보가 없습니다.', 'error');
+            Swal.fire({ icon: 'error', title: '실패', text: error.response?.data?.message || '일치하는 정보가 없습니다.', confirmButtonText: '확인', confirmButtonColor: '#d33' });
         }
     }
 };
@@ -427,10 +427,10 @@ export const openLinkLocalPasswordModal = async (onSuccess) => {
     if (passwords) {
         try {
             await api.post("/api/user/auth/local/link-password", passwords);
-            await Swal.fire('성공', '로컬 계정 연동이 완료되었습니다.', 'success');
+            await Swal.fire({ icon: 'success', title: '성공', text: '로컬 계정 연동이 완료되었습니다.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
             if (onSuccess) onSuccess();
         } catch (err) {
-            Swal.fire('에러', err.response?.data?.message || '연동에 실패했습니다.', 'error');
+            Swal.fire({ icon: 'error', title: '에러', text: err.response?.data?.message || '연동에 실패했습니다.', confirmButtonText: '확인', confirmButtonColor: '#d33' });
         }
     }
 };
@@ -484,7 +484,7 @@ export const handleWithdraw = async (navigate) => {
             try { await api.post('/api/user/auth/local/logout'); } catch (_) { /* 이미 탈퇴된 계정이므로 무시 */ }
             window.location.replace('/');
         } catch (error) {
-            Swal.fire('실패', error.response?.data?.message || '오류가 발생했습니다.', 'error');
+            Swal.fire({ icon: 'error', title: '실패', text: error.response?.data?.message || '오류가 발생했습니다.', confirmButtonText: '확인', confirmButtonColor: '#d33' });
         }
     }
 };
@@ -529,7 +529,7 @@ export const handleSocialRecover = async (data, onComplete) => {
             });
             window.location.href = "/dashboard";
         } catch (error) {
-            Swal.fire('실패', error.response?.data?.message || '복구 중 오류 발생', 'error');
+            Swal.fire({ icon: 'error', title: '실패', text: error.response?.data?.message || '복구 중 오류 발생', confirmButtonText: '확인', confirmButtonColor: '#d33' });
             if (onComplete) onComplete();
         }
     } else {
@@ -577,7 +577,7 @@ export const checkEmailAvailability = async (email) => {
 
         // 3. 일반 중복(EMAIL_DUPLICATE) 등 기타 에러 처리
         const errorMsg = error.response?.data?.message || '이미 사용 중인 이메일입니다.';
-        Swal.fire('알림', errorMsg, 'error');
+        Swal.fire({ icon: 'error', title: '알림', text: errorMsg, confirmButtonText: '확인', confirmButtonColor: '#d33' });
         return false;
     }
 };

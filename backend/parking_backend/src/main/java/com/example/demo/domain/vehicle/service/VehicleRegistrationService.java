@@ -8,6 +8,7 @@ import com.example.demo.domain.approval.enums.ApprovalStatus;
 import com.example.demo.domain.approval.enums.ApprovalType;
 import com.example.demo.domain.parking.log.repository.ParkingLogRepository;
 import com.example.demo.domain.approval.repository.ApprovalRepository;
+import com.example.demo.domain.vehicle.blacklist.repository.VehicleBlacklistRepository;
 import com.example.demo.domain.payment.subscription.repository.SubscriptionRepository;
 import com.example.demo.domain.system.setting.SettingKey;
 import com.example.demo.domain.system.setting.repository.SystemSettingRepository;
@@ -45,6 +46,7 @@ public class VehicleRegistrationService {
     private final JaroWinklerMatcher jaroWinklerMatcher;
     private final ParkingLogRepository parkingLogRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final VehicleBlacklistRepository vehicleBlacklistRepository;
 
     /**
      * [차량 등록 로직]
@@ -188,6 +190,8 @@ public class VehicleRegistrationService {
                                 .map(Approval::getApprovalId)
                                 .orElse(null);
                     }
+                    boolean blacklisted = vehicleBlacklistRepository
+                            .isCurrentlyBlacklisted(vehicle.getCarNumber(), LocalDateTime.now());
                     return VehicleResponseDto.builder()
                             .vehicleId(vehicle.getId())
                             .approvalId(approvalId)
@@ -195,6 +199,7 @@ public class VehicleRegistrationService {
                             .vehicleName(vehicle.getVehicleName())
                             .status(vehicle.getStatus())
                             .createdAt(vehicle.getCreatedAt())
+                            .isBlacklisted(blacklisted)
                             .build();
                 })
                 .orElse(null);

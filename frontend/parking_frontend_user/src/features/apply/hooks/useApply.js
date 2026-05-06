@@ -27,6 +27,7 @@ export const useApplyResident = (onSuccess) => {
                     <p>입주민 등록 신청이 완료되었습니다.</p>
                     <p style="color:#888; font-size:0.88rem; margin-top:8px;">관리자 승인 후 서비스를 이용하실 수 있습니다.</p>
                 `,
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -35,6 +36,7 @@ export const useApplyResident = (onSuccess) => {
                 icon: 'error',
                 title: '신청 실패',
                 text: err.response?.data?.message || '신청 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         },
@@ -53,6 +55,7 @@ export const useCancelApply = () => {
                 icon: 'success',
                 title: '취소 완료',
                 text: '입주 신청이 정상적으로 취소되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -61,6 +64,8 @@ export const useCancelApply = () => {
                 icon: 'error',
                 title: '취소 실패',
                 text: error.response?.data?.message || '취소 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#d33',
             });
         },
     });
@@ -79,6 +84,7 @@ export const useLeaveResident = () => {
                 icon: 'success',
                 title: '퇴거 완료',
                 text: '세대에서 퇴거 처리되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -87,6 +93,8 @@ export const useLeaveResident = () => {
                 icon: 'error',
                 title: '퇴거 실패',
                 text: error.response?.data?.message || '퇴거 처리 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
+                confirmButtonColor: '#d33',
             });
         },
     });
