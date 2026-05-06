@@ -57,14 +57,16 @@ public class ParkingFeePolicyService {
         Map<ParkingType,ParkingFeePolicyResponseDto> currentPolicies=policies.stream().collect(Collectors.toMap(
                 ParkingFeePolicy::getParkingType,
                 ParkingFeePolicyResponseDto::toPolicyDto,
-                (exist, replace)->replace.getVersion()>exist.getVersion()?replace:exist
+                (exist, replace)
+                        ->replace.getVersion()>exist.getVersion()?replace:exist
         ));
         //시행 예정인 요금 정책
         List<ParkingFeePolicy> upcoming=parkingFeePolicyRepository.findUpcomingEffectivePolicy(now);
         Map<ParkingType,ParkingFeePolicyResponseDto> upcomingPolicies=upcoming.stream().collect(Collectors.toMap(
                 ParkingFeePolicy::getParkingType,
                 ParkingFeePolicyResponseDto::toPolicyDto,
-                (exist,replace)->replace.getVersion()>exist.getVersion()?replace:exist
+                (exist,replace)
+                        ->replace.getVersion()>exist.getVersion()?replace:exist
         ));
         //할인권 리스트
         List<TicketPolicy> ticketPolicies=ticketPolicyRepository.findByStatusIsNot(Status.DELETED);

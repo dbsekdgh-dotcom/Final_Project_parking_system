@@ -5,7 +5,7 @@ import useVehicleStore from '../../../store/useVehicleStore';
 import '../../../app.css'
 import PaymentMethod from '../../../shared/components/paymentMethod/PaymentMethod';
 import { useQuery } from '@tanstack/react-query';
-import { requestPayment } from '../../../shared/api/VehicleApi';
+import { requestPayment, cancelPayment } from '../../../shared/api/VehicleApi';
 import { useNavigate } from 'react-router-dom';
 import { usePayment } from '../../../shared/hooks/usePaymentMutation';
 
@@ -13,15 +13,29 @@ const SelectedVehicleInfo = () => {
   const { selectedVehicle, resetSearchKeyword, resetSelectedVehicle } = useVehicleStore();
   const { beforeMutation } = usePayment();
   const [isPaymentLoading, setIsPaymentLoading] = useState(false)
+  const [queryError, setQueryError] = useState(null)
   const navigate = useNavigate();
 
   const { data, isError, error, isLoading } = useQuery({
     queryKey: ['selectedVehicle', selectedVehicle],
     queryFn: async () => await requestPayment(selectedVehicle),
-    enabled: !!selectedVehicle
+    enabled: !!selectedVehicle,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: (failureCount, err) => err?.response?.status === 409 ? false : failureCount < 3
   })
 
+  useEffect(() => {
+    if (isError) {
+      setQueryError(error?.response?.data?.message || error?.message || "서버와의 통신이 원활하지 않습니다.")
+      resetSelectedVehicle()
+    }
+  }, [isError])
+
   const homeHandler = () => {
+    if (data?.vehicleNumber) {
+      cancelPayment(data.vehicleNumber)
+    }
     resetSearchKeyword()
     resetSelectedVehicle()
     navigate('/')
@@ -53,17 +67,16 @@ const SelectedVehicleInfo = () => {
     setIsPaymentLoading(false)
   }
 
+  if (queryError) {
+    return <ResultView title="조회 실패" subTitle={queryError} type="error" />
+  }
+
   if (!selectedVehicle) {
     return <ResultView title="조회 정보 없음" subTitle="선택된 차량 정보가 없습니다." type="error" />
   }
 
   if (isLoading) {
     return <ResultView title="정보 조회 중" subTitle="정산 데이터를 불러오고 있습니다." type="loading" />
-  }
-
-  if (isError) {
-    resetSelectedVehicle()
-    return <ResultView title="조회 실패" subTitle={error?.message || "서버와의 통신이 원활하지 않습니다."} type="error" />
   }
 
   return (

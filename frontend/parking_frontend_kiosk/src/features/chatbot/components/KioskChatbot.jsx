@@ -12,7 +12,6 @@ const INITIAL_MESSAGE = {
 
 function KioskChatbot() {
     const screenId = useChatbotStore((state) => state.screenId);
-    console.log("현재 챗봇 screenId:", screenId);
     const [open,setOpen]=useState(false)
     const [messages,setmessages]=useState([INITIAL_MESSAGE])
     const [input,setInput]=useState("")
