@@ -25,7 +25,7 @@ public interface ParkingLogRepository extends JpaRepository<ParkingLog,Long>, Pa
             "from ParkingLog p " +
             "left join p.vehicle v " +
             "left join v.user u " +
-            "left join UserPoint up on up.user = u " +
+            "left join UserPoint up on up.userId = u.userId " +
             "where p.carNumberSnapshot like %:vehicleNumber% and p.exitedAt is null and p.enteredAt is Not null")
     List<ParkingLogSettlementDto> getActiveVehicleList(@Param("vehicleNumber") String vehicleNumber);
 
