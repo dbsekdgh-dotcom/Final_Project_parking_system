@@ -11,7 +11,7 @@ export const useMyVehicle = () => {
     return useQuery({
         queryKey: ['myVehicle'],
         queryFn: vehicleApi.getMyVehicle,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 0,
     });
 };
 

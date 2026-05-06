@@ -81,6 +81,7 @@ public enum ErrorCode {
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다."),
+    LOGIN_EMAIL_NOT_FOUND(HttpStatus.UNAUTHORIZED, "가입되지 않은 이메일 주소입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "가입되지 않은 이메일 주소입니다."),
     EMAIL_DUPLICATE(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
