@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "2. 대시보드(Dashboard")
+@Tag(name = "18. 운영 보고서 (Report Download)", description = "운영 보고서 Excel 다운로드 API")
 @RestController
 @RequestMapping("/api/admin/dashboard")
 @RequiredArgsConstructor
