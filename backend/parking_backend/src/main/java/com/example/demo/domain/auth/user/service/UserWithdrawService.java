@@ -87,7 +87,7 @@ public class UserWithdrawService {
         cancelPendingReservations(user);
         cancelPendingApprovals(user);
         cancelPendingReports(user);
-        deactivateHousehold(user);
+        softDeleteVehicles(user);
         resetPoint(user);
         softDeleteNotifications(user);
 
@@ -107,8 +107,14 @@ public class UserWithdrawService {
         log.info("회원 탈퇴 성공 - 이메일: {}", user.getEmail());
     }
 
-    // 정기권 ACTIVE 또는 입차·출차대기 중이면 탈퇴 차단
+    // 정기권 ACTIVE / 입차중 / 입주민 상태이면 탈퇴 차단
     private void checkBlockingConditions(User user) {
+        // 입주민 차단
+        Household household = user.getHousehold();
+        if (household != null && household.getIsActive() == IsActive.ACTIVE) {
+            throw new BusinessException(ErrorCode.WITHDRAW_BLOCKED_ACTIVE_RESIDENT);
+        }
+
         List<Vehicle> activeVehicles = vehicleRepository
                 .findByUser_UserIdAndStatus(user.getUserId(), VehicleStatus.ACTIVE);
 
@@ -158,13 +164,11 @@ public class UserWithdrawService {
                 .forEach(r -> r.cancel());
     }
 
-    // Household INACTIVE + 카운트 초기화, user.household 연결 해제
-    private void deactivateHousehold(User user) {
-        Household household = user.getHousehold();
-        if (household != null && household.getIsActive() == IsActive.ACTIVE) {
-            household.deactivate();
-            user.setHousehold(null);
-        }
+    // 차량 전체 soft-delete (ACTIVE / PENDING 차량)
+    private void softDeleteVehicles(User user) {
+        vehicleRepository.findByUser_UserId(user.getUserId()).stream()
+                .filter(v -> v.getStatus() != VehicleStatus.DELETED)
+                .forEach(Vehicle::softDelete);
     }
 
     // 포인트 0 초기화
