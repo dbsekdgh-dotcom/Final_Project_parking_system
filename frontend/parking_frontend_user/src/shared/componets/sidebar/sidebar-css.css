@@ -10,8 +10,7 @@
   --sb-badge-bg: #334155;
   --sb-badge-text: #f8fafc;
 
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   height: 100vh;
   z-index: 1;
   display: flex;

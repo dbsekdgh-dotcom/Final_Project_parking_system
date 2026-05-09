@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaMagnifyingGlass, FaCreditCard, FaPhone, FaStore, FaPlay } from 'react-icons/fa6'
+import { getParkingSummary } from '../../api/ParkingApi'
 import './home.css'
 
 const Home = () => {
   const navigate = useNavigate()
   const [time, setTime] = useState('')
   const [date, setDate] = useState('')
-
+  const [parkingInfo, setParkingInfo] = useState({ occupied: null, total: null })
   useEffect(() => {
-    localStorage.removeItem('paymentFlow')
-    localStorage.removeItem('pendingParkingLogId')
+    sessionStorage.removeItem('paymentFlow')
+    sessionStorage.removeItem('pendingParkingLogId')
 
     const updateClock = () => {
       const now = new Date()
@@ -22,6 +23,21 @@ const Home = () => {
     updateClock()
     const timer = setInterval(updateClock, 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(()=>{
+    const fetchParkingInfo = async () => {
+      try{
+        const res = await getParkingSummary()
+        const { occupiedSpaces, totalSpaces } = res.data.data
+        setParkingInfo({ occupied: occupiedSpaces, total: totalSpaces })
+      }catch{
+
+      }
+    }
+    fetchParkingInfo()
+    const interval = setInterval(fetchParkingInfo,30000)
+    return () => clearInterval(interval)
   }, [])
 
   return (
@@ -41,7 +57,7 @@ const Home = () => {
         <section className="parking-info">
           <div className="info-label">PARKING AVAILABILITY</div>
           <div className="info-count">
-            -- <span>/ -- 대</span>
+            {parkingInfo.occupied ?? '--'} <span>/ {parkingInfo.total ?? '--'}대</span>
           </div>
         </section>
 
@@ -65,7 +81,7 @@ const Home = () => {
             <FaPhone /> 관리자 호출
           </button>
           <button className="action-btn" onClick={() => navigate('/store/login')}>
-            <FaStore /> 관리
+            <FaStore /> 상가 관리
           </button>
           <button className="action-btn" onClick={() => navigate('/entry-exit')}>
             <FaPlay /> 입/출차 TEST

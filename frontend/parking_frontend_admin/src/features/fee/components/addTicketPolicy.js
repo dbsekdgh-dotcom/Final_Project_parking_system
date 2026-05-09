@@ -11,6 +11,14 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
             html:`
             <div class="policy-form-container">
                 <div class="policy-field">
+                    <div class="group-label">사용자 구분</div>
+                    <div class="radio-options">
+                        <label class="radio-label"><input type="radio" name="useTypeRadio" value="STORE" checked> 상가</label>
+                        <label class="radio-label"><input type="radio" name="useTypeRadio" value="ADMIN"> 관리자</label>
+                    </div>
+                </div>
+
+                <div class="policy-field">
                     <div class="field-label">할인권명</div>
                     <input type="text" id='name' placeholder="예: [상가] 1시간 할인권">
                 </div>
@@ -20,7 +28,7 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
                     <textarea id='description' placeholder="할인권 설명을 입력하세요"></textarea>
                 </div>
 
-                <div class="policy-field">
+                <div id="priceField" class="policy-field">
                     <div class="field-label">판매가격(원)</div>
                     <input type="number" id='price' placeholder="0">
                 </div>
@@ -41,14 +49,6 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
                 </div>
 
                 <div class="policy-field">
-                    <div class="field-label">사용자</div>
-                    <select id='useType' class='swal-select'>
-                        <option value="STORE">상가</option>
-                        <option value="ADMIN">관리자</option>
-                    </select>
-                </div>
-
-                <div class="policy-field">
                     <div class="field-label">유효기간(일)</div>
                     <input type="number" id='validDays' placeholder="30">
                 </div>
@@ -66,15 +66,30 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
                     </div>
                 </div>
 
-                <div class="policy-field" style="margin-top:10px">
-                    <div class="group-label" style="margin-bottom:0">상가 무료지급권 여부</div>
+                <div id="freeTicketField" class="policy-field" style="margin-top:10px">
+                    <div class="group-label" style="margin-bottom:0">상가 기본 무료 지급권 여부</div>
                     <div class="radio-options" style="margin-top:0;padding:6px 12px">
-                        <label class="radio-label"><input type="radio" name="isFreeTicket" value="false" checked> 유료 판매권</label>
-                        <label class="radio-label"><input type="radio" name="isFreeTicket" value="true"> 무료 지급권</label>
+                        <label class="radio-label"><input type="radio" name="isFreeTicket" value="false" checked> 부</label>
+                        <label class="radio-label"><input type="radio" name="isFreeTicket" value="true"> 여</label>
                     </div>
                 </div>
             </div>
             `,
+            didOpen: () => {
+                const priceField = document.getElementById('priceField');
+                const freeTicketField = document.getElementById('freeTicketField');
+                const useTypeRadios = document.querySelectorAll('input[name="useTypeRadio"]');
+
+                const applyUseType = () => {
+                    const isAdmin = document.querySelector('input[name="useTypeRadio"]:checked').value === 'ADMIN';
+                    priceField.style.display = isAdmin ? 'none' : '';
+                    freeTicketField.style.display = isAdmin ? '' : 'none';
+                };
+
+                // 초기 상태 적용 (기본값 상가)
+                applyUseType();
+                useTypeRadios.forEach(r => r.addEventListener('change', applyUseType));
+            },
             focusCancel:true,
             showCancelButton:true,
             showConfirmButton:true,
@@ -89,16 +104,17 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
                 popup: 'custom-policy-popup'
             },
             preConfirm:()=>{
+                const isAdmin = document.querySelector('input[name="useTypeRadio"]:checked').value === 'ADMIN';
                 const data={
                     name:document.getElementById('name').value,
                     description:document.getElementById('description').value,
-                    price:Number(document.getElementById('price').value),
+                    price: isAdmin ? 0 : Number(document.getElementById('price').value),
                     discountType:document.getElementById('discountType').value,
                     discountValue:Number(document.getElementById('discountValue').value),
                     validMinutes:Number(document.getElementById('validMinutes').value),
                     validDays:Number(document.getElementById('validDays').value),
                     stackable:document.querySelector('input[name="stackable"]:checked').value==='true',
-                    useType:document.getElementById('useType').value,
+                    useType:document.querySelector('input[name="useTypeRadio"]:checked').value,
                     isFreeTicket:document.querySelector('input[name="isFreeTicket"]:checked').value==='true'
                 }
                 
@@ -116,11 +132,6 @@ export const addTicketPolicy=async({updateMutateAsync})=>{
                     Swal.showValidationMessage("할인값을 입력해주세요.");
                     return false;    
                 }
-                if(!data.useType){
-                    Swal.showValidationMessage("할인권 사용자를 지정해주세요.")
-                    return false
-                }
-
                 return data;
            
             }

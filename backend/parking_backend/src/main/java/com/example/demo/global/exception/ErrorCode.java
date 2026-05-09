@@ -81,6 +81,7 @@ public enum ErrorCode {
     // AUTH (로그인 및 회원가입 관련 추가)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다."),
+    LOGIN_EMAIL_NOT_FOUND(HttpStatus.UNAUTHORIZED, "가입되지 않은 이메일 주소입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "가입되지 않은 이메일 주소입니다."),
     EMAIL_DUPLICATE(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
@@ -106,6 +107,7 @@ public enum ErrorCode {
     WITHDRAW_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
     WITHDRAW_BLOCKED_ACTIVE_SUBSCRIPTION(HttpStatus.CONFLICT, "활성 정기권이 있어 탈퇴할 수 없습니다. 정기권 해지 후 다시 시도해 주세요."),
     WITHDRAW_BLOCKED_VEHICLE_IN_PARKING(HttpStatus.CONFLICT, "현재 입차 중이거나 출차 대기 중인 차량이 있어 탈퇴할 수 없습니다. 출차 후 다시 시도해 주세요."),
+    WITHDRAW_BLOCKED_ACTIVE_RESIDENT(HttpStatus.CONFLICT, "입주민 상태에서는 탈퇴할 수 없습니다. 입주민 퇴거 처리 후 다시 시도해 주세요."),
     CANNOT_LEAVE_VEHICLE_IN_PARKING(HttpStatus.CONFLICT, "현재 입차 중인 차량이 있습니다. 출차 완료 후 퇴거 신청이 가능합니다."),
     RESTORE_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "복구 인증 세션이 만료되었습니다."), // 복구 진행 중 단계가 끊겼을 때
     USER_SUSPENDED(HttpStatus.FORBIDDEN, "제재된 사용자입니다. 관리자에게 문의하세요."),
@@ -119,7 +121,7 @@ public enum ErrorCode {
 
     // APPLY (입주 신청 관련 추가)
     ALREADY_APPLIED_RESIDENT(HttpStatus.CONFLICT, "이미 대기 중인 입주 신청 내역이 있습니다."),
-    CANNOT_APPLY_RESIDENT_HAS_SUBSCRIPTION(HttpStatus.CONFLICT, "활성 정기권이 있는 경우 입주민 신청이 불가합니다. 정기권 만료 후 신청해 주세요."),
+    CANNOT_APPLY_RESIDENT_HAS_SUBSCRIPTION(HttpStatus.CONFLICT, "활성 정기권이 있는 경우 입주민 신청이 불가합니다. 정기권 만료, 또는 환불 후 신청해 주세요."),
     ALREADY_RESIDENT(HttpStatus.CONFLICT, "이미 다른 세대에 거주 중인 입주민입니다."), // 유저가 이미 집이 있는 경우
     NOT_AVAILABLE_HOUSEHOLD(HttpStatus.BAD_REQUEST, "현재 신청 가능한 상태가 아닌 호수입니다."), // PENDING 상태인 호수 포함
     APPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 신청 내역을 찾을 수 없거나 취소 권한이 없습니다."),

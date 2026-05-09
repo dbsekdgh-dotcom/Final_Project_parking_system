@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import api from '../../auth/api/axios';
 import Swal from 'sweetalert2';
 import { useQuery } from '@tanstack/react-query';
 import { useMySubscriptions } from '../hooks/useSubscription';
@@ -29,8 +29,20 @@ const ResidentRestrictedModal = ({ onClose }) => (
 
 export default function SubscriptionPage() {
     const navigate = useNavigate();
-    const memberStatus = localStorage.getItem('userStatus') ?? 'NONE';
-    const isResident = memberStatus === 'RESIDENT';
+    const [isResident, setIsResident] = useState(localStorage.getItem('userStatus') === 'RESIDENT');
+
+    useEffect(() => {
+        api.get('/api/user/auth/local/me')
+            .then(res => {
+                const status = res.data.userStatus ?? 'NONE';
+                localStorage.setItem('userStatus', status);
+                if (res.data.unitNo != null) localStorage.setItem('unitNo', String(res.data.unitNo));
+                setIsResident(status === 'RESIDENT');
+            })
+            .catch(() => {
+                setIsResident(localStorage.getItem('userStatus') === 'RESIDENT');
+            });
+    }, []);
 
     const { data: rawSubscriptions, isLoading } = useMySubscriptions();
     const subscriptions = Array.isArray(rawSubscriptions) ? rawSubscriptions : [];

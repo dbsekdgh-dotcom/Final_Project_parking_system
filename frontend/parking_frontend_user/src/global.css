@@ -1,5 +1,6 @@
-html {
-    overflow-y: scroll;
+/* SweetAlert2 모달 오픈 시 body padding-right 보정 방지 */
+body.swal2-shown {
+    padding-right: 0 !important;
 }
 
 *, *::before, *::after {

@@ -41,7 +41,7 @@ const ResidentApplySection = ({ memberStatus }) => {
 
     const handleApply = () => {
         if (!selectedUnit) {
-            Swal.fire({ icon: 'warning', title: '호수를 선택해주세요.', confirmButtonColor: '#3085d6' });
+            Swal.fire({ icon: 'warning', title: '호수를 선택해주세요.', confirmButtonText: '확인', confirmButtonColor: '#3085d6' });
             return;
         }
         Swal.fire({

@@ -92,7 +92,8 @@ public class SettlementService {
             return;
         }
         // 시스템 설정 값: 결제 유효시간
-        String paymentValidMinutes=systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
+        String paymentValidMinutes
+                =systemSettingRepository.findBySettingKey(SettingKey.PAYMENT_VALID_MINUTES.getKey())
                 .map(t->t.getSettingValue())
                 .orElse(SettingKey.PAYMENT_VALID_MINUTES.name());
         int lockTimeOut=Integer.parseInt(paymentValidMinutes);
@@ -100,7 +101,8 @@ public class SettlementService {
 
         boolean isFree = (settlementRequestDto.getPaidAmount() + settlementRequestDto.getUsedPoint() == 0);
         // 결제 직후 바로 재조회 시
-        if(isFree && parkingLog.getPaymentRequestedAt()!=null && com.example.demo.domain.parking.log.enums.PaymentStatus.PAID.equals(parkingLog.getPaymentStatus())) {
+        if(isFree && parkingLog.getPaymentRequestedAt()!=null
+                && com.example.demo.domain.parking.log.enums.PaymentStatus.PAID.equals(parkingLog.getPaymentStatus())) {
             throw new BusinessException(ErrorCode.ALREADY_PAID);
         }
         // 결제 후 시간이 지나서 조회하는 경우
@@ -108,7 +110,6 @@ public class SettlementService {
             // 결제 요청 시간이 찍힌 지 5분이 지났는지 확인
             if(timeCheck){
                 log.info("기존 결제 시도(5분 이내)가 감지되었으나, 재시도를 위해 락을 갱신 차번: {}", parkingLog.getCarNumberSnapshot());
-                //throw new BusinessException(ErrorCode.ALREADY_PROCESSING);
             }
             log.info("결제 요청 시간이 만료되어 락을 무시하고 새로 진행합니다.");
         }
@@ -154,8 +155,10 @@ public class SettlementService {
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
         //유저 포인트 검증
-        User user=parkingLogRepository.getDetailLogInfo(parkingLogId).map(ParkingLog::getVehicle).map(Vehicle::getUser).orElse(null);
-        int userCurrentPoint=user!=null?userPointRepository.findByUserUserId(user.getUserId()).map(UserPoint::getCurrentPoint).orElse(0) : 0;
+        User user=parkingLogRepository.getDetailLogInfo(parkingLogId)
+                .map(ParkingLog::getVehicle).map(Vehicle::getUser).orElse(null);
+        int userCurrentPoint=user!=null?
+                userPointRepository.findByUserUserId(user.getUserId()).map(UserPoint::getCurrentPoint).orElse(0) : 0;
         if(userCurrentPoint<usedPoint){
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }

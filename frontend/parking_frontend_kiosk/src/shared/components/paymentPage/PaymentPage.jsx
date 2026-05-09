@@ -60,7 +60,7 @@ export function PaymentPage() {
         try {
             //store정보 리셋되는 걸 방지
             if(paymentInfo?.parkingLogId){
-                localStorage.setItem("pendingParkingLogId",paymentInfo?.parkingLogId)
+                sessionStorage.setItem("pendingParkingLogId",paymentInfo?.parkingLogId)
             }
 
             await widgets.requestPayment({

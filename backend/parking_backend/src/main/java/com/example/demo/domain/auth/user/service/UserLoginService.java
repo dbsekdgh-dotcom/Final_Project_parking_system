@@ -68,7 +68,7 @@ public class UserLoginService {
         User user = userAuthRepository.findByEmail(userLoginRequestDto.getEmail())
                 .orElseThrow(() -> {
                     userVerificationService.increaseLoginFailCount(email);
-                    return new AuthException(ErrorCode.USER_NOT_FOUND);
+                    return new AuthException(ErrorCode.LOGIN_EMAIL_NOT_FOUND);
                 });
 
         // 3. 계정 상태 확인 (탈퇴/비활성화 체크 - 기존 유지)

@@ -136,6 +136,24 @@ pipeline {
                             }
                             
                             if (status != 'Success') {
+                                def stdout = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_2_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'StandardOutputContent' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                def stderr = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_2_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'StandardErrorContent' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                echo "=== Server 2 STDOUT ===\n${stdout}"
+                                echo "=== Server 2 STDERR ===\n${stderr}"
                                 error "SSM 명령 실패: ${status}"
                             }
                         }
@@ -143,7 +161,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Health Check Server 2') {
             steps {
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
@@ -238,6 +256,24 @@ pipeline {
                             }
                             
                             if (status != 'Success') {
+                                def stdout = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_1_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'StandardOutputContent' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                def stderr = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_1_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'StandardErrorContent' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                echo "=== Server 1 STDOUT ===\n${stdout}"
+                                echo "=== Server 1 STDERR ===\n${stderr}"
                                 error "SSM 명령 실패: ${status}"
                             }
                         }

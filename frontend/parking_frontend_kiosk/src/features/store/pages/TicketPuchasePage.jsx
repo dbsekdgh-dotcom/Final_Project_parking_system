@@ -33,9 +33,9 @@ export default function TicketPurchasePage() {
         setLoading(true);
         try {
             const res = await purchaseReady(selectedId, quantity);
-            localStorage.setItem('paymentFlow', 'STORE_TICKET');
-            localStorage.setItem('pendingTicketPolicyId', String(selectedId));
-            localStorage.setItem('pendingQuantity', String(quantity));
+            sessionStorage.setItem('paymentFlow', 'STORE_TICKET');
+            sessionStorage.setItem('pendingTicketPolicyId', String(selectedId));
+            sessionStorage.setItem('pendingQuantity', String(quantity));
             setPaymentInfo({
                 orderId: res.orderId,
                 orderName: res.orderName,

@@ -20,6 +20,11 @@ export const requestBeforePayment=async(settlementPayload)=>{
     console.log("res==>"+res.data);
     return res.data;
 }
+//결제 취소 (뒤로가기 시 락 해제)
+export const cancelPayment=async(carNumber)=>{
+    await kioskApi.post(`/api/payment/cancel`,{carNumber})
+}
+
 //결제 완료된 경우
 export const requestAfterPayment=async(settlementConfirmPayload)=>{
     const res=await kioskApi.post(`/api/payment/request-after-payment`,settlementConfirmPayload)

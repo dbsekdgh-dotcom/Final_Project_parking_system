@@ -48,6 +48,7 @@ export const handleAuthError = (error, navigate, email, actions) => {
             break;
 
         case AUTH_ERROR_CODES.USER_NOT_FOUND:
+        case AUTH_ERROR_CODES.LOGIN_EMAIL_NOT_FOUND:
             showAlert('question', '계정을 찾을 수 없습니다', '회원가입 페이지로 이동할까요?', {
                 showCancelButton: true,
                 confirmButtonText: '이동하기',

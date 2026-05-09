@@ -1,12 +1,15 @@
 .app-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: #f1f5f9;
 }
 
 .app-shell__main {
   flex: 1;
   min-width: 0;
+  height: 100vh;
+  overflow-y: scroll;
 }
 
 .app-shell__content {

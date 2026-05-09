@@ -226,6 +226,7 @@
   cursor: pointer;
   letter-spacing: 0.04em;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .btn-back:active {

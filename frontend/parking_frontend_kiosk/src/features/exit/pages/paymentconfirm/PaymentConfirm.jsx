@@ -32,7 +32,7 @@ export default function PaymentConfirm() {
     const beforeResponse = await requestBeforePayment(settlementPayload);
     if (beforeResponse.paymentRequired){
       setPaymentInfo({...beforeResponse,flowType:"EXIT_GATE"});
-      localStorage.setItem("paymentFlow","EXIT_GATE");
+      sessionStorage.setItem("paymentFlow","EXIT_GATE");
       navigate("/payment")
     } else {
       const afterPayload={

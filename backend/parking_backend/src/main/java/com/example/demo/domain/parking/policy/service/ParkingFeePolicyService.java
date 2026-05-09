@@ -57,21 +57,23 @@ public class ParkingFeePolicyService {
         Map<ParkingType,ParkingFeePolicyResponseDto> currentPolicies=policies.stream().collect(Collectors.toMap(
                 ParkingFeePolicy::getParkingType,
                 ParkingFeePolicyResponseDto::toPolicyDto,
-                (exist, replace)->replace.getVersion()>exist.getVersion()?replace:exist
+                (exist, replace)
+                        ->replace.getVersion()>exist.getVersion()?replace:exist
         ));
         //시행 예정인 요금 정책
         List<ParkingFeePolicy> upcoming=parkingFeePolicyRepository.findUpcomingEffectivePolicy(now);
         Map<ParkingType,ParkingFeePolicyResponseDto> upcomingPolicies=upcoming.stream().collect(Collectors.toMap(
                 ParkingFeePolicy::getParkingType,
                 ParkingFeePolicyResponseDto::toPolicyDto,
-                (exist,replace)->replace.getVersion()>exist.getVersion()?replace:exist
+                (exist,replace)
+                        ->replace.getVersion()>exist.getVersion()?replace:exist
         ));
         //할인권 리스트
         List<TicketPolicy> ticketPolicies=ticketPolicyRepository.findByStatusIsNot(Status.DELETED);
         //상가 사용 할인권
         List<TicketPolicyResponseDto> storeTicket=ticketPolicies.stream().filter(t-> UseType.STORE.equals(t.getUseType())).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
         //관리자 사용 할인권
-        List<TicketPolicyResponseDto> adminTicket=ticketPolicies.stream().filter(t-> UseType.ADMIN.equals(t.getUseType())).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
+        List<TicketPolicyResponseDto> adminTicket=ticketPolicies.stream().filter(t-> UseType.ADMIN.equals(t.getUseType())).filter(t->t.isFreeTicket()==false).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
         //상가 기본 지급 할인권
         List<TicketPolicyResponseDto> monthlyTicket=ticketPolicies.stream().filter(t-> t.isFreeTicket()==true).map(TicketPolicyResponseDto::toTicketPolicyDto).toList();
 

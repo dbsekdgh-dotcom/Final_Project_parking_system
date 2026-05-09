@@ -36,6 +36,10 @@ public class PaymentFacade {
     private final TossPaymentService tossPaymentService;
     private final RefundService refundService;
 
+    public void cancelPayment(String carNumber) {
+        aiServerClient.requestPaymentLockRelease(carNumber);
+    }
+
     public VehiclePaymentResponseDto paymentProcess(Long parkingLogID) {
         //1. 무료 대상인지 확인
         PaymentEligibilityResult result = paymentService.checkFreeExitEligibility(parkingLogID);
@@ -56,11 +60,11 @@ public class PaymentFacade {
             }
             return responseDto;
         }catch (BusinessException e){
-            aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
-            e.printStackTrace();
+            if (e.getErrorCode() != ErrorCode.ALREADY_PROCESSING) {
+                aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
+            }
             throw e;
         }catch (Exception e){
-            log.error("정산 초기화 중 예상치 못한 에러: {}",e.getMessage());
             aiServerClient.requestPaymentLockRelease(parkingLog.getCarNumberSnapshot());
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
@@ -90,7 +94,8 @@ public class PaymentFacade {
             // 5. 요청정보 검증
             settlementService.checkEligibility(dto,parkingLog);
             // 6. 결제 전 Payment insert
-            PaymentReadyResponseDto paymentReadyResponseDto = settlementService.insertPayment(parkingLog, dto, PaymentStatus.READY, vehiclePaymentResponseDto);
+            PaymentReadyResponseDto paymentReadyResponseDto
+                    = settlementService.insertPayment(parkingLog, dto, PaymentStatus.READY, vehiclePaymentResponseDto);
             return paymentReadyResponseDto;
         }catch (BusinessException e){
             log.error("사전 검증 중 비즈니스 예외 발생: {}", e.getMessage());
@@ -129,11 +134,13 @@ public class PaymentFacade {
             // - 결제 승인 요청 전 관리자 강제 출차 여부 확인
             parkingLog=settlementService.validateVehicleStatus(parkingLog.getParkingLogId());
             // - 금액 검증
-            SettlementRequestDto settlementRequestDto=SettlementRequestDto.builder().parkingLogId(parkingLog.getParkingLogId()).usedPoint((int)(parkingLog.getCalculatedFee()-parkingLog.getFee()-dto.getAmount())).paidAmount((int)dto.getAmount()).build();
+            SettlementRequestDto settlementRequestDto
+                    =SettlementRequestDto.builder().parkingLogId(parkingLog.getParkingLogId())
+                    .usedPoint((int)(parkingLog.getCalculatedFee()-parkingLog.getFee()-dto.getAmount()))
+                    .paidAmount((int)dto.getAmount()).build();
             settlementService.checkEligibility(settlementRequestDto,parkingLog);
             // - 결제 유효시간 초과 여부 확인
             settlementService.checkPaymentTimeout(parkingLog, dto.getOrderId());
-
             if (dto.getAmount() > 0) {
                 // 2. 토스 승인 요청
                 tossApprovalResult = tossPaymentService.confirmAndAnalyze(dto);
@@ -152,14 +159,12 @@ public class PaymentFacade {
             //토스 승인 후에 관리자 강제 출차 내역이 있다면 환불 처리
             if(ErrorCode.FORCE_EXITED==e.getErrorCode() && tossApprovalResult!=null && tossApprovalResult.isSuccess()){
                 refundService.refundByForceExit(String.valueOf(tossApprovalResult.getPaymentKey()), payments);
-                return SettlementResponseDto.builder()
-                        .paymentStatus(PaymentStatus.REFUNDED.toString())
-                        .vehicleNumber(carNumber)
-                        .paidAmount(0)
-                        .message("이미 관리자에 의해 강제 출차 처리되었습니다.")
-                        .build();
+                return SettlementResponseDto.builder().paymentStatus(PaymentStatus.REFUNDED.toString())
+                        .vehicleNumber(carNumber).paidAmount(0).message("이미 관리자에 의해 강제 출차 처리되었습니다.").build();
             }
-            settlementService.restPaymentLock(payments,parkingLog);
+            if (e.getErrorCode() != ErrorCode.INVALID_ORDER_ID) {
+                settlementService.restPaymentLock(payments, parkingLog);
+            }
             throw e;
         }catch(Exception e ){
             settlementService.restPaymentLock(payments,parkingLog);

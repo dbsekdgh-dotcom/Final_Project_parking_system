@@ -35,6 +35,7 @@ const OAuthRedirectPage = () => {
                         icon: 'warning',
                         title: '계정 불일치',
                         text: '현재 로그인된 계정 정보와 일치하는 소셜 계정만 연동할 수 있습니다.',
+                        confirmButtonText: '확인',
                         confirmButtonColor: '#3085d6',
                     });
                 } else {
@@ -42,6 +43,7 @@ const OAuthRedirectPage = () => {
                         icon: 'error',
                         title: '오류',
                         text: '소셜 로그인 중 오류가 발생했습니다.',
+                        confirmButtonText: '확인',
                         confirmButtonColor: '#d33',
                     });
                 }

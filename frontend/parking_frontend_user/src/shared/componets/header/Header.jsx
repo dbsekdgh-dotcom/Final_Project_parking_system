@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import './header-css.css'
 import api from '../../../features/auth/api/axios';
 
@@ -21,6 +22,7 @@ export function Header() {
     occupancyRate: 0,
     targetFloor: '-'
   });
+  const location = useLocation();
 
   useEffect(() =>{
     const fetchSummary = async () =>{
@@ -37,7 +39,7 @@ export function Header() {
     };
 
     fetchSummary();
-  },[]);
+  },[location.pathname]);
 
   return (
     <header className="dashboard-header">

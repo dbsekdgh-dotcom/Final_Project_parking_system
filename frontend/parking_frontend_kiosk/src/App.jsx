@@ -1,4 +1,7 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import useChatbotStore from "./store/useChatbotStore";
+import KioskChatbot from "./features/chatbot/components/KioskChatbot";
 import Home from "./shared/components/home/Home";
 import PrepaymentMain from "./features/prepayment/pages/PrepaymentMain";
 import EntryExit from "./features/entryExit/pages/EntryExit";
@@ -20,10 +23,51 @@ import TicketPurchasePage from "./features/store/pages/TicketPuchasePage";
 import TicketApplyPage from "./features/store/pages/TicketApplyPage";
 import FindCarPage from "./features/findcar/pages/FindCarPage";
 
+const SCREEN_ID_BY_PATH = {
+  "/": "home",
+
+  // 내 차 찾기
+  "/find-car": "find_input",
+
+  // 사전 정산
+  "/prepayment": "pay_input",
+  "/searchResult": "pay_result",
+  "/selectedVehicle": "pay_confirm",
+  "/payment": "pay_method",
+
+  // 결제 결과
+  "/payment/success": "unknown",
+  "/payment/fail": "unknown",
+
+  // 상가 관리
+  "/store/login": "store_login",
+  "/store/main": "store_main",
+  "/store/purchase": "store_buy_select",
+  "/store/purchase/complete": "unknown",
+  "/store/apply": "store_apply_input",
+
+  // 출차/입차 쪽은  unknown 처리
+  "/entry-exit": "unknown",
+  "/entry-parkingspace": "unknown",
+  "/entry-complete": "unknown",
+  "/exit-departure": "unknown",
+  "/exit-paymentconfirm": "unknown",
+  "/exit-complete": "unknown",
+  "/PrepaymentResult": "unknown",
+};
+
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const setScreenId = useChatbotStore(s => s.setScreenId);
+
+  useEffect(() => {
+    setScreenId(SCREEN_ID_BY_PATH[location.pathname] || "unknown");
+  }, [location.pathname]);
+
   return (
+  <>
   <Routes >
       <Route path="/" element={<Home />}/>
       {/* 2. 각 버튼에 매칭되는 경로들 */}
@@ -51,6 +95,8 @@ function App() {
       <Route path="/find-car" element={<FindCarPage/>} />
 
   </Routes>
+  <KioskChatbot />
+  </>
   );
 }
 
