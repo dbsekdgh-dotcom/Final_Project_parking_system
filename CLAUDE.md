@@ -3,6 +3,17 @@
 ## 기술 스택
 - **백엔드**: Spring Boot 3.x, JPA/Hibernate, QueryDSL, Spring Security + JWT, Redis, MySQL, AWS S3, Naver CLOVA OCR, Gradle
 - **프론트엔드**: React 18+, React Router v6, Redux, Axios, Vite
+- **AI 서비스**: FastAPI, LangChain, LangGraph, OpenAI GPT-4o-mini (Vision), EasyOCR, YOLO (ultralytics), ChromaDB, Redis, openpyxl
+
+### AI 기능 목록
+
+| 기능 | 경로 | 사용 기술 | 설명 |
+|------|------|-----------|------|
+| 키오스크 챗봇 | `ai-service/app/domain/kioskChatbot/` | LangChain, ChatOpenAI, ChromaDB, Redis | RAG 기반 키오스크 안내 챗봇. 화면 ID별 컨텍스트 + 매뉴얼 벡터 검색 + Redis 대화 히스토리 |
+| 사용자 챗봇 | `ai-service/app/domain/userchatbot/` | LangGraph, LangChain Tool Use | 예약 조회/생성/취소, 차량 등록, 정기권, 입주민 신청 등 Spring API 연동 Tool Use 에이전트 |
+| 엑셀 보고서 생성 | `ai-service/app/domain/report/` | openpyxl, ChatOpenAI | 주간/월간 운영 보고서 엑셀 자동 생성. 요약·매출·사용량 3개 시트 + AI 분석 코멘트 삽입 |
+| OCR 정확도 향상 | `ai-service/app/domain/entryexitocr/` | YOLO, EasyOCR, GPT-4o-mini Vision | 번호판 인식: YOLO 크롭 → EasyOCR → 저신뢰도 시 GPT-4o-mini Vision LLM fallback |
+| 자동 알림 문구 생성 | `ai-service/app/domain/notification/` | LangGraph, ChatOpenAI | 승인/거절 이벤트 타입별 LangGraph 분기로 개인화 알림 제목·내용 자동 생성 |
 
 ---
 
