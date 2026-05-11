@@ -39,6 +39,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 32px;
     padding-bottom: 10vh;
 }
 
@@ -64,7 +65,54 @@
     margin-bottom: 40px;
 }
 
-/* 5. 폼 스타일 */
+/* 5. 테스트 계정 박스 */
+.test-account-box {
+    padding: 28px 32px;
+    border: 1px solid var(--border-deep);
+    border-radius: 16px;
+    min-width: 220px;
+    align-self: center;
+}
+
+.test-account-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 0 0 16px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.test-account-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.test-account-table th {
+    color: var(--text-muted);
+    font-weight: 500;
+    text-align: left;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-deep);
+}
+
+.test-account-table td {
+    padding: 10px 0;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-deep);
+}
+
+.test-account-table tr:last-child td {
+    border-bottom: none;
+}
+
+.test-account-table th:last-child,
+.test-account-table td:last-child {
+    text-align: right;
+}
+
+/* 6. 폼 스타일 */
 .login-form .input-group {
     margin-bottom: 30px;
     display: flex;

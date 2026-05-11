@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -27,6 +28,10 @@ import java.util.Map;
 @Log4j2
 @Transactional
 public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
+
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
+
     private final AdminRepository adminRepository;
     private final AdminJWTUtil adminJWTUtil;
     private final RedisService redisService;
@@ -56,11 +61,11 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
         // Refresh Token을 위한 HttpOnly 쿠키 생성
         // jakarta.servlet.http.Cookie 대신 Spring의 ResponseCookie를 쓰면 설정이 더 편함.
         String cookieString = org.springframework.http.ResponseCookie.from("refreshToken",refreshToken)
-                .httpOnly(true) // JS 접근 차단(XSS방어)
-                .secure(true) // 로컬 테스트(http) 중이면 false, 배포시 true
-                .path("/") // 모든 경로에서 사용가능
-                .maxAge(24 * 60 * 60) // 쿠키 수명(24시간)
-                .sameSite("Lax") // CSRF 방어
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(24 * 60 * 60)
+                .sameSite("Lax")
                 .build()
                 .toString();
         response.addHeader(HttpHeaders.SET_COOKIE, cookieString); // 응답 헤더에 쿠키 추가

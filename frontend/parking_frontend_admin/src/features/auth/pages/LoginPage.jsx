@@ -23,6 +23,25 @@ const LoginPage = () => {
                     </div>
                     <LoginForm />
                 </div>
+                <div className='test-account-box'>
+                    <p className='test-account-title'>테스트 계정</p>
+                    <table className='test-account-table'>
+                        <thead>
+                            <tr>
+                                <th>아이디</th>
+                                <th>비밀번호</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {['test01', 'test02', 'test03'].map(id => (
+                                <tr key={id}>
+                                    <td>{id}</td>
+                                    <td>1234</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </main>
         </div>
     );
