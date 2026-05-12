@@ -101,7 +101,7 @@ public enum ErrorCode {
     VERIFICATION_CODE_EXPIRED(HttpStatus.GONE, "인증 시간이 초과되었습니다. 다시 시도해 주세요."),
     MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 발송 중 오류가 발생했습니다."),
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "인증되지 않은 접근입니다. 먼저 이메일 인증을 완료해주세요."),
-
+    AUTH_INFO_NOT_FOUND(HttpStatus.NOT_FOUND,"인증 정보가 없습니다."),
     // AUTH (회원 탈퇴 관련 추가)
     INVALID_CONFIRM_TEXT(HttpStatus.BAD_REQUEST, "탈퇴 확인 문구가 일치하지 않습니다."),
     WITHDRAW_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
@@ -190,7 +190,8 @@ public enum ErrorCode {
     ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 관리자 정보를 찾을 수 없습니다."),
     ACTIVITY_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 행동 로그를 찾을 수 없습니다."),
     POLICY_NOT_MODIFIABLE(HttpStatus.NOT_MODIFIED,"만료 예정 정책은 수정할 수 없습니다."),
-
+    //Admin Chat
+    ADMIN_CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 채팅방을 찾을 수 없습니다."),
     //ParkingSpace
     CANNOT_BLOCK_OCCUPIED_SPACE(HttpStatus.BAD_REQUEST,"현재 차량이 주차중인 공간은 차단할 수 없습니다."),
 
