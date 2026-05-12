@@ -20,7 +20,7 @@ public class AdminChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long rommId;
+    private Long roomId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
