@@ -76,6 +76,7 @@ public class AdminReportService {
                 .map(s -> Integer.parseInt(s.getSettingValue()))
                 .orElse(SettingKey.REPORT_BLACKLIST_THRESHOLD.getDefaultIntValue());
     }
+
     private void sendWarningNotification(String carNumber, int current, int threshold) {
         vehicleRepository.findByCarNumber(carNumber).ifPresent(vehicle -> {
             if (vehicle.getUser() == null) return;
@@ -107,6 +108,7 @@ public class AdminReportService {
                 .build()
         );
     }
+
     private void saveActionLog(Admin admin, Report report,
                                ActionType actionType, String before, String after){
         adminActionLogRepository.save(AdminActionLog.builder()

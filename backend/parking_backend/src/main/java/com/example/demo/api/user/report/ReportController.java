@@ -2,8 +2,6 @@ package com.example.demo.api.user.report;
 
 import com.example.demo.domain.auth.user.principal.PrincipalDetails;
 import com.example.demo.domain.report.dto.ReportResponseDto;
-import com.example.demo.domain.report.entity.Report;
-import com.example.demo.domain.report.entity.ReportStatus;
 import com.example.demo.domain.report.entity.ReportType;
 import com.example.demo.domain.report.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
