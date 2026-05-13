@@ -71,6 +71,16 @@ public class AdminChatRestController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/rooms/{roomId}/leave")
+    public ResponseEntity<Void> leaveRoom(
+            @PathVariable Long roomId,
+            @AuthenticationPrincipal AdminAuthDto principal
+    ) {
+        Long myId = getAdminId(principal.getUsername());
+        chatService.leaveRoom(roomId, myId);
+        return ResponseEntity.ok().build();
+    }
+
     private Long getAdminId(String loginId){
         return adminRepository.findByLoginId(loginId)
                 .map(Admin::getAdminId)

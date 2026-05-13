@@ -46,7 +46,11 @@ public class AdminChatService {
                     .filter(m -> !m.getAdmin().getAdminId().equals(myAdminId))
                     .findFirst()
                     .map(m -> m.getAdmin().getName())
-                    .orElse("알 수 없음");
+                    .orElseGet(() -> members.stream()
+                            .filter(m -> m.getAdmin().getAdminId().equals(myAdminId))
+                            .findFirst()
+                            .map(m -> m.getAdmin().getName() + " (나)")
+                            .orElse("알 수 없음"));
         }
         long unread = memberRepository.findByRoomAndAdmin_AdminId(room,myAdminId)
                 .map(m -> m.getLastReadMessageId() == null
@@ -84,11 +88,27 @@ public class AdminChatService {
     }
 
     public ChatRoomResponse getOrCreateDirectRoom(Long myAdminId, CreatedDirectRoomRequest req){
-        Long targetId= req.getTargetAdminId();
+        Long targetId = req.getTargetAdminId();
+
+        if (myAdminId.equals(targetId)) {
+            return roomRepository.findSelfRoom(myAdminId, RoomType.DIRECT)
+                    .map(room -> buildRoomResponse(room, myAdminId))
+                    .orElseGet(() -> {
+                        Admin me = getAdmin(myAdminId);
+                        AdminChatRoom room = AdminChatRoom.builder()
+                                .roomType(RoomType.DIRECT)
+                                .createdBy(me)
+                                .build();
+                        roomRepository.save(room);
+                        memberRepository.save(AdminChatRoomMember.builder()
+                                .room(room).admin(me).build());
+                        return buildRoomResponse(room, myAdminId);
+                    });
+        }
 
         return roomRepository.findDirectRoom(myAdminId, targetId, RoomType.DIRECT)
-                .map(room -> buildRoomResponse(room,myAdminId))
-                .orElseGet(()->{
+                .map(room -> buildRoomResponse(room, myAdminId))
+                .orElseGet(() -> {
                     Admin me = getAdmin(myAdminId);
                     Admin target = getAdmin(targetId);
 
@@ -103,9 +123,8 @@ public class AdminChatService {
                     memberRepository.save(AdminChatRoomMember.builder()
                             .room(room).admin(target).build());
 
-                    return buildRoomResponse(room,myAdminId);
+                    return buildRoomResponse(room, myAdminId);
                 });
-
     }
     public ChatRoomResponse createGroupRoom(Long myAdminId, CreateGroupRoomRequest req){
         Admin me = getAdmin(myAdminId);
@@ -146,6 +165,15 @@ public class AdminChatService {
                 .map(ChatMessageResponse::from)
                 .collect(Collectors.toList());
     }
+    public void leaveRoom(Long roomId, Long adminId) {
+        AdminChatRoom room = getRoom(roomId);
+        if (room.getRoomType() != RoomType.GROUP) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        memberRepository.findByRoomAndAdmin_AdminId(room, adminId)
+                .ifPresent(memberRepository::delete);
+    }
+
     //읽음 처리
     public void markAsRead(Long roomId, Long adminId){
         AdminChatRoom room = getRoom(roomId);

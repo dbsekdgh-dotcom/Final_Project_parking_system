@@ -25,4 +25,17 @@ public interface AdminChatRoomRepository extends JpaRepository<AdminChatRoom, Lo
             @Param("adminId2") Long adminId2,
             @Param("type")RoomType type
             );
+
+    @Query("""
+    SELECT r FROM AdminChatRoom r
+    WHERE r.roomType = :type
+    AND EXISTS (
+    SELECT m FROM AdminChatRoomMember m WHERE m.room = r AND m.admin.adminId = :adminId
+    )
+    AND (SELECT COUNT(m) FROM AdminChatRoomMember m WHERE m.room = r) = 1
+""")
+    Optional<AdminChatRoom> findSelfRoom(
+            @Param("adminId") Long adminId,
+            @Param("type") RoomType type
+    );
 }
