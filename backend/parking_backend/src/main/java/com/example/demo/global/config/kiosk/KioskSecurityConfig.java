@@ -49,6 +49,7 @@ public class KioskSecurityConfig {
                         ctx.securityContextRepository(new org.springframework.security.web.context.NullSecurityContextRepository()))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.POST, "/api/store/login").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/store/test-hint").permitAll()
                     .requestMatchers("/api/kiosk/**").permitAll()
                     .requestMatchers("/api/store/**").hasRole("STORE")
                     .anyRequest().permitAll()
