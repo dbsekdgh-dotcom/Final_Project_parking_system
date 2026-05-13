@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "5. 상가 (Store)", description = "상가 로그인, 내 정보 조회, 지갑 잔량, 할인권 구매·적용 API")
 @RestController
@@ -19,6 +20,12 @@ import java.util.List;
 public class KioskStoreController {
 
     private final KioskStoreService kioskStoreService;
+
+    @Operation(summary = "테스트용 상가 비밀번호 조회", description = "지정한 storeId의 상가명과 비밀번호를 반환합니다. 테스트 전용 공개 API입니다.")
+    @GetMapping("/test-hint")
+    public ResponseEntity<Map<String, String>> getTestHint(@RequestParam Long storeId) {
+        return ResponseEntity.ok(kioskStoreService.getTestHint(storeId));
+    }
 
     @Operation(summary = "상가 로그인", description = "상가 단말기 비밀번호로 로그인하고 JWT 토큰을 발급합니다.")
     @PostMapping("/login")

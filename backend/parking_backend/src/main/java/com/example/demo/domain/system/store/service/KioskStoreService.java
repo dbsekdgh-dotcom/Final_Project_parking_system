@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -44,6 +45,16 @@ public class KioskStoreService {
     private final AdminJWTUtil adminJWTUtil;
     private final ParkingTicketRepository parkingTicketRepository;
 
+
+    @Transactional(readOnly = true)
+    public Map<String, String> getTestHint(Long storeId) {
+        Store store = storeRepository.findByStoreId(storeId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+        return Map.of(
+                "storeName", store.getName(),
+                "password", store.getTerminalPassword()
+        );
+    }
 
     @Transactional(readOnly = true)
     public StoreLoginResponseDto login(StoreLoginRequestDto dto) {
