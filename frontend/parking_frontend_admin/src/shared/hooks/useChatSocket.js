@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+import SockJS from "@sockjs-client";
 
 export default function useChatSocket({ roomId, onMessage }) {
     const clientRef = useRef(null);
