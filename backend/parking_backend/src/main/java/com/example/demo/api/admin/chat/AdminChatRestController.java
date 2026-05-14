@@ -10,6 +10,9 @@ import com.example.demo.domain.chat.service.AdminChatService;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import com.example.demo.global.security.admin.AdminAuthDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "20. 관리자 채팅 (Admin Chat)", description = "1:1·그룹 채팅방 생성·조회, 메시지 기록, 읽음 처리, 방 나가기 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/chat")
@@ -25,7 +29,7 @@ public class AdminChatRestController {
     private final AdminChatService chatService;
     private final AdminRepository adminRepository;
 
-    // 1:1 채팅방 생성 및 기존 방 조회
+    @Operation(summary = "1:1 채팅방 생성 또는 조회", description = "상대 관리자와의 1:1 채팅방이 없으면 생성하고, 있으면 기존 방을 반환합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PostMapping("/rooms/direct")
     public ResponseEntity<ChatRoomResponse> getOrCreateDirect(
             @AuthenticationPrincipal AdminAuthDto principal,
@@ -34,7 +38,7 @@ public class AdminChatRestController {
         Long myId = getAdminId(principal.getUsername());
         return ResponseEntity.ok(chatService.getOrCreateDirectRoom(myId,request));
     }
-    // 그룹 채팅방 생성
+    @Operation(summary = "그룹 채팅방 생성", description = "여러 관리자를 초대하여 그룹 채팅방을 생성합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PostMapping("/rooms/group")
     public ResponseEntity<ChatRoomResponse> createGroup(
             @AuthenticationPrincipal AdminAuthDto principal,
@@ -43,7 +47,7 @@ public class AdminChatRestController {
         Long myId = getAdminId(principal.getUsername());
         return ResponseEntity.ok(chatService.createGroupRoom(myId, request));
     }
-    // 내 채팅방 목록
+    @Operation(summary = "내 채팅방 목록 조회", description = "현재 로그인한 관리자가 참여 중인 채팅방 목록과 마지막 메시지, 안읽은 수를 반환합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @GetMapping("/rooms")
     public ResponseEntity<List<ChatRoomResponse>> getMyRooms(
             @AuthenticationPrincipal AdminAuthDto principal
@@ -51,7 +55,7 @@ public class AdminChatRestController {
         Long myId = getAdminId(principal.getUsername());
         return ResponseEntity.ok(chatService.getMyRooms(myId));
     }
-    // 메세지 기록
+    @Operation(summary = "채팅 메시지 기록 조회", description = "특정 채팅방의 메시지를 페이징으로 반환합니다. 최신 메시지 순으로 정렬됩니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @GetMapping("/rooms/{roomId}/messages")
     public ResponseEntity<List<ChatMessageResponse>> getMessages(
             @PathVariable Long roomId,
@@ -60,7 +64,7 @@ public class AdminChatRestController {
     ){
         return ResponseEntity.ok(chatService.getMessages(roomId,page,size));
     }
-    // 읽음 처리
+    @Operation(summary = "채팅방 읽음 처리", description = "특정 채팅방의 모든 메시지를 읽음 처리합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PostMapping("/rooms/{roomId}/read")
     public ResponseEntity<Void> markAsRead(
             @PathVariable Long roomId,
@@ -71,6 +75,7 @@ public class AdminChatRestController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "채팅방 나가기", description = "지정한 채팅방에서 나갑니다. 1:1 방은 소프트 삭제, 그룹 방은 참여자 목록에서 제거됩니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @DeleteMapping("/rooms/{roomId}/leave")
     public ResponseEntity<Void> leaveRoom(
             @PathVariable Long roomId,

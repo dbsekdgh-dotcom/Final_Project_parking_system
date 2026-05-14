@@ -38,6 +38,7 @@ public class ReportController {
     @Value("${AI_SERVER_URL}")
     private String aiServerUrl;
 
+    @Operation(summary = "신고 이미지 AI 분석", description = "이미지를 AI 서버로 전달하여 불법 주차 여부를 분석합니다. S3 경로 및 분석 결과를 반환합니다.")
     @PostMapping("/upload")
     public ResponseEntity<Map> uploadReportImage(@RequestParam("file") MultipartFile file) throws Exception {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
