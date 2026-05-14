@@ -37,9 +37,9 @@
 |------|--------|-----------|
 | 윤상호 | [@dbsekdgh](https://github.com/dbsekdgh) | 팀장 · CI/CD (Jenkins, Docker, ECR, Blue-Green) · 키오스크 프론트 · 관리자 채팅 · OCR LLM 파이프라인 · 상가 관리 · 보안/JWT 설정 |
 | 김보경 | [@KimBoKyung07](https://github.com/KimBoKyung07) | 관리자 프론트 UI/UX (Dark/Light 모드) · 관리자 인증 (Redis) · 엑셀 보고서 (LangChain) · Jenkins 파이프라인 |
-| 유승원 | [@ehrbs56](https://github.com/ehrbs56) | 사용자 프론트 · 사용자 AI 챗봇 (LangGraph) · 알림 · 신고 · 블랙리스트 · Swagger |
-| 최주연 | [@juyeon](https://github.com/juyeon) | 키오스크 챗봇 (RAG) · 결제 (Toss, Redis 락) · OCR 프롬프트 · 키오스크 결제 흐름 |
-| 이윤진 | [@greathera](https://github.com/greathera) | 사용자 대시보드 · 알림 백엔드/프론트 · 홈 화면 |
+| 유승원 | [@ehrbs56](https://github.com/ehrbs56) | 사용자 프론트 · 사용자 AI 챗봇 (LangGraph) · 알림 · 사용자 차량등록OCR · Swagger · 사용자 통합로그인 (Naver/Kakao/local)|
+| 최주연 | [@juyeon](https://github.com/juyeon) | 키오스크 챗봇 (RAG) · 결제 (Toss, Redis 락) · Jenkins CI/CD · 키오스크 결제 흐름 · 관리자 요금 정책/조회|
+| 이윤진 | [@greathera](https://github.com/greathera) | 사용자 대시보드 · 알림 백엔드/프론트 · 홈 화면 · 블랙리스트 · 사용자 신고(S3 Image저장)|
 
 ---
 
@@ -47,10 +47,10 @@
 
 | 항목 | 링크 |
 |------|------|
-| 배포 주소 (관리자) | <!-- 링크 추가 예정 --> |
-| 배포 주소 (사용자) | <!-- 링크 추가 예정 --> |
-| 배포 주소 (키오스크) | <!-- 링크 추가 예정 --> |
-| API 문서 (Swagger) | <!-- 링크 추가 예정 --> |
+| 배포 주소 (관리자) | https://admin.parking-system.store |
+| 배포 주소 (사용자) | https://user.parking-system.store |
+| 배포 주소 (키오스크) | https://kiosk.parking-system.store |
+| API 문서 (Swagger) | https://parking-system.store/swagger-ui/index.html |
 | ERD | <!-- 링크 추가 예정 --> |
 | 노션 | <!-- 링크 추가 예정 --> |
 
