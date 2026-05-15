@@ -16,6 +16,7 @@ services:
       # 백엔드가 컨테이너 환경에서 Redis를 찾을 수 있도록 설정 (localhost 대신 서비스명 redis 사용)
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - TZ=Asia/Seoul
     depends_on:
       - ai
       - redis
