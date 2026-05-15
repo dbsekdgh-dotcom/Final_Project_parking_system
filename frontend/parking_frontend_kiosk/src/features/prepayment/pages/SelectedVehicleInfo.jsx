@@ -88,9 +88,30 @@ const SelectedVehicleInfo = () => {
         </div>
         <div className="selected-vehicle-info">
           <div>
-            <VehicleInfo vehicleNumber={data?.vehicleNumber} parkingTime={data?.parkingTime} fee={data?.amountToPay} />
+            <VehicleInfo vehicleNumber={data?.vehicleNumber} parkingTime={data?.parkingTime} totalDiscountMinutes={data?.totalDiscountMinutes} />
           </div>
           <div>
+            <div className="fee-summary-box">
+              {(data?.totalDiscountMinutes > 0 || data?.totalDiscountAmount > 0) && (
+                <div className="fee-summary-row">
+                  <span className="fee-summary-label">{data?.totalDiscountMinutes > 0 ? '시간할인 후 요금' : '계산된 요금'}</span>
+                  <span className="fee-summary-value">{data?.rawFee?.toLocaleString()}원</span>
+                </div>
+              )}
+              {data?.totalDiscountAmount > 0 && (
+                <div className="fee-summary-row">
+                  <span className="fee-summary-label">금액 할인</span>
+                  <span className="fee-summary-value fee-summary-discount">- {data?.totalDiscountAmount?.toLocaleString()}원</span>
+                </div>
+              )}
+              {(data?.totalDiscountMinutes > 0 || data?.totalDiscountAmount > 0) && (
+                <div className="fee-summary-divider" />
+              )}
+              <div className="fee-summary-row">
+                <span className="fee-summary-label">결제 요금</span>
+                <span className="fee-summary-total">{data?.amountToPay === 0 ? '무료' : (data?.amountToPay?.toLocaleString() ?? '0') + '원'}</span>
+              </div>
+            </div>
             <PaymentMethod userPoint={selectedVehicle?.userPoint} fee={data?.amountToPay} onConfirm={paymentHandler} isLoading={isPaymentLoading} />
           </div>
         </div>

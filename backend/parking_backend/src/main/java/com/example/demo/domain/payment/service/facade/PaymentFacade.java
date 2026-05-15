@@ -121,7 +121,7 @@ public class PaymentFacade {
         // 0. 기초정보 조회
         List<Payment> payments=paymentRepository.findByExternalPaymentId(dto.getOrderId());
         if(payments.isEmpty())throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        ParkingLog parkingLog=parkingLogRepository.getDetailLogInfo(dto.getParkingLogId())
+        ParkingLog parkingLog=parkingLogRepository.findByParkingLogId(dto.getParkingLogId())
                 .orElseThrow(()-> new BusinessException(ErrorCode.INVALID_REQUEST));
 
         String carNumber=parkingLog.getCarNumberSnapshot();

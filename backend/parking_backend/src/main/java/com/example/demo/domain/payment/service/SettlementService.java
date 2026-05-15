@@ -155,8 +155,7 @@ public class SettlementService {
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
         //유저 포인트 검증
-        User user=parkingLogRepository.getDetailLogInfo(parkingLogId)
-                .map(ParkingLog::getVehicle).map(Vehicle::getUser).orElse(null);
+        User user = parkingLog.getVehicle() != null ? parkingLog.getVehicle().getUser() : null;
         int userCurrentPoint=user!=null?
                 userPointRepository.findByUserUserId(user.getUserId()).map(UserPoint::getCurrentPoint).orElse(0) : 0;
         if(userCurrentPoint<usedPoint){
