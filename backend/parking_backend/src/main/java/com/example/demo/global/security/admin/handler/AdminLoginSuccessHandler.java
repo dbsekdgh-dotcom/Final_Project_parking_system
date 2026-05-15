@@ -1,6 +1,7 @@
 package com.example.demo.global.security.admin.handler;
 
 import com.example.demo.domain.auth.admin.dtos.response.AdminLoginResponse;
+import com.example.demo.domain.auth.admin.entity.Admin;
 import com.example.demo.domain.auth.admin.repository.AdminRepository;
 import com.example.demo.global.redis.RedisService;
 import com.example.demo.global.security.admin.AdminAuthDto;
@@ -70,11 +71,13 @@ public class AdminLoginSuccessHandler implements AuthenticationSuccessHandler {
                 .toString();
         response.addHeader(HttpHeaders.SET_COOKIE, cookieString); // 응답 헤더에 쿠키 추가
 
+        Admin admin= adminRepository.findByLoginId(loginId).orElseThrow();
         // responseDto에 담기
         AdminLoginResponse loginResponse = AdminLoginResponse.builder()
                 .accessToken(accessToken)
                 .loginId(adminAuthDto.getUsername()) //loginId
                 .adminName((String)claims.get("name"))
+                .adminId(admin.getAdminId())
                 .build();
         // JSON 변환 및 응답 전송
         response.setContentType("application/json; charset=UTF-8");

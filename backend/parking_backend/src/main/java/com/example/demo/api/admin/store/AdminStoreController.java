@@ -67,21 +67,21 @@ public class AdminStoreController {
         adminStoreService.deactivate(storeId);
         return ResponseEntity.ok().build();
     }
-    @Operation(summary = "할인권 월 무료 발급 설정 조회", description = "상가의 월 무료 발급 할인권 설정을 조회 합니다.")
+    @Operation(summary = "할인권 월 무료 발급 설정 조회", description = "상가의 월 무료 발급 할인권 설정을 조회 합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @GetMapping("/{storeId}/ticket-config")
     public ResponseEntity<StoreTicketConfigResponseDto> getTicketConfig(@PathVariable Long storeId){
         return adminStoreService.getTicketConfig(storeId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
-    @Operation(summary = "할인권 월 무료 발급 설정 저장/수정", description = "상가의 월 무료 발급 할인권의 설정을 저장 및 수정 합니다.")
+    @Operation(summary = "할인권 월 무료 발급 설정 저장/수정", description = "상가의 월 무료 발급 할인권의 설정을 저장 및 수정 합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @PutMapping("/{storeId}/ticket-config")
     public ResponseEntity<Void> setTicketConfig(@PathVariable Long storeId,
                                                 @RequestBody @Valid StoreTicketConfigRequestDto dto){
         adminStoreService.setTicketConfig(storeId,dto);
         return ResponseEntity.ok().build();
     }
-    @Operation(summary = "무료 할인권 정책 목록", description = "관리자가 선택할 할인권 정책 목록 드롭다운에 출력할 정책 조회")
+    @Operation(summary = "무료 할인권 정책 목록", description = "관리자가 선택할 할인권 정책 목록 드롭다운에 출력할 정책 조회", security = @SecurityRequirement(name = "jwtAuth"))
     @GetMapping("/free-ticket-policies")
     public ResponseEntity<List<Map<String,Object>>> getFreeTicketPolicies(){
         List<Map<String ,Object>> list = adminStoreService.getFreeTicketPolicies().stream()

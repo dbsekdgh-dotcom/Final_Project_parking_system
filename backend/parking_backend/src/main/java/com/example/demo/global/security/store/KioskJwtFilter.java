@@ -19,7 +19,9 @@ public class KioskJwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        return !path.startsWith("/api/store") || path.equals("/api/store/login");
+        return !path.startsWith("/api/store")
+                || path.equals("/api/store/login")
+                || path.equals("/api/store/test-hint");
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.example.demo.global.controller;
 
-import com.example.demo.global.common.ApiResponse;
 import com.example.demo.global.exception.AuthException;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -100,5 +100,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST) // HTTP응담 상태 코드를 400(Bad Request)로 설정함
                 .body(response); // ApiResponse 규격에 맞게 데이터를 담아줌
     }
-
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        log.error("데이터 무결성 위반: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("CONFLICT", "이미 존재하는 데이터입니다."));
+    }
 }
