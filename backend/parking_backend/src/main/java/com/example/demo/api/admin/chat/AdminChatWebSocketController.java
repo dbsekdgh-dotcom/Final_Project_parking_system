@@ -26,7 +26,7 @@ public class AdminChatWebSocketController {
     private final AdminRepository adminRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    //클라이언트가 /app/chat/room/{roomId} 로 메시지 전송
+    //클라이언트가 /app/chat/room/{roomId} 로 메시지 전송 실시간 채팅만 ws
     @MessageMapping("/chat/room/{roomId}")
     public void handleMessage(
             @DestinationVariable Long roomId,
