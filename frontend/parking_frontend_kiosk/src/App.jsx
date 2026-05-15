@@ -68,7 +68,7 @@ function App() {
 
   return (
   <>
-  <Routes >
+  <Routes>
       <Route path="/" element={<Home />}/>
       {/* 2. 각 버튼에 매칭되는 경로들 */}
 

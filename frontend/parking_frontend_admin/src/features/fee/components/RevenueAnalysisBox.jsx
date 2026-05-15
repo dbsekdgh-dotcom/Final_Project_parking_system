@@ -102,6 +102,7 @@ const RevenueAnalysisBox = ({ title }) => {
                                                     <th>날짜</th>
                                                     <th>카드</th>
                                                     <th>포인트</th>
+                                                    <th>할인권</th>
                                                     <th>합계</th>
                                                 </tr>
                                             </thead>
@@ -112,11 +113,12 @@ const RevenueAnalysisBox = ({ title }) => {
                                                             <td>{d.date.slice(5)}</td>
                                                             <td>{d.payAmount.toLocaleString()}</td>
                                                             <td>{d.pointAmount.toLocaleString()}</td>
+                                                            <td>{d.ticketUsedAmount.toLocaleString()}</td>
                                                             <td style={{ fontWeight: 'bold', color: '#2563eb' }}>{d.totalAmount.toLocaleString()}</td>
                                                         </tr>
                                                     ))
                                                 ) : (
-                                                    <tr><td colSpan="4">데이터가 없습니다.</td></tr>
+                                                    <tr><td colSpan="5">데이터가 없습니다.</td></tr>
                                                 )}
                                             </tbody>
                                         </table>
@@ -130,6 +132,7 @@ const RevenueAnalysisBox = ({ title }) => {
                     </div>
                 </div>
             )}
+            <span className="msg">출차 완료된 차량만 집계되며, 할인권 항목은 실제 현금 수령 없이 할인 처리된 금액입니다.</span>
         </div>
     );
 };

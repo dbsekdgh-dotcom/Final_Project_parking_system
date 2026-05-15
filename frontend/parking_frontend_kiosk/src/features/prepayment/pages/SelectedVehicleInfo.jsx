@@ -24,6 +24,7 @@ const SelectedVehicleInfo = () => {
     refetchOnWindowFocus: false,
     retry: (failureCount, err) => err?.response?.status === 409 ? false : failureCount < 3
   })
+  const prepaid=(data?.calculatedFee ?? 0)-(data?.amountToPay ?? 0);
 
   useEffect(() => {
     if (isError) {
@@ -104,7 +105,13 @@ const SelectedVehicleInfo = () => {
                   <span className="fee-summary-value fee-summary-discount">- {data?.totalDiscountAmount?.toLocaleString()}원</span>
                 </div>
               )}
-              {(data?.totalDiscountMinutes > 0 || data?.totalDiscountAmount > 0) && (
+              {prepaid > 0 && (
+                <div className="fee-summary-row">
+                  <span className="fee-summary-label">이미 결제된 금액</span>
+                  <span className="fee-summary-value fee-summary-discount">- {prepaid.toLocaleString()}원</span>
+                </div>
+              )}
+              {(data?.totalDiscountMinutes > 0 || data?.totalDiscountAmount > 0 || prepaid > 0) && (
                 <div className="fee-summary-divider" />
               )}
               <div className="fee-summary-row">

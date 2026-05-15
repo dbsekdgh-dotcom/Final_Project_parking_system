@@ -28,12 +28,13 @@ const StatsBox = ({title}) => {
     //페이징 처리
     const [page,setPage]=useState(0);
     const dailyList = data?.dailyStats || [];
+    const sortedList=[...dailyList].sort((a,b) => b.date.localeCompare(a.date))
     const rows=5;
-    const totalPages=data?Math.ceil(dailyList.length/rows):0
-    const totalRow=dailyList?dailyList.length:0
+    const totalPages=data?Math.ceil(sortedList.length/rows):0
+    const totalRow=sortedList?sortedList.length:0
     const endData=Math.min((page+1)*rows,totalRow)
     const firstData=page*rows
-    const slicedData=dailyList?dailyList.slice(firstData,endData):[];
+    const slicedData=sortedList?sortedList.slice(firstData,endData):[];
     const onPageChange=(num)=>{
         setPage(num)
     }
