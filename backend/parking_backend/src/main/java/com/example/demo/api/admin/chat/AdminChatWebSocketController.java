@@ -4,6 +4,7 @@ import com.example.demo.domain.auth.admin.entity.Admin;
 import com.example.demo.domain.auth.admin.repository.AdminRepository;
 import com.example.demo.domain.chat.dtos.request.SendMessageRequest;
 import com.example.demo.domain.chat.dtos.response.ChatMessageResponse;
+import com.example.demo.domain.chat.dtos.response.UnreadNotificationResponse;
 import com.example.demo.domain.chat.service.AdminChatService;
 import com.example.demo.global.exception.BusinessException;
 import com.example.demo.global.exception.ErrorCode;
@@ -17,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -41,6 +43,13 @@ public class AdminChatWebSocketController {
         ChatMessageResponse response = chatService.saveMessage(roomId,sender.getAdminId(),request.getContent());
         // 해당 방 구독자 전체에게 브로드캐스트
         messagingTemplate.convertAndSend("/topic/chat/room/" + roomId, response);
+
+        // 방 멤버 개인에게 unread 알림 ( 보낸 사람 제외 )
+        List<String> memberLoginIds = chatService.getRoomMemberLoginIds(roomId, sender.getAdminId());
+        UnreadNotificationResponse notification = UnreadNotificationResponse.of(roomId,response);
+        for (String memberLoginId : memberLoginIds){
+            messagingTemplate.convertAndSendToUser(memberLoginId,"/queue/unread", notification);
+        }
     }
 
     private String extractLoginId(Principal principal){
