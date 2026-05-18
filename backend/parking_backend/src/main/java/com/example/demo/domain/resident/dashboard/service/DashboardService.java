@@ -8,6 +8,7 @@ import com.example.demo.domain.parking.space.enums.Floor;
 import com.example.demo.domain.parking.space.enums.SpaceStatus;
 import com.example.demo.domain.payment.subscription.repository.SubscriptionRepository;
 import com.example.demo.domain.resident.dashboard.dto.DashboardRecentLogDto;
+import com.example.demo.domain.system.activitylog.ActivityLog;
 import com.example.demo.domain.system.activitylog.enums.ActivityType;
 import com.example.demo.domain.system.activitylog.repository.ActivityLogRepository;
 import com.example.demo.domain.vehicle.Vehicle;
@@ -29,8 +30,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -49,11 +48,9 @@ public class DashboardService {
         //활성 차량 조회( 최근 등록 순)
         Vehicle myVehicle = vehicleRepository.findMainVehicle(userId, VehicleStatus.ACTIVE)
                 .orElse(null);
-
         String carNumber = (myVehicle != null) ? myVehicle.getCarNumber() : "등록 차량 없음";
         String carLocation = "주차 정보 없음";
         String durationStr = "0분";
-
         // 주차 위치 계산(myVehicle있을 때만)
         if (myVehicle != null) {
             //현재 주차 중인 최신 로그 확인( 상태가 ENTERED이고 아직 출차 안함)
@@ -73,30 +70,29 @@ public class DashboardService {
 
         //최근 입출자 내역 리스트 (최신 5개)
         //필터링 할 타입의 정의(ENTRY, EXIT만)
-        List<ActivityType> types = Arrays.asList(ActivityType.ENTRY, ActivityType.EXIT);
+        //최근 입출차 내역 리스트 (최신 5개) - activity_log 기반 누적 이력으로 변경!
+        List<ActivityLog> recentActivities = activityLogRepository.findRecentActivities(userId);
 
-        // 1. 페이지 설정 (EntryTime 기준 역순 정렬)
-        Pageable pageable = PageRequest.of(page, 5, Sort.by("entryTime").descending());
-
-        // ParkingLog에서 데이터 가져오기
-        Page<DashboardRecentLogDto> logPage = parkingLogRepository.findMyAndReservedLogs(userId, pageable)
-                .map(log -> {
-                    // 소유주 ID를 안전하게 가져오기 (소유주가 없으면 null)
-                    Long ownerId = (log.getVehicle() != null && log.getVehicle().getUser() != null)
-                            ? log.getVehicle().getUser().getUserId()
-                            : null;
-
-                    // 소유주 ID가 로그인한 유저(userId)와 같으면 "내 차량", 아니면 "방문 예약 차량"
+        List<DashboardRecentLogDto> dtoList = recentActivities.stream()
+                .filter(activity -> activity.getActivityType() == ActivityType.ENTRY || activity.getActivityType() == ActivityType.EXIT)
+                .limit(5)
+                .map(activity -> {
+                    Long ownerId = (activity.getUser() != null) ? activity.getUser().getUserId() : null;
                     String message = (ownerId != null && ownerId.equals(userId)) ? "내 차량" : "방문 예약 차량";
+                    String statusDescription = (activity.getActivityType() == ActivityType.ENTRY) ? "입차완료" : "출차완료";
 
                     return DashboardRecentLogDto.builder()
-                            .parkingLogId(log.getParkingLogId())
-                            .status(log.getParkingStatus().getDescription())
-                            .carNumber(log.getCarNumberSnapshot())
+                            .parkingLogId(activity.getActivityId())
+                            .status(statusDescription)
+                            .carNumber(activity.getCarNumber())
                             .message(message)
-                            .createdAt(log.getEntryTime())
+                            .createdAt(activity.getCreatedAt())
                             .build();
-                });
+                })
+                .toList();
+
+        // 기존 return 규격에 맞추기 위해 PageImpl로 감싸서 logPage 변수에 담아줍니다.
+        Page<DashboardRecentLogDto> logPage = new org.springframework.data.domain.PageImpl<>(dtoList);
 
         //포인트 조회
         int myPoint = userPointRepository.findById(userId)
@@ -145,5 +141,4 @@ public class DashboardService {
                 .description(floor == Floor.B1 ? "외부 차량 가능" : "입주민 전용")
                 .build();
     }
-
 }

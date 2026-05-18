@@ -7,6 +7,7 @@
   import AdminListModal from './AdminListModal'
   import ChatWindow from '../../../features/chat/ChatWindow'
   import ChatRoomList from '../../../features/chat/ChatRoomList'
+  import { useWebSocket } from '../../context/WebSocketContext'
 
   const mainNav = [
     { to: '/admin/dashboard', label: '대시보드', id: 'dashboard' },
@@ -183,6 +184,8 @@
     const navigate = useNavigate()
     const adminBtnRef = useRef(null)
     const chatBtnRef = useRef(null)
+    const { subscribe } = useWebSocket()
+    const MAX_WINDOWS = 3
 
     const loadTotalUnread = useCallback(() => {
       getMyChatRooms()
@@ -199,13 +202,30 @@
       const id = sessionStorage.getItem('adminId')
       if (id) setMyAdminId(Number(id))
       loadTotalUnread()
-      const interval = setInterval(loadTotalUnread, 30000)
-      return () => clearInterval(interval)
     }, [loadTotalUnread])
+
+    useEffect(() => {
+      const unsubscribe = subscribe('/user/queue/unread',(notification) =>{
+        // notification = { roomId, senderName, lastMessage }
+        // 열려있는 창이면 무시 아니면 뱃지 +1
+        setOpenChats(prev =>{
+          const isOpen = prev.some(c => c.roomId === notification.roomId)
+          if(!isOpen){
+            setTotalUnread(n => n+1)
+          }
+          return prev
+        })
+      })
+      return unsubscribe
+    }, [subscribe])
 
     const handleOpenChat = ({ roomId, roomName, members = [], roomType }) => {
       setOpenChats(prev => {
-        if (prev.find(c => c.roomId === roomId)) return prev
+        if (prev.find(c => c.roomId === roomId)) return prev // 중복방지
+        if (prev.length >= MAX_WINDOWS){
+          alert(`채팅창은 최대 ${MAX_WINDOWS}개 까지 열 수 있습니다.`)
+          return prev
+        }
         return [...prev, { roomId, roomName, members, roomType }]
       })
       setTimeout(loadTotalUnread, 500)
@@ -213,6 +233,7 @@
 
     const handleCloseChat = (roomId) => {
       setOpenChats(prev => prev.filter(c => c.roomId !== roomId))
+      setTimeout(loadTotalUnread, 300) 
     }
 
     const handleLeaveChat = (roomId) => {

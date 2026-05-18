@@ -195,4 +195,14 @@ public class AdminChatService {
 
         return ChatMessageResponse.from(messageRepository.save(message));
     }
+    //방 멤버 loginId 목록 조회 ( 특정 관리자 id 제외 )
+    @Transactional
+    public List<String> getRoomMemberLoginIds(Long roomId, Long excludeAdminId){
+        AdminChatRoom room = getRoom(roomId);
+        return memberRepository.findAll().stream()
+                .filter(m->m.getRoom().getRoomId().equals(roomId))
+                .filter(m -> !m.getAdmin().getAdminId().equals(excludeAdminId))
+                .map(m->m.getAdmin().getLoginId())
+                .collect(Collectors.toList());
+    }
 }

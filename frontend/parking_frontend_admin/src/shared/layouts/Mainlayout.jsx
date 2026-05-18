@@ -6,6 +6,7 @@ import { Outlet } from 'react-router-dom'
 import { getApprovalPendingCount } from '../../features/approval/approval-request/api/approvalRequestApi'
 import { getReportPendingCount } from '../../features/approval/report/api/reportApi'
 import { PendingCountContext } from '../context/PendingCountContext'
+import { WebSocketProvider } from '../context/WebSocketContext'
 
 const Mainlayout = () => {
   const [pendingApproval, setPendingApproval] = useState(0)
@@ -32,6 +33,7 @@ const Mainlayout = () => {
 
   return (
     <PendingCountContext.Provider value={fetchCounts}>
+      <WebSocketProvider>
       <div className="layout">
         <Sidebar pendingApproval={pendingApproval} />
         <div className="layout__main">
@@ -41,6 +43,7 @@ const Mainlayout = () => {
           </main>
         </div>
       </div>
+      </WebSocketProvider>
     </PendingCountContext.Provider>
   )
 }
