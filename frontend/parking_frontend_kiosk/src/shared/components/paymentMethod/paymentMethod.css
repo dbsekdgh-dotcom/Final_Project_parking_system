@@ -40,6 +40,7 @@
 
 .point-input {
   flex: 1;
+  min-width: 0;
   height: 40px;
   border: var(--border-thin);
   background: var(--panel-light);

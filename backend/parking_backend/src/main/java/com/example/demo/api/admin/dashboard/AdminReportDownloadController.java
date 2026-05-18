@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "2. 대시보드(Dashboard")
+@Tag(name = "18. 운영 보고서 (Report Download)", description = "운영 보고서 Excel 다운로드 API")
 @RestController
 @RequestMapping("/api/admin/dashboard")
 @RequiredArgsConstructor
 public class AdminReportDownloadController {
     private final AdminReportDownloadService adminReportDownloadService;
 
-    @Operation(summary = "운영 보고서 생성(Excel)", security = @SecurityRequirement(name = "jwtAuth"))
+    @Operation(summary = "운영 보고서 생성(Excel)", description = "period(MONTHLY/WEEKLY)와 날짜 범위를 지정하면 AI가 분석 코멘트를 삽입한 Excel 보고서를 생성해 다운로드합니다.", security = @SecurityRequirement(name = "jwtAuth"))
     @GetMapping("/report/generate")
     public ResponseEntity<byte[]> generateReport(
             @RequestParam(defaultValue = "MONTHLY") String period,

@@ -45,6 +45,7 @@ export const useCancelReservation = () => {
                 icon: 'success',
                 title: '취소 완료',
                 text: '예약이 성공적으로 취소되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -54,6 +55,7 @@ export const useCancelReservation = () => {
                 icon: 'error',
                 title: '취소 실패',
                 text: error.response?.data?.message || '취소 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }
@@ -78,6 +80,7 @@ export const useCreateReservation = () => {
                 icon: 'success',
                 title: '신청 완료',
                 text: '방문 예약 신청이 정상적으로 접수되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
@@ -87,6 +90,7 @@ export const useCreateReservation = () => {
                 icon: 'error',
                 title: '신청 실패',
                 text: error.response?.data?.message || '입력 정보를 다시 확인해주세요.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }
@@ -112,14 +116,16 @@ export const useUdateReservation = () => {
                 icon: 'success',
                 title: '수정 완료',
                 text: '예약 정보가 성공적으로 변경되었습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#3085d6',
             });
         },
         onError: (error) => {
             Swal.fire({
                 icon: 'error',
-                titile: '수정 실패',
+                title: '수정 실패',
                 text: error.response?.data?.message || '예약 수정 중 오류가 발생했습니다.',
+                confirmButtonText: '확인',
                 confirmButtonColor: '#d33',
             });
         }

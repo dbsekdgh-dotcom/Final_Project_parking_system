@@ -235,6 +235,61 @@ button:disabled {
   margin-top: 20px;
 }
 
+/* ── 요금 내역 박스 ── */
+.fee-summary-box {
+  width: 350px;
+  box-sizing: border-box;
+  background: var(--info-bg);
+  border: var(--border-std);
+  border-bottom: none;
+  padding: 24px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fee-summary-box + .payment-method-container {
+  border-top: var(--border-thin);
+  padding-top: 16px;
+}
+
+.fee-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fee-summary-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.fee-summary-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.fee-summary-discount {
+  color: var(--call-red);
+}
+
+.fee-summary-divider {
+  border: none;
+  border-top: var(--border-thin);
+  margin: 2px 0;
+}
+
+.fee-summary-total {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--call-red);
+  letter-spacing: 0.04em;
+}
+
 .selected-vehicle-wrapper {
   display: grid;
   grid-template-columns: repeat(2, 350px);

@@ -15,7 +15,7 @@ kiosk_chatbot_router=APIRouter()
 async def kiosk_chat(data:ChatRequest):
     try:
         answer=chat(data.session_id,data.user_question,data.screen_id)
-        return {"answer":answer}
+        return answer
     except Exception as e:
         raise HTTPException(status_code=500, detail="챗봇 답변 중 에러가 발생했습니다.")
 

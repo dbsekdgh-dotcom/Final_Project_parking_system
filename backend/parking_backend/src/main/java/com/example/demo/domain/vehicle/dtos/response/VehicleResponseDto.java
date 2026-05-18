@@ -23,4 +23,6 @@ public class VehicleResponseDto {
     private VehicleStatus status;
 
     private LocalDateTime createdAt;
+
+    private boolean isBlacklisted;
 }

@@ -183,6 +183,6 @@ public class AdminStoreService {
     public List<TicketPolicy> getFreeTicketPolicies(){
         return ticketPolicyRepository.findByIsFreeTicketTrueAndStatusAndUseType(
                 com.example.demo.domain.payment.ticketpolicy.enums.Status.ACTIVE,
-                com.example.demo.domain.payment.ticketpolicy.enums.UseType.STORE);
+                com.example.demo.domain.payment.ticketpolicy.enums.UseType.ADMIN);
     }
 }

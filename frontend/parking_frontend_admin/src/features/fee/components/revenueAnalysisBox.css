@@ -45,6 +45,7 @@
   flex: 1;
   min-height: 0;
   padding: 10px 15px !important;
+  justify-content: center;
 }
 
 .buttonArea {
@@ -131,4 +132,10 @@
   background-color: transparent;
   position: relative;
   z-index: 1;
+}
+.msg {
+  display: block;
+  padding-top: 15px;
+  color: var(--text-muted);
+  margin-left: 10px;
 }

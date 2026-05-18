@@ -63,6 +63,16 @@ public class PaymentController {
         return paymentReadyResponseDto;
     }
 
+    //결제 취소 (뒤로가기 시 락 해제)
+    @Operation(summary = "결제 취소",
+        description = "결제 화면에서 뒤로가기 시 Redis 결제 락을 해제합니다.")
+    @PostMapping("/cancel")
+    public void cancelPayment(@RequestBody Map<String,String> request){
+        String carNumber = request.get("carNumber");
+        log.info("결제 취소 요청 차량번호==>{}",carNumber);
+        paymentFacade.cancelPayment(carNumber);
+    }
+
     //결제 후
     @Operation(summary = "결제 확정 처리",
         description = "토스페이먼츠 paymentKey·orderId·amount를 검증하고 결제를 최종 확정합니다. 성공 시 출차 가능 시각(exitDeadline)을 반환합니다.")

@@ -140,10 +140,9 @@ async def chat_with_bot(
     if not token and not refresh:
         logger.warning("Unauthorized: No accessToken or refreshToken cookie provided.")
     elif is_token_expired(token):
-        # 토큰 만료 시 서버사이드 refresh를 하지 않고 브라우저 인터셉터에 위임
-        # (서버사이드 refresh는 RTR 충돌 유발 - 브라우저와 동시에 rotate 시도)
-        logger.info("accessToken 만료 - 브라우저 인터셉터에 갱신 위임")
-        return {"reply": "로그인 세션이 만료되었습니다. 잠시 후 다시 시도해 주세요.", "action": None, "reservations": None, "subscriptionStartDate": None, "availableUnits": None}
+        # 401 반환 → axios 인터셉터가 자동으로 토큰 갱신 후 재시도
+        logger.info("accessToken 만료 - 401 반환하여 브라우저 인터셉터에 갱신 위임")
+        raise HTTPException(status_code=401, detail="토큰이 만료되었습니다.")
 
     prior_messages = []
     for msg in history:

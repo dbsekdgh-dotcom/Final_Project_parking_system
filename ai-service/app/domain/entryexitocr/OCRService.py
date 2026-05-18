@@ -33,20 +33,28 @@ PLATE_PATTERN = r"\d{2,3}[가-힣]\d{4}"
   # ── config.yml 로더 ───────────────────────────────────────────────────
   # 매번 파일을 읽는 이유: 서버 재시작 없이 config.yml만 수정해도 즉시 반영되도록
 def _load_config() -> dict:
-      with open(_CONFIG_PATH, encoding="utf-8") as f:
-          return yaml.safe_load(f)
+    try:
+        with open(_CONFIG_PATH, encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        return {"model": "gpt-4o-mini", "max_tokens": 30, "confidence_threshold": 0.5}
 
 
-  # ── 프롬프트 로더 + OCR 후보 주입 ─────────────────────────────────────
 def _load_prompt(ocr_candidates: list) -> str:
-    with open(_PROMPT_PATH, encoding="utf-8") as f:
-        template = f.read()
-      # 후보 리스트를 "12가1234(신뢰도:0.72)" 형태의 문자열로 변환
+    try:
+        with open(_PROMPT_PATH, encoding="utf-8") as f:
+            template = f.read()
+    except FileNotFoundError:
+        template = (
+            "OCR 후보: {ocr_candidates}\n"
+            "한국 자동차 번호판을 읽어주세요.\n"
+            "형식: 숫자2~3자리+한글1자+숫자4자리 (예: 12가1234)\n"
+            "번호만 출력, 인식 불가시 인식실패만 출력."
+        )
     candidate_text = (
         ", ".join([f'{p}(신뢰도:{s:.2f})' for p, s in ocr_candidates])
         if ocr_candidates else "없음"
-      )
-      # 프롬프트 파일의 {ocr_candidates} 자리에 실제 값 삽입
+    )
     return template.format(ocr_candidates=candidate_text)
 
 
@@ -109,7 +117,6 @@ async def _correct_with_llm(plate_image_np: np.ndarray, ocr_candidates: list) ->
 
         client = OpenAI()
 
-          # client.messages.create() : Claude에게 메시지 전송 → 응답 받기
         response = client.chat.completions.create(
               model=cfg["model"],           # config.yml에서 gpt-4o-mini 로드
               max_tokens=cfg["max_tokens"], # config.yml에서 30 로드
@@ -117,9 +124,6 @@ async def _correct_with_llm(plate_image_np: np.ndarray, ocr_candidates: list) ->
                   "role": "user",
                   "content": [
                       {
-                          # OpenAI Vision 이미지 전달 방식
-                          # Anthropic은 "image" + "source.base64" 였지만
-                          # OpenAI는 "image_url" + "data:image/jpeg;base64,..." URL 형식 사용
                           "type": "image_url",
                           "image_url": {
                               "url": f"data:image/jpeg;base64,{_image_to_base64(plate_image_np)}"
@@ -150,17 +154,13 @@ async def _correct_with_llm(plate_image_np: np.ndarray, ocr_candidates: list) ->
 async def extract_plate_number(file):
     cfg = _load_config()
     threshold = cfg["confidence_threshold"]  # 신뢰도 임계값 (config.yml에서)
-
     contents = await file.read()
     nparr = np.frombuffer(contents, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
       # 1단계: YOLO로 번호판 영역 크롭
     plate_region = detect_plate(image)
-
       # 2단계: 전처리 (기울기 보정 → 흑백+선명화)
     plate_enhanced = enhance(deskew(plate_region))
-
       # 3단계: EasyOCR로 텍스트 인식
     candidates = []
     for _, text, score in reader.readtext(plate_enhanced):
@@ -174,11 +174,8 @@ async def extract_plate_number(file):
         candidates.sort(key=lambda x: x[1], reverse=True)
         best_plate, best_score = candidates[0]
           # confidence_threshold 이상이면 신뢰할 수 있으므로 LLM 없이 반환
-          # → 대부분의 경우 여기서 끝남 (빠름, API 비용 없음)
         if best_score >= threshold:
             return best_plate
 
       # 4단계: EasyOCR 실패 or 저신뢰도 → Claude Vision 재시도
-      # plate_region (전처리 전 컬러 원본) 전달
-      # enhance()는 흑백으로 만들기 때문에 Claude Vision에는 컬러 원본이 더 정확함
     return await _correct_with_llm(plate_region, candidates)

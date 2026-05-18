@@ -19,6 +19,7 @@ workflow.add_node("RESERVATION_APPROVED", reservation_approved_node)
 workflow.add_node("RESERVATION_REJECTED", reservation_rejected_node)
 
 # START에서 notification_type 값으로 분기
+# LangGraph 타입별 노드 분기
 workflow.add_conditional_edges(
     START,
     route_by_type,

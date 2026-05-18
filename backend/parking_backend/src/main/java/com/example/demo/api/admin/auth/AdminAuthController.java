@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -27,6 +28,10 @@ import java.util.Map;
 @Log4j2
 @RequestMapping("/api/admin")
 public class AdminAuthController {
+
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
+
     private final AdminJWTUtil adminJWTUtil;
     private final RedisService redisService;
 
@@ -88,7 +93,7 @@ public class AdminAuthController {
 
             ResponseCookie newCookie = ResponseCookie.from("refreshToken",newRefreshToken)
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(cookieSecure)
                     .path("/")
                     .maxAge(24*60*60)
                     .sameSite("Lax")
@@ -174,7 +179,7 @@ public class AdminAuthController {
         // 브라우저의 쿠키 무효화 (Max-Age를 0으로 설정) - ID유무과 상관없음
         ResponseCookie cookie = ResponseCookie.from("refreshToken","")
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")

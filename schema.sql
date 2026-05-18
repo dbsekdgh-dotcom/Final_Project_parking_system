@@ -338,7 +338,15 @@ INSERT INTO system_setting (setting_key, setting_value, description, is_editable
 ('DETECTED_CANCEL_MINUTES',    '1',   '미입차 자동 취소 대기 시간(분)',           TRUE),
 ('MIN_USAGE_POINT',            '100', '포인트 최소 사용 단위',                    TRUE),
 ('PAYMENT_POINT_EARN_RATE',    '5',   '결제 금액 대비 포인트 적립율(%)',          TRUE),
-('VEHICLE_APPROVAL_EXPIRE_HOURS', '72','차량 등록 승인 만료 시간(시간)',          TRUE);
+('VEHICLE_APPROVAL_EXPIRE_HOURS', '72','차량 등록 승인 만료 시간(시간)',          TRUE),
+('TOTAL_DAILY_RESERVATION_LIMIT', '10',     '주차장 전체 세대 일일 총 방문 예약 가능 횟수', TRUE),
+('VEHICLE_AUTO_APPROVAL_THRESHOLD','95',    '차량 자동 승인 유사도 기준치(%)',              TRUE),
+('OVERTIME_MIN_FEE',              '100',    '사전정산 후 출차시간 초과 시 최소 부과 요금',  TRUE),
+('REPORT_BLACKLIST_THRESHOLD',    '10',     '블랙리스트 등록을 위한 신고 횟수 기준',        TRUE),
+('SUB_MAX_COUNT',                 '10',     '정기권 월별 최대 판매 수량(선착순)',            TRUE),
+('SUB_MONTHLY_PRICE',             '100000', '정기권 30일권 이용 금액',                      TRUE),
+('SUB_DURATION_DAYS',             '30',     '정기권 기본 이용 기간(일)',                    TRUE),
+('PG_COMMISSION_RATE',            '0.033',  'PG 수수료율',                                  TRUE);
 
 -- 22. 신고 (Report)
 CREATE TABLE report (
@@ -725,11 +733,9 @@ INSERT INTO household (unit_no, is_active, total_visit_count, today_visit_count,
 -- Admin: admin01 ~ admin05, 비밀번호 '1234' BCrypt 해시 (strength=10)
 -- $2b$ 접두사는 Spring Security BCryptPasswordEncoder와 완전 호환
 INSERT INTO admin (login_id, password, name, status) VALUES
-('admin01', '$2b$10$wMi1vLBRCPuyqqiNleEHru9jliBKBxTZATHC7c62xBH2RbB9u/p0i', '윤상호', 'ACTIVE'),
-('admin02', '$2b$10$LqvaM0IwX5zBT7hqDim5t.LYky4bJcr7aorkNVrXo08..ZqqyZV1e', '김보경', 'ACTIVE'),
-('admin03', '$2b$10$L1UDD5O2.7oqjhLu7yP63elnvEp.bNBJbLKQDXwIECfjI9wqPanzS', '최주연', 'ACTIVE'),
-('admin04', '$2b$10$MDwqScOtuR13VnMQYrnlDeFRi6eMq3FjHEtLFzbKTIC7WxkJYzgT2', '유승원', 'ACTIVE'),
-('admin05', '$2b$10$pkkbYoPy/x4FDFRdfkK2mOli7SyYKaJ/kr6V.wSOmk/OaWLKVGhS2', '이윤진',  'ACTIVE');
+('test01', '$2b$10$aJ6ka43NgvU0d.3R4HfUuOn.O1UD6cx9WsEjsrWkWG3YotKaFmFWK', '테스트',    'ACTIVE'),
+('test02', '$2b$10$uAYkm7PPKqeAX7X0oLmpq.qAXC8et5CuVDzSs7XDnEoYcMcerCXja', '테스트2',   'ACTIVE'),
+('test03', '$2b$10$5FV9dhtHaTbr09Eu08q/3Ox2ua2XyfHQmMOmL6mRH0zJwsJTULNo2', '테스트3',   'ACTIVE');
 
 -- Store: 10개, 전부 INACTIVE
 -- terminal_password는 평문 '1234' (실제 운영 시 BCrypt 해시값으로 교체 필요)

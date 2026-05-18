@@ -2,6 +2,11 @@ import storeApi from "../../../shared/api/storeApi";
 
 const host = '/api/store';
 
+export const getStoreTestHint = async (storeId) => {
+    const res = await storeApi.get(`${host}/test-hint`, { params: { storeId } });
+    return res.data;
+};
+
 
 // 로그인 요청
 export const storeLogin = async (password) => {

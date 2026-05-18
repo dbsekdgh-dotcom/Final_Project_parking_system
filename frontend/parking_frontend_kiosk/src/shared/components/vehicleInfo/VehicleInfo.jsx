@@ -1,7 +1,7 @@
 import React from 'react'
 import './vehicleInfo.css'
 
-const VehicleInfo = ({vehicleNumber,parkingTime,fee}) => {
+const VehicleInfo = ({vehicleNumber,parkingTime,fee,rawFee,totalDiscountAmount,totalDiscountMinutes}) => {
     let d=0;
     let h=0;
     let m=0;
@@ -12,7 +12,6 @@ const VehicleInfo = ({vehicleNumber,parkingTime,fee}) => {
 
   return (
     <div>
-        <h2 className='page-subtitle'>차량정보</h2>
         <div className='info-card-container'>
             <div className="info-group">
                 <span className="info-label">차량번호</span>
@@ -26,10 +25,12 @@ const VehicleInfo = ({vehicleNumber,parkingTime,fee}) => {
                     {m>0? `${m}분 `:''}
                 </span>
             </div>
-            <div className="info-group">
-                <span className="info-label">주차 요금</span>
-                <span className="fee-text">{fee==0?'무료':(fee?.toLocaleString()??'0')+'원'}</span>
-            </div>
+            {totalDiscountMinutes > 0 && (
+              <div className="info-group">
+                <span className="info-label">시간 할인</span>
+                <span className="info-value">{totalDiscountMinutes}분</span>
+              </div>
+            )}
         </div>
     </div>
   )

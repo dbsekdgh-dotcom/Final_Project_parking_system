@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     envDir: '../../',
+    define:{
+      global: 'globalThis',
+    },
     server: {
       port: 5201,
       proxy: {
@@ -18,6 +21,11 @@ export default defineConfig(({ mode }) => {
           target: 'http://localhost:8081',
           changeOrigin: true,
           // rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+        '/ws': {
+          target: 'http://localhost:8081',
+          changeOrigin: true,
+          ws:true,
         },
       },
     },
