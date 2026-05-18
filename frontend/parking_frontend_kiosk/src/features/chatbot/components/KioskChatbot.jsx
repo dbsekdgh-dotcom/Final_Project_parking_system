@@ -4,6 +4,7 @@ import { FaCommentDots, FaPaperPlane, FaTimes } from "react-icons/fa";
 import { endChat, sendChat } from "../api/chatbotApi";
 import './KioskChatbot.css'
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const INITIAL_MESSAGE = {
     role: "bot",
@@ -11,6 +12,7 @@ const INITIAL_MESSAGE = {
 };
 
 function KioskChatbot() {
+    const navigate=useNavigate();
     const screenId = useChatbotStore((state) => state.screenId);
     const [open,setOpen]=useState(false)
     const [messages,setmessages]=useState([INITIAL_MESSAGE])
@@ -32,7 +34,13 @@ function KioskChatbot() {
             setmessages((prev)=>[
                 ...prev,
                 {role:"bot",text:res.answer || "답변을 받지 못했습니다."}
-            ])
+            ]);
+            const action=res.action;
+            const targetPath=res.target_path;
+
+            if(action=="navigate" && targetPath){
+                navigate(targetPath)
+            }
         },
         onError:(error)=>{
             console.log("챗봇 요청 실패",error)
@@ -125,7 +133,6 @@ function KioskChatbot() {
     },[])
 
     // 드래그 종료 — isDragging 플래그를 false로 리셋
-    
     const dragEndHandler = useCallback(() => {
         isDragging.current = false;
     }, []);

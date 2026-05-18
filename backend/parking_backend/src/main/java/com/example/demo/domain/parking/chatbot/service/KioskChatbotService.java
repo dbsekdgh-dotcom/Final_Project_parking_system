@@ -40,8 +40,18 @@ public class KioskChatbotService {
         // 응답
         Map body=response.getBody();
         if(body==null || body.get("answer")==null) throw new BusinessException(ErrorCode.AI_SERVER_ERROR);
+
+        String targetPath=body.get("target_path")!=null?body.get("target_path").toString():null;
+        String targetScreenId=body.get("target_screen_id")!=null?body.get("target_screen_id").toString():null;
+
         // 반환
-        return  ChatbotResponseDto.builder().answer(body.get("answer").toString()).sessionId(sessionId).build();
+        return  ChatbotResponseDto.builder().
+                answer(body.get("answer").toString())
+                .sessionId(sessionId)
+                .action(body.get("action").toString())
+                .targetPath(targetPath)
+                .targetScreenId(targetScreenId)
+                .build();
     }
     public void deleteChat(String sessionId){
         //session_id가 없는 경우
