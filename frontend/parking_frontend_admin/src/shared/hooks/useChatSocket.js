@@ -15,7 +15,7 @@ export default function useChatSocket({ roomId, onMessage }) {
         (msg) => onMessageRef.current(msg)
        );
        return unsubscribe;
-    },[roomId]);
+    },[roomId, subscribe]);
 
     const sendMessage = useCallback((content) => {
        send(`/app/chat/room/${roomId}`, { content });
