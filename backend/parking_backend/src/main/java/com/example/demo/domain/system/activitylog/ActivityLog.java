@@ -48,20 +48,24 @@ public class ActivityLog {
     private LocalDateTime createdAt;
 
     public static ActivityLog ofEntry(ParkingLog parkingLog, Household household){
+        User vehicleOwner = (parkingLog.getVehicle() != null) ? parkingLog.getVehicle().getUser() : null;
         return ActivityLog.builder()
                 .activityType(ActivityType.ENTRY)
                 .parkingLog(parkingLog)
                 .carNumber(parkingLog.getCarNumberSnapshot())
                 .household(household)
+                .user(vehicleOwner)
                 .message("입차 완료")
                 .build();
     }
     public static ActivityLog ofExit(ParkingLog parkingLog, Household household){
+        User vehicleOwner = (parkingLog.getVehicle() != null) ? parkingLog.getVehicle().getUser() : null;
         return ActivityLog.builder()
                 .activityType(ActivityType.EXIT)
                 .parkingLog(parkingLog)
                 .carNumber(parkingLog.getCarNumberSnapshot())
                 .household(household)
+                .user(vehicleOwner)
                 .message("출차 완료")
                 .build();
     }
