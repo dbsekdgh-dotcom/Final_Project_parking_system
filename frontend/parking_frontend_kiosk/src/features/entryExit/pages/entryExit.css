@@ -1,20 +1,6 @@
-/* ── 페이지 루트 ── */
-.entry-exit-page {
-  min-height: 100vh;
-  background: var(--bg-neutral);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-base);
-}
-
 /* ── 래퍼 ── */
 .entry-exit-wrapper {
-  width: var(--wrapper-width);
-  background: var(--panel-light);
-  border: var(--border-std);
   padding: var(--wrapper-pad);
-  box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
 }
 
 /* ── 상단 바 ── */

@@ -2,16 +2,6 @@
    STORE PAGES — 공통
 ══════════════════════════════════════ */
 
-/* ── 페이지 루트 ── */
-.store-page-root {
-  min-height: 100vh;
-  background: var(--bg-neutral);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-base);
-}
-
 /* ── 공통 래퍼 ── */
 .store-login-wrapper,
 .store-main-wrapper,
@@ -20,6 +10,7 @@
   border: var(--border-std);
   box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
   font-family: var(--font-base);
+  margin: 60px auto;
 }
 
 /* ══════════════════════════════════════
@@ -273,6 +264,7 @@
   padding: var(--wrapper-pad);
   box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
   font-family: var(--font-base);
+  margin: 60px auto;
 }
 
 .apply-search-wrapper {
@@ -285,6 +277,7 @@
   flex-direction: column;
   align-items: center;
   font-family: var(--font-base);
+  margin: 60px auto;
 }
 
 .apply-search-header {
@@ -655,14 +648,12 @@
    STORE PURCHASE COMPLETE
 ══════════════════════════════════════ */
 .purchase-complete-wrapper {
-  min-height: 100vh;
-  background: var(--bg-neutral);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: var(--font-base);
-  gap: 0;
+  padding: 60px 0;
 }
 
 .purchase-complete-card {

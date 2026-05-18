@@ -1,7 +1,5 @@
 /* ── 전체 배경 ── */
 .payment-page-container {
-  min-height: 100vh;
-  background: var(--bg-neutral);
   padding: 60px 20px;
   display: flex;
   justify-content: center;

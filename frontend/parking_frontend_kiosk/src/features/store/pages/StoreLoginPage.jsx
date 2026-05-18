@@ -37,8 +37,7 @@ export default function StoreLoginPage() {
     };
 
     return (
-        <div className="store-page-root">
-            <div className="store-login-wrapper">
+        <div className="store-login-wrapper">
                 <h2 className="store-login-title">상가 로그인</h2>
                 {hint && (
                     <div style={{
@@ -66,7 +65,6 @@ export default function StoreLoginPage() {
                     <button className="btn-back" onClick={() => navigate('/')}>돌아가기</button>
                     <button className="btn-confirm" onClick={handleConfirm} disabled={!password}>확인</button>
                 </div>
-            </div>
         </div>
     )
 }

@@ -52,8 +52,7 @@ export default function TicketPurchasePage() {
     };
 
     return (
-        <div className="store-page-root">
-            <div className="ticket-purchase-wrapper">
+        <div className="ticket-purchase-wrapper">
                 <div className="ticket-purchase-header">
                     <h2>할인권 구매</h2>
                     <button className="btn-back" onClick={() => navigate('/store/main')}>돌아가기</button>
@@ -92,7 +91,6 @@ export default function TicketPurchasePage() {
                         {loading ? '처리 중...' : '구매하기'}
                     </button>
                 </div>
-            </div>
         </div>
     );
 }

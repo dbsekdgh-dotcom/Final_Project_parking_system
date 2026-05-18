@@ -24,8 +24,7 @@ const VehicleSearchResult = () => {
   }
 
   return (
-    <div className="kiosk-page-root">
-      <div className="kiosk-page-wrapper">
+    <div className="kiosk-page-wrapper">
         <div className="kiosk-page-header">
           <h2 className="page-title">검색 결과</h2>
           <button type="button" className="header-back-button" onClick={() => navigate(-1)}>돌아가기</button>
@@ -64,7 +63,6 @@ const VehicleSearchResult = () => {
         <button type="button" className="back-button" onClick={() => navigate(-1)} disabled={isLoading}>
           돌아가기
         </button>
-      </div>
     </div>
   )
 }

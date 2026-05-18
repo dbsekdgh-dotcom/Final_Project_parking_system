@@ -30,8 +30,7 @@ export default function StoreMainPage() {
     };
 
     return (
-        <div className="store-page-root">
-            <div className="store-main-wrapper">
+        <div className="store-main-wrapper">
                 <div className="store-main-header">
                     <div>
                         <h2 className="store-main-name">{storeName}</h2>
@@ -55,7 +54,6 @@ export default function StoreMainPage() {
                         <button className="store-purchase-btn" onClick={() => navigate('/store/purchase')}>할인권 구매</button>
                     </div>
                 </div>
-            </div>
         </div>
     );
 }

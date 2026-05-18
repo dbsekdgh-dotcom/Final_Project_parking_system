@@ -124,8 +124,7 @@ export default function EntryExit() {
   };
 
   return (
-    <div className="entry-exit-page">
-      <div className="entry-exit-wrapper">
+    <div className="entry-exit-wrapper">
 
         {/* 상단 바 */}
         <div className="entry-exit-topbar">
@@ -212,7 +211,6 @@ export default function EntryExit() {
           </div>
 
         </div>
-      </div>
     </div>
   );
 }

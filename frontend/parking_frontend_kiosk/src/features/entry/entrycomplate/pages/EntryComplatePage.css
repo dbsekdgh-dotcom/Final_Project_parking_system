@@ -1,11 +1,10 @@
 /* ── 전체 배경 ── */
 .entry-complete-wrapper {
-  min-height: 100vh;
-  background: var(--bg-neutral);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-base);
+  padding: 60px 0;
 }
 
 /* ── 콘텐츠 박스 ── */

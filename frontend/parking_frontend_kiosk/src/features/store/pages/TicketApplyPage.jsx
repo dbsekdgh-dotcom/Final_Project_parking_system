@@ -55,28 +55,23 @@ export default function TicketApplyPage() {
     };
 
     if (step === 'done') return (
-        <div className="store-page-root">
-            <div className="apply-done-wrapper">
-                <div className="apply-done-icon">✓</div>
-                <h2>할인권 적용이 완료되었습니다</h2>
-                <button className="btn-black" onClick={() => navigate('/store/main')}>홈으로 돌아가기</button>
-            </div>
+        <div className="apply-done-wrapper">
+            <div className="apply-done-icon">✓</div>
+            <h2>할인권 적용이 완료되었습니다</h2>
+            <button className="btn-black" onClick={() => navigate('/store/main')}>홈으로 돌아가기</button>
         </div>
     );
 
     if (step === 'noResult') return (
-        <div className="store-page-root">
-            <div className="apply-no-result">
-                <h3>검색 결과</h3>
-                <p>검색 결과가 없습니다</p>
-                <button className="btn-black" onClick={() => { setQuery(''); setStep('search'); }}>돌아가기</button>
-            </div>
+        <div className="apply-no-result">
+            <h3>검색 결과</h3>
+            <p>검색 결과가 없습니다</p>
+            <button className="btn-black" onClick={() => { setQuery(''); setStep('search'); }}>돌아가기</button>
         </div>
     );
 
     if (step === 'carList') return (
-        <div className="store-page-root">
-            <div className="apply-car-list-wrapper">
+        <div className="apply-car-list-wrapper">
                 <h3>검색 결과</h3>
                 {cars.map(car => (
                     <div
@@ -89,13 +84,11 @@ export default function TicketApplyPage() {
                     </div>
                 ))}
                 <button className="btn-outline" style={{ marginTop: '16px' }} onClick={() => setStep('search')}>닫기</button>
-            </div>
         </div>
     );
 
     if (step === 'ticketSelect') return (
-        <div className="store-page-root">
-            <div className="apply-ticket-wrapper">
+        <div className="apply-ticket-wrapper">
                 <h3>적용할 할인권 선택</h3>
                 <p className="apply-car-label">선택 차량: {selectedCar?.carNumber}</p>
                 {usableWallets.length === 0 && <p className="no-wallet-msg">사용 가능한 할인권이 없습니다.</p>}
@@ -134,13 +127,11 @@ export default function TicketApplyPage() {
                         {loading ? '처리 중...' : '할인 적용'}
                     </button>
                 </div>
-            </div>
         </div>
     );
 
     return (
-        <div className="store-page-root">
-            <div className="apply-search-wrapper">
+        <div className="apply-search-wrapper">
                 <div className="apply-search-header">
                     <h2>할인권 적용</h2>
                     <button className="btn-outline" onClick={() => navigate('/store/main')}>뒤로가기</button>
@@ -151,7 +142,6 @@ export default function TicketApplyPage() {
                 <button className="apply-search-btn" onClick={handleSearch} disabled={query.length < 4}>
                     검색
                 </button>
-            </div>
         </div>
     );
 }

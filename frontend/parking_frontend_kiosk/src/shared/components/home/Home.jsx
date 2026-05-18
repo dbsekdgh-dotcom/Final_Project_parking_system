@@ -6,23 +6,10 @@ import './home.css'
 
 const Home = () => {
   const navigate = useNavigate()
-  const [time, setTime] = useState('')
-  const [date, setDate] = useState('')
   const [parkingInfo, setParkingInfo] = useState({ occupied: null, total: null })
   useEffect(() => {
     sessionStorage.removeItem('paymentFlow')
     sessionStorage.removeItem('pendingParkingLogId')
-
-    const updateClock = () => {
-      const now = new Date()
-      const h = String(now.getHours()).padStart(2, '0')
-      const m = String(now.getMinutes()).padStart(2, '0')
-      setTime(`${h}:${m}`)
-      setDate(now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }))
-    }
-    updateClock()
-    const timer = setInterval(updateClock, 1000)
-    return () => clearInterval(timer)
   }, [])
 
   useEffect(()=>{
@@ -41,17 +28,7 @@ const Home = () => {
   }, [])
 
   return (
-    <div className="home-root">
-      <div className="kiosk-wrapper">
-
-        {/* 헤더 */}
-        <header className="kiosk-header">
-          <div className="brand-title">PARKING CENTER</div>
-          <div className="time-display">
-            <div className="clock">{time}</div>
-            <div className="date">{date}</div>
-          </div>
-        </header>
+    <div className="kiosk-wrapper">
 
         {/* 주차 현황 바 */}
         <section className="parking-info">
@@ -88,7 +65,6 @@ const Home = () => {
           </button>
         </footer>
 
-      </div>
     </div>
   )
 }

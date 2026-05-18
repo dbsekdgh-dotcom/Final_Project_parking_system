@@ -30,8 +30,7 @@ export default function FindCarPage() {
     };
 
     if (step === 'result') return (
-        <div className="findcar-root">
-            <div className="findcar-result-wrapper">
+        <div className="findcar-result-wrapper">
                 <div className="findcar-result-header">
                     <h2>내차 찾기</h2>
                     <button className="header-back-button" onClick={() => { setQuery(''); setStep('search'); }}>돌아가기</button>
@@ -65,13 +64,11 @@ export default function FindCarPage() {
                 </div>
 
                 <button className="findcar-home-btn" onClick={() => navigate('/')}>홈으로 돌아가기</button>
-            </div>
         </div>
     );
 
     return (
-        <div className="kiosk-page-root">
-            <div className="kiosk-page-wrapper">
+        <div className="kiosk-page-wrapper">
                 <div className="kiosk-page-header">
                     <h2 className="page-title">내 차 찾기</h2>
                     <button className="header-back-button" onClick={() => navigate('/')}>돌아가기</button>
@@ -84,7 +81,6 @@ export default function FindCarPage() {
                 <button className="ok-button" onClick={handleSearch} disabled={query.length < 4}>
                     검색
                 </button>
-            </div>
         </div>
     );
 }

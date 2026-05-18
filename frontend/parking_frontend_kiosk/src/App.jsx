@@ -2,6 +2,8 @@ import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import useChatbotStore from "./store/useChatbotStore";
 import KioskChatbot from "./features/chatbot/components/KioskChatbot";
+import KioskHeader from "./shared/components/header/KioskHeader";
+import './app.css'
 import Home from "./shared/components/home/Home";
 import PrepaymentMain from "./features/prepayment/pages/PrepaymentMain";
 import EntryExit from "./features/entryExit/pages/EntryExit";
@@ -67,7 +69,9 @@ function App() {
   }, [location.pathname]);
 
   return (
-  <>
+  <div className="app-root">
+  <div className="app-kiosk-box">
+  <KioskHeader />
   <Routes>
       <Route path="/" element={<Home />}/>
       {/* 2. 각 버튼에 매칭되는 경로들 */}
@@ -95,8 +99,9 @@ function App() {
       <Route path="/find-car" element={<FindCarPage/>} />
 
   </Routes>
+  </div>
   <KioskChatbot />
-  </>
+  </div>
   );
 }
 

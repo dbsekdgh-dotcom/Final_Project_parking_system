@@ -22,8 +22,7 @@ const PrepaymentMain = () => {
   }
 
   return (
-    <div className="kiosk-page-root">
-      <div className="kiosk-page-wrapper">
+    <div className="kiosk-page-wrapper">
         <div className="kiosk-page-header">
           <h2 className="page-title">사전 정산</h2>
           <button type="button" className="header-back-button" onClick={resetHandler}>돌아가기</button>
@@ -40,7 +39,6 @@ const PrepaymentMain = () => {
           onDeleteClick={deleteSearchKeyword}
         />
         <button type="button" className="ok-button" onClick={searchCarHandler}>확인</button>
-      </div>
     </div>
   )
 }

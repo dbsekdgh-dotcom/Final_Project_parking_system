@@ -1,7 +1,5 @@
 /* ── 페이지 루트 ── */
 .parking-container {
-  min-height: 100vh;
-  background: var(--bg-neutral);
   font-family: var(--font-base);
   display: flex;
   flex-direction: column;

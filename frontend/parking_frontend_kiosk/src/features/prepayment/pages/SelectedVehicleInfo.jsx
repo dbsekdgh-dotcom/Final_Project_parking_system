@@ -81,8 +81,7 @@ const SelectedVehicleInfo = () => {
   }
 
   return (
-    <div className="kiosk-page-root" style={{ alignItems: 'center', padding: '60px 20px' }}>
-      <div style={{ width: 'var(--wrapper-width)', background: 'var(--panel-light)', border: 'var(--border-std)', padding: 'var(--wrapper-pad)', boxShadow: '20px 20px 0px rgba(0,0,0,0.05)' }}>
+    <div style={{ width: 'var(--wrapper-width)', background: 'var(--panel-light)', border: 'var(--border-std)', padding: 'var(--wrapper-pad)', boxShadow: '20px 20px 0px rgba(0,0,0,0.05)', margin: '60px auto' }}>
         <div className="kiosk-page-header">
           <h2 className="page-title">결제 확인</h2>
           <button className="header-back-button" onClick={homeHandler}>처음으로</button>
@@ -123,8 +122,8 @@ const SelectedVehicleInfo = () => {
           </div>
         </div>
       </div>
-    </div>
   )
 }
 
 export default SelectedVehicleInfo;
+
