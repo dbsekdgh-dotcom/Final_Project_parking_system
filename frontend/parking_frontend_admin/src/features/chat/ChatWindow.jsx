@@ -29,7 +29,8 @@ export default function ChatWindow({ roomId, roomName, myAdminId, members = [], 
 
     const handleNewMessages = useCallback((msg)=> {
         setMessages(prev => [...prev, msg]);
-    }, []);
+        markAsRead(roomId).catch(console.error);
+    }, [roomId]);
 
     const { sendMessage } = useChatSocket({ roomId, onMessage: handleNewMessages});
 
