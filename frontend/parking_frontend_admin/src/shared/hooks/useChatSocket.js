@@ -1,41 +1,25 @@
 import { useCallback, useEffect, useRef } from "react";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+import { useWebSocket } from "../context/WebSocketContext";
 
 export default function useChatSocket({ roomId, onMessage }) {
-    const clientRef = useRef(null);
+    const { subscribe, send } = useWebSocket();
     const onMessageRef = useRef(onMessage);
 
     useEffect(() => { onMessageRef.current = onMessage; }, [onMessage]);
     
-    const sendMessage = useCallback((content) => {
-        if(clientRef.current?.connected){
-            clientRef.current.publish({
-                destination: `/app/chat/room/${roomId}`,
-                body: JSON.stringify({ content }),
-            });
-        }
-    }, [roomId]);
-
     useEffect(() => {
-        if (!roomId) return;
-
-        const token = sessionStorage.getItem('accessToken');
-        const client = new Client({
-            webSocketFactory: ()=> new SockJS('/ws/admin'),
-            connectHeaders: { Authorization: `Bearer ${token}` },
-            onConnect: ()=>{
-                client.subscribe(`/topic/chat/room/${roomId}`, (frame)=>{
-                    onMessageRef.current(JSON.parse(frame.body));
-                });
-            },
-            reconnectDelay: 5000,
-        });
-        client.activate();
-        clientRef.current = client;
-
-        return () => client.deactivate();
+       if(!roomId) return;
+       // 공유 연결에 구독만 추가
+       const unsubscribe = subscribe(
+        `/topic/chat/room/${roomId}`,
+        (msg) => onMessageRef.current(msg)
+       );
+       return unsubscribe;
     },[roomId]);
+
+    const sendMessage = useCallback((content) => {
+       send(`/app/chat/room/${roomId}`, { content });
+    }, [roomId, send]);
 
     return { sendMessage };
 }

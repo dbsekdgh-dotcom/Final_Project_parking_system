@@ -17,6 +17,10 @@ export default function ChatWindow({ roomId, roomName, myAdminId, members = [], 
             })
             .catch(console.error);
         markAsRead(roomId).catch(console.error);
+
+        return () => {
+          markAsRead(roomId).catch(console.error);  // 닫을 때
+      };
     }, [roomId]);
 
     useEffect(()=>{
