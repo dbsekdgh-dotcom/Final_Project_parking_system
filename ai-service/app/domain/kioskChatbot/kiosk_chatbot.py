@@ -5,7 +5,8 @@ from app.domain.kioskChatbot.kiosk_vectorstore import get_retriever
 from app.domain.kioskChatbot.kiosk_redis import get_messages,format_messages,save_message
 import os
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage,ToolMessage
+
 
 def get_screen_guide(screen_id=None):
     """ 
@@ -67,15 +68,6 @@ def get_fee_context(user_question)->str:
 # 프롬프트 조합하기
 def build_prompt(session_id,user_question,screen_id=None):
     history=get_history(session_id)
-    
-    if is_fee_policy_question(user_question):
-        fee_context=get_fee_context(user_question)
-        return KIOSK_FEE_PROMPT_TEMPLATE.format(
-            chat_history=history,
-            fee_context=fee_context,
-            user_question=user_question,
-        )
-    
     screen_guide=get_screen_guide(screen_id)
     manual_context=get_manual_context(user_question)
     
@@ -84,7 +76,6 @@ def build_prompt(session_id,user_question,screen_id=None):
         screen_guide=screen_guide,
         chat_history=history,
         manual_context=manual_context,
-        fee_context="요금/정책 DB 조회가 필요하지 않은 질문입니다.",
         user_question=user_question
     )
     
@@ -130,12 +121,36 @@ def chat(session_id,user_question,screen_id=None):
     # prompt만들기
     prompt=build_prompt(session_id,user_question,screen_id)
     #llm호출
-    llm=get_llm()
-    response=llm.invoke([
-        SystemMessage(content=KIOSK_SYSTEM_PROMPT),
-        HumanMessage(content=prompt)
-    ])
-    answer=response.content
+    tools=[get_fee_policy]
+    tool_map={tool.name:tool for tool in tools}
+    llm=get_llm().bind_tools(tools)
+    messages=[SystemMessage(content=KIOSK_SYSTEM_PROMPT), HumanMessage(content=prompt)]
+    response=llm.invoke(messages)
+
+    # llm이 tool을 호출한 경우
+    if response.tool_calls:
+        messages.append(AIMessage(content=response.content, tool_calls=response.tool_calls))
+        for tool_call in response.tool_calls:
+            tool=tool_map[tool_call["name"]]
+            tool_result=tool.invoke(tool_call["args"])
+            messages.append(ToolMessage(content=tool_result, tool_call_id=tool_call["id"]))
+        final_result=llm.invoke(messages)
+
+    # llm이 tool을 호출하지 않았지만 요금 질문인 경우(fallback)
+    elif is_fee_policy_question(user_question):
+        history=get_history(session_id)
+        fee_context=get_fee_context(user_question)
+
+        get_fee_prompt=KIOSK_FEE_PROMPT_TEMPLATE.format(
+            user_question=user_question,
+            fee_context=fee_context,
+            chat_history=history
+        )
+        final_result=llm.invoke([SystemMessage(content=KIOSK_SYSTEM_PROMPT), HumanMessage(content=get_fee_prompt)])
+    else: 
+        final_result=response
+
+    answer=final_result.content
     #챗봇 답변 저장
     save_message(session_id,"assistant",answer)
     return make_chat_response(answer,"reply",None,None)

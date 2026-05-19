@@ -21,7 +21,6 @@ def get_fee_policy(user_question)-> str:
         data=response.json()
         
         policies=data.get("policies",[])
-        system_settings=data.get("system_settings",{})
         discount_tickets=data.get("discount_tickets",[])
         
         visit_policy=find_policy(policies,"VISIT")
@@ -50,7 +49,7 @@ def get_fee_policy(user_question)-> str:
                 f"- 방문객 회차 인정 시간: {reservation_policy.get('turnaround_grace_minutes')}분"
             )
         if query_type == "post_payment_grace":
-            return format_post_payment_grace(system_settings)
+            return format_post_payment_grace(data.get("post_payment_grace_minutes"))
 
         if query_type == "reservation_free_note":
             return format_reservation_free_note()
@@ -59,14 +58,14 @@ def get_fee_policy(user_question)-> str:
             return format_free_time_summary(
                 visit_policy=visit_policy,
                 reservation_policy=reservation_policy,
-                system_settings=system_settings,
+                post_payment_grace_minutes=data.get("post_payment_grace_minutes"),
             )
         if query_type == "all":
             return (
                 "[요금/정책 DB 조회 결과]\n\n"
                 f"{format_policy(visit_policy)}\n\n"
                 f"{format_policy(reservation_policy)}\n\n"
-                f"{format_post_payment_grace(system_settings)}\n\n"
+                f"{format_post_payment_grace(data.get('post_payment_grace_minutes'))}\n\n"
                 f"{format_discount_tickets(discount_tickets)}\n\n"
                 f"{format_resident_note()}\n\n"
                 f"{format_season_ticket_note()}\n\n"
@@ -210,11 +209,10 @@ def format_discount_tickets(discount_tickets):
         )
     return "\n".join(lines)
 
-def format_post_payment_grace(system_settings):
-    minutes = system_settings.get("post_payment_grace_minutes")
+def format_post_payment_grace(post_payment_grace_minutes):
     return (
         "[결제 후 출차 가능 시간]\n"
-        f"- 결제 완료 후 {minutes}분 이내에 출차해야 합니다."
+        f"- 결제 완료 후 {post_payment_grace_minutes}분 이내에 출차해야 합니다."
     )
     
 def format_resident_note():
@@ -236,13 +234,13 @@ def format_reservation_free_note():
         "- 정확한 무료시간 적용 여부와 실제 요금은 결제 확인 화면에 표시된 금액을 확인해야 합니다."
     )
     
-def format_free_time_summary(visit_policy, reservation_policy, system_settings):
+def format_free_time_summary(visit_policy, reservation_policy, post_payment_grace_minutes):
     return (
         "[무료시간 안내]\n"
         "- 무료시간은 상황에 따라 의미가 다를 수 있습니다.\n"
         f"- 회차 인정 시간: 외부인 {visit_policy.get('turnaround_grace_minutes')}분, "
         f"방문객 {reservation_policy.get('turnaround_grace_minutes')}분\n"
-        f"- 결제 후 출차 가능 시간: {system_settings.get('post_payment_grace_minutes')}분\n"
+        f"- 결제 후 출차 가능 시간: {post_payment_grace_minutes}분\n"
         "- 입주민은 무료입니다.\n"
         "- 정기권 구매자는 정기권 구매 기간 동안 무료입니다.\n"
         "- 방문객 무료시간은 입주민 방문객 신청 내역에 따라 달라질 수 있으므로, "
