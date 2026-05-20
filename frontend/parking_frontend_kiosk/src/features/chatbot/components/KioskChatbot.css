@@ -1,7 +1,7 @@
 /* ── 챗봇 토글 버튼 ── */
 .chatbot-toggle-btn {
   position: fixed;
-  top: 18px;
+  top: 100px;
   left: calc(50% - 460px);
   z-index: 1000;
   background: #5b2d8e;
@@ -173,6 +173,76 @@
   background: #3a4f3d;
 }
 
+.typing-indicator-container {
+  display: flex;
+  gap: 5px;
+  padding: 5px 10px;
+  align-items: center;
+  height: 20px;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #7c7c7c; /* 점 색상  */
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+/* 점 세 개가 순서대로 찰랑거리도록 딜레이 주기 */
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+/* ── 추천 질문 영역  ── */
+.chatbot-recommend-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* 칩 사이 간격을 8px -> 6px로 축소 */
+  align-self: flex-start;
+  margin: 2px 0 8px 4px; /* 여백을 줄여 전체적으로 밀착 */
+  max-width: 85%;
+}
+
+.chatbot-recommend-chip {
+  background: #ffffff;
+  border: 1px solid #2d302c;
+  color: #555852; /* 글자색을 살짝 부드럽게 변경 */
+  padding: 6px 10px; /* 안쪽 여백 축소 (상하 8->6, 좌우 14->10) */
+  font-family: 'Pretendard', sans-serif;
+  font-size: 11.5px; /* 글자 크기 13px -> 11.5px로 축소 */
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px; /* 크기에 맞춰 라운딩도 살짝 축소 */
+  box-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.1); /* 그림자 두께 축소 */
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+}
+
+/* 마우스 올렸을 때 (hover) */
+.chatbot-recommend-chip:not(:disabled):hover {
+  background: #f4effa;
+  border-color: #5b2d8e;
+  color: #5b2d8e;
+}
+
+/* 클릭하는 순간 (active) */
+.chatbot-recommend-chip:not(:disabled):active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px rgba(0,0,0,0);
+}
+
+/* 답변 대기 중일 때 (disabled) */
+.chatbot-recommend-chip:disabled {
+  opacity: 0.5;
+  background: #e4e5e1;
+  border-color: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 @media (max-width: 1080px) {
   .chatbot-toggle-btn {
     left: 12px;

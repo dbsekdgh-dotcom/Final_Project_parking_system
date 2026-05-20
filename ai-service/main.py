@@ -63,6 +63,10 @@ app.include_router(
     tags=["kioskChatbot"]
 )
 
+print("===== 등록된 FastAPI routes =====")
+for route in app.routes:
+    print(route.path, route.methods)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
