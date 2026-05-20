@@ -233,3 +233,25 @@
   background: var(--border-heavy);
   color: var(--panel-light);
 }
+
+@media (max-width: 768px) {
+  .findcar-search-wrapper,
+  .findcar-result-wrapper {
+    width: 100%;
+  }
+
+  .findcar-search-title,
+  .findcar-result-header h2 {
+    font-size: 24px;
+  }
+
+  .findcar-query-display {
+    font-size: 36px;
+    letter-spacing: 8px;
+  }
+
+  .findcar-result-body {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

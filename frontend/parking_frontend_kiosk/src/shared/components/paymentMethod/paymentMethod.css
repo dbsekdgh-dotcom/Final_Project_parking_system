@@ -96,3 +96,15 @@
   cursor: not-allowed;
   border: var(--border-std);
 }
+
+@media (max-width: 600px) {
+  .payment-method-container {
+    width: 100%;
+    padding: 20px 16px;
+  }
+
+  .final-pay-btn {
+    height: 56px;
+    font-size: 1.05rem;
+  }
+}

@@ -39,3 +39,20 @@
   padding: 30px;
   min-height: 500px;
 }
+
+@media (max-width: 768px) {
+  .tabs-header {
+    padding: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .tabs-content {
+    padding: 16px;
+  }
+}

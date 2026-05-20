@@ -112,3 +112,14 @@
 
 .setting-card__save-btn:active { transform: scale(0.97); }
 .setting-card__save-icon { font-size: 14px; }
+
+@media (max-width: 480px) {
+  .setting-card {
+    padding: 14px 14px 16px;
+    min-height: auto;
+  }
+
+  .setting-card__value {
+    font-size: 22px;
+  }
+}

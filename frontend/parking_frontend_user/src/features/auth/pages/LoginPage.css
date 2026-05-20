@@ -124,6 +124,22 @@
   box-shadow: 0 8px 18px rgba(86, 95, 132, 0.1);
 }
 
+@media (max-width: 480px) {
+  .loginPage {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+
+  .loginCard {
+    border-radius: 14px;
+  }
+
+  .loginMain {
+    padding: 20px 16px 18px;
+  }
+}
+
 .bottomRow {
   display: flex;
   justify-content: space-between;

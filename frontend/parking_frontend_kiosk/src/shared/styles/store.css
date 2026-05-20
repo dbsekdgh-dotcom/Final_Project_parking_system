@@ -705,3 +705,58 @@
   color: var(--muted);
   margin: 0 0 36px;
 }
+
+@media (max-width: 1080px) {
+  .store-login-wrapper,
+  .store-main-wrapper,
+  .ticket-purchase-wrapper,
+  .apply-car-list-wrapper,
+  .apply-ticket-wrapper,
+  .apply-no-result,
+  .apply-done-wrapper,
+  .apply-search-wrapper {
+    width: 100%;
+    padding: var(--wrapper-pad, 32px);
+    box-shadow: none;
+  }
+
+  .purchase-complete-card {
+    width: 100%;
+    padding: 40px 32px;
+    box-shadow: none;
+  }
+
+  .store-login-actions {
+    width: 100%;
+  }
+
+  .apply-search-header {
+    width: 100%;
+  }
+
+  .apply-query-display,
+  .apply-search-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .store-main-body {
+    grid-template-columns: 1fr;
+  }
+
+  .store-login-title,
+  .store-main-name {
+    font-size: 22px;
+  }
+
+  .store-login-display {
+    font-size: 24px;
+    letter-spacing: 8px;
+  }
+
+  .apply-query-display {
+    font-size: 32px;
+    letter-spacing: 8px;
+  }
+}

@@ -14,7 +14,7 @@ function CarIcon() {
   )
 }
 
-export function Header() {
+export function Header({ onMenuClick }) {
   const [parkingData, setParkingData] = useState({
     totalSpaces: 0,
     occupiedSpaces: 0,
@@ -45,6 +45,13 @@ export function Header() {
     <header className="dashboard-header">
       <div className="dashboard-header__inner">
       <div className="dashboard-header__intro">
+        <button className="dashboard-header__menu-btn" onClick={onMenuClick} aria-label="메뉴 열기">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <CarIcon />
         <h1 className="dashboard-header__title">Smart Parking</h1>
       </div>

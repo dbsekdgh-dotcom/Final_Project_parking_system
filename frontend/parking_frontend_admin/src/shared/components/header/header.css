@@ -106,3 +106,50 @@
   font-size: 0.8125rem;
   color: var(--text-secondary);
 }
+
+.header__menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .header__menu-btn {
+    display: flex;
+  }
+
+  .header__title {
+    font-size: 1.1rem;
+  }
+
+  .header__subtitle {
+    display: none;
+  }
+
+  .header__time-block {
+    display: none;
+  }
+
+  .header__notifications {
+    gap: 6px;
+  }
+
+  .header__approval,
+  .header__report {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+}

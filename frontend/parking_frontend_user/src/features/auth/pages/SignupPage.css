@@ -103,3 +103,16 @@
   font-weight: 700;
 }
 
+@media (max-width: 480px) {
+  .signupPage {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 30px;
+  }
+
+  .signupCard {
+    border-radius: 14px;
+    padding: 20px 16px 18px;
+  }
+}
+

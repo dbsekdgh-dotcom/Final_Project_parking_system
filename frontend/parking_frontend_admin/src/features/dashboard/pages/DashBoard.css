@@ -217,3 +217,28 @@
       opacity: 0.6;
       cursor: not-allowed;
   }
+
+@media (max-width: 768px) {
+  .dash {
+    padding: 12px 12px 24px;
+    gap: 12px;
+  }
+
+  .dash__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash__highlights,
+  .dash__charts,
+  .dash__tables {
+    grid-template-columns: 1fr;
+  }
+
+  .dash__highlight-value {
+    font-size: 24px;
+  }
+
+  .dash__report-bar {
+    flex-wrap: wrap;
+  }
+}

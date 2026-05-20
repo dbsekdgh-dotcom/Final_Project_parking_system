@@ -53,3 +53,18 @@
     font-size: 0.8rem;
     color: #9e9eb8;
 }
+
+@media (max-width: 480px) {
+  .phone-section {
+    padding: 16px;
+  }
+
+  .phone-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .phone-label {
+    width: 100%;
+  }
+}

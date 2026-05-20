@@ -25,7 +25,7 @@ const BADGE_CONFIG = {
   NONE:     { label: "일반 회원", cls: "sidebar__badge--none" },
 };
 
-export function Sidebar() {
+export function Sidebar({ isOpen = false, onClose }) {
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   //유저 상태 정보
   const { data: statusData } = useQuery({
@@ -58,8 +58,9 @@ export function Sidebar() {
   const metaText = memberStatus === "RESIDENT" && unitNo ? `${unitNo}호` : "";
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isOpen ? ' sidebar--open' : ''}`}>
      <div className="sidebar__brand" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <button className="sidebar__mobile-close" onClick={onClose} aria-label="메뉴 닫기">✕</button>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <CarIcon className="sidebar__brand-icon" />
           <span className="sidebar__brand-title">Smart Parking</span>
@@ -80,13 +81,13 @@ export function Sidebar() {
           
           {/* 알림창: 사이드바 옆으로 튀어나오게 설정 */}
           {isNotiOpen && (
-          <div 
-            style={{ position: 'absolute', left: '100%', top: '0', marginLeft: '10px', zIndex: 999 }}
+          <div
+            className="sidebar__noti-popup"
             onClick={(e) => e.stopPropagation()} // 👈 알림창 내부 클릭 시에도 닫히지 않게 보호!
           >
-            <Noti 
-              onMutationSuccess={refetchCount} 
-              onClose={() => setIsNotiOpen(false)} 
+            <Noti
+              onMutationSuccess={refetchCount}
+              onClose={() => setIsNotiOpen(false)}
             />
          </div>
           )}

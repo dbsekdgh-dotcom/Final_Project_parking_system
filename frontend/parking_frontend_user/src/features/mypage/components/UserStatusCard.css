@@ -85,3 +85,9 @@
 
 .btn-cancel:hover:not(:disabled) { filter: brightness(0.94); }
 .btn-cancel:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .status-card {
+    padding: 14px 16px;
+  }
+}
