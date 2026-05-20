@@ -41,5 +41,4 @@ public class KioskChatbotController {
     public KioskFeePolicyResponseDto getFeePolicy(){
         return kioskInfoService.getKioskInfo();
     }
-
 }

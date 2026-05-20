@@ -247,21 +247,21 @@ def format_free_time_summary(visit_policy, reservation_policy, post_payment_grac
         "실제 적용 여부는 결제 확인 화면에서 확인해야 합니다."
     )
     
-if __name__ == "__main__":
-    tests = [
-        "외부인 요금 알려줘",
-        "방문객 요금 알려줘",
-        "할인권 종류 알려줘",
-        "회차 인정 시간 알려줘",
-        "결제 후 몇 분 안에 나가야 해?",
-        "방문객 무료시간 알려줘",
-        "입주민은 요금 내?",
-        "정기권 구매자는 무료야?",
-        "무료시간 알려줘",
-        "주차 요금 정책 알려줘",
-    ]
+# if __name__ == "__main__":
+#     tests = [
+#         "외부인 요금 알려줘",
+#         "방문객 요금 알려줘",
+#         "할인권 종류 알려줘",
+#         "회차 인정 시간 알려줘",
+#         "결제 후 몇 분 안에 나가야 해?",
+#         "방문객 무료시간 알려줘",
+#         "입주민은 요금 내?",
+#         "정기권 구매자는 무료야?",
+#         "무료시간 알려줘",
+#         "주차 요금 정책 알려줘",
+#     ]
 
-    for question in tests:
-        print("질문:", question)
-        print(get_fee_policy.invoke({"user_question": question}))
-        print("-" * 60)
+#     for question in tests:
+#         print("질문:", question)
+#         print(get_fee_policy.invoke({"user_question": question}))
+#         print("-" * 60)

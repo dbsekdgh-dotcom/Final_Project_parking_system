@@ -68,7 +68,7 @@ def get_fee_context(user_question)->str:
 # 프롬프트 조합하기
 def build_prompt(session_id,user_question,screen_id=None):
     history=get_history(session_id)
-    screen_guide=get_screen_guide(screen_id)
+    screen_guide="" if is_fee_policy_question(user_question) else get_screen_guide(screen_id)
     manual_context=get_manual_context(user_question)
     
     return KIOSK_USER_PROMPT_TEMPLATE.format(
@@ -184,23 +184,23 @@ def is_out_of_scope_question(user_question, screen_id=None)->bool:
     # 여기까지 못 걸렸으면 키오스크 범위 밖 질문
     return True
 
-if __name__ == "__main__":
-    tests = [
-        "외부인 요금 알려줘",
-        "방문객 요금 알려줘",
-        "할인권 종류 알려줘",
-        "결제 후 몇 분 안에 나가야 해?",
-        "차량번호를 잘못 입력했어요",
-    ]
+# if __name__ == "__main__":
+#     tests = [
+#         "외부인 요금 알려줘",
+#         "방문객 요금 알려줘",
+#         "할인권 종류 알려줘",
+#         "결제 후 몇 분 안에 나가야 해?",
+#         "차량번호를 잘못 입력했어요",
+#     ]
 
-    for question in tests:
-        print("질문:", question)
+#     for question in tests:
+#         print("질문:", question)
 
-        result = chat(
-            session_id="test-fee-context",
-            user_question=question,
-            screen_id="pay_input"
-        )
+#         result = chat(
+#             session_id="test-fee-context",
+#             user_question=question,
+#             screen_id="pay_input"
+#         )
 
-        print(result)
-        print("-" * 60)
+#         print(result)
+#         print("-" * 60)

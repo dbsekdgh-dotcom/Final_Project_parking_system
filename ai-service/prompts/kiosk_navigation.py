@@ -56,6 +56,7 @@ NAVIGATION_INTENT_WORDS = [
     "하고 싶",
     "하고싶",
     "화면으로",
+    "할래"
 ]
 
 
