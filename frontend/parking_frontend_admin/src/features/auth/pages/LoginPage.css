@@ -160,6 +160,10 @@
 }
 
 @media (max-width: 768px) {
+  .admin-login-container {
+    overflow-y: auto;
+  }
+
   .admin-login-content {
     flex-direction: column;
     padding: 24px 16px;
