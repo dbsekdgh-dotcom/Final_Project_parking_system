@@ -72,3 +72,14 @@
     font-size: 0.8rem;
     color: #9e9eb8;
 }
+
+@media (max-width: 480px) {
+  .security-card {
+    padding: 16px;
+  }
+
+  .security-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}

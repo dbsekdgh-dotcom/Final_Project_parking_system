@@ -83,3 +83,17 @@
 .go-home-btn:active {
   background: #1a1c1a;
 }
+
+@media (max-width: 600px) {
+  .entry-complete-content {
+    width: 100%;
+    padding: 40px 20px 32px;
+    box-shadow: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .entry-title {
+    font-size: 24px;
+  }
+}

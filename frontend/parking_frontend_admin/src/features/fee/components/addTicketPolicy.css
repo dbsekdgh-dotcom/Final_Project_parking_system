@@ -80,3 +80,10 @@ textarea {
   margin-top: 0 !important;
   background: var(--bg-input-deep);
 }
+
+@media (max-width: 480px) {
+  .radio-options {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

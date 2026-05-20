@@ -296,3 +296,55 @@ button:disabled {
   align-items: flex-start;
   text-align: left;
 }
+
+@media (max-width: 1080px) {
+  .kiosk-page-wrapper {
+    width: 100%;
+    padding: var(--wrapper-pad, 32px);
+    box-shadow: none;
+  }
+
+  .selected-vehicle-info,
+  .selected-vehicle-wrapper {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .fee-summary-box {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 600px) {
+  .kiosk-page-wrapper {
+    padding: var(--wrapper-pad, 16px);
+    border-left: none;
+    border-right: none;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  .number-display {
+    font-size: 28px;
+    height: 56px;
+  }
+
+  .ok-button,
+  .back-button {
+    height: 54px;
+    font-size: 15px;
+  }
+
+  .header-back-button {
+    padding: 10px 18px;
+    font-size: 13px;
+  }
+
+  .error-content-box {
+    min-width: unset;
+    width: 100%;
+  }
+}

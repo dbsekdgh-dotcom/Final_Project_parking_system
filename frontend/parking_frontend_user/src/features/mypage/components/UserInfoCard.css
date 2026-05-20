@@ -37,3 +37,19 @@
     color: #32324d;
     font-size: 0.95rem;
 }
+
+@media (max-width: 480px) {
+  .info-card {
+    padding: 16px;
+  }
+
+  .info-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .info-label {
+    width: 100%;
+    font-size: 0.78rem;
+  }
+}

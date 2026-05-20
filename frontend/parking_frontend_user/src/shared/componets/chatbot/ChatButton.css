@@ -34,3 +34,16 @@
     font-weight: 600;
     letter-spacing: 0.02em;
 }
+
+@media (max-width: 480px) {
+  .chat-fab {
+    bottom: 20px;
+    right: 16px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .chat-fab--open {
+    display: none;
+  }
+}

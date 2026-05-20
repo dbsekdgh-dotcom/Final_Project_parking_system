@@ -84,6 +84,50 @@
   line-height: 1.35;
 }
 
+.dashboard-header__menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--hdr-title);
+  padding: 4px;
+  margin-right: 4px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header__menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dashboard-header {
+    padding: 1rem 1rem;
+    border-radius: 0 0 16px 16px;
+    border-left: 1px solid rgba(148, 163, 184, 0.22);
+    border-top: none;
+  }
+
+  .dashboard-header__inner {
+    padding: 0 12px;
+    gap: 0.75rem 1rem;
+  }
+
+  .dashboard-header__title {
+    font-size: 1.2rem;
+  }
+
+  .dashboard-header__stat-value {
+    font-size: 1.15rem;
+  }
+
+  .dashboard-header__stats {
+    gap: 1rem 1.5rem;
+  }
+}
+
 @media (max-width: 720px) {
   .dashboard-header {
     margin-right: 0.75rem;

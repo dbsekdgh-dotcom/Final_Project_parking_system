@@ -198,3 +198,11 @@
       color: var(--text-muted);
       font-size: 0.75rem;
   }
+
+@media (max-width: 480px) {
+  .chat-window {
+    width: calc(100vw - 24px);
+    bottom: 8px;
+    right: 12px !important;
+  }
+}

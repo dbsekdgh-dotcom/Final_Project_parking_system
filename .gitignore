@@ -104,3 +104,6 @@ temp/
 
 docker-compose.local.yml
 .env.local
+
+# AI 서비스 로컬 벡터 DB 데이터 제외
+ai-service/storage/kiosk_db/

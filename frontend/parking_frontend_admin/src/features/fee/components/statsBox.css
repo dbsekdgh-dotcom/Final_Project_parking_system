@@ -147,3 +147,10 @@
   color: var(--text-muted);
   margin-left: 10px;
 }
+
+@media (max-width: 768px) {
+  .container { padding: 12px; }
+  .summaryGrid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sectionHeader { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .date { flex-wrap: wrap; }
+}

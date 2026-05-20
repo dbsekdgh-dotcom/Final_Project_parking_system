@@ -160,3 +160,18 @@
   color: var(--text-secondary);
   border: 1px solid var(--border);
 }
+
+@media (max-width: 768px) {
+  .rpp {
+    padding: 12px;
+  }
+
+  .rpp__table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .rpp__table {
+    min-width: 480px;
+  }
+}

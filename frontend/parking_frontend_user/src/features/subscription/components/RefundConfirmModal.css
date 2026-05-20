@@ -170,3 +170,15 @@
 .refund-modal__btn--confirm:hover:not(:disabled) {
     opacity: 0.88;
 }
+
+@media (max-width: 480px) {
+  .refund-modal__overlay {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .refund-modal {
+    border-radius: 20px 20px 0 0;
+    max-width: 100%;
+  }
+}

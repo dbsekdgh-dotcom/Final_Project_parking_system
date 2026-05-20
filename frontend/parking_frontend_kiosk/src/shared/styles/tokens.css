@@ -31,3 +31,18 @@
   /* ── Transition ── */
   --transition: background 0.15s ease;
 }
+
+@media (max-width: 1080px) {
+  :root {
+    --wrapper-width: 100%;
+    --wrapper-pad: 32px;
+    --section-gap: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --wrapper-pad: 16px;
+    --section-gap: 16px;
+  }
+}

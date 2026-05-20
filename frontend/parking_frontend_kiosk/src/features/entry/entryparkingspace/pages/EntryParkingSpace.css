@@ -193,3 +193,44 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+@media (max-width: 768px) {
+  .parking-container {
+    padding: 32px 16px;
+  }
+
+  .parking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .parking-header h1 {
+    font-size: 24px;
+  }
+
+  .map-canvas {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .spot-label {
+    font-size: 12px;
+  }
+
+  .sub-label {
+    font-size: 10px;
+  }
+
+  .parking-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .submit-btn,
+  .cancel-btn {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+}

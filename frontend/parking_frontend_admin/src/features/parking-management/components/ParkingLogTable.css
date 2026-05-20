@@ -183,3 +183,22 @@
 .row-cancelled .detail-btn {
     opacity: 0.5; /* 버튼 등도 같이 흐리게 */
 }
+
+@media (max-width: 768px) {
+  .parking-table-wrapper {
+    padding: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .parking-table-wrapper table.parking-log-table {
+    min-width: 600px;
+    table-layout: auto;
+  }
+
+  .parking-table-wrapper .parking-log-table thead th,
+  .parking-table-wrapper .parking-log-table tbody td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+}

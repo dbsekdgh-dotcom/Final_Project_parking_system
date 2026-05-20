@@ -134,3 +134,20 @@
   border: 1px solid #fde68a;
   margin-left: 8px;
 }
+
+@media (max-width: 768px) {
+  .mgmt-modal {
+    width: calc(100% - 24px);
+    max-width: 520px;
+    padding: 20px 16px;
+  }
+
+  .arp__table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .arp__table {
+    min-width: 560px;
+  }
+}

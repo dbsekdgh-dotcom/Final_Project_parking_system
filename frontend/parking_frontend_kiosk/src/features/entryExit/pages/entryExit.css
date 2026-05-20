@@ -211,3 +211,38 @@
   cursor: not-allowed;
   border-color: var(--muted);
 }
+
+@media (max-width: 1080px) {
+  .entry-exit-wrapper {
+    width: 100%;
+    padding: var(--wrapper-pad, 32px);
+    box-shadow: none;
+  }
+
+  .plate-panel,
+  .action-panel {
+    padding: 24px 20px;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .entry-exit-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .entry-exit-title {
+    font-size: 22px;
+  }
+
+  .upload-preview {
+    width: 100%;
+    height: 180px;
+  }
+
+  .action-button {
+    padding: 18px 0;
+    font-size: 16px;
+  }
+}

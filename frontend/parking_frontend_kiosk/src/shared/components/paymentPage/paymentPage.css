@@ -107,3 +107,28 @@
   color: var(--muted);
   cursor: not-allowed;
 }
+
+@media (max-width: 600px) {
+  .payment-page-container {
+    padding: 24px 12px;
+  }
+
+  .order-summary {
+    padding: 20px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .order-amount {
+    font-size: 22px;
+  }
+
+  .section-title {
+    padding: 16px 20px 4px;
+  }
+
+  .payment-action {
+    padding: 16px 20px 24px;
+  }
+}

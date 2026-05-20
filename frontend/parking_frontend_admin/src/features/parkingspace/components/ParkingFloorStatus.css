@@ -110,3 +110,13 @@
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+@media (max-width: 768px) {
+  .status-section {
+    padding: 14px;
+  }
+
+  .legend-item-left {
+    font-size: 0.88rem;
+  }
+}

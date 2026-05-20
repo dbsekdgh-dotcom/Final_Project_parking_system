@@ -169,3 +169,23 @@
 .policy-date { color: #6f708b; margin-left: 2px; }
 .policy-warning { color: #ff4d4f; margin-top: 8px; font-weight: 500; }
 .text-red { color: #ff4d4f; }
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    border-radius: 18px 18px 0 0;
+    max-width: 100%;
+  }
+
+  .modal-datetime-row {
+    flex-direction: column;
+  }
+
+  .modal-hour-select {
+    width: 100%;
+  }
+}

@@ -150,3 +150,84 @@ body {
 .call-btn:active {
   background: #7a2f2f;
 }
+
+@media (max-width: 1080px) {
+  .kiosk-wrapper {
+    width: 100%;
+    padding: var(--wrapper-pad, 32px);
+    box-shadow: none;
+  }
+
+  .menu-box {
+    height: 220px;
+  }
+
+  .menu-title {
+    font-size: 28px;
+  }
+
+  .menu-icon {
+    font-size: 50px;
+    margin-bottom: 16px;
+  }
+
+  .clock {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 600px) {
+  .kiosk-wrapper {
+    padding: var(--wrapper-pad, 16px);
+  }
+
+  .kiosk-header {
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+  }
+
+  .menu-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .menu-box {
+    height: 140px;
+  }
+
+  .menu-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+
+  .menu-title {
+    font-size: 22px;
+  }
+
+  .footer-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .footer-actions .action-btn:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .parking-info {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .info-count {
+    font-size: 22px;
+  }
+
+  .clock {
+    font-size: 28px;
+  }
+
+  .brand-title {
+    font-size: 15px;
+  }
+}

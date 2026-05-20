@@ -81,3 +81,28 @@
   gap: 16px;
   color: var(--text-primary);
 }
+
+@media (max-width: 768px) {
+  .parking-space-page {
+    padding: 12px 16px;
+  }
+
+  .main-content-layout {
+    flex-direction: column;
+  }
+
+  .left-area,
+  .right-area {
+    width: 100%;
+    flex: none;
+  }
+
+  .floor-tabs {
+    flex-wrap: wrap;
+  }
+
+  .admin-modal {
+    width: calc(100% - 32px);
+    max-width: 400px;
+  }
+}

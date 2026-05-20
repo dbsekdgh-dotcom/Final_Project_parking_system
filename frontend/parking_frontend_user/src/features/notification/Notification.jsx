@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useState} from "react";
+import ReactDOM from "react-dom";
 import { fetchNotifications, markAsRead, deleteNotification } from "./api/NotificationApi";
 import './Notification.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Target } from "lucide-react";
 
 const Noti = ({ onMutationSuccess, onClose}) =>{
     const navigate = useNavigate();
@@ -124,8 +124,8 @@ return (
             </div>
         </div>
 
-            {/*  상세 보기 모달 */}
-            {selectedNoti && (
+            {/*  상세 보기 모달 — transform 컨테이너 밖으로 포털 */}
+            {selectedNoti && ReactDOM.createPortal(
                 <div className="noti-modal-overlay" onClick={() => setSelectedNoti(null)}>
                     <div className="noti-modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
@@ -139,7 +139,8 @@ return (
                             </span>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </>
     ); 

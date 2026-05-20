@@ -15,7 +15,7 @@ const ChatButton = () => {
         <>
             {isOpen && <ChatModal onClose={() => setIsOpen(false)} />}
             <button
-                className="chat-fab"
+                className={`chat-fab${isOpen ? ' chat-fab--open' : ''}`}
                 onClick={() => setIsOpen((prev) => !prev)}
                 aria-label="AI 주차 비서 열기"
             >
