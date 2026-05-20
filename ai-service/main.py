@@ -14,7 +14,15 @@ from app.domain.report.router import report_router
 from app.domain.userchatbot.router import router as chatbot_router
 from app.domain.notification.router import router as notification_router
 from app.domain.kioskChatbot.router import kiosk_chatbot_router
-app = FastAPI()
+from app.domain.kioskChatbot.kiosk_vectorstore import get_retriever 
+from contextlib import asynccontextmanage
+
+@asynccontextmanage
+async def lifespan(app:FastAPI):
+    get_retriever()
+    yield
+    
+app = FastAPI(lifespan=lifespan)
 
 print("AWS_REGION=", os.getenv("AWS_REGION"))
 print("S3_BUCKET_NAME=", os.getenv("S3_BUCKET_NAME"))
