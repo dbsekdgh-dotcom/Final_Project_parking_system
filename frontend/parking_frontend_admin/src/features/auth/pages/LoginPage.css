@@ -158,3 +158,36 @@
 .login-btn:hover {
     background-color: #155a9e;
 }
+
+@media (max-width: 768px) {
+  .admin-login-content {
+    flex-direction: column;
+    padding: 24px 16px;
+    gap: 20px;
+    justify-content: flex-start;
+    padding-top: 10vh;
+  }
+
+  .login-box {
+    padding: 28px 20px;
+    border-radius: 14px;
+  }
+
+  .login-intro h1 {
+    font-size: 26px;
+  }
+
+  .test-account-box {
+    width: 100%;
+    min-width: unset;
+    padding: 20px;
+  }
+
+  .logo-text {
+    font-size: 28px;
+  }
+
+  .admin-login-header {
+    padding: 20px 24px;
+  }
+}

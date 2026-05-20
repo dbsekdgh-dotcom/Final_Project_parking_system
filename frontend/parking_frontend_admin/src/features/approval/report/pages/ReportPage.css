@@ -233,6 +233,9 @@
   .arp__stats   { grid-template-columns: repeat(2, 1fr); }
   .arp__table th:nth-child(5),
   .arp__table td:nth-child(5) { display: none; }
+  .arp__table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .arp__table { min-width: 560px; }
+  .rp__detail-modal { width: 92vw; }
 }
 
 /* 신고 유형 배지 */

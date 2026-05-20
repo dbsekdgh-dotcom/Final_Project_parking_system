@@ -96,3 +96,29 @@
 .show-all-button:active {
     transform: scale(0.98);
 }
+
+@media (max-width: 768px) {
+  .parking-log-page {
+    padding: 12px;
+  }
+
+  .search-section {
+    margin: 12px 0;
+  }
+
+  .search-form {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 12px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .search-button,
+  .show-all-button {
+    width: 100%;
+  }
+}

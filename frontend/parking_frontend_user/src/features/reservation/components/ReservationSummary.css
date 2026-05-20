@@ -70,3 +70,19 @@
     border-radius: 10px;
     margin-bottom: 20px;
 }
+
+@media (max-width: 480px) {
+  .reservation-summary-bar {
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .summary-divider {
+    display: none;
+  }
+
+  .summary-item {
+    flex: 1 1 40%;
+  }
+}

@@ -152,3 +152,10 @@
 .rm__btn-confirm--primary       { background: var(--primary); }
 .rm__btn-confirm--primary:hover { background: #1d4ed8; }
 .rm__btn-confirm:disabled       { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .rm__modal { margin: 0 12px; }
+  .rm__footer { flex-direction: column; }
+  .rm__btn-cancel,
+  .rm__btn-confirm { width: 100%; height: 40px; justify-content: center; }
+}

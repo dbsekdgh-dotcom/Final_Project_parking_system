@@ -32,3 +32,14 @@
   text-align: center;
   color: var(--text-muted);
 }
+
+@media (max-width: 768px) {
+  .parking-area-map-container {
+    padding: 16px;
+  }
+
+  .parking-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+  }
+}

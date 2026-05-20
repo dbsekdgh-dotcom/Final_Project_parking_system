@@ -105,7 +105,7 @@ public class AdminChatService {
                         return buildRoomResponse(room, myAdminId);
                     });
         }
-
+        // 1:1 — 기존 방 있으면 반환, 없으면 생성
         return roomRepository.findDirectRoom(myAdminId, targetId, RoomType.DIRECT)
                 .map(room -> buildRoomResponse(room, myAdminId))
                 .orElseGet(() -> {

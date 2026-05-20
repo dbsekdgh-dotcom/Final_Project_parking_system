@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Header from '../components/header/Header'
 import Sidebar from '../components/sidebar/Sidebar'
 import './Mainlayout.css'
@@ -11,6 +11,7 @@ import { WebSocketProvider } from '../context/WebSocketContext'
 const Mainlayout = () => {
   const [pendingApproval, setPendingApproval] = useState(0)
   const [pendingReport, setPendingReport]   = useState(0)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const fetchCounts = useCallback(async () => {
     try {
@@ -35,9 +36,12 @@ const Mainlayout = () => {
     <PendingCountContext.Provider value={fetchCounts}>
       <WebSocketProvider>
       <div className="layout">
-        <Sidebar pendingApproval={pendingApproval} />
+        <Sidebar pendingApproval={pendingApproval} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        {sidebarOpen && (
+          <div className="layout__backdrop" onClick={() => setSidebarOpen(false)} />
+        )}
         <div className="layout__main">
-          <Header pendingApproval={pendingApproval} pendingReport={pendingReport} />
+          <Header pendingApproval={pendingApproval} pendingReport={pendingReport} onMenuClick={() => setSidebarOpen(true)} />
           <main className="layout__content" aria-label="콘텐츠 영역">
             <Outlet />
           </main>

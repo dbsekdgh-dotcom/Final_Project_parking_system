@@ -19,3 +19,17 @@
   background: var(--bg-content);
   overflow-y: auto;
 }
+
+.layout__backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .layout__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+  }
+}

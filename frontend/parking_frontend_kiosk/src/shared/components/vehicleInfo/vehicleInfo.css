@@ -54,3 +54,18 @@
   font-weight: 900;
   letter-spacing: 0.04em;
 }
+
+@media (max-width: 600px) {
+  .info-card-container {
+    width: 100%;
+    padding: 20px 16px;
+  }
+
+  .info-value {
+    font-size: 1.2rem;
+  }
+
+  .fee-text {
+    font-size: 1.35rem;
+  }
+}

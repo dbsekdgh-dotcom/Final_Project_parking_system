@@ -109,3 +109,19 @@
   border: 1px solid rgba(255, 68, 68, 0.3);
   letter-spacing: -0.5px;
 }
+
+@media (max-width: 768px) {
+  .parking-slot {
+    min-height: 100px;
+    padding: 8px 2px;
+  }
+
+  .slot-icon {
+    font-size: 1.1rem;
+  }
+
+  .slot-label,
+  .slot-header {
+    font-size: 0.65rem;
+  }
+}

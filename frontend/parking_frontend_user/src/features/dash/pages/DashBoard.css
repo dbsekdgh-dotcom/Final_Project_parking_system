@@ -307,3 +307,48 @@
   color: #233b6e;
   font-weight: 700;
 }
+
+@media (max-width: 640px) {
+  .dashboard {
+    padding: 16px 12px;
+  }
+
+  .floor-summary {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .floor-card {
+    min-width: calc(50% - 5px);
+    flex: none;
+  }
+
+  .quick-menu {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .menu-item {
+    min-width: calc(50% - 4px);
+    flex: none;
+    padding: 12px 8px;
+  }
+
+  .status-grid {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dash-status-card {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .status-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0;
+  }
+}

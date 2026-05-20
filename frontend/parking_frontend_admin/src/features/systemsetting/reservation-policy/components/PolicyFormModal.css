@@ -104,3 +104,10 @@
 
 .pfm__btn-submit:disabled { background: #93c5fd; cursor: not-allowed; }
 .pfm__input:disabled      { opacity: 0.45; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .pfm__box {
+    width: calc(100vw - 24px);
+    max-height: 92vh;
+  }
+}

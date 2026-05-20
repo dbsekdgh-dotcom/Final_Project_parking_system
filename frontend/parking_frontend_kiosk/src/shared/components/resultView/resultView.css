@@ -127,3 +127,18 @@
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+@media (max-width: 600px) {
+  .rv-content-layout {
+    width: 100%;
+    padding: 40px 24px 32px;
+  }
+
+  .rv-title {
+    font-size: 24px;
+  }
+
+  .rv-subtitle {
+    font-size: 14px;
+  }
+}

@@ -271,3 +271,14 @@
 .report-submit-btn:hover {
   filter: brightness(0.94);
 }
+
+@media (max-width: 640px) {
+  .report-page {
+    padding: 16px 12px;
+  }
+
+  .report-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

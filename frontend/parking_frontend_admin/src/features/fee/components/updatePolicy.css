@@ -44,3 +44,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
     cursor: pointer;
 }
+
+@media (max-width: 480px) {
+  .policy-form-container {
+    padding: 6px;
+  }
+}
