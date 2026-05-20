@@ -32,7 +32,7 @@ services:
       - .env
     environment:
       - REDIS_HOST=redis
-      - REDIS_PORT=6379,
+      - REDIS_PORT=6379
       - BACKEND_API_URL=http://backend:8081
       - TZ=Asia/Seoul
     restart: always

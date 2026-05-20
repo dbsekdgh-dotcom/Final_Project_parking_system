@@ -88,17 +88,15 @@ function KioskChatbot() {
     }
 
     const closeHandler=async()=>{
+        const currentSessionId = sessionIdRef.current;
         setOpen(false)
         sessionIdRef.current=null;
         setmessages([INITIAL_MESSAGE]);
         setInput("")
-        setLoading(false)
 
-        if(sessionIdRef==null)return
+        if(!currentSessionId) return
         try{
-            if(sessionIdRef.current){
-                await endChat(sessionIdRef.current)
-            }
+            await endChat(currentSessionId)
         }catch(error){
             console.log("챗봇 종료 요청 실패")
         }
