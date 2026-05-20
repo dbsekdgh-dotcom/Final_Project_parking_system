@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import useChatbotStore from "../../../store/useChatbotStore";
-import { FaCommentDots, FaPaperPlane, FaTimes } from "react-icons/fa";
+import { FaPaperPlane, FaTimes } from "react-icons/fa";
 import { endChat, sendChat } from "../api/chatbotApi";
 import './KioskChatbot.css'
 import { useMutation } from "@tanstack/react-query";
@@ -20,7 +20,8 @@ const RECOMMEND_QUESTIONS = [
 function KioskChatbot() {
     const navigate=useNavigate();
     const screenId = useChatbotStore((state) => state.screenId);
-    const [open,setOpen]=useState(false)
+    const open = useChatbotStore(s => s.open);
+    const setOpen = useChatbotStore(s => s.setOpen);
     const [messages,setmessages]=useState([INITIAL_MESSAGE])
     const [input,setInput]=useState("")
     const sessionIdRef=useRef(null)
@@ -158,8 +159,7 @@ function KioskChatbot() {
     },[dragMoveHandler,dragEndHandler])
 
     return (
-        <div >
-            <button className="chatbot-toggle-btn" onClick={()=>setOpen(!open)}>챗봇<FaCommentDots /></button>
+        <div>
             {open &&
                 <div  className="chatbot-window" style={{left:`${pos.x}px`, top:`${pos.y}px`}}>
                     <div className="chatbot-header" onMouseDown={dragStartHandler}>

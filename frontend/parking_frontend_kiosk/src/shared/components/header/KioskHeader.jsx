@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
+import { FaCommentDots } from 'react-icons/fa'
+import useChatbotStore from '../../../store/useChatbotStore'
 import '../../styles/tokens.css'
 import './KioskHeader.css'
 
 export default function KioskHeader() {
     const [time, setTime] = useState('')
     const [date, setDate] = useState('')
+    const open = useChatbotStore(s => s.open)
+    const toggleOpen = useChatbotStore(s => s.toggleOpen)
 
     useEffect(() => {
         const update = () => {
@@ -22,6 +26,10 @@ export default function KioskHeader() {
     return (
         <header className="kiosk-header">
             <div className="brand-title">PARKING CENTER</div>
+            <button className="kiosk-chatbot-btn" onClick={toggleOpen}>
+                <FaCommentDots />
+                {open ? '챗봇 닫기' : 'AI 도우미'}
+            </button>
             <div className="time-display">
                 <div className="clock">{time}</div>
                 <div className="date">{date}</div>
