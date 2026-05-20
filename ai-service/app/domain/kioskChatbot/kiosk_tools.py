@@ -2,9 +2,18 @@ import os
 import requests
 from dotenv import load_dotenv
 from langchain_core.tools import tool
+import redis
+import json
 
 load_dotenv()
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8081")
+
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")                                                                                                                                                                                                                                                  
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))   
+FEE_CACHE_KEY="fee_policy:cache"
+FEE_CACHE_TTL=300
+
+redis_client=redis.Redis(host=REDIS_HOST,port=REDIS_PORT,db=0,decode_responses=True)
 
 @tool
 def get_fee_policy(user_question)-> str:
@@ -14,11 +23,19 @@ def get_fee_policy(user_question)-> str:
     입주민 무료 정책, 정기권 무료 정책 질문에 사용한다.
     """
     try:
-        response=requests.get(f"{BACKEND_API_URL}/api/kiosk/chatbot/fee_policy",timeout=5)
-        #응답 실패인지 확인, 에러코드이면 에러 발생
-        response.raise_for_status()
-        #json응답을 python dict로 변환
-        data=response.json()
+        cached=redis_client.get(FEE_CACHE_KEY)
+        if cached:
+            # redis에 있으면 불러오기
+            data=json.loads(cached)
+        else:
+            # redis에 없는 경우
+            response=requests.get(f"{BACKEND_API_URL}/api/kiosk/chatbot/fee_policy",timeout=5)
+            #응답 실패인지 확인, 에러코드이면 에러 발생
+            response.raise_for_status()
+            #json응답을 python dict로 변환
+            data=response.json()
+            # redis 저장(setex : 만료시간 포함해서 저장, json문자열로 변환해서 저장)
+            redis_client.setex(FEE_CACHE_KEY,FEE_CACHE_TTL, json.dumps(data,ensure_ascii=False))
         
         policies=data.get("policies",[])
         discount_tickets=data.get("discount_tickets",[])
