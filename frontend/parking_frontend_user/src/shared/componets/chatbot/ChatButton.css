@@ -42,4 +42,8 @@
     width: 56px;
     height: 56px;
   }
+
+  .chat-fab--open {
+    display: none;
+  }
 }
