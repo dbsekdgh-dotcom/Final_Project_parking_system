@@ -15,9 +15,9 @@ from app.domain.userchatbot.router import router as chatbot_router
 from app.domain.notification.router import router as notification_router
 from app.domain.kioskChatbot.router import kiosk_chatbot_router
 from app.domain.kioskChatbot.kiosk_vectorstore import get_retriever 
-from contextlib import asynccontextmanage
+from contextlib import asynccontextmanager
 
-@asynccontextmanage
+@asynccontextmanager
 async def lifespan(app:FastAPI):
     get_retriever()
     yield
