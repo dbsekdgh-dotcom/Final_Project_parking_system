@@ -309,3 +309,23 @@
 .aal__activity--coupon-used            { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
 .aal__activity--admin-force-exit       { background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border); }
 .aal__activity--refunded               { background: var(--danger-light);  color: var(--danger);  border: 1px solid var(--danger-border);  }
+
+@media (max-width: 768px) {
+  .aal__content {
+    padding: 12px;
+  }
+
+  .aal__table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .aal__table {
+    min-width: 600px;
+  }
+
+  .aal-modal__box {
+    width: calc(100% - 24px);
+    max-height: 90vh;
+  }
+}

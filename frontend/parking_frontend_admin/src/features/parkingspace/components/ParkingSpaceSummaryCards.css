@@ -50,3 +50,10 @@
   50%  { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+@media (max-width: 768px) {
+  .summary-cards-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}

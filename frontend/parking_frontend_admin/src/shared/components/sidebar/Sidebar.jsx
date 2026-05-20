@@ -170,7 +170,7 @@
     settings: IconSettings,
   }
 
-  export default function Sidebar({ pendingApproval = 0 }) {
+  export default function Sidebar({ pendingApproval = 0, isOpen = false, onClose }) {
     const location = useLocation()
     const [adminName, setAdminName] = useState('Admin')
     const [myAdminId, setMyAdminId] = useState(null)
@@ -323,7 +323,7 @@
 
     return (
       <>
-        <aside className="sidebar">
+        <aside className={`sidebar${isOpen ? ' sidebar--open' : ''}`}>
           <div className="sidebar__top">
             <a href="#/" className="sidebar__brand">
               <span className="sidebar__logo" aria-hidden>
@@ -334,6 +334,11 @@
               <span className="sidebar__title">Parking</span>
             </a>
             <div className='sidebar__top-actions'>
+              <button type="button" className="sidebar__mobile-close" aria-label="메뉴 닫기" onClick={onClose}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
               <button type='button' className='sidebar__theme-toggle' aria-label='테마 변경' onClick={toggle}>
                 {theme === 'dark' ? <IconSun /> : <IconMoon />}
               </button>

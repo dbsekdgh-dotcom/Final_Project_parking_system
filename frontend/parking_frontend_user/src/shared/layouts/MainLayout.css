@@ -18,3 +18,22 @@
   margin: 0 auto;
   box-sizing: border-box;
 }
+
+.app-shell__backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-shell__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+  }
+
+  .app-shell__content {
+    max-width: 100%;
+    padding: 0 4px;
+  }
+}

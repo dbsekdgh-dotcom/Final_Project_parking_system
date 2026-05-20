@@ -261,3 +261,9 @@
     border-color: #90c0ff;
     color: #233b6e;
 }
+
+@media (max-width: 640px) {
+  .reservation-card {
+    padding: 16px;
+  }
+}

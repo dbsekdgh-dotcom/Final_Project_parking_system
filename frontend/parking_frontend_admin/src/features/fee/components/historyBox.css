@@ -150,3 +150,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+@media (max-width: 768px) {
+  .container { padding: 12px; }
+  .sectionHeader { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .search-container { flex-wrap: wrap; margin-left: 0; }
+  .date-group { flex-wrap: wrap; }
+  .date-group input[type='date'] { width: 120px !important; }
+}

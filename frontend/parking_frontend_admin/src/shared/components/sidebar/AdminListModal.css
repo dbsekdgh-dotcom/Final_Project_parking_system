@@ -216,3 +216,11 @@
       opacity: 0.4;
       cursor: not-allowed;
   }
+
+@media (max-width: 768px) {
+  .admin-popover {
+    left: 16px !important;
+    width: calc(100vw - 32px);
+    max-width: 100%;
+  }
+}

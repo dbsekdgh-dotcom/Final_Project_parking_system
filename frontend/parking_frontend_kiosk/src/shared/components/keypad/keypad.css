@@ -23,3 +23,16 @@
 .key-button:active {
   background: #4a4e48;
 }
+
+@media (max-width: 600px) {
+  .key-container {
+    width: 100%;
+    max-width: 360px;
+    gap: 8px;
+  }
+
+  .key-button {
+    padding: 18px;
+    font-size: 1.2rem;
+  }
+}

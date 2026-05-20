@@ -156,3 +156,11 @@
     border-color: #ef4444;
     color: #ef4444;
 }
+
+@media (max-width: 768px) {
+  .chatroom-list {
+    left: 16px !important;
+    width: calc(100vw - 32px);
+    max-width: 100%;
+  }
+}

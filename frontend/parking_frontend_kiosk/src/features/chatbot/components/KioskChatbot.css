@@ -202,14 +202,14 @@
   display: flex;
   flex-direction: column;
   gap: 6px; /* 칩 사이 간격을 8px -> 6px로 축소 */
-  align-self: flex-start; 
+  align-self: flex-start;
   margin: 2px 0 8px 4px; /* 여백을 줄여 전체적으로 밀착 */
   max-width: 85%;
 }
 
 .chatbot-recommend-chip {
   background: #ffffff;
-  border: 1px solid #2d302c; 
+  border: 1px solid #2d302c;
   color: #555852; /* 글자색을 살짝 부드럽게 변경 */
   padding: 6px 10px; /* 안쪽 여백 축소 (상하 8->6, 좌우 14->10) */
   font-family: 'Pretendard', sans-serif;
@@ -224,7 +224,7 @@
 
 /* 마우스 올렸을 때 (hover) */
 .chatbot-recommend-chip:not(:disabled):hover {
-  background: #f4effa; 
+  background: #f4effa;
   border-color: #5b2d8e;
   color: #5b2d8e;
 }
@@ -242,4 +242,25 @@
   border-color: #aaa;
   cursor: not-allowed;
   box-shadow: none;
+}
+@media (max-width: 1080px) {
+  .chatbot-toggle-btn {
+    left: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .chatbot-window {
+    width: calc(100vw - 24px);
+    left: 12px;
+    bottom: 60px;
+    height: 60vh;
+  }
+
+  .chatbot-toggle-btn {
+    top: 8px;
+    left: 8px;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }

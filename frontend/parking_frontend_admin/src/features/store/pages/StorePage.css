@@ -168,3 +168,27 @@
 
 .asp__status--active   { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
 .asp__status--inactive { background: var(--bg-hover);      color: var(--text-secondary); border: 1px solid var(--border); }
+
+@media (max-width: 768px) {
+  .asp__content {
+    padding: 12px;
+  }
+
+  .asp__stats {
+    flex-wrap: wrap;
+  }
+
+  .asp__stat-card {
+    min-width: calc(50% - 6px);
+    flex: none;
+  }
+
+  .asp__table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .asp__table {
+    min-width: 480px;
+  }
+}
