@@ -51,7 +51,7 @@
 | 배포 주소 (사용자) | https://user.parking-system.store |
 | 배포 주소 (키오스크) | https://kiosk.parking-system.store |
 | API 문서 (Swagger) | https://parking-system.store/swagger-ui/index.html |
-| ERD | <!-- 링크 추가 예정 --> |
+| ERD | https://drive.google.com/file/d/1sQ_QIhS0_YNGRT3F-SSONS2SX23Wq-9l/view?usp=sharing |
 | 노션 | <!-- 링크 추가 예정 --> |
 
 ---
