@@ -7,7 +7,7 @@ pipeline {
         BACKEND_IMAGE = "${ECR_REGISTRY}/parking-backend"
         AI_IMAGE = "${ECR_REGISTRY}/parking-ai"
         SERVER_1_ID = 'i-0c41bdbc02e07418b'
-        SERVER_2_ID = 'i-034723d6f74597dd5'
+        SERVER_2_ID = 'i-0ab10d70bc08c6087'
         TG_ARN = 'arn:aws:elasticloadbalancing:ap-northeast-2:706877673423:targetgroup/tg-parking-backend/0a4f548503cf98f6'
         ADMIN_BUCKET = 'parking-frontend-admin-v2'
         USER_BUCKET = 'parking-frontend-user-v2'
