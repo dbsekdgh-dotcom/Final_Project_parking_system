@@ -66,8 +66,8 @@ pipeline {
                             # Admin 빌드 및 배포
                             cd ./frontend/parking_frontend_admin
                             rm -rf node_modules
-                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
-                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
+                            npm ci
+                            npm run build
                             aws s3 sync dist/ s3://${ADMIN_BUCKET} --delete
                             aws cloudfront create-invalidation --distribution-id ${ADMIN_CF_ID} --paths "/*"
                             cd ../..
@@ -75,8 +75,8 @@ pipeline {
                             # User 빌드 및 배포
                             cd ./frontend/parking_frontend_user
                             rm -rf node_modules
-                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
-                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
+                            npm ci
+                            npm run build
                             aws s3 sync dist/ s3://${USER_BUCKET} --delete
                             aws cloudfront create-invalidation --distribution-id ${USER_CF_ID} --paths "/*"
                             cd ../..
@@ -84,8 +84,8 @@ pipeline {
                             # Kiosk 빌드 및 배포
                             cd ./frontend/parking_frontend_kiosk
                             rm -rf node_modules
-                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm ci
-                            /home/ssm-user/.nvm/versions/node/v20.20.2/bin/npm run build
+                            npm ci
+                            npm run build
                             aws s3 sync dist/ s3://${KIOSK_BUCKET} --delete
                             aws cloudfront create-invalidation --distribution-id ${KIOSK_CF_ID} --paths "/*"
                             cd ../..
@@ -110,7 +110,7 @@ pipeline {
                                 aws ssm send-command \
                                     --instance-ids ${SERVER_2_ID} \
                                     --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker stop parking-backend parking-ai ; sudo docker pull ${ECR_REGISTRY}/parking-backend:latest && sudo docker pull ${ECR_REGISTRY}/parking-ai:latest && sudo docker rm -f parking-backend parking-ai && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -af"]}' \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin-v2/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker stop parking-backend parking-ai ; sudo docker pull ${ECR_REGISTRY}/parking-backend:latest && sudo docker pull ${ECR_REGISTRY}/parking-ai:latest && sudo docker rm -f parking-backend parking-ai && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -af"]}' \
                                     --region ${AWS_REGION} \
                                     --query 'Command.CommandId' \
                                     --output text
@@ -230,7 +230,7 @@ pipeline {
                                 aws ssm send-command \
                                     --instance-ids ${SERVER_1_ID} \
                                     --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker stop parking-backend parking-ai ; sudo docker pull ${ECR_REGISTRY}/parking-backend:latest && sudo docker pull ${ECR_REGISTRY}/parking-ai:latest && sudo docker rm -f parking-backend parking-ai && sudo docker compose up -d && sudo docker image prune -af"]}' \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin-v2/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker stop parking-backend parking-ai ; sudo docker pull ${ECR_REGISTRY}/parking-backend:latest && sudo docker pull ${ECR_REGISTRY}/parking-ai:latest && sudo docker rm -f parking-backend parking-ai && sudo docker compose up -d && sudo docker image prune -af"]}' \
                                     --region ${AWS_REGION} \
                                     --query 'Command.CommandId' \
                                     --output text
