@@ -96,128 +96,8 @@ pipeline {
             }
         }
         
-        stage('Deploy to Server 2') {
-            steps {
-                withCredentials([
-                    usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
-                    file(credentialsId: 'env-file-server2', variable: 'ENV_FILE')
-                ]) {
-                    withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                        sh """
-                            aws s3 cp ${ENV_FILE} s3://${ADMIN_BUCKET}/server.env
-                        """
-                        script {
-                            def cmdId = sh(script: """
-                                aws ssm send-command \
-                                    --instance-ids ${SERVER_2_ID} \
-                                    --document-name "AWS-RunShellScript" \
-                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin-v2/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker stop parking-backend parking-ai ; sudo docker pull ${ECR_REGISTRY}/parking-backend:latest && sudo docker pull ${ECR_REGISTRY}/parking-ai:latest && sudo docker rm -f parking-backend parking-ai && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -af"]}' \
-                                    --region ${AWS_REGION} \
-                                    --query 'Command.CommandId' \
-                                    --output text
-                            """, returnStdout: true).trim()
-                            
-                            // 최대 20분 대기 (30초 간격으로 40번)
-                            def maxAttempts = 40
-                            def attempt = 0
-                            def status = 'InProgress'
-                            
-                            while (attempt < maxAttempts && status == 'InProgress') {
-                                sleep 30
-                                status = sh(script: """
-                                    aws ssm get-command-invocation \
-                                        --command-id ${cmdId} \
-                                        --instance-id ${SERVER_2_ID} \
-                                        --region ${AWS_REGION} \
-                                        --query 'Status' \
-                                        --output text
-                                """, returnStdout: true).trim()
-                                echo "SSM 상태: ${status} (시도 ${attempt + 1}/${maxAttempts})"
-                                attempt++
-                            }
-                            
-                            if (status != 'Success') {
-                                def stdout = sh(script: """
-                                    aws ssm get-command-invocation \
-                                        --command-id ${cmdId} \
-                                        --instance-id ${SERVER_2_ID} \
-                                        --region ${AWS_REGION} \
-                                        --query 'StandardOutputContent' \
-                                        --output text
-                                """, returnStdout: true).trim()
-                                def stderr = sh(script: """
-                                    aws ssm get-command-invocation \
-                                        --command-id ${cmdId} \
-                                        --instance-id ${SERVER_2_ID} \
-                                        --region ${AWS_REGION} \
-                                        --query 'StandardErrorContent' \
-                                        --output text
-                                """, returnStdout: true).trim()
-                                echo "=== Server 2 STDOUT ===\n${stdout}"
-                                echo "=== Server 2 STDERR ===\n${stderr}"
-                                error "SSM 명령 실패: ${status}"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Health Check Server 2') {
-            steps {
-                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                    script {
-                        def maxAttempts = 10
-                        def attempt = 0
-                        def health = ''
-                        while (attempt < maxAttempts) {
-                            sleep 30
-                            health = sh(script: """
-                                aws elbv2 describe-target-health \
-                                    --target-group-arn ${TG_ARN} \
-                                    --region ${AWS_REGION} \
-                                    --query "TargetHealthDescriptions[?Target.Id=='${SERVER_2_ID}'].TargetHealth.State" \
-                                    --output text
-                            """, returnStdout: true).trim()
-                            echo "Server 2 health: ${health} (시도 ${attempt + 1}/${maxAttempts})"
-                            if (health == 'healthy') break
-                            attempt++
-                        }
-                        if (health != 'healthy') {
-                            error "Server 2 is ${health}. 배포를 중단합니다."
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Switch Traffic to Server 2') {
-            steps {
-                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                    sh """
-                        aws elbv2 register-targets \
-                            --target-group-arn ${TG_ARN} \
-                            --targets Id=${SERVER_2_ID} \
-                            --region ${AWS_REGION}
-                        aws elbv2 deregister-targets \
-                            --target-group-arn ${TG_ARN} \
-                            --targets Id=${SERVER_1_ID} \
-                            --region ${AWS_REGION}
-                    """
-                }
-            }
-        }
-        
         stage('Deploy to Server 1') {
             steps {
-                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
-                    sh """
-                        aws elbv2 register-targets \
-                            --target-group-arn ${TG_ARN} \
-                            --targets Id=${SERVER_1_ID} \
-                            --region ${AWS_REGION}
-                    """
-                }
                 withCredentials([
                     usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
                     file(credentialsId: 'env-file-server1', variable: 'ENV_FILE')
@@ -303,8 +183,128 @@ pipeline {
                             if (health == 'healthy') break
                             attempt++
                         }
-                        if (health != 'healthy' && health != 'initial') {
+                        if (health != 'healthy') {
                             error "Server 1 is ${health}. 배포를 중단합니다."
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Switch Traffic to Server 2') {
+            steps {
+                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                    sh """
+                        aws elbv2 register-targets \
+                            --target-group-arn ${TG_ARN} \
+                            --targets Id=${SERVER_1_ID} \
+                            --region ${AWS_REGION}
+                        aws elbv2 deregister-targets \
+                            --target-group-arn ${TG_ARN} \
+                            --targets Id=${SERVER_2_ID} \
+                            --region ${AWS_REGION}
+                    """
+                }
+            }
+        }
+        
+        stage('Deploy to Server 2') {
+            steps {
+                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                    sh """
+                        aws elbv2 register-targets \
+                            --target-group-arn ${TG_ARN} \
+                            --targets Id=${SERVER_2_ID} \
+                            --region ${AWS_REGION}
+                    """
+                }
+                withCredentials([
+                    usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN'),
+                    file(credentialsId: 'env-file-server2', variable: 'ENV_FILE')
+                ]) {
+                    withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                        sh """
+                            aws s3 cp ${ENV_FILE} s3://${ADMIN_BUCKET}/server.env
+                        """
+                        script {
+                            def cmdId = sh(script: """
+                                aws ssm send-command \
+                                    --instance-ids ${SERVER_2_ID} \
+                                    --document-name "AWS-RunShellScript" \
+                                    --parameters '{"commands":["export HOME=/root && git config --global --add safe.directory /home/ssm-user/Final_Project_parking_system && cd /home/ssm-user/Final_Project_parking_system && git checkout docker-compose.yml && git pull https://${GIT_TOKEN}@github.com/dbsekdgh-dotcom/Final_Project_parking_system.git develop && aws s3 cp s3://parking-frontend-admin-v2/server.env .env && aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin ${ECR_REGISTRY} && sudo docker stop parking-backend parking-ai ; sudo docker pull ${ECR_REGISTRY}/parking-backend:latest && sudo docker pull ${ECR_REGISTRY}/parking-ai:latest && sudo docker rm -f parking-backend parking-ai && sudo docker compose -f docker-compose.server2.yml up -d && sudo docker image prune -af"]}' \
+                                    --region ${AWS_REGION} \
+                                    --query 'Command.CommandId' \
+                                    --output text
+                            """, returnStdout: true).trim()
+                            
+                            // 최대 20분 대기 (30초 간격으로 40번)
+                            def maxAttempts = 40
+                            def attempt = 0
+                            def status = 'InProgress'
+                            
+                            while (attempt < maxAttempts && status == 'InProgress') {
+                                sleep 30
+                                status = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_2_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'Status' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                echo "SSM 상태: ${status} (시도 ${attempt + 1}/${maxAttempts})"
+                                attempt++
+                            }
+                            
+                            if (status != 'Success') {
+                                def stdout = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_2_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'StandardOutputContent' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                def stderr = sh(script: """
+                                    aws ssm get-command-invocation \
+                                        --command-id ${cmdId} \
+                                        --instance-id ${SERVER_2_ID} \
+                                        --region ${AWS_REGION} \
+                                        --query 'StandardErrorContent' \
+                                        --output text
+                                """, returnStdout: true).trim()
+                                echo "=== Server 2 STDOUT ===\n${stdout}"
+                                echo "=== Server 2 STDERR ===\n${stderr}"
+                                error "SSM 명령 실패: ${status}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Health Check Server 2') {
+            steps {
+                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                    script {
+                        def maxAttempts = 10
+                        def attempt = 0
+                        def health = ''
+                        while (attempt < maxAttempts) {
+                            sleep 30
+                            health = sh(script: """
+                                aws elbv2 describe-target-health \
+                                    --target-group-arn ${TG_ARN} \
+                                    --region ${AWS_REGION} \
+                                    --query "TargetHealthDescriptions[?Target.Id=='${SERVER_2_ID}'].TargetHealth.State" \
+                                    --output text
+                            """, returnStdout: true).trim()
+                            echo "Server 2 health: ${health} (시도 ${attempt + 1}/${maxAttempts})"
+                            if (health == 'healthy') break
+                            attempt++
+                        }
+                        if (health != 'healthy' && health != 'initial') {
+                            error "Server 2 is ${health}. 배포를 중단합니다."
                         }
                     }
                 }
@@ -317,7 +317,7 @@ pipeline {
                     sh """
                         aws elbv2 register-targets \
                             --target-group-arn ${TG_ARN} \
-                            --targets Id=${SERVER_1_ID} \
+                            --targets Id=${SERVER_2_ID} \
                             --region ${AWS_REGION}
                     """
                 }
