@@ -3,18 +3,18 @@ pipeline {
     
     environment {
         AWS_REGION = 'ap-northeast-2'
-        ECR_REGISTRY = '079092240156.dkr.ecr.ap-northeast-2.amazonaws.com'
+        ECR_REGISTRY = '706877673423.dkr.ecr.ap-northeast-2.amazonaws.com'
         BACKEND_IMAGE = "${ECR_REGISTRY}/parking-backend"
         AI_IMAGE = "${ECR_REGISTRY}/parking-ai"
-        SERVER_1_ID = 'i-019f4c49b578a0a28'
-        SERVER_2_ID = 'i-039b40dc35867bbaf'
-        TG_ARN = 'arn:aws:elasticloadbalancing:ap-northeast-2:079092240156:targetgroup/tg-parking-backend/9e1caa6a2b242dc7'
-        ADMIN_BUCKET = 'parking-frontend-admin'
-        USER_BUCKET = 'parking-frontend-user'
-        KIOSK_BUCKET = 'parking-frontend-kiosk'
-        ADMIN_CF_ID = 'E11EOPU9PR3ODN'
-        USER_CF_ID = 'E1IRC5OJEGAFW8'
-        KIOSK_CF_ID = 'EEQOV34NAOFWV'
+        SERVER_1_ID = 'i-0c41bdbc02e07418b'
+        SERVER_2_ID = 'i-034723d6f74597dd5'
+        TG_ARN = 'arn:aws:elasticloadbalancing:ap-northeast-2:706877673423:targetgroup/tg-parking-backend/0a4f548503cf98f6'
+        ADMIN_BUCKET = 'parking-frontend-admin-v2'
+        USER_BUCKET = 'parking-frontend-user-v2'
+        KIOSK_BUCKET = 'parking-frontend-kiosk-v2'
+        ADMIN_CF_ID = 'E3MLI2EH9A5Z1V'
+        USER_CF_ID = 'E3R3NBJK0MRRKQ'
+        KIOSK_CF_ID = 'E143U7V758QGPO'
     }
     
     stages {
