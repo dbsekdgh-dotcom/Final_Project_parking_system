@@ -61,7 +61,7 @@ pipeline {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                         sh """
                             # 프론트 빌드용 .env 복사
-                            cp ${ENV_FILE} /var/lib/jenkins/.env
+                            cp ${ENV_FILE} .env
 
                             # Admin 빌드 및 배포
                             cd ./frontend/parking_frontend_admin
