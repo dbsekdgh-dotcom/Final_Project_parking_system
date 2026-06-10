@@ -65,9 +65,9 @@ public class KioskSecurityConfig {
                 adminUrl,
                 userUrl,
                 kioskUrl,
-                "https://admin.parking-system.store",
-                "https://user.parking-system.store",
-                "https://kiosk.parking-system.store"
+                "https://admin.parking-system.shop",
+                "https://user.parking-system.shop",
+                "https://kiosk.parking-system.shop"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
