@@ -123,9 +123,9 @@ AdminSecurityConfig {
                 adminUrl,
                 userUrl,
                 kioskUrl,
-                "https://admin.parking-system.shop",
-                "https://user.parking-system.shop",
-                "https://kiosk.parking-system.shop",
+                "https://admin.parking-system.store",
+                "https://user.parking-system.store",
+                "https://kiosk.parking-system.store",
                 "https://d38mwgr1ab20cw.cloudfront.net"
         ));
         configuration.setAllowedHeaders(Arrays.asList("Authorization","Cache-Control","Content-Type"));
