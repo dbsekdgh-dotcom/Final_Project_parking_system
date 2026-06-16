@@ -28,18 +28,24 @@ pipeline {
 
         stage('Wait for GitHub Actions CI') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-                    sh '''
-                        set -e
-                        SHA=$(git rev-parse HEAD)
-                        ATTEMPT=0
-                        MAX_ATTEMPTS=30
-                        RESULT="incomplete:TIMEOUT"
-                        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-                            RESPONSE=$(curl -s -H "Authorization: token $GIT_TOKEN" "https://api.github.com/repos/dbsekdgh-dotcom/Final_Project_parking_system/commits/$SHA/check-runs")
-                            RESULT=$(echo "$RESPONSE" | python3 -c "
+                sh '''
+                    set -e
+                    SHA=$(git rev-parse HEAD)
+                    ATTEMPT=0
+                    MAX_ATTEMPTS=30
+                    RESULT="incomplete:TIMEOUT"
+                    while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+                        RESPONSE=$(curl -s "https://api.github.com/repos/dbsekdgh-dotcom/Final_Project_parking_system/commits/$SHA/check-runs")
+                        RESULT=$(echo "$RESPONSE" | python3 -c "
 import json, sys
-data = json.load(sys.stdin)
+try:
+    data = json.load(sys.stdin)
+except Exception as e:
+    print('parseerror:' + str(e).replace(' ', '_').replace(':', '_'))
+    sys.exit(0)
+if 'check_runs' not in data:
+    print('apierror:' + str(data.get('message', 'unknown')).replace(' ', '_').replace(':', '_'))
+    sys.exit(0)
 for c in data.get('check_runs', []):
     if c.get('name') == 'Backend Build & Test':
         print(str(c.get('status')) + ':' + str(c.get('conclusion')))
@@ -47,22 +53,21 @@ for c in data.get('check_runs', []):
 else:
     print('notfound:None')
 ")
-                            STATUS="${RESULT%%:*}"
-                            if [ "$STATUS" = "completed" ]; then
-                                break
-                            fi
-                            echo "GitHub Actions 결과 대기 중... ($((ATTEMPT+1))/$MAX_ATTEMPTS) [$RESULT]"
-                            sleep 15
-                            ATTEMPT=$((ATTEMPT+1))
-                        done
-                        CONCLUSION="${RESULT##*:}"
-                        if [ "$CONCLUSION" != "success" ]; then
-                            echo "GitHub Actions 'Backend Build & Test' 결과: $RESULT. 배포를 중단합니다."
-                            exit 1
+                        STATUS="${RESULT%%:*}"
+                        if [ "$STATUS" = "completed" ]; then
+                            break
                         fi
-                        echo "GitHub Actions 통과 확인 — 배포를 계속합니다."
-                    '''
-                }
+                        echo "GitHub Actions 결과 대기 중... ($((ATTEMPT+1))/$MAX_ATTEMPTS) [$RESULT]"
+                        sleep 15
+                        ATTEMPT=$((ATTEMPT+1))
+                    done
+                    CONCLUSION="${RESULT##*:}"
+                    if [ "$CONCLUSION" != "success" ]; then
+                        echo "GitHub Actions 'Backend Build & Test' 결과: $RESULT. 배포를 중단합니다."
+                        exit 1
+                    fi
+                    echo "GitHub Actions 통과 확인 — 배포를 계속합니다."
+                '''
             }
         }
 
