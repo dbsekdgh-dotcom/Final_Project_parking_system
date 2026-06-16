@@ -15,7 +15,12 @@ const VehicleSearchResult = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['vehicle', searchKeyword],
     queryFn: async () => await searchCar(searchKeyword),
-    enabled: !!searchKeyword
+    enabled: !!searchKeyword,
+    retry: (failureCount, err) => {
+      const status = err?.response?.status;
+      if (status && status < 500) return false; // 4xx는 재시도 안 함
+      return failureCount < 3;
+    }
   });
 
   const selectHandler = (vehicle) => {

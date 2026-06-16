@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './resultView.css'; 
 import useVehicleStore from '../../../store/useVehicleStore';
 
-const ResultView = ({ title, subTitle, type ,buttonText = "이전 화면으로"}) => {
+const ResultView = ({ title, subTitle, type ,buttonText = "이전 화면으로", showBackButton = true}) => {
   const navigate = useNavigate();
   const isSuccess=type==="success";
   const isLoading = type === "loading";
@@ -37,7 +37,7 @@ const ResultView = ({ title, subTitle, type ,buttonText = "이전 화면으로"}
         {!isLoading && (
           <div className="rv-btn-group">
           <button className="rv-action-btn rv-btn-home" onClick={homeHandler}>처음으로</button>
-          {!isSuccess && <button className="rv-action-btn rv-btn-back" onClick={() => navigate(-1)} >{buttonText}</button>}
+          {!isSuccess && showBackButton && <button className="rv-action-btn rv-btn-back" onClick={() => navigate(-1)} >{buttonText}</button>}
           </div>
         )}     
       </div>

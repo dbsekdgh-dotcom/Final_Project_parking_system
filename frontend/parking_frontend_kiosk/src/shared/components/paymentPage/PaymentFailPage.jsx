@@ -7,6 +7,9 @@ export function PaymentFailPage() {
   const navigate=useNavigate();
 
   useEffect(()=>{
+    const code=searchParams.get("code");
+    const isUserCacel=code==="USER_CANCEL";
+
     const releaseLock=async()=>{
       const vehicleNumber=sessionStorage.getItem("pendingVehicleNumber");
       if(vehicleNumber){
@@ -26,9 +29,11 @@ export function PaymentFailPage() {
         state:{
             title : "정산 중 오류가 발생하였습니다.",
             subTitle : errorMsg,
-            type: "error"
-        }
-     }) 
+            type: "error",
+            showBackButton: isUserCacel
+        },
+        replace: true
+     })
   },[searchParams])
 
   return (
