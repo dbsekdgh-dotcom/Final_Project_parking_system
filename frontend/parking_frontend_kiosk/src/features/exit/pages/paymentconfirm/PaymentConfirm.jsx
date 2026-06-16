@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./PaymentConfirm.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cancelExit } from "../../api/ExitApi";
-import { requestBeforePayment, requestAfterPayment } from "../../../../shared/api/VehicleApi";
+import { requestBeforePayment, requestAfterPayment , cancelPayment} from "../../../../shared/api/VehicleApi";
 import useVehicleStore from "../../../../store/useVehicleStore";
 import PaymentMethod from "../../../../shared/components/paymentMethod/PaymentMethod";
 
@@ -49,6 +49,11 @@ export default function PaymentConfirm() {
       });
     }  
     }catch(err){
+      try{
+        await cancelPayment(vehicleNumber);
+      }catch(lockErr){
+        console.error("결제 락 해제 실패", lockErr);
+      }
       alert(err?.message||"결제 처리 중 오류가 발생했습니다.");
     } finally{
       setLoading(false)
@@ -62,6 +67,7 @@ export default function PaymentConfirm() {
     }
     setLoading(true);
     try {
+      await cancelPayment(vehicleNumber);
       await cancelExit(parkingLogId);
       navigate("/entry-exit");
     } catch (err) {

@@ -11,6 +11,8 @@ const ResultView = ({ title, subTitle, type ,buttonText = "이전 화면으로"}
 
   const homeHandler=()=>{
     sessionStorage.removeItem("pendingParkingLogId")
+    sessionStorage.removeItem("pendingVehicleNumber")
+    sessionStorage.removeItem("paymentFlow")
     resetAll()
     navigate("/",{ replace: true }) //히스토리 청소
   }
