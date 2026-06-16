@@ -1,6 +1,18 @@
+import groovy.json.JsonSlurperClassic
+
+@NonCPS
+def getCheckRunResult(String responseJson, String checkName) {
+    def parsed = new JsonSlurperClassic().parseText(responseJson)
+    def check = parsed.check_runs?.find { it.name == checkName }
+    if (check == null) {
+        return null
+    }
+    return [status: check.status, conclusion: check.conclusion]
+}
+
 pipeline {
     agent any
-    
+
     environment {
         AWS_REGION = 'ap-northeast-2'
         ECR_REGISTRY = '706877673423.dkr.ecr.ap-northeast-2.amazonaws.com'
@@ -25,7 +37,38 @@ pipeline {
                     branch: 'develop'
             }
         }
-        
+
+        stage('Wait for GitHub Actions CI') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    script {
+                        def sha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                        def maxAttempts = 30
+                        def attempt = 0
+                        def result = null
+                        while (attempt < maxAttempts) {
+                            def response = sh(
+                                script: "curl -s -H 'Authorization: token ${GIT_TOKEN}' https://api.github.com/repos/dbsekdgh-dotcom/Final_Project_parking_system/commits/${sha}/check-runs",
+                                returnStdout: true
+                            ).trim()
+                            result = getCheckRunResult(response, 'Backend Build & Test')
+                            if (result && result.status == 'completed') {
+                                break
+                            }
+                            echo "GitHub Actions 결과 대기 중... (${attempt + 1}/${maxAttempts})"
+                            sleep 15
+                            attempt++
+                        }
+                        if (!result || result.conclusion != 'success') {
+                            error "GitHub Actions 'Backend Build & Test' 체크 결과: ${result?.conclusion ?: 'TIMEOUT'}. 배포를 중단합니다."
+                        }
+                        echo "GitHub Actions 통과 확인 — 배포를 계속합니다."
+                    }
+                }
+            }
+        }
+
+
         stage('ECR Login') {
             steps {
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
