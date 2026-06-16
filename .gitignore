@@ -47,6 +47,8 @@ application-local.properties
 application-secret.yml
 application-aws.properties
 application-test.properties
+# CI 테스트용 더미 설정은 예외적으로 커밋함 (실제 값 없음, H2 인메모리 DB용)
+!backend/parking_backend/src/test/resources/application-test.properties
 ##################################################
 # Backend (Spring Boot / Gradle)
 ##################################################
