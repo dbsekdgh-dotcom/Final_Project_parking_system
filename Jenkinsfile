@@ -1,15 +1,3 @@
-import groovy.json.JsonSlurperClassic
-
-@NonCPS
-def getCheckRunResult(String responseJson, String checkName) {
-    def parsed = new JsonSlurperClassic().parseText(responseJson)
-    def check = parsed.check_runs?.find { it.name == checkName }
-    if (check == null) {
-        return null
-    }
-    return [status: check.status, conclusion: check.conclusion]
-}
-
 pipeline {
     agent any
 
@@ -41,29 +29,39 @@ pipeline {
         stage('Wait for GitHub Actions CI') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-                    script {
-                        def sha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-                        def maxAttempts = 30
-                        def attempt = 0
-                        def result = null
-                        while (attempt < maxAttempts) {
-                            def response = sh(
-                                script: "curl -s -H 'Authorization: token ${GIT_TOKEN}' https://api.github.com/repos/dbsekdgh-dotcom/Final_Project_parking_system/commits/${sha}/check-runs",
-                                returnStdout: true
-                            ).trim()
-                            result = getCheckRunResult(response, 'Backend Build & Test')
-                            if (result && result.status == 'completed') {
+                    sh '''
+                        set -e
+                        SHA=$(git rev-parse HEAD)
+                        ATTEMPT=0
+                        MAX_ATTEMPTS=30
+                        RESULT="incomplete:TIMEOUT"
+                        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+                            RESPONSE=$(curl -s -H "Authorization: token $GIT_TOKEN" "https://api.github.com/repos/dbsekdgh-dotcom/Final_Project_parking_system/commits/$SHA/check-runs")
+                            RESULT=$(echo "$RESPONSE" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for c in data.get('check_runs', []):
+    if c.get('name') == 'Backend Build & Test':
+        print(str(c.get('status')) + ':' + str(c.get('conclusion')))
+        break
+else:
+    print('notfound:None')
+")
+                            STATUS="${RESULT%%:*}"
+                            if [ "$STATUS" = "completed" ]; then
                                 break
-                            }
-                            echo "GitHub Actions 결과 대기 중... (${attempt + 1}/${maxAttempts})"
+                            fi
+                            echo "GitHub Actions 결과 대기 중... ($((ATTEMPT+1))/$MAX_ATTEMPTS) [$RESULT]"
                             sleep 15
-                            attempt++
-                        }
-                        if (!result || result.conclusion != 'success') {
-                            error "GitHub Actions 'Backend Build & Test' 체크 결과: ${result?.conclusion ?: 'TIMEOUT'}. 배포를 중단합니다."
-                        }
+                            ATTEMPT=$((ATTEMPT+1))
+                        done
+                        CONCLUSION="${RESULT##*:}"
+                        if [ "$CONCLUSION" != "success" ]; then
+                            echo "GitHub Actions 'Backend Build & Test' 결과: $RESULT. 배포를 중단합니다."
+                            exit 1
+                        fi
                         echo "GitHub Actions 통과 확인 — 배포를 계속합니다."
-                    }
+                    '''
                 }
             }
         }
