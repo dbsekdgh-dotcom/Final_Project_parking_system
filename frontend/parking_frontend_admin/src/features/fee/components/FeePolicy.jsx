@@ -20,7 +20,7 @@ const FeePolicy = () => {
   })
 
   return (
-    <div className='container'>
+    <div className='fee-page-container'>
         {/* 외부인 요금 정책 */}
         <PolicyBox title="외부인 요금 정책" data={data?.currentVisitor} isUpcoming={false} isLatest={!data?.upcomingVisitor}/>
         {

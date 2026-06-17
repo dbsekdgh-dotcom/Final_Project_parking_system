@@ -20,9 +20,11 @@ const SelectedVehicleInfo = () => {
     queryKey: ['selectedVehicle', selectedVehicle],
     queryFn: async () => await requestPayment(selectedVehicle),
     enabled: !!selectedVehicle,
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    retry: (failureCount, err) => err?.response?.status === 409 ? false : failureCount < 3
+    retry: (failureCount, err) => {
+      const status = err?.response?.status;
+      if (status && status < 500) return false; // 4xx는 재시도 안 함
+      return failureCount < 3;
+    }
   })
   const prepaid=(data?.calculatedFee ?? 0)-(data?.amountToPay ?? 0);
 
@@ -93,7 +95,7 @@ const SelectedVehicleInfo = () => {
           </div>
           <div>
             <div className="fee-summary-box">
-              {(data?.totalDiscountMinutes > 0 || data?.totalDiscountAmount > 0) && (
+              {(data?.totalDiscountMinutes > 0 || data?.totalDiscountAmount > 0 || prepaid > 0) && (
                 <div className="fee-summary-row">
                   <span className="fee-summary-label">{data?.totalDiscountMinutes > 0 ? '시간할인 후 요금' : '계산된 요금'}</span>
                   <span className="fee-summary-value">{data?.rawFee?.toLocaleString()}원</span>
