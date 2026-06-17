@@ -62,6 +62,11 @@ public class EntryService {
 
 
     public Long detectedEntry(String carNumber, String s3path, Long cameraId) {
+        // 출차 대기 중인 차량 체크 — EXIT_REQUESTED 상태에서 다른 기기로 새 입차 시도 차단
+        parkinglogRepository
+                .findFirstByCarNumberSnapshotAndParkingStatus(carNumber, ParkingStatus.EXIT_REQUESTED)
+                .ifPresent(existing -> { throw new BusinessException(ErrorCode.VEHICLE_EXIT_IN_PROGRESS); });
+
         EntryCheckResponse info = entryVehicleRepository
                 .findEntryCheckInfo(carNumber)
                 .orElse(null);
@@ -213,12 +218,15 @@ public class EntryService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> checkEntered(String carNumber) {
-        return parkinglogRepository
-                .findFirstByCarNumberSnapshotAndParkingStatus(carNumber, ParkingStatus.ENTERED)
-                .map(log -> Map.<String, Object>of(
-                        "isEntered", true,
-                        "parkingLogId", log.getParkingLogId()))
-                .orElse(Map.of("isEntered", false));
+        Optional<ParkingLog> enteredLog = parkinglogRepository
+                .findFirstByCarNumberSnapshotAndParkingStatus(carNumber, ParkingStatus.ENTERED);
+        if (enteredLog.isPresent()) {
+            return Map.of("isEntered", true, "parkingLogId", enteredLog.get().getParkingLogId());
+        }
+        boolean isExitRequested = parkinglogRepository
+                .findFirstByCarNumberSnapshotAndParkingStatus(carNumber, ParkingStatus.EXIT_REQUESTED)
+                .isPresent();
+        return Map.of("isEntered", false, "isExitRequested", isExitRequested);
     }
 
 }

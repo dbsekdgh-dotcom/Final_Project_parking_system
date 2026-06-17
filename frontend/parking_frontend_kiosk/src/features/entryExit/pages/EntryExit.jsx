@@ -14,6 +14,7 @@ export default function EntryExit() {
   const [entryCameras, setEntryCameras] = useState([]);
   const [exitCameras, setExitCameras] = useState([]);
   const [isEntered, setIsEntered] = useState(null);
+  const [isExitRequested, setIsExitRequested] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
   const [imagePath, setImagePath] = useState("");
   const [parkingLogId, setParkingLogId] = useState(null);
@@ -48,6 +49,7 @@ export default function EntryExit() {
     if (!file) return;
     setUploadFile(file);
     setIsEntered(null);
+    setIsExitRequested(false);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
 
@@ -64,6 +66,7 @@ export default function EntryExit() {
         try {
           const result = await checkVehicleEntered(cleaned);
           setIsEntered(result.isEntered);
+          setIsExitRequested(result.isExitRequested ?? false);
           if (result.parkingLogId) setParkingLogId(result.parkingLogId);
         } catch (err) {
           console.error("차량 상태 조회 실패:", err);
@@ -87,6 +90,8 @@ export default function EntryExit() {
         onError: (err) => {
           if (err?.response?.status === 403) {
             alert("블랙리스트 차량입니다. 입차가 거부되었습니다.");
+          } else if (err?.response?.status === 409) {
+            alert("출차 대기 중인 차량입니다. 출차 처리 후 다시 시도해주세요.");
           } else {
             console.error("입차 실패:", err);
             alert("입차 처리 실패");
@@ -170,9 +175,15 @@ export default function EntryExit() {
 
           {/* 액션 패널 */}
           <div className="action-panel">
-            {isEntered === null && (
+            {isEntered === null && !isExitRequested && (
               <div className="action-placeholder">
                 차량 사진을 업로드하면<br />버튼이 표시됩니다
+              </div>
+            )}
+
+            {isExitRequested && (
+              <div className="action-placeholder">
+                출차 대기 중인 차량입니다.<br />출차 처리 후 다시 시도해주세요.
               </div>
             )}
 

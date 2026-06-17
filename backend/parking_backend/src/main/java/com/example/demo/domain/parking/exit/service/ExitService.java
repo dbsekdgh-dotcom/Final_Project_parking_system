@@ -71,6 +71,12 @@ public class ExitService {
         if (!parkingLog.getParkingStatus().canTransitTo(ParkingStatus.EXITED)){
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
+        // 결제 완료 여부 확인 (NONE=입주민/정기권 등 면제 차량, PAID=결제 완료)
+        com.example.demo.domain.parking.log.enums.PaymentStatus ps = parkingLog.getPaymentStatus();
+        if (ps != com.example.demo.domain.parking.log.enums.PaymentStatus.PAID
+        && ps != com.example.demo.domain.parking.log.enums.PaymentStatus.NONE) {
+            throw new BusinessException(ErrorCode.PAYMENT_NOT_COMPLETED);
+        }
         // 주차 자리 상태값 변화
         ParkingSpace parkingSpace=parkingLog.getParkingSpace();
         if (parkingSpace!=null){

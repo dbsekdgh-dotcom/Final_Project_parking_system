@@ -37,6 +37,7 @@ public enum ErrorCode {
     WRONG_DOCUMENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 서류가 첨부되었습니다. 올바른 서류를 다시 첨부해주세요."),
     VEHICLE_OWNER_MISMATCH(HttpStatus.BAD_REQUEST, "차량 소유주 정보가 일치하지 않아 자동 승인이 불가능합니다."),
     ID_CARD_MISMATCH(HttpStatus.BAD_REQUEST, "신분증 정보가 계정 정보와 일치하지 않습니다."),
+    VEHICLE_EXIT_IN_PROGRESS(HttpStatus.CONFLICT, "출차 대기 중인 차량입니다."),
 
     // PARKING
     PARKING_FULL(HttpStatus.CONFLICT, "주차장이 만차입니다."),
